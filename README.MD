@@ -1,5 +1,4 @@
-# 🚀 MiT MERN Internship Project 2025
-## Dynamic CMS & Advanced Learning Management System (LMS)
+# 🚀Dynamic CMS & Advanced Learning Management System (LMS)
 
 <p align="center">
   <img src="https://img.shields.io/badge/MERN-Full%20Stack-green?style=for-the-badge" />
@@ -55,6 +54,44 @@ The application follows a **Modular Monolith (Microservices-Inspired)** architec
 4. **Data Access Layer** – Mongoose Models
 5. **Database Layer** – MongoDB
 6. **External Services** – Email, Payments, Storage
+
+---
+
+# 🗂 Project Structure
+
+```text
+📁 Backend            backend/
+ ├── src/
+ │   ├── config/
+ │   ├── controllers/
+ │   ├── middleware/
+ │   ├── models/
+ │   ├── routes/
+ │   ├── services/
+ │   ├── utils/
+ │   ├── types/
+ │   └── app.ts
+ ├── tests/
+ ├── uploads/
+ ├── Dockerfile
+ ├── package.json
+ └── tsconfig.json
+
+📁 Frontend           frontend/
+ ├── public/
+ ├── src/
+ │   ├── components/
+ │   ├── pages/
+ │   ├── hooks/
+ │   ├── services/
+ │   ├── store/
+ │   ├── types/
+ │   ├── utils/
+ │   ├── App.tsx
+ │   └── index.tsx
+ ├── package.json
+ └── tsconfig.json
+```
 
 ---
 
@@ -306,16 +343,7 @@ JWT_REFRESH_SECRET=your_secret
 
 ---
 
-# 👨‍💻 Internship Program
 
-Developed under:
-
-**MiT Full Stack MERN Internship Program 2025**
-Addis Ababa, Ethiopia
-
-🌐 https://mizantechinstitute.com
-
-📧 contact@mizantechinstitute.com
 
 ⭐ If you find this project useful, give it a star!
 
