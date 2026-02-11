@@ -321,11 +321,3 @@ Addis Ababa, Ethiopia
 
 ---
 
-If you want, I can now generate:
-
-- 🔥 An even more premium animated-style README
-- 📊 GitHub contribution stats auto-integrated
-- 🏆 A portfolio-ready public version
-- 🧠 A simplified academic submission version
-
-Tell me which one you prefer.
