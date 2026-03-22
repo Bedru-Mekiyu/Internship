@@ -25,6 +25,13 @@ const courseSchema = new mongoose.Schema({
   status: { type: String, enum: ['draft', 'published', 'archived'], default: 'draft' },
   featured: { type: Boolean, default: false },
   rating: { average: { type: Number, default: 0 }, count: { type: Number, default: 0 } },
+  reviews: [{
+    user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+    rating: { type: Number, min: 1, max: 5, required: true },
+    comment: { type: String },
+    createdAt: { type: Date, default: Date.now },
+    updatedAt: { type: Date, default: Date.now }
+  }],
   enrollmentCount: { type: Number, default: 0 },
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now }

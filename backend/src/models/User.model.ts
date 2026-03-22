@@ -31,7 +31,12 @@ const userSchema = new mongoose.Schema({
   },
   isActive: { type: Boolean, default: true },
   lastLogin: { type: Date },
+  tokenVersion: { type: Number, default: 0 },
   emailVerified: { type: Boolean, default: false },
+  verificationToken: { type: String },
+  verificationTokenExpiry: { type: Date },
+  passwordResetToken: { type: String },
+  passwordResetTokenExpiry: { type: Date },
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now }
 });

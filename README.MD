@@ -42,6 +42,27 @@ By completing this project, interns master:
 
 ---
 
+# ✅ Week 1–4 Implementation Status
+
+## Week 1–2 (Project Setup, Design, DB)
+
+- [x] Backend and frontend workspaces initialized
+- [x] TypeScript + Jest setup for backend
+- [x] Core MongoDB/Mongoose schemas implemented (`users`, `courses`, `modules`, `lessons`, `enrollments`, `content`, `media`, etc.)
+- [ ] Figma design links/screenshots documented in repository (external artifacts pending attachment)
+
+## Week 3–4 (Backend API Development)
+
+- [x] Authentication APIs: register, login, logout, forgot-password, reset-password, verify-email, refresh-token, me
+- [x] Course APIs: list, detail, create, update, delete, enroll, progress, review
+- [x] Content APIs: list, detail by slug, create, update, delete, upload, media
+- [x] JWT auth + RBAC middleware
+- [x] Input validation with Joi on core routes
+- [x] Rate limiting on sensitive auth endpoints
+- [x] Route-level backend tests with Supertest/Jest
+
+---
+
 # 🏗 System Architecture
 
 The application follows a **Modular Monolith (Microservices-Inspired)** architecture.
