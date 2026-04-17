@@ -6,6 +6,8 @@ const lessonSchema = new mongoose.Schema({
   content: { type: String }, // HTML/Markdown
   type: { type: String, enum: ['video', 'text', 'quiz', 'assignment'] },
   duration: { type: Number }, // in minutes
+  notes: { type: String, default: '' },
+  order: { type: Number, default: 0 },
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now }
 });

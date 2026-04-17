@@ -1,0 +1,17 @@
+{
+  "name": "LearnSpace LMS",
+  "short_name": "LearnSpace",
+  "description": "Dynamic CMS and learning management — courses, certificates, and creator tools.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#F8FAFC",
+  "theme_color": "#5D5FEF",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}

@@ -1,0 +1,77 @@
+services:
+  mongo:
+    image: mongo:7.0.17
+    container_name: mit-lms-mongo
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping').ok", "--quiet"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 20s
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: mit-lms-backend
+    restart: unless-stopped
+    environment:
+      NODE_ENV: development
+      PORT: 5000
+      MONGO_URI: mongodb://mongo:27017/mit_lms
+      CORS_ORIGIN: http://localhost:3000
+      COOKIE_SECURE: "false"
+      COOKIE_SAME_SITE: lax
+      CSRF_COOKIE_SECURE: "false"
+      CSRF_COOKIE_SAME_SITE: lax
+      JWT_ACCESS_SECRET: change_me_access_secret
+      JWT_REFRESH_SECRET: change_me_refresh_secret
+      JWT_VERIFY_SECRET: change_me_verify_secret
+      JWT_RESET_SECRET: change_me_reset_secret
+      BASE_URL: http://localhost:5000
+      FRONTEND_URL: http://localhost:3000
+      PAYMENT_WEBHOOK_SECRET: change_me_webhook_secret
+      # Optional: distributed rate limits across replicas (omit to use in-memory)
+      # REDIS_URL: redis://redis:6379
+    depends_on:
+      mongo:
+        condition: service_healthy
+    ports:
+      - "5000:5000"
+    security_opt:
+      - no-new-privileges:true
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:5000/healthz"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        VITE_API_URL: http://localhost:5000
+    container_name: mit-lms-frontend
+    restart: unless-stopped
+    depends_on:
+      backend:
+        condition: service_healthy
+    ports:
+      - "3000:8080"
+    security_opt:
+      - no-new-privileges:true
+    read_only: true
+    tmpfs:
+      - /var/cache/nginx
+      - /var/run
+      - /tmp
+
+volumes:
+  mongo_data:

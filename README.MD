@@ -42,13 +42,65 @@ By completing this project, interns master:
 
 ---
 
-# 🏗 System Architecture
+# ✅ Week 1–4 Implementation Status
+
+## Week 1–2 (Project Setup, Design, DB)
+
+- [x] Backend and frontend workspaces initialized
+- [x] TypeScript + Jest setup for backend
+- [x] Core MongoDB/Mongoose schemas implemented (`users`, `courses`, `modules`, `lessons`, `enrollments`, `content`, `media`, etc.)
+- [ ] Figma design links/screenshots documented in repository (external artifacts pending attachment)
+
+## Week 3–4 (Backend API Development)
+
+- [x] Authentication APIs: register, login, logout, forgot-password, reset-password, verify-email, refresh-token, me
+- [x] Course APIs: list, detail, create, update, delete, enroll, progress, review
+- [x] Content APIs: list, detail by slug, create, update, delete, upload, media
+- [x] JWT auth + RBAC middleware
+- [x] Input validation with Joi on core routes
+- [x] Rate limiting on sensitive auth endpoints
+- [x] Route-level backend tests with Supertest/Jest
+
+## Week 5–6 (Frontend Foundation)
+
+- [x] React app routed with protected pages (`/auth`, `/dashboard`, `/courses`, `/cms`)
+- [x] Redux Toolkit auth/course slices and shared API service layer
+- [x] Role-aware layout with dashboard/sidebar navigation
+- [x] CMS content manager + media upload/library pages wired to backend APIs
+- [x] Frontend tests/build configured and passing
+
+## Week 7–8 (LMS Core)
+
+- [x] Course modules and lessons API integration in learner player
+- [x] Instructor dashboard wired to backend analytics
+- [x] Instructor module/lesson management UI (create module, create lesson)
+- [x] Lesson completion persistence (`completedLessons`) with next/previous learning flow
+- [x] Course progress tracking with total/completed lesson metadata
+- [x] Real-time course discussions (Socket.io rooms + REST history)
+- [x] Assignment workflow (create, submit/update, grade, analytics)
+- [x] Quiz workflow (create by lesson, submit attempts, auto-grade for objective types)
+
+## Week 9–10 (Advanced Analytics & Payments)
+
+- [x] Payment APIs (`/api/payments`) for real Stripe/PayPal checkout and payment history
+- [x] Auto-enrollment after successful payment completion
+- [x] Instructor revenue analytics (total revenue, transactions, monthly trend, top courses)
+- [x] Dashboard UI integration for payment and revenue KPIs by role
+
+## Week 11–12 (Deployment & Production Readiness)
+
+- [x] Production Dockerfiles for backend and frontend (`backend/Dockerfile`, `frontend/Dockerfile`)
+- [x] Nginx runtime config for frontend SPA and `/api` reverse proxy (`frontend/nginx.conf`)
+- [x] End-to-end local environment via `docker-compose.yml` (MongoDB + backend + frontend)
+- [x] Environment templates added (`backend/.env.example`, `frontend/.env.example`)
+- [x] Health endpoints configured (`/healthz` on backend and frontend container)
+- [x] CI workflow added for backend/frontend test + build (`.github/workflows/ci.yml`)
+
+---
+
 
 The application follows a **Modular Monolith (Microservices-Inspired)** architecture.
 
-### Architecture Layers
-
-1. **Presentation Layer** – React + TypeScript
 2. **API Layer** – Express.js Routes & Middleware
 3. **Business Logic Layer** – Services & Controllers
 4. **Data Access Layer** – Mongoose Models
@@ -99,16 +151,15 @@ The application follows a **Modular Monolith (Microservices-Inspired)** architec
 
 ## 🎨 Frontend
 
-- React.js 18+
+- React.js 19+ (Vite)
 - TypeScript
-- Ant Design / Material UI
+- **Material UI (MUI) v9** — MiT materials allow Ant Design *or* MUI; this repo standardizes on MUI
 - Redux Toolkit
-- React Query
+- TanStack React Query
 - React Router
 - Formik + Yup
-- Recharts / Chart.js
-- Socket.io Client
-- Tailwind CSS
+- Recharts
+- Socket.io Client (via backend real-time features)
 
 ---
 
@@ -136,8 +187,9 @@ The application follows a **Modular Monolith (Microservices-Inspired)** architec
 - PM2
 - AWS / DigitalOcean Deployment
 - GitHub Actions (CI/CD)
-- Jest & Supertest
-- Cypress (E2E Testing)
+- Jest & Supertest (backend)
+- Vitest & React Testing Library (frontend)
+- Playwright (E2E smoke tests in `frontend/e2e/`)
 - ESLint & Prettier
 
 ---
@@ -153,6 +205,8 @@ The application follows a **Modular Monolith (Microservices-Inspired)** architec
 | enrollments | Enrollment tracking |
 | assignments | Course assignments |
 | submissions | Assignment submissions |
+| quizzes | Lesson quizzes |
+| quizattempts | Quiz attempts and scoring |
 | discussions | Course discussions |
 | notifications | User notifications |
 | payments | Payment records |
@@ -201,7 +255,15 @@ PUT /api/courses/:id
 DELETE /api/courses/:id
 POST /api/courses/:id/enroll
 GET /api/courses/:id/progress
+PATCH /api/courses/:id/progress
 POST /api/courses/:id/review
+GET /api/courses/:id/modules
+POST /api/courses/:id/modules
+POST /api/courses/modules/:moduleId/lessons
+POST /api/courses/:id/lessons/:lessonId/complete
+GET /api/dashboard/student
+GET /api/dashboard/instructor
+GET /api/dashboard/admin
 ```
 
 ## CMS
@@ -216,34 +278,69 @@ POST /api/content/upload
 GET /api/content/media
 ```
 
+## Payments & Revenue
+
+```http
+POST /api/payments
+POST /api/payments/:id/confirm
+POST /api/payments/webhook/:provider
+GET /api/payments/me
+GET /api/payments/instructor/revenue
+GET /api/payments/admin/revenue
+```
+
+## Discussions, Assignments & Quizzes
+
+```http
+GET /api/discussions/course/:courseId
+POST /api/discussions/course/:courseId
+
+GET /api/assignments/course/:courseId
+GET /api/assignments/course/:courseId/analytics
+POST /api/assignments/course/:courseId
+GET /api/assignments/course/:courseId/submissions/me
+POST /api/assignments/:assignmentId/submissions
+GET /api/assignments/:assignmentId/submissions
+PATCH /api/assignments/:assignmentId/submissions/:submissionId/grade
+
+GET /api/quizzes/lesson/:lessonId
+POST /api/quizzes/lesson/:lessonId
+POST /api/quizzes/:quizId/attempts
+GET /api/quizzes/:quizId/attempts/me
+GET /api/quizzes/:quizId/attempts
+
+GET /api/certificates/me
+POST /api/certificates/course/:courseId/generate
+GET /api/certificates/verify/:certificateId
+GET /api/certificates/:certificateId/render
+GET /api/certificates/:certificateId/download
+
+GET /api/live-sessions/course/:courseId
+POST /api/live-sessions/course/:courseId
+PATCH /api/live-sessions/:sessionId/status
+```
+
 ---
 
 # ✨ LMS Features
 
-- Custom Video Player (90% Completion Logic)
-- Quiz & Assessment Engine
-- Assignment Submissions
-- Certificate Generation
-- Real-time Discussions (Socket.io)
-- Live Sessions (WebRTC Ready)
-- Drip Content Release
-- Multi-language Support
-- Payment Integration (Stripe/PayPal)
-- Gamification (Badges, Leaderboards)
-- Affiliate System
-- White Label Branding
+- Course module/lesson player with progress tracking and lesson completion
+- Quiz engine with lesson-level quiz creation and student attempts
+- Auto-grading for multiple-choice and true/false questions
+- Assignment submission + instructor grading + analytics cards
+- Completion certificates (student generation + listing + verification + server-rendered preview/download)
+- Live session scheduling and join links for instructor/student workflow
+- Real-time discussions (Socket.io + persistent history)
+- Payment flow and role-based revenue dashboards
+- Secure cookie auth + CSRF protection + hardened upload rules
 
 ---
 
 # 🧱 CMS Features
 
-- Rich Text Editor (React Quill)
-- Drag-and-drop Page Builder
-- SEO Optimization
-- Media Library with Filters
-- Version Control
-- Content Scheduling
-- Role-based Permissions
+- Dynamic content CRUD with role-based permissions
+- Media upload and media library endpoints
+- Content publishing workflow (`draft` / `published`)
 
 ---
 
@@ -274,10 +371,35 @@ GET /api/content/media
 
 # 🧪 Testing Strategy
 
-- ✅ Unit Testing (Jest)
-- ✅ Integration Testing (Supertest)
-- ✅ Frontend Testing (React Testing Library)
-- ✅ End-to-End Testing (Cypress)
+- Unit and integration tests: **Jest** + **Supertest** (`backend/tests/`)
+- Frontend unit/component tests: **Vitest** + **Testing Library** (`frontend/src/**/*.test.ts(x)`)
+- E2E smoke tests: **Playwright** (`frontend/e2e/`)
+- **CI** (`.github/workflows/ci.yml`): backend `npm run typecheck`, `npm test`, `npm run build`, `npm run lint`; frontend `npm test`, `npm run build`, `npm run lint`; E2E runs in CI with `npm run test:e2e` when browsers are installed
+
+### MiT rubric alignment (stack choices)
+
+| Topic | MiT guide mention | This repository |
+|--------|-------------------|-----------------|
+| UI library | Ant Design *or* MUI | **MUI** only |
+| Frontend tests | RTL + Jest (example) | **Vitest** + Testing Library (Vite-native) |
+| E2E | Cypress (example) | **Playwright** |
+| CI lint | Sample workflow runs `npm run lint` | **Implemented**: `lint` on backend and frontend in CI |
+
+### Run E2E (Playwright)
+
+From `frontend/`:
+
+```bash
+npx playwright install
+npm run test:e2e
+```
+
+### Run linters
+
+```bash
+cd backend && npm run lint
+cd frontend && npm run lint
+```
 
 ---
 
@@ -289,11 +411,43 @@ GET /api/content/media
 docker-compose up --build
 ```
 
+For detached mode:
+
+```bash
+docker-compose up --build -d
+```
+
+To stop the stack:
+
+```bash
+docker-compose down
+```
+
+## Run with Production Override
+
+```bash
+docker-compose -f docker-compose.yml -f docker-compose.prod.yml up --build -d
+```
+
+To stop production override stack:
+
+```bash
+docker-compose -f docker-compose.yml -f docker-compose.prod.yml down
+```
+
 ### Services
 
 - MongoDB
 - Backend API (Port 5000)
 - Frontend (Port 3000)
+
+### 🛡 Container Hardening
+
+- Pinned base images for Node, MongoDB, and Nginx runtime
+- Non-root frontend runtime (`nginx-unprivileged`) and non-root backend process (`USER node`)
+- Service health checks for `mongo`, `backend`, and container-level frontend `/healthz`
+- `no-new-privileges` security option on app services
+- Read-only filesystem + tmpfs mounts for frontend runtime container
 
 ### ⚙ Environment Variables
 
@@ -303,9 +457,40 @@ Create `.env` in `backend`:
 NODE_ENV=development
 PORT=5000
 MONGO_URI=mongodb://localhost:27017/mit_lms
+CORS_ORIGIN=http://localhost:3000
+COOKIE_SECURE=false
+COOKIE_SAME_SITE=lax
+CSRF_COOKIE_SECURE=false
+CSRF_COOKIE_SAME_SITE=lax
 JWT_ACCESS_SECRET=your_secret
 JWT_REFRESH_SECRET=your_secret
+PAYMENT_WEBHOOK_SECRET=your_secret
 ```
+
+For production (HTTPS), set secure cookie values explicitly:
+
+```bash
+NODE_ENV=production
+CORS_ORIGIN=https://your-frontend-domain.com
+COOKIE_SECURE=true
+COOKIE_SAME_SITE=lax
+CSRF_COOKIE_SECURE=true
+CSRF_COOKIE_SAME_SITE=lax
+```
+
+Frontend environment template:
+
+```bash
+REACT_APP_API_URL=http://localhost:5000
+```
+
+Use `backend/.env.example` and `frontend/.env.example` as the base templates.
+For production setup, use `backend/.env.production.example` and `frontend/.env.production.example`.
+
+### ✅ Health Checks
+
+- Backend: `GET /healthz`
+- Frontend container: `GET /healthz`
 
 ---
 

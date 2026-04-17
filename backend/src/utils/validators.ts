@@ -1,0 +1,206 @@
+import { Request, Response, NextFunction } from 'express';
+import Joi from 'joi';
+
+export const registerSchema = Joi.object({
+  email: Joi.string().trim().lowercase().email().max(254).required(),
+  password: Joi.string().min(8).max(128).required(),
+  firstName: Joi.string().trim().min(2).max(50).required(),
+  lastName: Joi.string().trim().min(2).max(50).required(),
+});
+
+export const loginSchema = Joi.object({
+  email: Joi.string().trim().lowercase().email().max(254).required(),
+  password: Joi.string().min(8).max(128).required(),
+});
+
+export const refreshTokenSchema = Joi.object({
+  refreshToken: Joi.string().trim().pattern(/^[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+$/).required(),
+});
+
+export const forgotPasswordSchema = Joi.object({
+  email: Joi.string().trim().lowercase().email().max(254).required(),
+});
+
+export const resetPasswordSchema = Joi.object({
+  token: Joi.string().trim().pattern(/^[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+$/).required(),
+  password: Joi.string().min(8).max(128).required(),
+});
+
+export const courseSchema = Joi.object({
+  title: Joi.string().required(),
+  slug: Joi.string().required(),
+  description: Joi.string().required(),
+  shortDescription: Joi.string().allow('').optional(),
+  thumbnail: Joi.string().uri().allow('').optional(),
+  instructor: Joi.string().optional(), // ObjectId, but validate as string
+  category: Joi.string().required(),
+  level: Joi.string().valid('beginner', 'intermediate', 'advanced').optional(),
+  status: Joi.string().valid('draft', 'published', 'archived').optional(),
+  featured: Joi.boolean().optional(),
+  pricing: Joi.object({
+    type: Joi.string().valid('free', 'paid', 'subscription').optional(),
+    amount: Joi.number().default(0),
+    currency: Joi.string().max(8).optional(),
+  }).optional(),
+});
+
+export const courseReviewSchema = Joi.object({
+  rating: Joi.number().integer().min(1).max(5).required(),
+  comment: Joi.string().trim().max(1000).allow('').optional(),
+});
+
+export const moduleSchema = Joi.object({
+  title: Joi.string().trim().min(2).max(120).required(),
+  description: Joi.string().trim().allow('').max(2000).optional(),
+  type: Joi.string().trim().max(40).optional(),
+  order: Joi.number().integer().min(0).optional(),
+  status: Joi.string().valid('draft', 'published').default('draft'),
+});
+
+export const lessonSchema = Joi.object({
+  title: Joi.string().trim().min(2).max(160).required(),
+  content: Joi.string().allow('').optional(),
+  type: Joi.string().valid('video', 'text', 'quiz', 'assignment').required(),
+  duration: Joi.number().integer().min(0).optional(),
+  notes: Joi.string().trim().allow('').max(4000).optional(),
+  order: Joi.number().integer().min(0).optional(),
+});
+
+export const moduleUpdateSchema = Joi.object({
+  title: Joi.string().trim().min(2).max(120).optional(),
+  description: Joi.string().trim().allow('').max(2000).optional(),
+  type: Joi.string().trim().max(40).optional(),
+  order: Joi.number().integer().min(0).optional(),
+  status: Joi.string().valid('draft', 'published').optional(),
+}).min(1);
+
+export const lessonUpdateSchema = Joi.object({
+  title: Joi.string().trim().min(2).max(160).optional(),
+  content: Joi.string().allow('').optional(),
+  type: Joi.string().valid('video', 'text', 'quiz', 'assignment').optional(),
+  duration: Joi.number().integer().min(0).optional(),
+  notes: Joi.string().trim().allow('').max(4000).optional(),
+  order: Joi.number().integer().min(0).optional(),
+}).min(1);
+
+export const reorderModulesSchema = Joi.object({
+  moduleIds: Joi.array().items(Joi.string().trim().required()).min(0).required(),
+});
+
+export const reorderLessonsSchema = Joi.object({
+  lessonIds: Joi.array().items(Joi.string().trim().required()).min(0).required(),
+});
+
+export const progressUpdateSchema = Joi.object({
+  progress: Joi.number().min(0).max(100).required(),
+});
+
+export const assignmentCreateSchema = Joi.object({
+  moduleId: Joi.string().trim().optional(),
+  title: Joi.string().trim().min(2).max(160).required(),
+  description: Joi.string().trim().min(2).max(5000).required(),
+  dueDate: Joi.date().optional(),
+});
+
+export const submissionCreateSchema = Joi.object({
+  content: Joi.string().trim().min(1).max(10000).required(),
+});
+
+export const submissionGradeSchema = Joi.object({
+  grade: Joi.number().min(0).max(100).required(),
+});
+
+export const quizCreateSchema = Joi.object({
+  title: Joi.string().trim().min(2).max(160).required(),
+  description: Joi.string().trim().allow('').optional(),
+  timeLimit: Joi.number().integer().min(1).optional(),
+  attempts: Joi.number().integer().min(1).max(20).default(1),
+  passingScore: Joi.number().min(0).max(100).default(70),
+  isPublished: Joi.boolean().default(true),
+  questions: Joi.array().items(
+    Joi.object({
+      question: Joi.string().trim().min(2).max(1000).required(),
+      type: Joi.string().valid('multiple-choice', 'true-false', 'short-answer', 'essay').required(),
+      options: Joi.array().items(Joi.string().trim().min(1).max(300)).optional(),
+      correctAnswer: Joi.any().optional(),
+      points: Joi.number().min(0).max(100).default(1),
+      explanation: Joi.string().trim().allow('').optional(),
+    })
+  ).min(1).required(),
+});
+
+export const quizAttemptSchema = Joi.object({
+  answers: Joi.array().items(
+    Joi.object({
+      questionIndex: Joi.number().integer().min(0).required(),
+      answer: Joi.any().optional(),
+    })
+  ).required(),
+});
+
+export const liveSessionCreateSchema = Joi.object({
+  title: Joi.string().trim().min(2).max(160).required(),
+  description: Joi.string().trim().allow('').optional(),
+  provider: Joi.string().valid('jitsi', 'google-meet', 'zoom', 'custom').default('custom'),
+  meetingUrl: Joi.string().uri().required(),
+  startsAt: Joi.date().iso().required(),
+  endsAt: Joi.date().iso().min(Joi.ref('startsAt')).optional(),
+  status: Joi.string().valid('scheduled', 'live', 'completed', 'cancelled').default('scheduled'),
+});
+
+export const liveSessionStatusSchema = Joi.object({
+  status: Joi.string().valid('scheduled', 'live', 'completed', 'cancelled').required(),
+});
+
+export const paymentCreateSchema = Joi.object({
+  courseId: Joi.string().trim().required(),
+  method: Joi.string().valid('card', 'paypal', 'bank_transfer').default('card'),
+});
+
+export const paymentConfirmSchema = Joi.object({
+  paymentId: Joi.string().trim().optional(),
+});
+
+export const paymentWebhookSchema = Joi.object({
+  paymentId: Joi.string().trim().optional(),
+  externalPaymentId: Joi.string().trim().optional(),
+  status: Joi.string().valid('pending', 'completed', 'failed').required(),
+  eventId: Joi.string().trim().optional(),
+  transactionId: Joi.string().trim().optional(),
+}).or('paymentId', 'externalPaymentId');
+
+export const contentSchema = Joi.object({
+  type: Joi.string().valid('page', 'post', 'block').optional(),
+  title: Joi.string().required(),
+  content: Joi.string().optional(),
+  blocks: Joi.array().items(
+    Joi.object({
+      id: Joi.string().trim().required(),
+      type: Joi.string().trim().required(),
+      content: Joi.any().required(),
+      styles: Joi.object().pattern(Joi.string(), Joi.any()).optional(),
+      order: Joi.number().integer().min(0).required(),
+    })
+  ).optional(),
+  slug: Joi.string().optional(),
+  status: Joi.string().valid('draft', 'published', 'archived').default('draft'),
+}).or('content', 'blocks');
+
+export const validationMiddleware = (schema: Joi.ObjectSchema) => {
+  return (req: Request, res: Response, next: NextFunction) => {
+    const { error, value } = schema.validate(req.body, {
+      abortEarly: false,
+      stripUnknown: true,
+    });
+
+    if (error) {
+      return res.status(400).json({
+        message: 'Validation error',
+        details: error.details.map((detail) => detail.message),
+      });
+    }
+
+    req.body = value;
+    next();
+  };
+};
