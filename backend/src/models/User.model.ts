@@ -29,13 +29,25 @@ const userSchema = new mongoose.Schema({
       push: { type: Boolean, default: true }
     }
   },
+  gamification: {
+    points: { type: Number, default: 0 },
+    level: { type: Number, default: 1 },
+    badges: [{
+      name: { type: String },
+      awardedAt: { type: Date, default: Date.now },
+      description: { type: String }
+    }],
+  },
   isActive: { type: Boolean, default: true },
   lastLogin: { type: Date },
+  tokenVersion: { type: Number, default: 0 },
   emailVerified: { type: Boolean, default: false },
+  verificationToken: { type: String },
+  verificationTokenExpiry: { type: Date },
+  passwordResetToken: { type: String },
+  passwordResetTokenExpiry: { type: Date },
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now }
 });
-
-userSchema.index({ email: 1 });
 
 export const User = mongoose.model('User', userSchema);

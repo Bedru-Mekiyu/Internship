@@ -1,0 +1,26 @@
+# Production overrides — use with `docker compose -f docker-compose.yml -f docker-compose.prod.yml up`.
+# Set secrets via CI or a vault; do not commit real values.
+services:
+  backend:
+    environment:
+      NODE_ENV: production
+      TRUST_PROXY: "1"
+      CORS_ORIGIN: https://your-frontend-domain.com
+      COOKIE_SECURE: "true"
+      COOKIE_SAME_SITE: lax
+      CSRF_COOKIE_SECURE: "true"
+      CSRF_COOKIE_SAME_SITE: lax
+      JWT_ACCESS_SECRET: replace_with_strong_access_secret
+      JWT_REFRESH_SECRET: replace_with_strong_refresh_secret
+      JWT_VERIFY_SECRET: replace_with_strong_verify_secret
+      JWT_RESET_SECRET: replace_with_strong_reset_secret
+      PAYMENT_WEBHOOK_SECRET: replace_with_strong_webhook_secret
+      BASE_URL: https://your-api-domain.com
+      FRONTEND_URL: https://your-frontend-domain.com
+      # Optional: REDIS_URL for shared rate limiting
+
+  frontend:
+    build:
+      args:
+        # Vite: public API origin for browser calls (see frontend/vite.config.*).
+        VITE_API_URL: https://your-api-domain.com

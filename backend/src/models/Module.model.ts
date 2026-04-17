@@ -3,6 +3,8 @@ import mongoose from 'mongoose';
 const moduleSchema = new mongoose.Schema({
   courseId: { type: mongoose.Schema.Types.ObjectId, ref: 'Course', required: true },
   title: { type: String, required: true },
+  description: { type: String, default: '' },
+  type: { type: String, default: 'Core' },
   lessons: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Lesson' }],
   order: { type: Number, required: true },
   status: { type: String, enum: ['draft', 'published'], default: 'draft' },
