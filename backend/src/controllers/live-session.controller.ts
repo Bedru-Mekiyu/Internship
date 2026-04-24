@@ -48,6 +48,12 @@ export const getLiveSessionsByCourse = asyncHandler(async (req: Request, res: Re
     if (!enrollment) {
       throw new AppError('Only enrolled students can view live sessions', 403);
     }
+  } else if (req.user?.role === 'instructor') {
+    if (!course.instructor || course.instructor.toString() !== req.user?._id.toString()) {
+      throw new AppError('Not authorized', 403);
+    }
+  } else if (req.user?.role !== 'admin') {
+    throw new AppError('Not authorized', 403);
   }
 
   const sessions = await LiveSession.find({ courseId }).sort({ startsAt: 1 });

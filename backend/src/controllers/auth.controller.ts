@@ -9,9 +9,26 @@ const parseBoolean = (value: string | undefined, fallback: boolean) => {
   return value.toLowerCase() === 'true';
 };
 
+type SameSitePolicy = 'lax' | 'strict' | 'none';
+
+const parseSameSite = (value: string | undefined, fallback: SameSitePolicy): SameSitePolicy => {
+  if (value === undefined) {
+    return fallback;
+  }
+
+  const normalized = value.toLowerCase();
+  if (normalized === 'lax' || normalized === 'strict' || normalized === 'none') {
+    return normalized;
+  }
+
+  return fallback;
+};
+
 const isProduction = process.env.NODE_ENV === 'production';
-const cookieSecure = parseBoolean(process.env.COOKIE_SECURE, isProduction);
-const cookieSameSite = (process.env.COOKIE_SAME_SITE || 'lax') as 'lax' | 'strict' | 'none';
+const cookieSameSite = parseSameSite(process.env.COOKIE_SAME_SITE, 'lax');
+const cookieSecure = cookieSameSite === 'none'
+  ? true
+  : parseBoolean(process.env.COOKIE_SECURE, isProduction);
 
 const accessCookieOptions = {
   httpOnly: true,
@@ -57,12 +74,10 @@ const sanitizeUser = (user: any) => {
 
 export const register = asyncHandler(async (req: Request, res: Response) => {
   try {
-    const user = await AuthService.registerUser(req.body);
-    const message = user.emailVerified
-      ? 'User registered successfully.'
-      : 'User registered. Check email for verification.';
-
-    return res.status(201).json({ message, userId: user._id });
+    await AuthService.registerUser(req.body);
+    return res.status(202).json({
+      message: 'If the email is eligible, a verification email has been sent.',
+    });
   } catch (error) {
     throw new AppError(error instanceof Error ? error.message : 'Registration failed', 400);
   }
@@ -82,12 +97,24 @@ export const login = asyncHandler(async (req: Request, res: Response) => {
 export const refreshToken = asyncHandler(async (req: Request, res: Response) => {
   const refreshTokenFromBody = req.body.refreshToken;
   const refreshTokenFromCookie = req.cookies?.refreshToken;
+  const csrfHeaderToken = req.headers['x-csrf-token'];
+  const csrfCookieToken = req.cookies?.csrfToken;
+  const hasValidCsrfToken =
+    typeof csrfHeaderToken === 'string'
+    && typeof csrfCookieToken === 'string'
+    && csrfHeaderToken.length > 0
+    && csrfHeaderToken === csrfCookieToken;
+
   const refreshToken = typeof refreshTokenFromBody === 'string' && refreshTokenFromBody.trim()
     ? refreshTokenFromBody
     : refreshTokenFromCookie;
 
   if (typeof refreshToken !== 'string' || !refreshToken.trim()) {
     throw new AppError('refreshToken is required', 400);
+  }
+
+  if (!hasValidCsrfToken && refreshToken === refreshTokenFromCookie) {
+    throw new AppError('Valid CSRF token is required for cookie refresh', 403);
   }
 
   try {

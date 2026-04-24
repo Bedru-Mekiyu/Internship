@@ -10,13 +10,6 @@ import {
   Stack,
   Typography,
 } from '@mui/material';
-import { alpha } from '@mui/material/styles';
-import {
-  DownloadOutlined,
-  LinkedIn,
-  ShareOutlined,
-  LockOutlined,
-} from '@mui/icons-material';
 import { api, normalizeApiError } from '../../services/api';
 import { resolvePublicApiOrigin } from '../../utils/apiBaseUrl';
 import { useAuth } from '../../context/AuthContext';
@@ -26,8 +19,6 @@ interface Certificate {
   title: string;
   issued: string;
   certificateId: string;
-  previewTone: string;
-  previewImage: string;
 }
 
 interface CertificateApiModel {
@@ -48,78 +39,10 @@ interface StudentDashboardResponse {
   }>;
 }
 
-const previewTones = ['#F5F3FF', '#EEF2FF', '#F8FAFC', '#EAF2FF'];
-const previewImages = [
-  'https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=1200&q=80',
-  'https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?auto=format&fit=crop&w=1200&q=80',
-  'https://images.unsplash.com/photo-1556761175-b413da4baf72?auto=format&fit=crop&w=1200&q=80',
-  'https://images.unsplash.com/photo-1526379095098-d400fd0bf935?auto=format&fit=crop&w=1200&q=80',
-];
-
-function CertificatePreview({ certificate }: { certificate: Certificate }) {
-  return (
-    <Box
-      sx={{
-        position: 'relative',
-        borderRadius: '16px',
-        overflow: 'hidden',
-        background: `linear-gradient(180deg, ${certificate.previewTone} 0%, #FFFFFF 100%)`,
-        border: '1px solid #D8CFF9',
-        boxShadow: 'inset 0 0 0 1px rgba(99,102,241,0.12)',
-      }}
-    >
-      <Box sx={{ p: 2.25, minHeight: 250 }}>
-        <Box sx={{ display: 'flex', justifyContent: 'center', mb: 1.5 }}>
-          <Box
-            sx={{
-              width: 46,
-              height: 46,
-              borderRadius: '999px',
-              bgcolor: alpha('#6366F1', 0.12),
-              color: '#6366F1',
-              display: 'grid',
-              placeItems: 'center',
-            }}
-          >
-            <LockOutlined />
-          </Box>
-        </Box>
-
-        <Box
-          sx={{
-            border: '2px solid #C7BBF9',
-            borderRadius: '12px',
-            bgcolor: '#FFFFFF',
-            p: 2,
-            height: 178,
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'space-between',
-          }}
-        >
-          <Box sx={{ display: 'grid', gap: 1 }}>
-            <Box sx={{ height: 10, width: '52%', borderRadius: 999, bgcolor: '#EDE9FE' }} />
-            <Box sx={{ height: 6, width: '72%', borderRadius: 999, bgcolor: '#E5E7EB' }} />
-            <Box sx={{ height: 6, width: '62%', borderRadius: 999, bgcolor: '#E5E7EB' }} />
-            <Box sx={{ height: 6, width: '66%', borderRadius: 999, bgcolor: '#E5E7EB' }} />
-          </Box>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', gap: 1.5, alignItems: 'end' }}>
-            <Box sx={{ display: 'grid', gap: 0.7, flex: 1 }}>
-              <Box sx={{ height: 8, width: '68%', borderRadius: 999, bgcolor: '#E5E7EB' }} />
-              <Box sx={{ height: 8, width: '48%', borderRadius: 999, bgcolor: '#E5E7EB' }} />
-            </Box>
-            <Box sx={{ width: 62, height: 62, borderRadius: '999px', bgcolor: alpha('#6366F1', 0.1) }} />
-          </Box>
-        </Box>
-
-        <Box sx={{ position: 'absolute', inset: 0, background: 'linear-gradient(135deg, rgba(99,102,241,0.04), transparent 40%, rgba(0,102,255,0.03) 100%)', pointerEvents: 'none' }} />
-      </Box>
-    </Box>
-  );
-}
-
 export default function MyCertificates() {
   const { user } = useAuth();
+  const firstName = user?.firstName?.trim();
+  const welcomeGreeting = firstName ? `Welcome back, ${firstName}` : 'Welcome back';
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
 
   const { data, isLoading, isError, error, refetch } = useQuery({
@@ -141,7 +64,7 @@ export default function MyCertificates() {
   const certificates = useMemo<Certificate[]>(() => {
     const rows = data ?? [];
 
-    return rows.map((item, index) => ({
+    return rows.map((item) => ({
       id: item._id,
       courseId:
         typeof item.courseId === 'object' && item.courseId?._id
@@ -159,8 +82,6 @@ export default function MyCertificates() {
         year: 'numeric',
       })}`,
       certificateId: item.certificateNumber,
-      previewTone: previewTones[index % previewTones.length],
-      previewImage: previewImages[index % previewImages.length],
     }));
   }, [data]);
 
@@ -257,22 +178,22 @@ export default function MyCertificates() {
         </Typography>
 
         {statusMessage ? (
-          <Alert severity="success" sx={{ mb: 2.25, borderRadius: '12px' }} onClose={() => setStatusMessage(null)}>
+          <Alert severity="success" sx={{ mb: 2.25, borderRadius: 1.5 }} onClose={() => setStatusMessage(null)}>
             {statusMessage}
           </Alert>
         ) : null}
 
         {isError ? (
-          <Alert severity="error" sx={{ mb: 2.25, borderRadius: '12px' }}>
+          <Alert severity="error" sx={{ mb: 2.25, borderRadius: 1.5 }}>
             {normalizeApiError(error).message || 'Failed to load certificates'}
           </Alert>
         ) : null}
 
-        <Card sx={{ mb: 2.5 }}>
+        <Card sx={{ mb: 2.5, border: '1px solid', borderColor: 'divider', borderRadius: 2 }}>
           <CardContent sx={{ p: { xs: 2.5, md: 3 } }}>
             <Stack spacing={2.2}>
               <Typography variant="body1" sx={{ color: 'text.secondary', fontWeight: 600 }}>
-                Welcome back, {user?.firstName || 'Learner'}
+                {welcomeGreeting}
               </Typography>
 
               <Box sx={{ display: 'flex', alignItems: { xs: 'flex-start', md: 'center' }, justifyContent: 'space-between', gap: 2, flexWrap: 'wrap' }}>
@@ -285,7 +206,7 @@ export default function MyCertificates() {
                   </Typography>
                 </Box>
 
-                <Button variant="contained" startIcon={<ShareOutlined />} sx={{ minWidth: 160 }} onClick={handleShareProfile}>
+                <Button variant="contained" sx={{ minWidth: 160 }} onClick={handleShareProfile}>
                   Share Profile
                 </Button>
               </Box>
@@ -298,7 +219,7 @@ export default function MyCertificates() {
         ) : null}
 
         {!isLoading && certificates.length === 0 ? (
-          <Card>
+          <Card sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 2 }}>
             <CardContent sx={{ p: 3 }}>
               <Typography variant="h6" sx={{ fontWeight: 800 }}>No certificates yet</Typography>
               <Typography variant="body2" sx={{ color: 'text.secondary', mt: 0.75 }}>
@@ -309,7 +230,7 @@ export default function MyCertificates() {
         ) : null}
 
         {eligibleCourses.length > 0 ? (
-          <Card sx={{ mb: 2.5 }}>
+          <Card sx={{ mb: 2.5, border: '1px solid', borderColor: 'divider', borderRadius: 2 }}>
             <CardContent sx={{ p: 3 }}>
               <Typography variant="h6" sx={{ fontWeight: 800 }}>Ready to generate</Typography>
               <Typography variant="body2" sx={{ color: 'text.secondary', mt: 0.75, mb: 2 }}>
@@ -320,8 +241,9 @@ export default function MyCertificates() {
                   <Box
                     key={course.courseId}
                     sx={{
-                      border: '1px solid #E2E8F0',
-                      borderRadius: '12px',
+                      border: '1px solid',
+                      borderColor: 'divider',
+                      borderRadius: 1.5,
                       p: 1.5,
                       display: 'flex',
                       alignItems: 'center',
@@ -355,20 +277,16 @@ export default function MyCertificates() {
               <Card
                 sx={{
                   height: '100%',
-                  transition: 'transform 160ms ease, box-shadow 160ms ease',
-                  '&:hover': {
-                    transform: 'translateY(-2px)',
-                    boxShadow: '0 12px 28px rgba(15,23,42,0.12)',
-                  },
+                  border: '1px solid',
+                  borderColor: 'divider',
+                  borderRadius: 2,
                 }}
               >
                 <CardContent sx={{ p: 2.5 }}>
-                  <Stack spacing={2}>
-                    <CertificatePreview certificate={certificate} />
-
-                    <Box>
-                      <Typography variant="h6" sx={{ fontWeight: 800, lineHeight: 1.35 }}>
-                        {certificate.title}
+                    <Stack spacing={2}>
+                      <Box>
+                        <Typography variant="h6" sx={{ fontWeight: 800, lineHeight: 1.35 }}>
+                          {certificate.title}
                       </Typography>
                       <Typography variant="body2" sx={{ mt: 0.75, color: 'text.secondary' }}>
                         {certificate.issued} • ID: {certificate.certificateId}
@@ -378,13 +296,7 @@ export default function MyCertificates() {
                     <Box sx={{ display: 'flex', gap: 1.25, flexWrap: 'wrap', alignItems: 'center' }}>
                       <Button
                         variant="contained"
-                        startIcon={<DownloadOutlined />}
-                        sx={{
-                          flex: 1,
-                          minWidth: 120,
-                          bgcolor: '#6366F1',
-                          '&:hover': { bgcolor: '#4F46E5' },
-                        }}
+                        sx={{ flex: 1, minWidth: 120 }}
                         onClick={() => handlePdf(certificate)}
                       >
                         PDF
@@ -394,16 +306,11 @@ export default function MyCertificates() {
                       </Button>
                       <Button
                         variant="outlined"
-                        startIcon={<LinkedIn />}
                         sx={{
                           flex: 1,
                           minWidth: 120,
-                          borderColor: '#CBD5E1',
                           color: 'text.primary',
-                          '&:hover': {
-                            borderColor: '#6366F1',
-                            bgcolor: alpha('#6366F1', 0.04),
-                          },
+                          borderColor: 'divider',
                         }}
                         onClick={() => handleLinkedIn(certificate)}
                       >

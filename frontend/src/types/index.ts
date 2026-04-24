@@ -88,8 +88,26 @@ export interface Course {
   level?: 'beginner' | 'intermediate' | 'advanced';
   language?: string;
   status?: 'draft' | 'published' | 'archived';
+  pricing?: {
+    type?: 'free' | 'paid' | 'subscription';
+    amount?: number;
+    currency?: string;
+    discount?: {
+      percentage?: number;
+      validUntil?: string;
+    };
+  };
   instructor?: string | AuthUser;
   modules?: CourseModule[];
+  prerequisites?: string[];
+  learningOutcomes?: string[];
+  reviews?: Array<{
+    user?: string;
+    rating?: number;
+    comment?: string;
+    createdAt?: string;
+    updatedAt?: string;
+  }>;
   duration?: number;
   enrollmentCount?: number;
   rating?: {
@@ -117,10 +135,20 @@ export interface ContentItem {
   title: string;
   slug: string;
   content?: string;
+  blocks?: ContentBlock[];
   status?: 'draft' | 'published' | 'archived';
   author?: string | AuthUser;
   createdAt?: string;
   updatedAt?: string;
+}
+
+export interface ContentBlock {
+  id: string;
+  type: 'text' | 'image' | 'video' | 'form' | 'testimonial' | 'hero' | 'features' | 'cta';
+  content: string;
+  title?: string;
+  order: number;
+  styles?: Record<string, unknown>;
 }
 
 export interface MediaItem {

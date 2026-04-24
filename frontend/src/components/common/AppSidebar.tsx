@@ -1,10 +1,10 @@
 import { Avatar, Box, Card, CardContent, IconButton, List, ListItemButton, ListItemIcon, ListItemText, Typography } from '@mui/material';
-import { alpha, useTheme } from '@mui/material/styles';
 import { CloseOutlined } from '@mui/icons-material';
 import { Link as RouterLink, useLocation } from 'react-router-dom';
 import { useMemo } from 'react';
 import type { ReactNode } from 'react';
 import { useAuth } from '../../context/AuthContext';
+import { sanitizeHttpUrl } from '../../utils/safeUrl';
 
 export type SidebarNavItem = {
   label: string;
@@ -37,8 +37,6 @@ type AppSidebarProps = {
   onClose?: () => void;
   profile?: SidebarProfile;
   profileTrailingIcon?: ReactNode;
-  /** `soft` matches LearnSpace mockups (tinted active row). `filled` uses solid primary. */
-  navStyle?: 'soft' | 'filled';
 };
 
 function getInitials(name: string): string {
@@ -68,12 +66,9 @@ export default function AppSidebar({
   onClose,
   profile,
   profileTrailingIcon,
-  navStyle = 'soft',
 }: AppSidebarProps) {
   const { user } = useAuth();
   const location = useLocation();
-  const muiTheme = useTheme();
-  const primary = muiTheme.palette.primary.main;
 
   const fallbackName = useMemo(() => {
     const firstName = user?.firstName?.trim() || '';
@@ -98,7 +93,6 @@ export default function AppSidebar({
               color: '#FFFFFF',
               display: 'grid',
               placeItems: 'center',
-              boxShadow: `0 10px 22px ${alpha(primary, 0.28)}`,
               flexShrink: 0,
             }}
           >
@@ -131,8 +125,6 @@ export default function AppSidebar({
                 const customMatch = item.matchPaths?.some((path) => isPathMatch(location.pathname, path, item.exact));
                 const routeMatch = item.to ? isPathMatch(location.pathname, item.to, item.exact) : false;
                 const active = item.selected ?? customMatch ?? routeMatch;
-                const softActiveBg = alpha(primary, 0.12);
-                const softHoverBg = alpha(primary, 0.08);
 
                 return (
                   <ListItemButton
@@ -144,38 +136,24 @@ export default function AppSidebar({
                       item.onClick?.();
                       onClose?.();
                     }}
-                    sx={
-                      navStyle === 'soft'
-                        ? {
-                            borderRadius: '14px',
-                            minHeight: 48,
-                            px: 1.5,
-                            justifyContent: 'flex-start',
-                            color: active ? 'primary.main' : 'text.primary',
-                            bgcolor: active ? softActiveBg : 'transparent',
-                            '& .MuiListItemIcon-root': {
-                              color: active ? 'primary.main' : 'text.secondary',
-                              minWidth: 40,
-                            },
-                            '&.Mui-selected': {
-                              bgcolor: softActiveBg,
-                              color: 'primary.main',
-                              '&:hover': { bgcolor: alpha(primary, 0.16) },
-                            },
-                            '&:hover': { bgcolor: active ? alpha(primary, 0.16) : softHoverBg },
-                          }
-                        : {
-                            borderRadius: '14px',
-                            minHeight: 48,
-                            px: 1.5,
-                            justifyContent: 'flex-start',
-                            color: active ? '#FFFFFF' : 'text.primary',
-                            bgcolor: active ? 'primary.main' : 'transparent',
-                            '& .MuiListItemIcon-root': { color: active ? '#FFFFFF' : 'text.secondary', minWidth: 40 },
-                            '&.Mui-selected': { bgcolor: 'primary.main', color: '#FFFFFF', '&:hover': { bgcolor: 'primary.dark' } },
-                            '&:hover': { bgcolor: active ? 'primary.dark' : alpha(primary, 0.06) },
-                          }
-                    }
+                    sx={{
+                      borderRadius: '14px',
+                      minHeight: 48,
+                      px: 1.5,
+                      justifyContent: 'flex-start',
+                      color: active ? 'primary.main' : 'text.primary',
+                      bgcolor: active ? 'background.default' : 'transparent',
+                      '& .MuiListItemIcon-root': {
+                        color: active ? 'primary.main' : 'text.secondary',
+                        minWidth: 40,
+                      },
+                      '&.Mui-selected': {
+                        bgcolor: 'background.default',
+                        color: 'primary.main',
+                        '&:hover': { bgcolor: 'background.default' },
+                      },
+                      '&:hover': { bgcolor: 'background.default' },
+                    }}
                   >
                     <ListItemIcon>
                       {item.badge ? (
@@ -217,7 +195,7 @@ export default function AppSidebar({
       <Card sx={{ boxShadow: 'none', border: '1px solid #E2E8F0' }}>
         <CardContent sx={{ p: 2 }}>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-            <Avatar src={profile?.avatarSrc} sx={{ width: 42, height: 42, bgcolor: alpha(primary, 0.12), color: 'primary.main', fontWeight: 800 }}>
+            <Avatar src={sanitizeHttpUrl(profile?.avatarSrc) ?? undefined} sx={{ width: 42, height: 42, bgcolor: 'background.default', color: 'primary.main', fontWeight: 800 }}>
               {initials}
             </Avatar>
             <Box sx={{ minWidth: 0, flex: 1 }}>

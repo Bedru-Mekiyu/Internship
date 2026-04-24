@@ -1,10 +1,16 @@
 import { Request, Response } from 'express';
-import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
+import { S3Client, DeleteObjectCommand, PutObjectCommand } from '@aws-sdk/client-s3';
+import path from 'path';
+import { randomUUID } from 'crypto';
+import { rm } from 'fs/promises';
+import mongoose from 'mongoose';
 import { Content } from '../models/Content.model';
 import { Media } from '../models/Media.model';
 import { asyncHandler } from '../utils/async-handler';
 import { AppError } from '../utils/http-error';
 import { requireEnv } from '../utils/env';
+import { routeParam } from '../utils/route-params';
+import { safeRegexFragment } from '../utils/safe-regex';
 
 const buildS3Client = () => new S3Client({
   region: requireEnv('AWS_REGION'),
@@ -32,8 +38,8 @@ export const getManagedContents = asyncHandler(async (req: Request, res: Respons
   if (type) filters.type = type;
   if (author) filters.author = author;
 
-  if (q && q.trim()) {
-    const search = q.trim();
+  const search = safeRegexFragment(q);
+  if (search) {
     filters.$or = [
       { title: { $regex: search, $options: 'i' } },
       { slug: { $regex: search, $options: 'i' } },
@@ -112,7 +118,8 @@ export const uploadMedia = asyncHandler(async (req: Request, res: Response) => {
 
     const bucket = requireEnv('AWS_S3_BUCKET');
     const s3 = buildS3Client();
-    fileName = `${Date.now()}-${file.originalname}`;
+    const extension = path.extname(file.originalname).toLowerCase();
+    fileName = `${Date.now()}-${randomUUID()}${extension}`;
 
     await s3.send(new PutObjectCommand({
       Bucket: bucket,
@@ -137,6 +144,82 @@ export const uploadMedia = asyncHandler(async (req: Request, res: Response) => {
 });
 
 export const getMedia = asyncHandler(async (_req: Request, res: Response) => {
-  const media = await Media.find();
+  const media = await Media.find().sort({ createdAt: -1 });
+  return res.json(media);
+});
+
+const resolveS3ObjectKey = (media: { filename?: string; url?: string }) => {
+  const keyFromFilename = typeof media.filename === 'string' ? media.filename.trim() : '';
+  if (keyFromFilename) {
+    return keyFromFilename;
+  }
+
+  const rawUrl = typeof media.url === 'string' ? media.url.trim() : '';
+  if (!rawUrl) {
+    return '';
+  }
+
+  try {
+    const parsed = new URL(rawUrl);
+    return decodeURIComponent(parsed.pathname.replace(/^\/+/, ''));
+  } catch {
+    return '';
+  }
+};
+
+export const deleteMedia = asyncHandler(async (req: Request, res: Response) => {
+  const mediaId = routeParam(req.params.id);
+  if (!mongoose.Types.ObjectId.isValid(mediaId)) {
+    throw new AppError('Invalid media id', 400);
+  }
+
+  const media = await Media.findById(mediaId);
+  if (!media) {
+    throw new AppError('Media not found', 404);
+  }
+
+  if (process.env.STORAGE_TYPE === 's3') {
+    const key = resolveS3ObjectKey(media);
+    if (!key) {
+      throw new AppError('Invalid media storage key', 500);
+    }
+
+    const s3 = buildS3Client();
+    await s3.send(new DeleteObjectCommand({
+      Bucket: requireEnv('AWS_S3_BUCKET'),
+      Key: key,
+    }));
+  } else {
+    const uploadPath = path.join(process.cwd(), 'uploads', media.filename);
+    await rm(uploadPath, { force: true });
+  }
+
+  const deletionResult = await Media.deleteOne({ _id: media._id });
+  if (deletionResult.deletedCount !== 1) {
+    throw new AppError('Media not found', 404);
+  }
+
+  return res.json({ message: 'Media deleted', id: String(media._id) });
+});
+
+export const renameMedia = asyncHandler(async (req: Request, res: Response) => {
+  const mediaId = routeParam(req.params.id);
+  if (!mongoose.Types.ObjectId.isValid(mediaId)) {
+    throw new AppError('Invalid media id', 400);
+  }
+
+  const nextName = typeof req.body.originalName === 'string' ? req.body.originalName.trim() : '';
+  if (!nextName) {
+    throw new AppError('originalName is required', 400);
+  }
+
+  const media = await Media.findById(mediaId);
+  if (!media) {
+    throw new AppError('Media not found', 404);
+  }
+
+  media.originalName = nextName;
+  await media.save();
+
   return res.json(media);
 });

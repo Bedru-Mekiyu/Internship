@@ -3,6 +3,7 @@ import mongoose from 'mongoose';
 import { ContactMessage } from '../models/ContactMessage.model';
 import { AppError } from '../utils/http-error';
 import { asyncHandler } from '../utils/async-handler';
+import { safeRegexFragment } from '../utils/safe-regex';
 
 const validStatuses = new Set(['new', 'in_progress', 'resolved']);
 
@@ -77,8 +78,8 @@ export const getContactMessages = asyncHandler(async (req: Request, res: Respons
     filters.status = status;
   }
 
-  if (q && q.trim()) {
-    const query = q.trim();
+  const query = safeRegexFragment(q);
+  if (query) {
     filters.$or = [
       { fullName: { $regex: query, $options: 'i' } },
       { email: { $regex: query, $options: 'i' } },

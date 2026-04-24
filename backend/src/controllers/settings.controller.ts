@@ -5,6 +5,11 @@ import { asyncHandler } from '../utils/async-handler';
 interface PlatformSettings {
   platformName: string;
   supportEmail: string;
+  contactPhone: string;
+  contactAddress: string;
+  contactHours: string;
+  contactMapUrl: string;
+  contactResponseTime: string;
   logoUrl?: string;
   language: string;
   timezone: string;
@@ -19,11 +24,39 @@ interface PlatformSettings {
   smtpPort: string;
   smtpUsername: string;
   smtpPassword: string;
+  trustPartners: string[];
+  homepageFeatures: Array<{
+    title: string;
+    description: string;
+    color: string;
+  }>;
+  pricingPlans: Array<{
+    name: string;
+    description: string;
+    monthlyPrice: string;
+    yearlyPrice: string;
+    yearlyLabel: string;
+    features: string[];
+    featured?: boolean;
+    cta: string;
+    accent: string;
+  }>;
+  pricingComparison: Array<{
+    label: string;
+    free: string | boolean;
+    pro: string | boolean;
+    business: string | boolean;
+  }>;
 }
 
 const defaultSettings: PlatformSettings = {
   platformName: 'LearnSpace',
   supportEmail: 'support@learnspace.com',
+  contactPhone: '+1 (555) 000-0000',
+  contactAddress: '100 Smith Street, Collingwood VIC 3066',
+  contactHours: 'Mon–Fri from 9am to 5pm EST',
+  contactMapUrl: '',
+  contactResponseTime: 'Within 24 hours',
   language: 'en',
   timezone: 'UTC',
   themeMode: 'light',
@@ -37,9 +70,103 @@ const defaultSettings: PlatformSettings = {
   smtpPort: '587',
   smtpUsername: '',
   smtpPassword: '',
+  trustPartners: ['ASU', 'Meta', 'Notion', 'Khan Academy', 'Udacity'],
+  homepageFeatures: [
+    {
+      title: 'Drag & Drop Builder',
+      description: 'Create lessons, modules, and landing pages with a flexible visual editor.',
+      color: '#DBEAFE',
+    },
+    {
+      title: 'Advanced Analytics',
+      description: 'Track enrollments, completion rates, and revenue with clear reporting.',
+      color: '#E0E7FF',
+    },
+    {
+      title: 'Community Hub',
+      description: 'Keep learners engaged with discussions, Q&A, and cohort updates.',
+      color: '#DCFCE7',
+    },
+    {
+      title: 'Mobile Ready',
+      description: 'Deliver a polished experience on every screen, from desktop to phone.',
+      color: '#FDE68A',
+    },
+    {
+      title: 'Certification',
+      description: 'Reward course completion with branded certificates that learners value.',
+      color: '#FCE7F3',
+    },
+    {
+      title: 'Seamless Payments',
+      description: 'Collect one-time or subscription payments with flexible pricing options.',
+      color: '#FFE4E6',
+    },
+  ],
+  pricingPlans: [
+    {
+      name: 'Free',
+      description: 'Best for exploring LearnSpace and launching your first course.',
+      monthlyPrice: '$0',
+      yearlyPrice: '$0',
+      yearlyLabel: 'Forever',
+      features: ['1 published course', 'Basic analytics', 'Community access', 'Email support'],
+      cta: 'Start Free',
+      accent: '#64748B',
+    },
+    {
+      name: 'Pro',
+      description: 'For creators who want better insights, more control, and faster growth.',
+      monthlyPrice: '$29',
+      yearlyPrice: '$24',
+      yearlyLabel: '/mo billed yearly',
+      features: ['Unlimited courses', 'Advanced analytics', 'Certificates', 'Payments', 'Priority support'],
+      featured: true,
+      cta: 'Get Pro',
+      accent: '#0066FF',
+    },
+    {
+      name: 'Business / Enterprise',
+      description: 'For teams, academies, and organizations needing custom onboarding.',
+      monthlyPrice: '$99',
+      yearlyPrice: '$84',
+      yearlyLabel: '/mo billed yearly',
+      features: ['Everything in Pro', 'Team roles', 'Custom branding', 'Dedicated onboarding', 'SLA support'],
+      cta: 'Talk to Sales',
+      accent: '#6366F1',
+    },
+  ],
+  pricingComparison: [
+    { label: 'Published courses', free: '1', pro: 'Unlimited', business: 'Unlimited' },
+    { label: 'Analytics dashboard', free: 'Basic', pro: 'Advanced', business: 'Advanced' },
+    { label: 'Certificates', free: false, pro: true, business: true },
+    { label: 'Payments', free: false, pro: true, business: true },
+    { label: 'Team roles', free: false, pro: false, business: true },
+    { label: 'Custom branding', free: false, pro: false, business: true },
+    { label: 'Dedicated onboarding', free: false, pro: false, business: true },
+    { label: 'Priority support', free: false, pro: true, business: true },
+  ],
 };
 
 let platformSettings: PlatformSettings = { ...defaultSettings };
+
+export const getPublicSettings = asyncHandler(async (_req: Request, res: Response) => {
+  return res.json({
+    settings: {
+      platformName: platformSettings.platformName,
+      supportEmail: platformSettings.supportEmail,
+      contactPhone: platformSettings.contactPhone,
+      contactAddress: platformSettings.contactAddress,
+      contactHours: platformSettings.contactHours,
+      contactMapUrl: platformSettings.contactMapUrl,
+      contactResponseTime: platformSettings.contactResponseTime,
+      trustPartners: platformSettings.trustPartners,
+      homepageFeatures: platformSettings.homepageFeatures,
+      pricingPlans: platformSettings.pricingPlans,
+      pricingComparison: platformSettings.pricingComparison,
+    },
+  });
+});
 
 export const getSettings = asyncHandler(async (req: Request, res: Response) => {
   const isAdmin = req.user?.role === 'admin';
@@ -62,6 +189,11 @@ export const updateSettings = asyncHandler(async (req: Request, res: Response) =
   const allowedFields = [
     'platformName',
     'supportEmail',
+    'contactPhone',
+    'contactAddress',
+    'contactHours',
+    'contactMapUrl',
+    'contactResponseTime',
     'logoUrl',
     'language',
     'timezone',
@@ -76,6 +208,10 @@ export const updateSettings = asyncHandler(async (req: Request, res: Response) =
     'smtpPort',
     'smtpUsername',
     'smtpPassword',
+    'trustPartners',
+    'homepageFeatures',
+    'pricingPlans',
+    'pricingComparison',
   ];
 
   for (const [key, value] of Object.entries(updates)) {

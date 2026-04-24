@@ -6,10 +6,30 @@ const parseBoolean = (value: string | undefined, fallback: boolean) => {
   return value.toLowerCase() === 'true';
 };
 
+type SameSitePolicy = 'lax' | 'strict' | 'none';
+
+const parseSameSite = (value: string | undefined, fallback: SameSitePolicy): SameSitePolicy => {
+  if (value === undefined) {
+    return fallback;
+  }
+
+  const normalized = value.toLowerCase();
+  if (normalized === 'lax' || normalized === 'strict' || normalized === 'none') {
+    return normalized;
+  }
+
+  return fallback;
+};
+
 const isProduction = process.env.NODE_ENV === 'production';
 const csrfCookieName = 'csrfToken';
-const csrfCookieSecure = parseBoolean(process.env.CSRF_COOKIE_SECURE, isProduction);
-const csrfCookieSameSite = (process.env.CSRF_COOKIE_SAME_SITE || process.env.COOKIE_SAME_SITE || 'lax') as 'lax' | 'strict' | 'none';
+const csrfCookieSameSite = parseSameSite(
+  process.env.CSRF_COOKIE_SAME_SITE || process.env.COOKIE_SAME_SITE,
+  'lax',
+);
+const csrfCookieSecure = csrfCookieSameSite === 'none'
+  ? true
+  : parseBoolean(process.env.CSRF_COOKIE_SECURE, isProduction);
 
 const csrfCookieOptions = {
   httpOnly: false,
@@ -38,8 +58,11 @@ const shouldSkipCsrf = (req: Request) => {
     req.path === '/api/auth/login'
     || req.path === '/api/auth/register'
     || req.path === '/api/auth/forgot-password'
+    || req.path === '/api/auth/forgotpassword'
     || req.path === '/api/auth/reset-password'
+    || req.path === '/api/auth/resetpassword'
     || req.path === '/api/auth/refresh-token'
+    || req.path === '/api/auth/refreshtoken'
   ) {
     return true;
   }

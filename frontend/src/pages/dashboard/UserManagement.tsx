@@ -2,12 +2,10 @@ import { useMemo, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   Alert,
-  Avatar,
   Box,
   Button,
   Card,
   CardContent,
-  Checkbox,
   Dialog,
   DialogActions,
   DialogContent,
@@ -29,18 +27,16 @@ import {
   TableRow,
   TextField,
   Typography,
+  InputAdornment,
 } from '@mui/material';
-import { alpha } from '@mui/material/styles';
 import {
   EditOutlined,
   VisibilityOutlined,
   DeleteOutlineOutlined,
-  AddOutlined,
   SearchOutlined,
 } from '@mui/icons-material';
-import { useNavigate } from 'react-router-dom';
 import { api, normalizeApiError } from '../../services/api';
-import { theme } from '../../theme';
+import DashboardPageFrame, { DashboardSection } from '../../components/common/DashboardPageFrame';
 type RoleFilter = 'All Roles' | 'Instructor' | 'Student' | 'Admin' | 'Content Manager';
 type StatusFilter = 'All Status' | 'Active' | 'Inactive' | 'Blocked';
 type UserRole = 'Instructor' | 'Student' | 'Admin' | 'Content Manager';
@@ -56,8 +52,6 @@ interface UserRow {
   isActive: boolean;
   lastLogin: string;
   joinedDate: string;
-  avatar: string;
-  color: string;
   firstName: string;
   lastName: string;
 }
@@ -72,42 +66,39 @@ interface ApiUser {
   createdAt?: string;
 }
 
-function roleStyles(role: UserRole) {
-  switch (role) {
-    case 'Content Manager':
-      return { bgcolor: alpha('#0EA5E9', 0.12), color: '#0369A1' };
-    case 'Instructor':
-      return { bgcolor: alpha('#A855F7', 0.12), color: '#7C3AED' };
-    case 'Admin':
-      return { bgcolor: alpha('#0066FF', 0.12), color: '#0066FF' };
-    default:
-      return { bgcolor: alpha('#64748B', 0.12), color: '#64748B' };
-  }
-}
+type StatusMessage = {
+  type: 'success' | 'error';
+  text: string;
+};
+
+type CreateFormErrors = Partial<Record<'firstName' | 'lastName' | 'email' | 'password', string>>;
+type EditFormErrors = Partial<Record<'firstName' | 'lastName' | 'email', string>>;
+
+const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 function statusStyles(status: UserStatus) {
   switch (status) {
     case 'Active':
-      return { dot: '#10B981', color: 'success.main', bg: alpha('#10B981', 0.12) };
+      return { dot: '#10B981', color: 'success.main' };
     case 'Blocked':
-      return { dot: '#EF4444', color: '#EF4444', bg: alpha('#EF4444', 0.12) };
+      return { dot: '#EF4444', color: '#EF4444' };
     default:
-      return { dot: '#64748B', color: 'text.secondary', bg: alpha('#64748B', 0.12) };
+      return { dot: '#64748B', color: 'text.secondary' };
   }
 }
 
 export default function UserManagement() {
-  const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [search, setSearch] = useState('');
   const [roleFilter, setRoleFilter] = useState<RoleFilter>('All Roles');
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('All Status');
-  const [selected, setSelected] = useState<string[]>([]);
   const [page, setPage] = useState(1);
-  const [statusMessage, setStatusMessage] = useState<string | null>(null);
+  const [statusMessage, setStatusMessage] = useState<StatusMessage | null>(null);
   const [viewingUser, setViewingUser] = useState<UserRow | null>(null);
   const [editingUser, setEditingUser] = useState<UserRow | null>(null);
   const [creatingUser, setCreatingUser] = useState(false);
+  const [createFormErrors, setCreateFormErrors] = useState<CreateFormErrors>({});
+  const [editFormErrors, setEditFormErrors] = useState<EditFormErrors>({});
   const [createForm, setCreateForm] = useState({
     firstName: '',
     lastName: '',
@@ -147,15 +138,21 @@ export default function UserManagement() {
 
   const deactivateUserMutation = useMutation({
     mutationFn: async (userId: string) => {
-      await api.delete(`/api/users/${userId}`);
+      const response = await api.delete<{ message?: string }>(`/api/users/${userId}`);
+      return response.data;
     },
-    onSuccess: () => {
-      setStatusMessage('User deactivated successfully.');
+    onSuccess: (responseData) => {
+      setStatusMessage({
+        type: 'success',
+        text: responseData?.message || 'User deactivated successfully.',
+      });
       void queryClient.invalidateQueries({ queryKey: ['admin', 'users'] });
-      setSelected([]);
     },
     onError: (requestError) => {
-      setStatusMessage(normalizeApiError(requestError).message || 'Failed to deactivate user.');
+      setStatusMessage({
+        type: 'error',
+        text: normalizeApiError(requestError).message || 'Failed to deactivate user.',
+      });
     },
   });
 
@@ -172,8 +169,9 @@ export default function UserManagement() {
       return response.data;
     },
     onSuccess: () => {
-      setStatusMessage('User created successfully.');
+      setStatusMessage({ type: 'success', text: 'User created successfully.' });
       setCreatingUser(false);
+      setCreateFormErrors({});
       setCreateForm({
         firstName: '',
         lastName: '',
@@ -185,7 +183,10 @@ export default function UserManagement() {
       void queryClient.invalidateQueries({ queryKey: ['admin', 'users'] });
     },
     onError: (requestError) => {
-      setStatusMessage(normalizeApiError(requestError).message || 'Failed to create user.');
+      setStatusMessage({
+        type: 'error',
+        text: normalizeApiError(requestError).message || 'Failed to create user.',
+      });
     },
   });
 
@@ -203,22 +204,27 @@ export default function UserManagement() {
         isActive: boolean;
       };
     }) => {
-      await api.patch(`/api/users/${userId}`, payload);
+      const response = await api.patch(`/api/users/${userId}`, payload);
+      return response.data;
     },
     onSuccess: () => {
-      setStatusMessage('User updated successfully.');
+      setStatusMessage({ type: 'success', text: 'User updated successfully.' });
       setEditingUser(null);
+      setEditFormErrors({});
       void queryClient.invalidateQueries({ queryKey: ['admin', 'users'] });
     },
     onError: (requestError) => {
-      setStatusMessage(normalizeApiError(requestError).message || 'Failed to update user.');
+      setStatusMessage({
+        type: 'error',
+        text: normalizeApiError(requestError).message || 'Failed to update user.',
+      });
     },
   });
 
   const users = useMemo<UserRow[]>(() => {
     const rows = data ?? [];
 
-    return rows.map((user, index) => {
+    return rows.map((user) => {
       const fullName = [user.firstName, user.lastName].filter(Boolean).join(' ') || user.email;
       const role =
         user.role === 'instructor'
@@ -231,13 +237,6 @@ export default function UserManagement() {
       const firstName = user.firstName?.trim() || '';
       const lastName = user.lastName?.trim() || '';
       const isActive = user.isActive !== false;
-
-      const initials = fullName
-        .split(' ')
-        .filter(Boolean)
-        .slice(0, 2)
-        .map((part) => part[0]?.toUpperCase() || '')
-        .join('') || 'U';
 
       return {
         id: user._id,
@@ -255,8 +254,6 @@ export default function UserManagement() {
               year: 'numeric',
             })
           : 'N/A',
-        avatar: initials,
-        color: ['#0EA5E9', '#6366F1', '#10B981', '#F59E0B', '#0066FF'][index % 5],
         firstName,
         lastName,
       };
@@ -277,12 +274,6 @@ export default function UserManagement() {
   const currentPage = Math.min(page, totalPages);
   const displayedUsers = filteredUsers.slice((currentPage - 1) * usersPerPage, currentPage * usersPerPage);
 
-  const toggleSelection = (id: string) => {
-    setSelected((current) =>
-      current.includes(id) ? current.filter((item) => item !== id) : [...current, id]
-    );
-  };
-
   const goToPage = (value: number) => {
     setPage(Math.max(1, Math.min(value, totalPages)));
   };
@@ -292,6 +283,8 @@ export default function UserManagement() {
   };
 
   const openEditDialog = (user: UserRow) => {
+    setStatusMessage(null);
+    setEditFormErrors({});
     setEditingUser(user);
     setEditForm({
       firstName: user.firstName,
@@ -303,20 +296,39 @@ export default function UserManagement() {
   };
 
   const handleCreateUser = () => {
-    if (!createForm.firstName.trim() || !createForm.lastName.trim() || !createForm.email.trim() || !createForm.password) {
-      setStatusMessage('All fields are required.');
+    const nextErrors: CreateFormErrors = {};
+    const trimmedFirstName = createForm.firstName.trim();
+    const trimmedLastName = createForm.lastName.trim();
+    const trimmedEmail = createForm.email.trim().toLowerCase();
+
+    if (!trimmedFirstName) {
+      nextErrors.firstName = 'First name is required.';
+    }
+    if (!trimmedLastName) {
+      nextErrors.lastName = 'Last name is required.';
+    }
+    if (!trimmedEmail) {
+      nextErrors.email = 'Email is required.';
+    } else if (!emailPattern.test(trimmedEmail)) {
+      nextErrors.email = 'Enter a valid email address.';
+    }
+    if (!createForm.password) {
+      nextErrors.password = 'Password is required.';
+    } else if (createForm.password.length < 8) {
+      nextErrors.password = 'Password must be at least 8 characters.';
+    }
+
+    if (Object.keys(nextErrors).length > 0) {
+      setCreateFormErrors(nextErrors);
+      setStatusMessage({ type: 'error', text: 'Fix the highlighted fields before creating a user.' });
       return;
     }
 
-    if (createForm.password.length < 8) {
-      setStatusMessage('Password must be at least 8 characters.');
-      return;
-    }
-
+    setCreateFormErrors({});
     void createUserMutation.mutateAsync({
-      firstName: createForm.firstName.trim(),
-      lastName: createForm.lastName.trim(),
-      email: createForm.email.trim(),
+      firstName: trimmedFirstName,
+      lastName: trimmedLastName,
+      email: trimmedEmail,
       password: createForm.password,
       role: createForm.role,
       isActive: createForm.isActive,
@@ -328,12 +340,36 @@ export default function UserManagement() {
       return;
     }
 
+    const nextErrors: EditFormErrors = {};
+    const trimmedFirstName = editForm.firstName.trim();
+    const trimmedLastName = editForm.lastName.trim();
+    const trimmedEmail = editForm.email.trim().toLowerCase();
+
+    if (!trimmedFirstName) {
+      nextErrors.firstName = 'First name is required.';
+    }
+    if (!trimmedLastName) {
+      nextErrors.lastName = 'Last name is required.';
+    }
+    if (!trimmedEmail) {
+      nextErrors.email = 'Email is required.';
+    } else if (!emailPattern.test(trimmedEmail)) {
+      nextErrors.email = 'Enter a valid email address.';
+    }
+
+    if (Object.keys(nextErrors).length > 0) {
+      setEditFormErrors(nextErrors);
+      setStatusMessage({ type: 'error', text: 'Fix the highlighted fields before saving changes.' });
+      return;
+    }
+
+    setEditFormErrors({});
     void updateUserMutation.mutateAsync({
       userId: editingUser.id,
       payload: {
-        firstName: editForm.firstName.trim(),
-        lastName: editForm.lastName.trim(),
-        email: editForm.email.trim(),
+        firstName: trimmedFirstName,
+        lastName: trimmedLastName,
+        email: trimmedEmail,
         role: editForm.role,
         isActive: editForm.isActive,
       },
@@ -344,56 +380,63 @@ export default function UserManagement() {
   const lastVisibleItem = Math.min(currentPage * usersPerPage, totalUsers);
 
   return (
-    <Box sx={{ minHeight: '100%', bgcolor: 'background.default', p: { xs: 2, sm: 2.5, md: 3 } }}>
-        <Typography variant="h5" sx={{ fontWeight: 800, mb: 2.5 }}>
-          User management
-        </Typography>
-
+    <Box sx={{ minHeight: '100%', bgcolor: 'background.default' }}>
+      <DashboardPageFrame
+        title="Users"
+        description="Manage learner, instructor, and admin accounts with standardized role and status controls."
+        actions={(
+          <Button
+            variant="contained"
+            sx={{ py: 1.25 }}
+            onClick={() => {
+              setStatusMessage(null);
+              setCreateFormErrors({});
+              setCreatingUser(true);
+            }}
+          >
+            Add User
+          </Button>
+        )}
+      >
         {statusMessage ? (
           <Alert
-            severity={statusMessage.toLowerCase().includes('failed') ? 'error' : 'success'}
-            sx={{ mb: 2.25, borderRadius: '12px' }}
+            severity={statusMessage.type}
+            sx={{ mb: 2.25, borderRadius: 1.5 }}
             onClose={() => setStatusMessage(null)}
           >
-            {statusMessage}
+            {statusMessage.text}
           </Alert>
         ) : null}
 
         {isError ? (
-          <Alert severity="error" sx={{ mb: 2.25, borderRadius: '12px' }}>
+          <Alert severity="error" sx={{ mb: 2.25, borderRadius: 1.5 }}>
             {normalizeApiError(error).message || 'Could not load users'}
           </Alert>
         ) : null}
 
-        <Card sx={{ mb: 2.5 }}>
-          <CardContent sx={{ p: { xs: 2.5, md: 3 } }}>
-            <Stack spacing={2}>
-              <Typography variant="h4" sx={{ fontWeight: 800, letterSpacing: '-0.03em' }}>
-                User Management
-              </Typography>
-
+        <DashboardSection>
+          <Stack spacing={2}>
               <Grid container spacing={1.5} sx={{ alignItems: 'center' }}>
                 <Grid size={{ xs: 12, md: 5 }}>
-                  <Box sx={{ position: 'relative' }}>
-                    <Box sx={{ position: 'absolute', left: 18, top: '50%', transform: 'translateY(-50%)', color: 'text.secondary', pointerEvents: 'none' }}>
-                      <SearchOutlined fontSize="small" />
-                    </Box>
-                    <TextField
-                      value={search}
-                      onChange={(event) => setSearch(event.target.value)}
-                      placeholder="Search by name or email..."
-                      sx={{
-                        '& .MuiInputBase-root': {
-                          pl: 5.25,
-                        },
-                      }}
-                    />
-                  </Box>
+                  <TextField
+                    value={search}
+                    onChange={(event) => setSearch(event.target.value)}
+                    placeholder="Search by name or email..."
+                    slotProps={{
+                      input: {
+                        startAdornment: (
+                          <InputAdornment position="start">
+                            <SearchOutlined fontSize="small" />
+                          </InputAdornment>
+                        ),
+                      },
+                    }}
+                  />
                 </Grid>
 
                 <Grid size={{ xs: 12, md: 4 }}>
                   <Grid container spacing={1.25}>
-                    <Grid size={6}>
+                    <Grid size={{ xs: 12, sm: 6 }}>
                       <Select value={roleFilter} onChange={(event) => setRoleFilter(event.target.value as RoleFilter)} fullWidth>
                         {['All Roles', 'Instructor', 'Student', 'Admin', 'Content Manager'].map((role) => (
                           <MenuItem key={role} value={role}>
@@ -402,7 +445,7 @@ export default function UserManagement() {
                         ))}
                       </Select>
                     </Grid>
-                    <Grid size={6}>
+                    <Grid size={{ xs: 12, sm: 6 }}>
                       <Select value={statusFilter} onChange={(event) => setStatusFilter(event.target.value as StatusFilter)} fullWidth>
                         {['All Status', 'Active', 'Inactive', 'Blocked'].map((status) => (
                           <MenuItem key={status} value={status}>
@@ -413,36 +456,23 @@ export default function UserManagement() {
                     </Grid>
                   </Grid>
                 </Grid>
-
-                <Grid size={{ xs: 12, md: 3 }}>
-                  <Button
-                    variant="contained"
-                    startIcon={<AddOutlined />}
-                    fullWidth
-                    sx={{ py: 1.5 }}
-                    onClick={() => setCreatingUser(true)}
-                  >
-                    Add User
-                  </Button>
-                </Grid>
               </Grid>
-            </Stack>
-          </CardContent>
-        </Card>
+          </Stack>
+        </DashboardSection>
 
-        <Card>
-          <CardContent sx={{ p: 0 }}>
+        <DashboardSection cardContentSx={{ p: 0 }}>
+            <Box sx={{ px: { xs: 2, md: 2.5 }, pt: { xs: 2, md: 2.5 }, pb: 2 }}>
+              <Typography variant="h6" sx={{ fontWeight: 800 }}>
+                User Directory
+              </Typography>
+              <Typography variant="body2" sx={{ color: 'text.secondary', mt: 0.5 }}>
+                Role-based account list with quick actions.
+              </Typography>
+            </Box>
             <TableContainer sx={{ overflowX: 'auto' }}>
-              <Table sx={{ minWidth: 920 }}>
+              <Table sx={{ minWidth: { xs: 760, md: 920 } }}>
                 <TableHead>
-                  <TableRow sx={{ '& .MuiTableCell-root': { borderBottom: '1px solid #E2E8F0', color: 'text.secondary', fontWeight: 800, py: 1.75 } }}>
-                    <TableCell padding="checkbox">
-                      <Checkbox
-                        checked={selected.length > 0 && selected.length === displayedUsers.length}
-                        indeterminate={selected.length > 0 && selected.length < displayedUsers.length}
-                        onChange={() => setSelected(selected.length ? [] : displayedUsers.map((user) => user.id))}
-                      />
-                    </TableCell>
+                  <TableRow sx={{ '& .MuiTableCell-root': { borderBottom: '1px solid', borderColor: 'divider', color: 'text.secondary', fontWeight: 800, py: { xs: 1.25, md: 1.75 }, fontSize: { xs: '0.75rem', md: '0.875rem' } } }}>
                     <TableCell>User</TableCell>
                     <TableCell>Role</TableCell>
                     <TableCell>Status</TableCell>
@@ -454,14 +484,13 @@ export default function UserManagement() {
                 <TableBody>
                   {isLoading ? (
                     <TableRow>
-                      <TableCell colSpan={7}>
+                      <TableCell colSpan={6}>
                         <Typography sx={{ color: 'text.secondary', py: 1.5 }}>Loading users...</Typography>
                       </TableCell>
                     </TableRow>
                   ) : null}
 
                   {displayedUsers.map((user) => {
-                    const roleStyle = roleStyles(user.role);
                     const statusStyle = statusStyles(user.status);
 
                     return (
@@ -469,41 +498,23 @@ export default function UserManagement() {
                         key={user.id}
                         hover
                         sx={{
-                          '& .MuiTableCell-root': { py: 1.8, borderBottom: '1px solid #E2E8F0' },
-                          '&:hover': { bgcolor: alpha(theme.palette.primary.main, 0.03) },
+                          '& .MuiTableCell-root': { py: 1.8, borderBottom: '1px solid', borderColor: 'divider' },
                         }}
                       >
-                        <TableCell padding="checkbox">
-                          <Checkbox checked={selected.includes(user.id)} onChange={() => toggleSelection(user.id)} />
-                        </TableCell>
                         <TableCell>
-                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-                            <Avatar sx={{ width: 42, height: 42, bgcolor: user.color, fontWeight: 700 }}>{user.avatar}</Avatar>
-                            <Box sx={{ minWidth: 0 }}>
-                              <Typography variant="subtitle2" sx={{ fontWeight: 800 }} noWrap>
-                                {user.name}
-                              </Typography>
-                              <Typography variant="body2" sx={{ color: 'text.secondary' }} noWrap>
-                                {user.email}
-                              </Typography>
-                            </Box>
+                          <Box sx={{ minWidth: 0 }}>
+                            <Typography variant="subtitle2" sx={{ fontWeight: 800, fontSize: { xs: '0.8125rem', md: '0.875rem' } }}>
+                              {user.name}
+                            </Typography>
+                            <Typography variant="body2" sx={{ color: 'text.secondary', fontSize: { xs: '0.75rem', md: '0.875rem' }, wordBreak: 'break-word' }}>
+                              {user.email}
+                            </Typography>
                           </Box>
                         </TableCell>
                         <TableCell>
-                          <Box
-                            sx={{
-                              display: 'inline-flex',
-                              px: 1.2,
-                              py: 0.6,
-                              borderRadius: '999px',
-                              bgcolor: roleStyle.bgcolor,
-                              color: roleStyle.color,
-                              fontWeight: 700,
-                              fontSize: 12,
-                            }}
-                          >
+                          <Typography variant="body2" sx={{ color: 'text.primary', fontWeight: 600 }}>
                             {user.role}
-                          </Box>
+                          </Typography>
                         </TableCell>
                         <TableCell>
                           <Box sx={{ display: 'inline-flex', alignItems: 'center', gap: 1 }}>
@@ -549,8 +560,7 @@ export default function UserManagement() {
               </Typography>
               <Pagination count={totalPages} page={currentPage} onChange={(_, value) => goToPage(value)} color="primary" shape="rounded" />
             </Box>
-          </CardContent>
-        </Card>
+        </DashboardSection>
 
         <Drawer
           anchor="right"
@@ -560,6 +570,8 @@ export default function UserManagement() {
             '& .MuiDrawer-paper': {
               width: { xs: '100%', sm: 420 },
               p: 2.5,
+              borderLeft: '1px solid',
+              borderColor: 'divider',
             },
           }}
         >
@@ -568,18 +580,15 @@ export default function UserManagement() {
               <Typography variant="h6" sx={{ fontWeight: 800 }}>
                 User Profile
               </Typography>
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-                <Avatar sx={{ width: 48, height: 48, bgcolor: viewingUser.color, fontWeight: 700 }}>{viewingUser.avatar}</Avatar>
-                <Box>
-                  <Typography variant="subtitle1" sx={{ fontWeight: 800 }}>
-                    {viewingUser.name}
-                  </Typography>
-                  <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                    {viewingUser.email}
-                  </Typography>
-                </Box>
+              <Box>
+                <Typography variant="subtitle1" sx={{ fontWeight: 800 }}>
+                  {viewingUser.name}
+                </Typography>
+                <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                  {viewingUser.email}
+                </Typography>
               </Box>
-              <Card sx={{ boxShadow: 'none', border: '1px solid #E2E8F0' }}>
+              <Card sx={{ boxShadow: 'none', border: '1px solid', borderColor: 'divider' }}>
                 <CardContent>
                   <Stack spacing={1.25}>
                     <Typography variant="body2"><strong>Role:</strong> {viewingUser.role}</Typography>
@@ -600,19 +609,29 @@ export default function UserManagement() {
           <DialogTitle>Edit User</DialogTitle>
           <DialogContent sx={{ pt: '12px !important' }}>
             <Grid container spacing={1.5}>
-              <Grid size={6}>
+              <Grid size={{ xs: 12, sm: 6 }}>
                 <TextField
                   label="First Name"
                   value={editForm.firstName}
-                  onChange={(event) => setEditForm((current) => ({ ...current, firstName: event.target.value }))}
+                  onChange={(event) => {
+                    setEditForm((current) => ({ ...current, firstName: event.target.value }));
+                    setEditFormErrors((current) => ({ ...current, firstName: undefined }));
+                  }}
+                  error={Boolean(editFormErrors.firstName)}
+                  helperText={editFormErrors.firstName}
                   fullWidth
                 />
               </Grid>
-              <Grid size={6}>
+              <Grid size={{ xs: 12, sm: 6 }}>
                 <TextField
                   label="Last Name"
                   value={editForm.lastName}
-                  onChange={(event) => setEditForm((current) => ({ ...current, lastName: event.target.value }))}
+                  onChange={(event) => {
+                    setEditForm((current) => ({ ...current, lastName: event.target.value }));
+                    setEditFormErrors((current) => ({ ...current, lastName: undefined }));
+                  }}
+                  error={Boolean(editFormErrors.lastName)}
+                  helperText={editFormErrors.lastName}
                   fullWidth
                 />
               </Grid>
@@ -621,11 +640,16 @@ export default function UserManagement() {
                   label="Email"
                   type="email"
                   value={editForm.email}
-                  onChange={(event) => setEditForm((current) => ({ ...current, email: event.target.value }))}
+                  onChange={(event) => {
+                    setEditForm((current) => ({ ...current, email: event.target.value }));
+                    setEditFormErrors((current) => ({ ...current, email: undefined }));
+                  }}
+                  error={Boolean(editFormErrors.email)}
+                  helperText={editFormErrors.email}
                   fullWidth
                 />
               </Grid>
-              <Grid size={6}>
+              <Grid size={{ xs: 12, sm: 6 }}>
                 <FormControl fullWidth>
                   <InputLabel id="edit-user-role-label">Role</InputLabel>
                   <Select
@@ -641,7 +665,7 @@ export default function UserManagement() {
                   </Select>
                 </FormControl>
               </Grid>
-              <Grid size={6}>
+              <Grid size={{ xs: 12, sm: 6 }}>
                 <FormControl fullWidth>
                   <InputLabel id="edit-user-status-label">Status</InputLabel>
                   <Select
@@ -660,7 +684,13 @@ export default function UserManagement() {
             </Grid>
           </DialogContent>
           <DialogActions sx={{ px: 3, pb: 2.5 }}>
-            <Button onClick={() => setEditingUser(null)} disabled={updateUserMutation.isPending}>
+            <Button
+              onClick={() => {
+                setEditingUser(null);
+                setEditFormErrors({});
+              }}
+              disabled={updateUserMutation.isPending}
+            >
               Cancel
             </Button>
             <Button onClick={saveUserChanges} variant="contained" disabled={updateUserMutation.isPending}>
@@ -669,23 +699,41 @@ export default function UserManagement() {
           </DialogActions>
         </Dialog>
 
-        <Dialog open={creatingUser} onClose={() => setCreatingUser(false)} fullWidth maxWidth="sm">
+        <Dialog
+          open={creatingUser}
+          onClose={() => {
+            setCreatingUser(false);
+            setCreateFormErrors({});
+          }}
+          fullWidth
+          maxWidth="sm"
+        >
           <DialogTitle>Create New User</DialogTitle>
           <DialogContent sx={{ pt: '12px !important' }}>
             <Grid container spacing={1.5}>
-              <Grid size={6}>
+              <Grid size={{ xs: 12, sm: 6 }}>
                 <TextField
                   label="First Name"
                   value={createForm.firstName}
-                  onChange={(event) => setCreateForm((current) => ({ ...current, firstName: event.target.value }))}
+                  onChange={(event) => {
+                    setCreateForm((current) => ({ ...current, firstName: event.target.value }));
+                    setCreateFormErrors((current) => ({ ...current, firstName: undefined }));
+                  }}
+                  error={Boolean(createFormErrors.firstName)}
+                  helperText={createFormErrors.firstName}
                   fullWidth
                 />
               </Grid>
-              <Grid size={6}>
+              <Grid size={{ xs: 12, sm: 6 }}>
                 <TextField
                   label="Last Name"
                   value={createForm.lastName}
-                  onChange={(event) => setCreateForm((current) => ({ ...current, lastName: event.target.value }))}
+                  onChange={(event) => {
+                    setCreateForm((current) => ({ ...current, lastName: event.target.value }));
+                    setCreateFormErrors((current) => ({ ...current, lastName: undefined }));
+                  }}
+                  error={Boolean(createFormErrors.lastName)}
+                  helperText={createFormErrors.lastName}
                   fullWidth
                 />
               </Grid>
@@ -694,7 +742,12 @@ export default function UserManagement() {
                   label="Email"
                   type="email"
                   value={createForm.email}
-                  onChange={(event) => setCreateForm((current) => ({ ...current, email: event.target.value }))}
+                  onChange={(event) => {
+                    setCreateForm((current) => ({ ...current, email: event.target.value }));
+                    setCreateFormErrors((current) => ({ ...current, email: undefined }));
+                  }}
+                  error={Boolean(createFormErrors.email)}
+                  helperText={createFormErrors.email}
                   fullWidth
                 />
               </Grid>
@@ -703,12 +756,16 @@ export default function UserManagement() {
                   label="Password"
                   type="password"
                   value={createForm.password}
-                  onChange={(event) => setCreateForm((current) => ({ ...current, password: event.target.value }))}
+                  onChange={(event) => {
+                    setCreateForm((current) => ({ ...current, password: event.target.value }));
+                    setCreateFormErrors((current) => ({ ...current, password: undefined }));
+                  }}
+                  error={Boolean(createFormErrors.password)}
+                  helperText={createFormErrors.password || 'Minimum 8 characters'}
                   fullWidth
-                  helperText="Minimum 8 characters"
                 />
               </Grid>
-              <Grid size={6}>
+              <Grid size={{ xs: 12, sm: 6 }}>
                 <FormControl fullWidth>
                   <InputLabel id="create-user-role-label">Role</InputLabel>
                   <Select
@@ -724,7 +781,7 @@ export default function UserManagement() {
                   </Select>
                 </FormControl>
               </Grid>
-              <Grid size={6}>
+              <Grid size={{ xs: 12, sm: 6 }}>
                 <FormControl fullWidth>
                   <InputLabel id="create-user-status-label">Status</InputLabel>
                   <Select
@@ -743,7 +800,13 @@ export default function UserManagement() {
             </Grid>
           </DialogContent>
           <DialogActions sx={{ px: 3, pb: 2.5 }}>
-            <Button onClick={() => setCreatingUser(false)} disabled={createUserMutation.isPending}>
+            <Button
+              onClick={() => {
+                setCreatingUser(false);
+                setCreateFormErrors({});
+              }}
+              disabled={createUserMutation.isPending}
+            >
               Cancel
             </Button>
             <Button onClick={handleCreateUser} variant="contained" disabled={createUserMutation.isPending}>
@@ -751,6 +814,7 @@ export default function UserManagement() {
             </Button>
           </DialogActions>
         </Dialog>
+      </DashboardPageFrame>
     </Box>
   );
 }

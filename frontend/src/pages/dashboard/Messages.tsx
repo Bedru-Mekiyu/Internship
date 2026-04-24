@@ -3,37 +3,22 @@ import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tansta
 import type { InfiniteData } from '@tanstack/react-query';
 import {
   Alert,
-  Avatar,
   Box,
   Button,
   Card,
   CardContent,
   CircularProgress,
   Grid,
-  IconButton,
   List,
   ListItem,
   ListItemButton,
   TextField,
+  InputAdornment,
   Typography,
 } from '@mui/material';
-import { alpha } from '@mui/material/styles';
 import {
-  AttachFileOutlined,
-  CallOutlined,
-  EditOutlined,
-  EmojiEmotionsOutlined,
-  FormatBoldOutlined,
-  FormatItalicOutlined,
-  FormatUnderlinedOutlined,
-  LinkOutlined,
-  ListOutlined,
-  MoreHorizOutlined,
   SearchOutlined,
-  SendOutlined,
-  VideoCallOutlined,
 } from '@mui/icons-material';
-import { theme } from '../../theme';
 import { api, normalizeApiError } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 import {
@@ -144,20 +129,32 @@ function ConversationRow({
         onClick={onClick}
         selected={active}
         sx={{
-          borderRadius: '16px',
-          px: 1.25,
-          py: 1.25,
+          borderRadius: 1.5,
+          px: { xs: 1, sm: 1.25 },
+          py: { xs: 1, sm: 1.25 },
           alignItems: 'flex-start',
-          gap: 1.25,
+          gap: { xs: 1, sm: 1.25 },
           '&.Mui-selected': {
-            bgcolor: alpha(theme.palette.primary.main, 0.08),
-            '&:hover': { bgcolor: alpha(theme.palette.primary.main, 0.12) },
+            bgcolor: 'background.default',
+            '&:hover': { bgcolor: 'background.default' },
           },
         }}
       >
-        <Avatar sx={{ width: 42, height: 42, bgcolor: conversation.accent, fontWeight: 700, flexShrink: 0 }}>
+        <Box
+          sx={{
+            width: 42,
+            height: 42,
+            borderRadius: 1.5,
+            bgcolor: conversation.accent,
+            color: 'common.white',
+            fontWeight: 700,
+            flexShrink: 0,
+            display: 'grid',
+            placeItems: 'center',
+          }}
+        >
           {conversation.initials}
-        </Avatar>
+        </Box>
         <Box sx={{ minWidth: 0, flex: 1 }}>
           <Typography variant="body2" sx={{ fontWeight: 700 }} noWrap>
             {conversation.name}
@@ -182,12 +179,11 @@ function ChatBubble({ message }: { message: ChatMessage }) {
       <Box sx={{ maxWidth: { xs: '100%', sm: '84%', md: '72%' } }}>
         <Box
           sx={{
-            borderRadius: '16px',
-            bgcolor: isSent ? 'primary.main' : '#F1F5F9',
+            borderRadius: 1.5,
+            bgcolor: isSent ? 'primary.main' : 'background.default',
             color: isSent ? '#FFFFFF' : 'text.primary',
             px: 2,
             py: 1.5,
-            boxShadow: isSent ? '0 10px 22px rgba(0,102,255,0.12)' : '0 4px 14px rgba(15,23,42,0.05)',
           }}
         >
           <Typography variant="body2" sx={{ whiteSpace: 'pre-wrap', lineHeight: 1.6 }}>
@@ -425,7 +421,7 @@ export default function Messages() {
       const authorName = [discussion.user?.firstName, discussion.user?.lastName]
         .filter(Boolean)
         .join(' ')
-        .trim() || 'Learner';
+        .trim() || 'User';
       const isSent = Boolean(user?._id && discussion.user?._id && discussion.user._id === user._id);
 
       return {
@@ -479,7 +475,7 @@ export default function Messages() {
   const shouldShowLoadOlderMessages = canLoadOlderMessages(Boolean(activeCourse), Boolean(hasNextPage));
 
   return (
-    <Box sx={{ minHeight: '100%', bgcolor: 'background.default', p: { xs: 2, sm: 2.5, md: 3 } }}>
+    <Box sx={{ minHeight: '100%', bgcolor: 'background.default', p: { xs: 1.5, sm: 2.5, md: 3 } }}>
         <Typography variant="h5" sx={{ fontWeight: 800, mb: 2.5 }}>
           Messages
         </Typography>
@@ -490,40 +486,29 @@ export default function Messages() {
           </Alert>
         ) : null}
 
-        <Grid container spacing={2.5} sx={{ alignItems: 'stretch' }}>
-          <Grid size={{ xs: 12, lg: 4 }}>
-            <Card sx={{ height: '100%', overflow: 'hidden' }}>
+        <Grid container spacing={{ xs: 2, md: 2.5 }} sx={{ alignItems: 'stretch' }}>
+          <Grid size={{ xs: 12, lg: 4 }} sx={{ minWidth: 0 }}>
+            <Card sx={{ height: '100%', overflow: 'hidden', border: '1px solid', borderColor: 'divider', borderRadius: { xs: 1.5, md: 2 } }}>
               <CardContent sx={{ p: 0, height: '100%', display: 'flex', flexDirection: 'column' }}>
-                <Box sx={{ p: 2.5, pb: 2, borderBottom: '1px solid #E2E8F0' }}>
+                <Box sx={{ p: 2.5, borderBottom: '1px solid', borderColor: 'divider' }}>
                   <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 1.5 }}>
                     <Typography variant="h6" sx={{ fontWeight: 800 }}>
                       Conversations
                     </Typography>
-                    <IconButton size="small" sx={{ color: 'text.secondary' }}>
-                      <EditOutlined fontSize="small" />
-                    </IconButton>
                   </Box>
 
-                  <Box sx={{ position: 'relative', mt: 2 }}>
-                    <Box
-                      sx={{
-                        position: 'absolute',
-                        left: 18,
-                        top: '50%',
-                        transform: 'translateY(-50%)',
-                        color: 'text.secondary',
-                        pointerEvents: 'none',
-                      }}
-                    >
-                      <SearchOutlined fontSize="small" />
-                    </Box>
+                  <Box sx={{ mt: 2 }}>
                     <TextField
                       value={search}
                       onChange={(event) => setSearch(event.target.value)}
                       placeholder="Search conversations..."
-                      sx={{
-                        '& .MuiInputBase-root': {
-                          pl: 5.25,
+                      slotProps={{
+                        input: {
+                          startAdornment: (
+                            <InputAdornment position="start">
+                              <SearchOutlined fontSize="small" />
+                            </InputAdornment>
+                          ),
                         },
                       }}
                     />
@@ -584,17 +569,28 @@ export default function Messages() {
             </Card>
           </Grid>
 
-          <Grid size={{ xs: 12, lg: 8 }}>
-            <Card sx={{ height: '100%', overflow: 'hidden' }}>
+          <Grid size={{ xs: 12, lg: 8 }} sx={{ minWidth: 0 }}>
+            <Card sx={{ height: '100%', overflow: 'hidden', border: '1px solid', borderColor: 'divider', borderRadius: { xs: 1.5, md: 2 } }}>
               <CardContent sx={{ p: 0, height: '100%', display: 'flex', flexDirection: 'column' }}>
-                <Box sx={{ p: { xs: 2.25, md: 2.75 }, borderBottom: '1px solid #E2E8F0' }}>
-                  <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 2, flexWrap: 'wrap' }}>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, minWidth: 0 }}>
-                      <Avatar sx={{ width: 48, height: 48, bgcolor: '#0066FF', fontWeight: 700 }}>
+                <Box sx={{ p: 2.5, borderBottom: '1px solid', borderColor: 'divider' }}>
+                  <Box sx={{ display: 'flex', alignItems: { xs: 'flex-start', sm: 'center' }, justifyContent: 'space-between', gap: 2, flexWrap: 'wrap' }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, minWidth: 0, width: { xs: '100%', sm: 'auto' } }}>
+                      <Box
+                        sx={{
+                          width: { xs: 40, sm: 48 },
+                          height: { xs: 40, sm: 48 },
+                          borderRadius: 1.5,
+                          bgcolor: 'primary.main',
+                          color: 'common.white',
+                          fontWeight: 700,
+                          display: 'grid',
+                          placeItems: 'center',
+                        }}
+                      >
                         {initialsFromName(activeCourse?.title || 'Messages')}
-                      </Avatar>
+                      </Box>
                       <Box sx={{ minWidth: 0 }}>
-                        <Typography variant="h6" sx={{ fontWeight: 800 }} noWrap>
+                        <Typography variant="h6" sx={{ fontWeight: 800, fontSize: { xs: '1rem', sm: '1.25rem' } }} noWrap>
                           {activeCourse?.title || 'Select a conversation'}
                         </Typography>
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
@@ -606,21 +602,10 @@ export default function Messages() {
                       </Box>
                     </Box>
 
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                      <IconButton sx={{ bgcolor: alpha(theme.palette.primary.main, 0.06), color: 'primary.main' }}>
-                        <CallOutlined />
-                      </IconButton>
-                      <IconButton sx={{ bgcolor: alpha(theme.palette.primary.main, 0.06), color: 'primary.main' }}>
-                        <VideoCallOutlined />
-                      </IconButton>
-                      <IconButton sx={{ bgcolor: alpha(theme.palette.primary.main, 0.06), color: 'primary.main' }}>
-                        <MoreHorizOutlined />
-                      </IconButton>
-                    </Box>
                   </Box>
                 </Box>
 
-                <Box ref={chatContainerRef} sx={{ p: { xs: 2.25, md: 3 }, flex: 1, minHeight: 0, overflowY: 'auto', bgcolor: '#FFFFFF' }}>
+                 <Box ref={chatContainerRef} sx={{ p: { xs: 2, sm: 2.5 }, flex: 1, minHeight: 0, overflowY: 'auto', bgcolor: 'background.paper' }}>
                   {discussionsLoading ? (
                     <Box sx={{ display: 'grid', placeItems: 'center', py: 8 }}>
                       <CircularProgress size={30} />
@@ -671,29 +656,10 @@ export default function Messages() {
                   ) : null}
                 </Box>
 
-                <Box sx={{ p: { xs: 2.25, md: 2.75 }, borderTop: '1px solid #E2E8F0', bgcolor: '#FFFFFF' }}>
-                  <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 1, mb: 1.5, flexWrap: 'wrap' }}>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, color: 'text.secondary', flexWrap: 'wrap' }}>
-                      <IconButton size="small" sx={{ color: 'text.secondary' }}>
-                        <FormatBoldOutlined fontSize="small" />
-                      </IconButton>
-                      <IconButton size="small" sx={{ color: 'text.secondary' }}>
-                        <FormatItalicOutlined fontSize="small" />
-                      </IconButton>
-                      <IconButton size="small" sx={{ color: 'text.secondary' }}>
-                        <FormatUnderlinedOutlined fontSize="small" />
-                      </IconButton>
-                      <IconButton size="small" sx={{ color: 'text.secondary' }}>
-                        <LinkOutlined fontSize="small" />
-                      </IconButton>
-                      <IconButton size="small" sx={{ color: 'text.secondary' }}>
-                        <ListOutlined fontSize="small" />
-                      </IconButton>
-                    </Box>
-                    <Typography variant="caption" sx={{ color: 'text.secondary', fontWeight: 600 }}>
-                      Course discussion message
-                    </Typography>
-                  </Box>
+                <Box sx={{ p: 2.5, borderTop: '1px solid', borderColor: 'divider', bgcolor: 'background.paper' }}>
+                  <Typography variant="caption" sx={{ color: 'text.secondary', fontWeight: 600, display: 'block', mb: 1.5 }}>
+                    Course discussion message
+                  </Typography>
 
                   <Box component="form" onSubmit={handleSendMessage}>
                     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
@@ -717,22 +683,12 @@ export default function Messages() {
                         {trimmedDraftMessage.length}/{maxMessageLength}
                       </Typography>
 
-                      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 1.5, flexWrap: 'wrap' }}>
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, color: 'text.secondary' }}>
-                          <IconButton size="small" sx={{ bgcolor: alpha(theme.palette.primary.main, 0.06), color: 'primary.main' }}>
-                            <AttachFileOutlined fontSize="small" />
-                          </IconButton>
-                          <IconButton size="small" sx={{ bgcolor: alpha(theme.palette.primary.main, 0.06), color: 'primary.main' }}>
-                            <EmojiEmotionsOutlined fontSize="small" />
-                          </IconButton>
-                        </Box>
-
+                      <Box sx={{ display: 'flex', alignItems: { xs: 'stretch', sm: 'center' }, justifyContent: 'space-between', gap: 1.5, flexWrap: 'wrap', flexDirection: { xs: 'column', sm: 'row' } }}>
                         <Button
                           type="submit"
                           variant="contained"
-                          startIcon={<SendOutlined />}
                           disabled={sendDisabled}
-                          sx={{ minWidth: 130, bgcolor: 'primary.main', '&:hover': { bgcolor: 'primary.dark' } }}
+                          sx={{ minWidth: 130, width: { xs: '100%', sm: 'auto' }, bgcolor: 'primary.main', '&:hover': { bgcolor: 'primary.dark' } }}
                         >
                           {sendMessageMutation.isPending ? 'Sending...' : 'Send'}
                         </Button>
@@ -745,9 +701,6 @@ export default function Messages() {
           </Grid>
         </Grid>
 
-      <style>
-        {`@keyframes typingPulse { 0% { opacity: 0.3; } 50% { opacity: 1; } 100% { opacity: 0.3; } }`}
-      </style>
     </Box>
   );
 }

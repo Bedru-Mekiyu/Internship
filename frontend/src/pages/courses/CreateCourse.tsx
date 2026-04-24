@@ -4,19 +4,14 @@ import {
   ArrowBack,
   DeleteOutlined,
   EditOutlined,
-  OndemandVideoOutlined,
-  QuizOutlined,
-  SaveOutlined,
-  TextSnippetOutlined,
-  VideoLibraryOutlined,
 } from '@mui/icons-material';
 import {
+  Alert,
   Box,
   Button,
   Card,
   CardContent,
-  Chip,
-  Divider,
+  CircularProgress,
   Grid,
   IconButton,
   InputLabel,
@@ -27,6 +22,7 @@ import {
   Typography,
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
+import { api, ensureCsrfToken, normalizeApiError } from '../../services/api';
 
 type LessonType = 'Video' | 'Quiz' | 'Reading';
 
@@ -64,17 +60,6 @@ function getNextId(items: Array<{ id: number }>): number {
   return items.reduce((max, item) => Math.max(max, item.id), 0) + 1;
 }
 
-function getLessonIcon(type: LessonType) {
-  switch (type) {
-    case 'Video':
-      return <OndemandVideoOutlined fontSize="small" />;
-    case 'Quiz':
-      return <QuizOutlined fontSize="small" />;
-    case 'Reading':
-      return <TextSnippetOutlined fontSize="small" />;
-  }
-}
-
 export default function CreateCourse() {
   const navigate = useNavigate();
   const [modules, setModules] = useState<Module[]>(initialModules);
@@ -83,11 +68,11 @@ export default function CreateCourse() {
   const [courseTitle, setCourseTitle] = useState('');
   const [courseSubtitle, setCourseSubtitle] = useState('');
   const [isPublished, setIsPublished] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [statusMessage, setStatusMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
   const selectedModule = modules.find((m) => m.id === selectedModuleId);
   const selectedLesson = selectedModule?.lessons.find((l) => l.id === selectedLessonId);
-
-  const totalLessons = modules.reduce((sum, m) => sum + m.lessons.length, 0);
 
   const updateModule = (moduleId: number, updates: Partial<Module>) => {
     setModules((prev) => prev.map((m) => (m.id === moduleId ? { ...m, ...updates } : m)));
@@ -156,40 +141,105 @@ export default function CreateCourse() {
     }
   };
 
-  const handleSave = () => {
-    // TODO: Implement API call to save course
-    console.log('Saving course:', { courseTitle, courseSubtitle, isPublished, modules });
-    alert('Course saved! (Check console for data)');
+  const mapLessonType = (type: LessonType): 'video' | 'quiz' | 'text' => {
+    if (type === 'Video') return 'video';
+    if (type === 'Quiz') return 'quiz';
+    return 'text';
+  };
+
+  const toSlug = (value: string) => value
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9\s-]/g, '')
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-');
+
+  const handleSave = async () => {
+    const title = courseTitle.trim();
+    if (!title) {
+      setStatusMessage({ type: 'error', text: 'Please add a course title before saving.' });
+      return;
+    }
+
+    const description = courseSubtitle.trim() || `Course content for ${title}`;
+
+    try {
+      setIsSaving(true);
+      setStatusMessage(null);
+      await ensureCsrfToken();
+
+      const createdCourse = await api.post<{ _id: string }>('/api/courses', {
+        title,
+        slug: toSlug(title),
+        description,
+        shortDescription: courseSubtitle.trim(),
+        category: 'General',
+        status: isPublished ? 'published' : 'draft',
+        pricing: {
+          type: 'free',
+          amount: 0,
+          currency: 'USD',
+        },
+      });
+
+      const courseId = createdCourse.data._id;
+
+      for (const moduleItem of modules) {
+        const moduleResponse = await api.post<{ _id: string }>(`/api/courses/${courseId}/modules`, {
+          title: moduleItem.title.trim() || 'Untitled Module',
+          description: moduleItem.description.trim(),
+          status: isPublished ? 'published' : 'draft',
+        });
+
+        const moduleId = moduleResponse.data._id;
+
+        for (const lesson of moduleItem.lessons) {
+          await api.post(`/api/courses/modules/${moduleId}/lessons`, {
+            title: lesson.title.trim() || 'Untitled Lesson',
+            content: lesson.content.trim(),
+            type: mapLessonType(lesson.type),
+          });
+        }
+      }
+
+      setStatusMessage({ type: 'success', text: 'Course saved to backend successfully.' });
+      navigate('/courses');
+    } catch (error) {
+      const normalized = normalizeApiError(error);
+      setStatusMessage({
+        type: 'error',
+        text: normalized.message || 'Unable to save the course right now.',
+      });
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   return (
-    <Box sx={{ minHeight: '100vh', bgcolor: '#f5f5f5' }}>
+    <Box sx={{ minHeight: '100vh', bgcolor: 'background.default' }}>
       {/* Header */}
-      <Box sx={{ bgcolor: 'white', borderBottom: '1px solid #e0e0e0', px: 3, py: 2 }}>
+      <Box sx={{ bgcolor: 'background.paper', borderBottom: '1px solid', borderColor: 'divider', px: 3, py: 2 }}>
         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 2 }}>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
             <Button
               variant="text"
               onClick={() => navigate('/courses')}
-              startIcon={<ArrowBack />}
               sx={{ color: 'text.secondary' }}
             >
               Back
             </Button>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-              <VideoLibraryOutlined color="primary" />
-              <Typography variant="h6" sx={{ fontWeight: 600 }}>
-                Create Course
-              </Typography>
-            </Box>
+            <Typography variant="h6" sx={{ fontWeight: 600 }}>
+              Create Course
+            </Typography>
           </Box>
           <Stack direction="row" spacing={1.5}>
-            <Button variant="outlined" startIcon={<SaveOutlined />} onClick={handleSave}>
+            <Button variant="outlined" onClick={() => void handleSave()} disabled={isSaving}>
               Save
             </Button>
             <Button
               variant="contained"
-              onClick={handleSave}
+              onClick={() => void handleSave()}
+              disabled={isSaving}
               sx={{ bgcolor: isPublished ? 'success.main' : 'primary.main' }}
             >
               {isPublished ? 'Update' : 'Publish'}
@@ -200,6 +250,11 @@ export default function CreateCourse() {
 
       {/* Main Content */}
       <Box sx={{ p: 3 }}>
+        {statusMessage ? (
+          <Alert severity={statusMessage.type} sx={{ mb: 2 }}>
+            {statusMessage.text}
+          </Alert>
+        ) : null}
         <Grid container spacing={3}>
           {/* Course Details */}
           <Grid size={{ xs: 12 }}>
@@ -276,7 +331,7 @@ export default function CreateCourse() {
                     >
                       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                         <Box sx={{ minWidth: 0, flex: 1 }}>
-                          <Typography variant="subtitle2" sx={{ fontWeight: 600, noWrap: true }}>
+                            <Typography variant="subtitle2" noWrap sx={{ fontWeight: 600 }}>
                             {module.title}
                           </Typography>
                           <Typography variant="caption" sx={{ color: 'text.secondary', display: 'block' }}>
@@ -303,7 +358,7 @@ export default function CreateCourse() {
                     <Typography variant="body2" sx={{ color: 'text.secondary' }}>
                       No modules yet
                     </Typography>
-                    <Button onClick={addModule} startIcon={<AddOutlined />} sx={{ mt: 1 }}>
+                    <Button onClick={addModule} sx={{ mt: 1 }}>
                       Add Module
                     </Button>
                   </Box>
@@ -351,7 +406,6 @@ export default function CreateCourse() {
                         <Button
                           size="small"
                           variant="outlined"
-                          startIcon={<OndemandVideoOutlined />}
                           onClick={() => addLesson('Video')}
                         >
                           Video
@@ -359,7 +413,6 @@ export default function CreateCourse() {
                         <Button
                           size="small"
                           variant="outlined"
-                          startIcon={<QuizOutlined />}
                           onClick={() => addLesson('Quiz')}
                         >
                           Quiz
@@ -367,7 +420,6 @@ export default function CreateCourse() {
                         <Button
                           size="small"
                           variant="outlined"
-                          startIcon={<TextSnippetOutlined />}
                           onClick={() => addLesson('Reading')}
                         >
                           Reading
@@ -393,7 +445,6 @@ export default function CreateCourse() {
                             '&:hover': { borderColor: 'primary.main' },
                           }}
                         >
-                          <Box sx={{ color: 'text.secondary' }}>{getLessonIcon(lesson.type)}</Box>
                           <Box sx={{ minWidth: 0, flex: 1 }}>
                             <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
                               {lesson.title}

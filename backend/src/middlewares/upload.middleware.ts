@@ -1,5 +1,6 @@
 import multer from 'multer';
 import dotenv from 'dotenv';
+import path from 'path';
 
 dotenv.config({ quiet: true });
 
@@ -26,6 +27,22 @@ const allowedMimeTypes = new Set([
   'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
 ]);
 
+const allowedExtensionsByMime: Record<string, Set<string>> = {
+  'image/jpeg': new Set(['.jpg', '.jpeg']),
+  'image/png': new Set(['.png']),
+  'image/webp': new Set(['.webp']),
+  'image/gif': new Set(['.gif']),
+  'video/mp4': new Set(['.mp4']),
+  'video/webm': new Set(['.webm']),
+  'video/quicktime': new Set(['.mov']),
+  'audio/mpeg': new Set(['.mp3']),
+  'audio/wav': new Set(['.wav']),
+  'audio/ogg': new Set(['.ogg']),
+  'application/pdf': new Set(['.pdf']),
+  'application/msword': new Set(['.doc']),
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document': new Set(['.docx']),
+};
+
 const uploadFileFilter: multer.Options['fileFilter'] = (_req, file, cb) => {
   if (!allowedMimeTypes.has(file.mimetype)) {
     cb(new Error('Unsupported file type'));
@@ -36,6 +53,13 @@ const uploadFileFilter: multer.Options['fileFilter'] = (_req, file, cb) => {
   const basename = raw.replace(/^.*[/\\]/, '').slice(0, 240);
   if (!basename || basename.includes('..')) {
     cb(new Error('Invalid file name'));
+    return;
+  }
+
+  const extension = path.extname(basename).toLowerCase();
+  const allowedExtensions = allowedExtensionsByMime[file.mimetype];
+  if (!extension || !allowedExtensions || !allowedExtensions.has(extension)) {
+    cb(new Error('Unsupported file extension for mime type'));
     return;
   }
 

@@ -13,8 +13,6 @@
  *   <Card sx={card}>...</Card>
  */
 
-import { alpha } from '@mui/material/styles';
-
 // ─── Elevation tokens ─────────────────────────────────────────────────────────
 
 /**
@@ -33,11 +31,7 @@ export const card = {
  */
 export const statCard = {
   ...card,
-  transition: 'transform 180ms ease, box-shadow 180ms ease',
-  '&:hover': {
-    transform: 'translateY(-2px)',
-    boxShadow: '0 4px 12px rgba(15,23,42,0.08), 0 12px 28px rgba(15,23,42,0.06)',
-  },
+  transition: 'border-color 180ms ease',
 } as const;
 
 /**
@@ -95,25 +89,6 @@ export const ACCENT_COLORS = {
   red:    '#EF4444',
   teal:   '#0EA5E9',
 } as const;
-
-/** Returns a tinted icon container style */
-export const iconBox = (color: string) => ({
-  width: 44,
-  height: 44,
-  borderRadius: '12px',
-  bgcolor: alpha(color, 0.1),
-  color,
-  display: 'grid',
-  placeItems: 'center',
-  flexShrink: 0,
-} as const);
-
-/** Returns a status chip style */
-export const statusChip = (active: boolean) => ({
-  bgcolor: active ? alpha('#10B981', 0.12) : alpha('#F59E0B', 0.12),
-  color: active ? '#059669' : '#D97706',
-  fontWeight: 800,
-} as const);
 
 // ─── Section header pattern ──────────────────────────────────────────────────
 

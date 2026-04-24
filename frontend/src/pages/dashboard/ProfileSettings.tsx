@@ -11,10 +11,15 @@ import {
   TextField,
   Typography,
 } from '@mui/material';
-import { alpha } from '@mui/material/styles';
-import { theme } from '../../theme';
 import { api, normalizeApiError } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
+import { sanitizeHttpUrl } from '../../utils/safeUrl';
+import DashboardPageFrame from '../../components/common/DashboardPageFrame';
+import {
+  useGetAdminDashboardQuery,
+  useGetInstructorDashboardQuery,
+  useGetStudentDashboardQuery,
+} from '../../store/api/dashboardApi';
 
 type FormState = {
   firstName: string;
@@ -31,13 +36,6 @@ type NotificationState = {
   email: boolean;
   push: boolean;
 };
-
-const stats = [
-  { label: 'Enrolled Courses', value: '12' },
-  { label: 'Certificates', value: '4' },
-  { label: 'Member Since', value: 'Sept 2023' },
-  { label: 'Location', value: 'Lagos, NG' },
-];
 
 const notificationOptions = [
   {
@@ -65,22 +63,15 @@ const initialForm: FormState = {
   confirmPassword: '',
 };
 
-function SectionLabel({ children }: { children: string }) {
-  return (
-    <Typography variant="caption" sx={{ color: 'primary.main', fontWeight: 800, letterSpacing: '0.14em' }}>
-      {children}
-    </Typography>
-  );
-}
-
 function StatChip({ label, value }: { label: string; value: string }) {
   return (
     <Box
       sx={{
         p: 2,
-        borderRadius: 3,
-        bgcolor: '#F8FAFC',
-        border: '1px solid #E2E8F0',
+        borderRadius: 2,
+        bgcolor: 'background.default',
+        border: '1px solid',
+        borderColor: 'divider',
       }}
     >
       <Typography variant="body2" sx={{ color: 'text.secondary', fontWeight: 600 }}>
@@ -95,6 +86,13 @@ function StatChip({ label, value }: { label: string; value: string }) {
 
 export default function ProfileSettings() {
   const { user, refreshSession } = useAuth();
+  const isStudent = user?.role === 'student';
+  const isInstructor = user?.role === 'instructor';
+  const isAdmin = user?.role === 'admin';
+
+  const { data: studentDashboard } = useGetStudentDashboardQuery(undefined, { skip: !isStudent });
+  const { data: instructorDashboard } = useGetInstructorDashboardQuery(undefined, { skip: !isInstructor });
+  const { data: adminDashboard } = useGetAdminDashboardQuery(undefined, { skip: !isAdmin });
   const [form, setForm] = useState<FormState>(initialForm);
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
   const [isSavingProfile, setIsSavingProfile] = useState(false);
@@ -131,6 +129,40 @@ export default function ProfileSettings() {
 
     return createdAt.toLocaleDateString(undefined, { month: 'short', year: 'numeric' });
   }, [user?.createdAt]);
+
+  const profileStats = useMemo(
+    () => [
+      {
+        label: isStudent ? 'Enrolled Courses' : 'Managed Courses',
+        value: String(
+          isStudent
+            ? studentDashboard?.totalCourses ?? 0
+            : instructorDashboard?.totalCourses ?? adminDashboard?.totalCourses ?? 0,
+        ),
+      },
+      {
+        label: isStudent ? 'Certificates' : 'Total Learners',
+        value: String(
+          isStudent
+            ? studentDashboard?.certificatesEarned ?? 0
+            : instructorDashboard?.totalStudents ?? adminDashboard?.totalUsers ?? 0,
+        ),
+      },
+      { label: 'Member Since', value: memberSince },
+      { label: 'Phone', value: form.phone || 'N/A' },
+    ],
+    [
+      adminDashboard?.totalCourses,
+      adminDashboard?.totalUsers,
+      form.phone,
+      instructorDashboard?.totalCourses,
+      instructorDashboard?.totalStudents,
+      isStudent,
+      memberSince,
+      studentDashboard?.certificatesEarned,
+      studentDashboard?.totalCourses,
+    ],
+  );
 
   useEffect(() => {
     if (!user) {
@@ -231,34 +263,10 @@ export default function ProfileSettings() {
 
   return (
     <Box sx={{ minHeight: '100%', bgcolor: 'background.default' }}>
-        <Box
-          sx={{
-            px: { xs: 2, sm: 3, lg: 4 },
-            py: 3,
-            borderBottom: '1px solid #E2E8F0',
-            bgcolor: 'rgba(248,250,252,0.94)',
-            position: 'sticky',
-            top: 0,
-            zIndex: 10,
-            backdropFilter: 'blur(14px)',
-          }}
-        >
-          <Stack spacing={1.5}>
-            <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-              <TextField placeholder="Search settings..." size="small" sx={{ width: { xs: '100%', md: 420 } }} />
-            </Box>
-            <Box>
-              <Typography variant="h4" sx={{ fontWeight: 900, letterSpacing: '-0.03em' }}>
-                Profile & Settings
-              </Typography>
-              <Typography variant="body1" sx={{ color: 'text.secondary', mt: 0.75 }}>
-                Manage your account settings and preferences.
-              </Typography>
-            </Box>
-          </Stack>
-        </Box>
-
-        <Box sx={{ px: { xs: 2, sm: 3, lg: 4 }, py: { xs: 3, md: 4 } }}>
+      <DashboardPageFrame
+        title="Profile & Settings"
+        description="Manage account information, password security, and notification preferences."
+      >
           {statusMessage ? (
             <Typography sx={{ mb: 2, fontWeight: 700, color: statusMessage.includes('successfully') ? 'success.main' : 'error.main' }}>
               {statusMessage}
@@ -267,19 +275,16 @@ export default function ProfileSettings() {
 
           <Grid container spacing={3}>
             <Grid size={{ xs: 12, lg: 4 }}>
-              <Card sx={{ height: '100%' }}>
+              <Card sx={{ height: '100%', border: '1px solid', borderColor: 'divider', borderRadius: 2 }}>
                 <CardContent sx={{ p: 3 }}>
                   <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3, textAlign: 'center' }}>
                     <Avatar
-                      src={user?.avatar}
+                      src={sanitizeHttpUrl(user?.avatar) ?? undefined}
                       alt={displayName}
                       sx={{ width: 116, height: 116, fontSize: 36, fontWeight: 800 }}
                     >
                       {initials}
                     </Avatar>
-                    <Button variant="outlined" sx={{ borderColor: alpha(theme.palette.primary.main, 0.35), color: 'primary.main', px: 2.5, py: 1.1 }}>
-                      Change Avatar
-                    </Button>
                     <Box>
                       <Typography variant="h5" sx={{ fontWeight: 800 }}>
                         {displayName}
@@ -289,12 +294,7 @@ export default function ProfileSettings() {
                       </Typography>
                     </Box>
                     <Grid container spacing={1.5}>
-                      {[
-                        { label: 'Enrolled Courses', value: stats[0].value },
-                        { label: 'Certificates', value: stats[1].value },
-                        { label: 'Member Since', value: memberSince },
-                        { label: 'Phone', value: form.phone || 'N/A' },
-                      ].map((stat) => (
+                      {profileStats.map((stat) => (
                         <Grid key={stat.label} size={{ xs: 12, sm: 6 }}>
                           <StatChip label={stat.label} value={stat.value} />
                         </Grid>
@@ -307,10 +307,12 @@ export default function ProfileSettings() {
 
             <Grid size={{ xs: 12, lg: 8 }}>
               <Stack spacing={3}>
-                <Card>
+                <Card sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 2 }}>
                   <CardContent sx={{ p: { xs: 3, md: 4 } }}>
                     <Stack spacing={3}>
-                      <SectionLabel>PERSONAL INFORMATION</SectionLabel>
+                      <Typography variant="h6" sx={{ fontWeight: 800 }}>
+                        Personal information
+                      </Typography>
                       <Grid container spacing={2.5}>
                         <Grid size={{ xs: 12, sm: 6 }}>
                           <TextField label="First Name" value={form.firstName} onChange={updateField('firstName')} fullWidth />
@@ -330,7 +332,7 @@ export default function ProfileSettings() {
                       </Grid>
 
                       <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1.5, flexWrap: 'wrap' }}>
-                        <Button variant="outlined" sx={{ borderColor: '#CBD5E1', color: 'text.primary', px: 3 }}>
+                        <Button variant="outlined" sx={{ borderColor: 'divider', color: 'text.primary', px: 3 }}>
                           Cancel
                         </Button>
                         <Button variant="contained" sx={{ px: 3 }} onClick={() => void handleSaveProfile()} disabled={isSavingProfile}>
@@ -341,10 +343,12 @@ export default function ProfileSettings() {
                   </CardContent>
                 </Card>
 
-                <Card>
+                <Card sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 2 }}>
                   <CardContent sx={{ p: { xs: 3, md: 4 } }}>
                     <Stack spacing={3}>
-                      <SectionLabel>PASSWORD & SECURITY</SectionLabel>
+                      <Typography variant="h6" sx={{ fontWeight: 800 }}>
+                        Password & security
+                      </Typography>
                       <Grid container spacing={2.5}>
                         <Grid size={12}>
                           <TextField label="Current Password" type="password" fullWidth value={form.currentPassword} onChange={updateField('currentPassword')} />
@@ -366,10 +370,12 @@ export default function ProfileSettings() {
                   </CardContent>
                 </Card>
 
-                <Card>
+                <Card sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 2 }}>
                   <CardContent sx={{ p: { xs: 3, md: 4 } }}>
                     <Stack spacing={3}>
-                      <SectionLabel>NOTIFICATIONS</SectionLabel>
+                      <Typography variant="h6" sx={{ fontWeight: 800 }}>
+                        Notifications
+                      </Typography>
                       <Stack spacing={2.5}>
                         {notificationOptions.map((option) => (
                           <Box
@@ -380,9 +386,10 @@ export default function ProfileSettings() {
                               justifyContent: 'space-between',
                               gap: 2,
                               p: 2,
-                              borderRadius: 3,
-                              bgcolor: '#F8FAFC',
-                              border: '1px solid #E2E8F0',
+                              borderRadius: 2,
+                              bgcolor: 'background.default',
+                              border: '1px solid',
+                              borderColor: 'divider',
                             }}
                           >
                             <Box sx={{ pr: 2 }}>
@@ -411,7 +418,7 @@ export default function ProfileSettings() {
               </Stack>
             </Grid>
           </Grid>
-        </Box>
+      </DashboardPageFrame>
     </Box>
   );
 }

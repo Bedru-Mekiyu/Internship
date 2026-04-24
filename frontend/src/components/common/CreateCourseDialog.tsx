@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Alert,
@@ -12,12 +12,10 @@ import {
   InputLabel,
   MenuItem,
   Select,
-  Slide,
   Snackbar,
   TextField,
   Typography,
 } from '@mui/material';
-import { Forward } from '@mui/icons-material';
 import { useCreateCourseMutation } from '../../store/api/courseApi';
 import type { CreateCoursePayload } from '../../store/api/courseApi';
 
@@ -28,7 +26,7 @@ interface CreateCourseDialogProps {
 
 export default function CreateCourseDialog({ open, onClose }: CreateCourseDialogProps) {
   const navigate = useNavigate();
-  const [createCourse, { isLoading, isError, error }] = useCreateCourseMutation();
+  const [createCourse, { isLoading, isError }] = useCreateCourseMutation();
 
   const [title, setTitle] = useState('');
   const [subtitle, setSubtitle] = useState('');
@@ -72,12 +70,10 @@ export default function CreateCourseDialog({ open, onClose }: CreateCourseDialog
       <Dialog
         open={open}
         onClose={handleClose}
-        TransitionComponent={Slide}
-        TransitionProps={{ direction: 'up' }}
         maxWidth="sm"
         fullWidth
-        PaperProps={{
-          sx: {
+        sx={{
+          '& .MuiDialog-paper': {
             borderRadius: '16px',
             p: 1,
           },
@@ -159,7 +155,6 @@ export default function CreateCourseDialog({ open, onClose }: CreateCourseDialog
             variant="contained"
             onClick={handleSubmit}
             disabled={isLoading || !title.trim()}
-            startIcon={<Forward />}
           >
             {isLoading ? 'Creating...' : 'Create & Continue'}
           </Button>

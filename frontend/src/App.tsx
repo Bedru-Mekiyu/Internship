@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect, useState, type ChangeEvent, type FormEvent } from 'react';
+import { lazy, Suspense, useEffect, useMemo, useState, type ChangeEvent, type FormEvent } from 'react';
 import {
   BrowserRouter,
   Link as RouterLink,
@@ -11,36 +11,30 @@ import {
 } from 'react-router-dom';
 import { alpha } from '@mui/material/styles';
 import {
-  Avatar,
   Box,
   Button,
   Card,
   CardContent,
   Alert,
   Container,
-  Chip,
-  Divider,
   Grid,
   Link,
   Stack,
   Tab,
   Tabs,
   TextField,
-  Tooltip,
   Typography,
 } from '@mui/material';
 import {
   CheckCircleOutlined,
-  GitHub,
   KeyOutlined,
   MailOutlined,
-  PersonOutlined,
-  BadgeOutlined,
   LockOutlined,
 } from '@mui/icons-material';
 import { useQueryClient } from '@tanstack/react-query';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { api, ensureCsrfToken, normalizeApiError } from './services/api';
+import { useGetCoursesQuery } from './store/api/courseApi';
 import ThemeRouteProvider from './components/common/ThemeRouteProvider';
 import { createAuthenticatedSocket } from './services/realtimeSocket';
 import { theme } from './theme';
@@ -65,6 +59,8 @@ const UserManagement = lazy(() => import('./pages/dashboard/UserManagement'));
 const AnalyticsDashboard = lazy(() => import('./pages/dashboard/AnalyticsDashboard'));
 const StudentDashboard = lazy(() => import('./pages/dashboard/StudentDashboard'));
 const ContactUs = lazy(() => import('./pages/main/ContactUs'));
+const BlogLandingPage = lazy(() => import('./pages/main/BlogLandingPage'));
+const CmsContentPage = lazy(() => import('./pages/main/CmsContentPage'));
 const MyCourses = lazy(() => import('./pages/dashboard/MyCourses'));
 const CoursePlayer = lazy(() => import('./pages/courses/CoursePlayer'));
 const PricingPage = lazy(() => import('./pages/main/PricingPage'));
@@ -130,17 +126,14 @@ function RequireRole({ allowedRoles }: { allowedRoles: LearnSpaceRole[] }) {
 function PageFrame({ title, description, eyebrow, actionLabel, actionTo, children }: PageProps) {
   return (
     <Stack spacing={2}>
-      <Card>
-        <CardContent sx={{ p: { xs: 2.5, md: 3 } }}>
-          <Stack spacing={1.5}>
-            {eyebrow ? (
-              <Chip
-                label={eyebrow}
-                sx={{ alignSelf: 'flex-start' }}
-                color="primary"
-                variant="filled"
-              />
-            ) : null}
+        <Card>
+          <CardContent sx={{ p: { xs: 2.5, md: 3 } }}>
+            <Stack spacing={1.5}>
+              {eyebrow ? (
+                <Typography variant="body2" sx={{ color: 'text.secondary', fontWeight: 700 }}>
+                  {eyebrow}
+                </Typography>
+              ) : null}
             <Box
               sx={{
                 display: 'flex',
@@ -211,12 +204,6 @@ function PlaceholderPage({ title, description, actionLabel, actionTo, eyebrow }:
                   This page is wired into the LearnSpace layout, theme, and route structure so it can be
                   replaced with a full production page without changing the shell.
                 </Typography>
-                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
-                  <Chip label="MUI v5" />
-                  <Chip label="React Router" />
-                  <Chip label="Recharts" />
-                  <Chip label="Design system locked" />
-                </Box>
               </Stack>
             </CardContent>
           </Card>
@@ -241,88 +228,6 @@ function PlaceholderPage({ title, description, actionLabel, actionTo, eyebrow }:
   );
 }
 
-function BlogLandingPage() {
-  const articles = [
-    {
-      title: 'How to launch a course that feels premium from day one',
-      category: 'Product',
-      readTime: '6 min read',
-    },
-    {
-      title: 'Why clean dashboards improve learner completion rates',
-      category: 'Analytics',
-      readTime: '4 min read',
-    },
-    {
-      title: 'Building a community loop inside your learning product',
-      category: 'Community',
-      readTime: '5 min read',
-    },
-  ];
-
-  return (
-    <PageFrame
-      eyebrow="Blog"
-      title="LearnSpace Blog"
-      description="Product updates, teaching strategies, and practical guidance for teams building modern learning experiences."
-      actionLabel="Explore courses"
-      actionTo="/courses/explore"
-    >
-      <Grid container spacing={2}>
-        <Grid size={{ xs: 12, md: 7 }}>
-          <Card sx={{ height: '100%', overflow: 'hidden' }}>
-            <Box
-              sx={{
-                minHeight: 320,
-                p: 3,
-                display: 'flex',
-                flexDirection: 'column',
-                justifyContent: 'space-between',
-                background: 'linear-gradient(135deg, #0F172A 0%, #1D4ED8 55%, #6366F1 100%)',
-                color: '#FFFFFF',
-              }}
-            >
-              <Stack spacing={1.5} sx={{ maxWidth: 520 }}>
-                <Chip label="Featured story" sx={{ alignSelf: 'flex-start', bgcolor: 'rgba(255,255,255,0.16)', color: '#FFFFFF', fontWeight: 700 }} />
-                <Typography variant="h4" sx={{ fontWeight: 900, letterSpacing: '-0.03em' }}>
-                  Designing a learning platform people actually want to return to
-                </Typography>
-                <Typography variant="body1" sx={{ color: 'rgba(255,255,255,0.84)', lineHeight: 1.8 }}>
-                  Explore the product thinking behind LearnSpace and the patterns that make content feel clear, modern, and easy to complete.
-                </Typography>
-              </Stack>
-              <Stack direction="row" spacing={2} sx={{ mt: 3, flexWrap: 'wrap' }}>
-                {['UX', 'Analytics', 'Retention'].map((tag) => (
-                  <Chip key={tag} label={tag} sx={{ bgcolor: 'rgba(255,255,255,0.14)', color: '#FFFFFF', fontWeight: 700 }} />
-                ))}
-              </Stack>
-            </Box>
-          </Card>
-        </Grid>
-        <Grid size={{ xs: 12, md: 5 }}>
-          <Stack spacing={2}>
-            {articles.map((article) => (
-              <Card key={article.title} sx={{ border: '1px solid #E2E8F0', boxShadow: '0 8px 24px rgba(15,23,42,0.05)' }}>
-                <CardContent sx={{ p: 2.25 }}>
-                  <Stack spacing={1}>
-                    <Chip label={article.category} size="small" sx={{ alignSelf: 'flex-start' }} />
-                    <Typography variant="h6" sx={{ fontWeight: 800, lineHeight: 1.25 }}>
-                      {article.title}
-                    </Typography>
-                    <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                      {article.readTime}
-                    </Typography>
-                  </Stack>
-                </CardContent>
-              </Card>
-            ))}
-          </Stack>
-        </Grid>
-      </Grid>
-    </PageFrame>
-  );
-}
-
 function LearnSpaceBrandMark() {
   return (
     <Box
@@ -333,7 +238,6 @@ function LearnSpaceBrandMark() {
         bgcolor: 'primary.main',
         display: 'grid',
         placeItems: 'center',
-        boxShadow: '0 10px 24px rgba(0, 102, 255, 0.22)',
         flexShrink: 0,
       }}
     >
@@ -470,7 +374,7 @@ function PasswordResetPage() {
         minHeight: '100vh',
         px: { xs: 2, sm: 3 },
         py: { xs: 4, md: 6 },
-        background: `radial-gradient(circle at 15% 12%, ${alpha(theme.palette.primary.main, 0.12)}, transparent 28%), radial-gradient(circle at 85% 18%, ${alpha(theme.palette.success.main, 0.08)}, transparent 24%), linear-gradient(180deg, #FFFFFF 0%, ${theme.palette.background.default} 100%)`,
+        bgcolor: 'background.default',
       }}
     >
       <Box sx={{ width: '100%', maxWidth: 1180, mx: 'auto' }}>
@@ -720,12 +624,19 @@ function PasswordResetPage() {
 function PublicAuthPage() {
   const navigate = useNavigate();
   const { login, isAuthenticated, isLoading, user } = useAuth();
+  const [view, setView] = useState<'login' | 'forgot-password'>('login');
   const [formValues, setFormValues] = useState({
     email: '',
     password: '',
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+
+  // Forgot password states
+  const [requestEmail, setRequestEmail] = useState('');
+  const [showSuccessBanner, setShowSuccessBanner] = useState(false);
+  const [forgotError, setForgotError] = useState('');
+  const [requestSubmitting, setRequestSubmitting] = useState(false);
 
   useEffect(() => {
     if (isAuthenticated && user) {
@@ -745,6 +656,21 @@ function PublicAuthPage() {
       setErrorMessage(normalizeApiError(error).message);
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  const handleResetRequest = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setForgotError('');
+    setRequestSubmitting(true);
+    try {
+      await ensureCsrfToken();
+      await api.post('/api/auth/forgot-password', { email: requestEmail.trim().toLowerCase() });
+      setShowSuccessBanner(true);
+    } catch (error) {
+      setForgotError(normalizeApiError(error).message);
+    } finally {
+      setRequestSubmitting(false);
     }
   };
 
@@ -782,7 +708,7 @@ function PublicAuthPage() {
         placeItems: 'center',
         px: 2.25,
         py: 3.25,
-        background: `radial-gradient(circle at 15% 12%, ${alpha(theme.palette.primary.main, 0.12)}, transparent 28%), radial-gradient(circle at 85% 18%, ${alpha(theme.palette.secondary.main, 0.08)}, transparent 24%), linear-gradient(180deg, #FFFFFF 0%, ${theme.palette.background.default} 100%)`,
+        bgcolor: 'background.default',
       }}
     >
       <Card
@@ -800,106 +726,173 @@ function PublicAuthPage() {
               <LearnSpaceBrandMark />
             </Box>
 
-            <Box sx={{ textAlign: 'center' }}>
-              <Typography variant="h4" sx={{ fontWeight: 800, color: 'text.primary', letterSpacing: '-0.02em' }}>
-                Welcome back
-              </Typography>
-              <Typography variant="body1" sx={{ mt: 0.75, color: 'text.secondary' }}>
-                Enter your credentials to access your courses
-              </Typography>
-            </Box>
-
-            <Box component="form" onSubmit={handleSubmit}>
-              <Stack spacing={1.75}>
-                <TextField
-                  value={formValues.email}
-                  onChange={updateField('email')}
-                  placeholder="name@example.com"
-                  label="Email"
-                  type="email"
-                />
-                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 1.5 }}>
-                  <Typography component="label" htmlFor="password" variant="body2" sx={{ color: 'text.primary', fontWeight: 600 }}>
-                    Password
+            {view === 'login' ? (
+              <>
+                <Box sx={{ textAlign: 'center' }}>
+                  <Typography variant="h4" sx={{ fontWeight: 800, color: 'text.primary', letterSpacing: '-0.02em' }}>
+                    Welcome back
                   </Typography>
-                  <Link component={RouterLink} to="/auth/reset-password" underline="none" sx={{ color: 'primary.main', fontWeight: 600, fontSize: 14 }}>
-                    Forgot password?
-                  </Link>
+                  <Typography variant="body1" sx={{ mt: 0.75, color: 'text.secondary' }}>
+                    Enter your credentials to access your courses
+                  </Typography>
                 </Box>
-                <TextField
-                  value={formValues.password}
-                  onChange={updateField('password')}
-                  placeholder="••••••••"
-                  id="password"
-                  type="password"
-                />
 
-                {errorMessage ? (
-                  <Alert severity="error" sx={{ borderRadius: 3 }}>
-                    {errorMessage}
-                  </Alert>
-                ) : null}
+                <Box component="form" onSubmit={handleSubmit}>
+                  <Stack spacing={1.75}>
+                    <TextField
+                      value={formValues.email}
+                      onChange={updateField('email')}
+                      label="Email"
+                      type="email"
+                      fullWidth
+                    />
+                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 1.5 }}>
+                      <Typography component="label" htmlFor="password" variant="body2" sx={{ color: 'text.primary', fontWeight: 600 }}>
+                        Password
+                      </Typography>
+                      <Link
+                        component="button"
+                        type="button"
+                        onClick={() => {
+                          setView('forgot-password');
+                          setErrorMessage('');
+                        }}
+                        underline="none"
+                        sx={{ color: 'primary.main', fontWeight: 600, fontSize: 14, cursor: 'pointer', border: 'none', background: 'none' }}
+                      >
+                        Forgot password?
+                      </Link>
+                    </Box>
+                    <TextField
+                      value={formValues.password}
+                      onChange={updateField('password')}
+                      id="password"
+                      type="password"
+                      fullWidth
+                    />
 
-                <Button
-                  type="submit"
-                  variant="contained"
-                  fullWidth
-                  size="large"
-                  disabled={isSubmitting}
-                  sx={{
-                    bgcolor: 'primary.main',
-                    color: '#FFFFFF',
-                    py: 1.6,
-                    fontSize: 16,
-                    '&:hover': { bgcolor: 'primary.dark' },
-                  }}
-                >
-                  {isSubmitting ? 'Signing in...' : 'Sign In'}
-                </Button>
-              </Stack>
-            </Box>
+                    {errorMessage ? (
+                      <Alert severity="error" sx={{ borderRadius: 3 }}>
+                        {errorMessage}
+                      </Alert>
+                    ) : null}
 
-            <Divider sx={{ color: 'text.secondary', '&::before, &::after': { borderColor: '#E2E8F0' } }}>
-              <Typography variant="caption" sx={{ letterSpacing: '0.14em', fontWeight: 700, color: 'text.secondary' }}>
-                OR CONTINUE WITH
-              </Typography>
-            </Divider>
+                    <Button
+                      type="submit"
+                      variant="contained"
+                      fullWidth
+                      size="large"
+                      disabled={isSubmitting}
+                      sx={{
+                        bgcolor: 'primary.main',
+                        borderRadius: 3,
+                        py: 1.5,
+                        textTransform: 'none',
+                        fontWeight: 700,
+                        fontSize: 16,
+                      }}
+                    >
+                      {isSubmitting ? 'Signing in...' : 'Sign in'}
+                    </Button>
+                  </Stack>
+                </Box>
 
-            <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.25}>
-              <Tooltip title="Coming soon">
-                <span style={{ width: '100%' }}>
-                  <Button
-                    variant="outlined"
-                    fullWidth
-                    disabled
-                    startIcon={<GitHub />}
-                    sx={{ py: 1.35, borderColor: '#CBD5E1', color: 'text.primary' }}
-                  >
-                    GitHub
-                  </Button>
-                </span>
-              </Tooltip>
-              <Tooltip title="Coming soon">
-                <span style={{ width: '100%' }}>
-                  <Button
-                    variant="outlined"
-                    fullWidth
-                    disabled
-                    startIcon={<GoogleIcon />}
-                    sx={{ py: 1.35, borderColor: '#CBD5E1', color: 'text.primary' }}
-                  >
-                    Google
-                  </Button>
-                </span>
-              </Tooltip>
-            </Stack>
+                <Typography variant="body2" sx={{ textAlign: 'center', color: 'text.secondary' }}>
+                  Don&apos;t have an account?{' '}
+                  <Link component={RouterLink} to="/auth/signup" underline="none" sx={{ color: 'primary.main', fontWeight: 700 }}>
+                    Sign up
+                  </Link>
+                </Typography>
+              </>
+            ) : (
+              <>
+                <Box sx={{ textAlign: 'center' }}>
+                  <Typography variant="h4" sx={{ fontWeight: 800, color: 'text.primary', letterSpacing: '-0.02em' }}>
+                    Reset password
+                  </Typography>
+                  <Typography variant="body1" sx={{ mt: 0.75, color: 'text.secondary' }}>
+                    We'll email you a link to reset your password
+                  </Typography>
+                </Box>
 
-            <Typography variant="body2" sx={{ textAlign: 'center', color: 'text.secondary' }}>
-              Don&apos;t have an account?{' '}
-              <Link component={RouterLink} to="/auth/signup" underline="none" sx={{ color: 'primary.main', fontWeight: 700 }}>
-                Sign up
-              </Link>
-            </Typography>
+                {showSuccessBanner ? (
+                  <Stack spacing={2.5}>
+                    <Alert
+                      severity="success"
+                      icon={<CheckCircleOutlined sx={{ mt: 0.25 }} />}
+                      sx={{ borderRadius: 3, '.MuiAlert-message': { width: '100%' } }}
+                    >
+                      <Typography variant="subtitle2" sx={{ fontWeight: 800 }}>
+                        Check your inbox
+                      </Typography>
+                      <Typography variant="body2" sx={{ mt: 0.5, color: 'success.dark', opacity: 0.9 }}>
+                        If an account exists for {requestEmail}, you'll receive a secure link shortly.
+                      </Typography>
+                    </Alert>
+                    <Button
+                      variant="outlined"
+                      fullWidth
+                      onClick={() => {
+                        setView('login');
+                        setShowSuccessBanner(false);
+                      }}
+                      sx={{ p: 1.5, borderRadius: 3, fontWeight: 700 }}
+                    >
+                      Return to login
+                    </Button>
+                  </Stack>
+                ) : (
+                  <Box component="form" onSubmit={handleResetRequest}>
+                    <Stack spacing={1.75}>
+                      <TextField
+                        value={requestEmail}
+                        onChange={(e) => setRequestEmail(e.target.value)}
+                        label="Account Email"
+                        type="email"
+                        fullWidth
+                        autoFocus
+                      />
+
+                      {forgotError ? (
+                        <Alert severity="error" sx={{ borderRadius: 3 }}>
+                          {forgotError}
+                        </Alert>
+                      ) : null}
+
+                      <Button
+                        type="submit"
+                        variant="contained"
+                        fullWidth
+                        size="large"
+                        disabled={requestSubmitting}
+                        sx={{
+                          bgcolor: 'primary.main',
+                          borderRadius: 3,
+                          py: 1.5,
+                          textTransform: 'none',
+                          fontWeight: 700,
+                          fontSize: 16,
+                        }}
+                      >
+                        {requestSubmitting ? 'Sending link...' : 'Send reset link'}
+                      </Button>
+
+                      <Button
+                        variant="text"
+                        fullWidth
+                        onClick={() => {
+                          setView('login');
+                          setForgotError('');
+                        }}
+                        sx={{ textTransform: 'none', fontWeight: 600, color: 'text.secondary' }}
+                      >
+                        Cancel and return to login
+                      </Button>
+                    </Stack>
+                  </Box>
+                )}
+              </>
+            )}
           </Stack>
         </CardContent>
       </Card>
@@ -993,7 +986,7 @@ function SignupAuthPage() {
         placeItems: 'center',
         px: 2.25,
         py: 3.25,
-        background: `radial-gradient(circle at 15% 12%, ${alpha(theme.palette.primary.main, 0.12)}, transparent 28%), radial-gradient(circle at 85% 18%, ${alpha(theme.palette.secondary.main, 0.08)}, transparent 24%), linear-gradient(180deg, #FFFFFF 0%, ${theme.palette.background.default} 100%)`,
+        bgcolor: 'background.default',
       }}
     >
       <Card
@@ -1047,8 +1040,8 @@ function SignupAuthPage() {
                 },
               }}
             >
-              <Tab icon={<PersonOutlined fontSize="small" />} iconPosition="start" label="Student" value="student" />
-              <Tab icon={<BadgeOutlined fontSize="small" />} iconPosition="start" label="Instructor" value="instructor" />
+              <Tab label="Student" value="student" />
+              <Tab label="Instructor" value="instructor" />
             </Tabs>
 
             <Box component="form" onSubmit={handleSubmit}>
@@ -1056,20 +1049,17 @@ function SignupAuthPage() {
                 <TextField
                   value={formValues.fullName}
                   onChange={updateField('fullName')}
-                  placeholder="Jane Doe"
                   label="Full Name"
                 />
                 <TextField
                   value={formValues.email}
                   onChange={updateField('email')}
-                  placeholder="jane@example.com"
                   label="Email Address"
                   type="email"
                 />
                 <TextField
                   value={formValues.password}
                   onChange={updateField('password')}
-                  placeholder="Create a password"
                   label="Password"
                   type="password"
                 />
@@ -1117,9 +1107,6 @@ function SignupAuthPage() {
               </Link>
             </Typography>
 
-            <Typography variant="caption" sx={{ textAlign: 'center', color: 'text.secondary' }}>
-              {isStudent ? 'Student onboarding selected' : 'Instructor onboarding selected'}
-            </Typography>
           </Stack>
         </CardContent>
       </Card>
@@ -1128,6 +1115,52 @@ function SignupAuthPage() {
 }
 
 function MarketingHomepagePage() {
+  const { data: apiCourses = [], isLoading: coursesLoading } = useGetCoursesQuery();
+  const [publicSettings, setPublicSettings] = useState<{
+    trustPartners?: string[];
+    homepageFeatures?: Array<{ title: string; description: string; color?: string }>;
+    pricingPlans?: Array<{
+      name: string;
+      price: string;
+      description: string;
+      features: string[];
+      featured?: boolean;
+    }>;
+  } | null>(null);
+  const [settingsError, setSettingsError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let isMounted = true;
+    void (async () => {
+      try {
+        const response = await api.get<{ settings: {
+          trustPartners?: string[];
+          homepageFeatures?: Array<{ title: string; description: string; color?: string }>;
+          pricingPlans?: Array<{
+            name: string;
+            price: string;
+            description: string;
+            features: string[];
+            featured?: boolean;
+          }>;
+        } }>('/api/settings/public');
+        if (isMounted) {
+          setPublicSettings(response.data.settings);
+          setSettingsError(null);
+        }
+      } catch (requestError) {
+        if (isMounted) {
+          setSettingsError(normalizeApiError(requestError).message || 'Unable to load public content settings.');
+          setPublicSettings(null);
+        }
+      }
+    })();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
   const navLinks = [
     { label: 'Features', to: '#features' },
     { label: 'Courses', to: '#courses' },
@@ -1136,135 +1169,78 @@ function MarketingHomepagePage() {
     { label: 'About Us', to: '#about' },
   ];
 
-  const trustPartners = ['ASU', 'Meta', 'Notion', 'Khan Academy', 'Udacity'];
+  const features = publicSettings?.homepageFeatures ?? [];
 
-  const features = [
-    {
-      title: 'Drag & Drop Builder',
-      description: 'Create lessons, modules, and landing pages with a flexible visual editor.',
-      color: '#DBEAFE',
-    },
-    {
-      title: 'Advanced Analytics',
-      description: 'Track enrollments, completion rates, and revenue with clear reporting.',
-      color: '#E0E7FF',
-    },
-    {
-      title: 'Community Hub',
-      description: 'Keep learners engaged with discussions, Q&A, and cohort updates.',
-      color: '#DCFCE7',
-    },
-    {
-      title: 'Mobile Ready',
-      description: 'Deliver a polished experience on every screen, from desktop to phone.',
-      color: '#FDE68A',
-    },
-    {
-      title: 'Certification',
-      description: 'Reward course completion with branded certificates that learners value.',
-      color: '#FCE7F3',
-    },
-    {
-      title: 'Seamless Payments',
-      description: 'Collect one-time or subscription payments with flexible pricing options.',
-      color: '#FFE4E6',
-    },
-  ];
+  const courses = useMemo(
+    () =>
+      apiCourses.slice(0, 4).map((course) => {
+        const instructor = typeof course.instructor === 'object' && course.instructor
+          ? `${course.instructor.firstName || ''} ${course.instructor.lastName || ''}`.trim() || course.instructor.email
+          : 'LearnSpace Instructor';
+        const amount = typeof course.pricing?.amount === 'number' ? course.pricing.amount : 0;
+        return {
+          id: course._id,
+          title: course.title,
+          instructor,
+          rating: Number(course.rating?.average || 0).toFixed(1),
+          price: amount === 0 ? 'Free' : `$${amount}`,
+          category: course.category || 'General',
+          image: course.thumbnail || '',
+        };
+      }),
+    [apiCourses],
+  );
 
-  const courses = [
-    {
-      title: 'Product Design Fundamentals',
-      instructor: 'Ava Chen',
-      rating: '4.9',
-      price: '$49',
-      category: 'Design',
-      image:
-        'https://images.unsplash.com/photo-1542744173-8e7e53415bb0?auto=format&fit=crop&w=900&q=80',
-    },
-    {
-      title: 'Modern JavaScript Mastery',
-      instructor: 'Noah Patel',
-      rating: '4.8',
-      price: '$79',
-      category: 'Development',
-      image:
-        'https://images.unsplash.com/photo-1516321497487-e288fb19713f?auto=format&fit=crop&w=900&q=80',
-    },
-    {
-      title: 'Data Storytelling for Teams',
-      instructor: 'Mia Johnson',
-      rating: '5.0',
-      price: '$59',
-      category: 'Analytics',
-      image:
-        'https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&w=900&q=80',
-    },
-    {
-      title: 'Leadership for Creators',
-      instructor: 'Jordan Lee',
-      rating: '4.7',
-      price: '$39',
-      category: 'Leadership',
-      image:
-        'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=900&q=80',
-    },
-  ];
+  const testimonials = useMemo(
+    () =>
+      apiCourses
+        .filter((course) => (course.rating?.count || 0) > 0)
+        .slice(0, 3)
+        .map((course) => ({
+          name: course.title,
+          role: `${course.category || 'Course'} course`,
+          quote: `Rated ${Number(course.rating?.average || 0).toFixed(1)} by ${course.rating?.count || 0} learners.`,
+        })),
+    [apiCourses],
+  );
 
-  const testimonials = [
-    {
-      name: 'Sara Williams',
-      role: 'Learning Ops Lead',
-      quote:
-        'LearnSpace helped our team launch a premium training program without stitching together six tools.',
-      avatar:
-        'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=200&q=80',
-    },
-    {
-      name: 'Daniel Kim',
-      role: 'Course Creator',
-      quote:
-        'The dashboard, payments, and certificates all feel polished. It looks like a product built for scale.',
-      avatar:
-        'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=200&q=80',
-    },
-    {
-      name: 'Priya Shah',
-      role: 'Instructional Designer',
-      quote:
-        'The experience is clean, responsive, and easy to teach with. Our learners adopted it instantly.',
-      avatar:
-        'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=200&q=80',
-    },
-  ];
+  const enrollmentTotal = useMemo(
+    () => apiCourses.reduce((sum, course) => sum + Number(course.enrollmentCount || 0), 0),
+    [apiCourses],
+  );
+  const averageCourseRating = useMemo(() => {
+    if (apiCourses.length === 0) return 0;
+    const sum = apiCourses.reduce((total, course) => total + Number(course.rating?.average || 0), 0);
+    return Number((sum / apiCourses.length).toFixed(1));
+  }, [apiCourses]);
+  const estimatedRevenue = useMemo(
+    () =>
+      apiCourses.reduce((sum, course) => {
+        const amount = Number(course.pricing?.amount || 0);
+        const enrolled = Number(course.enrollmentCount || 0);
+        return sum + amount * enrolled;
+      }, 0),
+    [apiCourses],
+  );
+  const enrollmentBars = useMemo(() => {
+    const topCourses = [...apiCourses]
+      .sort((a, b) => Number(b.enrollmentCount || 0) - Number(a.enrollmentCount || 0))
+      .slice(0, 6);
+    const max = Math.max(...topCourses.map((course) => Number(course.enrollmentCount || 0)), 1);
+    return topCourses.map((course) => Math.max(15, Math.round((Number(course.enrollmentCount || 0) / max) * 100)));
+  }, [apiCourses]);
 
-  const pricing = [
-    {
-      name: 'Basic',
-      price: '$0',
-      description: 'For trying out the platform and launching your first course.',
-      features: ['1 course', 'Basic analytics', 'Community access', 'Email support'],
-      featured: false,
-    },
-    {
-      name: 'Pro',
-      price: '$29',
-      description: 'For creators who want to scale with confidence and better insights.',
-      features: ['Unlimited courses', 'Advanced analytics', 'Certificates', 'Payments', 'Priority support'],
-      featured: true,
-    },
-    {
-      name: 'Business',
-      price: '$99',
-      description: 'For teams, academies, and organizations that need full control.',
-      features: ['Everything in Pro', 'Team roles', 'Custom branding', 'Dedicated onboarding'],
-      featured: false,
-    },
-  ];
+  const pricing = publicSettings?.pricingPlans ?? [];
 
   return (
     <Box sx={{ bgcolor: '#FFFFFF', color: 'text.primary' }}>
-      <Box sx={{ position: 'sticky', top: 0, zIndex: 20, bgcolor: alpha('#FFFFFF', 0.94), backdropFilter: 'blur(16px)', borderBottom: '1px solid #E2E8F0' }}>
-        <Container maxWidth="xl">
+      {settingsError ? (
+        <Alert severity="error" sx={{ borderRadius: 0 }}>
+          {settingsError}
+        </Alert>
+      ) : null}
+      <Box sx={{ position: 'sticky', top: 0, zIndex: 20, bgcolor: alpha('#FFFFFF', 0.94), backdropFilter: 'blur(16px)', borderBottom: '1px solid', borderColor: 'divider' }}>
+        <Container maxWidth="lg">
           <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 1.5, py: 1.5 }}>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.25 }}>
               <Box
@@ -1275,14 +1251,13 @@ function MarketingHomepagePage() {
                   bgcolor: 'primary.main',
                   display: 'grid',
                   placeItems: 'center',
-                  boxShadow: '0 10px 20px rgba(0,102,255,0.18)',
                   color: '#FFFFFF',
                   fontWeight: 800,
                 }}
               >
                 LS
               </Box>
-              <Typography variant="h6" sx={{ fontWeight: 800, letterSpacing: '-0.02em' }}>
+              <Typography variant="subtitle1" sx={{ fontWeight: 800, letterSpacing: '-0.02em' }}>
                 LearnSpace
               </Typography>
             </Box>
@@ -1313,27 +1288,26 @@ function MarketingHomepagePage() {
         </Container>
       </Box>
 
-      <Box sx={{ pt: { xs: 4.5, md: 6 }, pb: { xs: 5, md: 8 } }}>
-        <Container maxWidth="xl">
+      <Box sx={{ pt: { xs: 2.5, md: 3 }, pb: { xs: 3, md: 4 } }}>
+        <Container maxWidth="lg">
           <Grid container spacing={2} sx={{ alignItems: 'center' }}>
             <Grid size={{ xs: 12, lg: 6 }}>
               <Stack spacing={1.5}>
                 <Typography variant="overline" sx={{ color: 'primary.main', fontWeight: 800, letterSpacing: '0.2em' }}>
-                  MODERN LEARNING PLATFORM
+                  THE COMPLETE LEARNING PLATFORM
                 </Typography>
-                <Typography variant="h1" sx={{ fontWeight: 900, color: 'text.primary', letterSpacing: '-0.04em', fontSize: { xs: '3rem', md: '4.5rem' }, lineHeight: 1.03 }}>
-                  Unlock Potential with Modern Learning
+                <Typography variant="h2" sx={{ fontWeight: 900, color: 'text.primary', letterSpacing: '-0.02em', fontSize: { xs: '2rem', md: '2.8rem' }, lineHeight: 1.1 }}>
+                  Build and Scale Your Online Academy
                 </Typography>
-                <Typography variant="h6" sx={{ color: 'text.secondary', maxWidth: 640, fontWeight: 500, lineHeight: 1.7 }}>
-                  LearnSpace gives educators and teams everything they need to launch engaging courses, grow communities,
-                  and measure outcomes with beautiful analytics.
+                <Typography variant="subtitle1" sx={{ color: 'text.secondary', maxWidth: 640, fontWeight: 500, lineHeight: 1.7 }}>
+                  Create inspiring courses, manage engaged communities, and drive real outcomes with LearnSpace. Transform your knowledge into a thriving educational business today.
                 </Typography>
 
                 <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.75 }}>
-                  <Button component={RouterLink} to="/auth/signup" variant="contained" sx={{ px: 3.25, py: 1.25 }}>
+                  <Button component={RouterLink} to="/auth/signup" variant="contained" sx={{ px: 2.5, py: 0.9 }}>
                     Get Started
                   </Button>
-                  <Button component={RouterLink} to="/courses/explore" variant="outlined" sx={{ px: 3.25, py: 1.25, borderColor: '#CBD5E1', color: 'text.primary' }}>
+                  <Button component={RouterLink} to="/courses/explore" variant="outlined" sx={{ px: 2.5, py: 0.9, borderColor: 'divider', color: 'text.primary' }}>
                     Explore courses
                   </Button>
                 </Box>
@@ -1344,113 +1318,61 @@ function MarketingHomepagePage() {
               <Box
                 sx={{
                   position: 'relative',
-                  borderRadius: 6,
-                  p: { xs: 1.1, md: 1.75 },
-                  background: 'linear-gradient(180deg, #FFFFFF 0%, #F8FAFC 100%)',
-                  boxShadow: '0 24px 60px rgba(15,23,42,0.12)',
-                  border: '1px solid #E2E8F0',
+                  borderRadius: 4,
+                  p: { xs: 1, md: 1.5 },
+                  bgcolor: alpha('#FFFFFF', 0.6),
+                  border: '1px solid',
+                  borderColor: 'divider',
                 }}
               >
                 <Box
                   sx={{
-                    borderRadius: 5,
+                    borderRadius: 4,
                     overflow: 'hidden',
-                    bgcolor: '#0B1120',
-                    color: '#FFFFFF',
-                    p: 1,
-                    backgroundImage:
-                      'radial-gradient(circle at top left, rgba(59,130,246,0.20), transparent 34%), radial-gradient(circle at bottom right, rgba(16,185,129,0.16), transparent 30%), linear-gradient(180deg, #0B1120 0%, #111B34 100%)',
-                    boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.04)',
+                    bgcolor: 'grey.900',
+                    color: '#FFF',
+                    p: 1.5,
                   }}
                 >
-                  <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 1, mb: 1.5 }}>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                      <Box sx={{ display: 'flex', gap: 0.6 }}>
-                        <Box sx={{ width: 9, height: 9, borderRadius: '50%', bgcolor: '#EF4444' }} />
-                        <Box sx={{ width: 9, height: 9, borderRadius: '50%', bgcolor: '#F59E0B' }} />
-                        <Box sx={{ width: 9, height: 9, borderRadius: '50%', bgcolor: '#10B981' }} />
-                      </Box>
-                      <Box>
-                        <Typography sx={{ fontWeight: 800, lineHeight: 1.1, letterSpacing: '-0.02em' }}>LearnSpace</Typography>
-                        <Typography variant="caption" sx={{ color: '#94A3B8', letterSpacing: '0.12em' }}>
-                          LIVE DASHBOARD
-                        </Typography>
-                      </Box>
-                    </Box>
-                    <Box
-                      sx={{
-                        px: 1,
-                        py: 0.45,
-                        borderRadius: 999,
-                        bgcolor: 'rgba(16,185,129,0.12)',
-                        color: '#BBF7D0',
-                        fontSize: 11,
-                        fontWeight: 800,
-                        border: '1px solid rgba(16,185,129,0.14)',
-                      }}
-                    >
-                      Live
-                    </Box>
+                  <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
+                    <Typography sx={{ fontWeight: 700, fontSize: '0.85rem', letterSpacing: '0.5px' }}>LearnSpace</Typography>
                   </Box>
 
-                  <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 0.82fr' }, gap: 1.1 }}>
+                  <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1.2fr 1fr' }, gap: 1.5 }}>
                     <Box
                       sx={{
-                        borderRadius: 4,
-                        p: 1.5,
-                        bgcolor: 'rgba(255,255,255,0.06)',
-                        border: '1px solid rgba(255,255,255,0.08)',
-                        boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.03)',
+                        borderRadius: 3,
+                        p: 2,
+                        bgcolor: alpha('#FFFFFF', 0.05),
+                        border: '1px solid',
+                        borderColor: alpha('#FFFFFF', 0.1),
                       }}
                     >
-                      <Typography variant="caption" sx={{ color: '#93C5FD', letterSpacing: '0.14em', fontWeight: 800 }}>
+                      <Typography variant="caption" sx={{ color: 'text.secondary', opacity: 0.8, letterSpacing: '0.1em', fontWeight: 600 }}>
                         ENROLLMENTS
                       </Typography>
-                      <Box sx={{ display: 'flex', alignItems: 'end', justifyContent: 'space-between', gap: 1, mt: 0.4, mb: 1.4 }}>
-                        <Box>
-                          <Typography variant="h2" sx={{ fontWeight: 900, lineHeight: 0.95, letterSpacing: '-0.04em' }}>
-                            12.4k
-                          </Typography>
-                          <Typography variant="body2" sx={{ color: '#CBD5E1', mt: 0.4 }}>
-                            Monthly learners across active courses.
-                          </Typography>
-                        </Box>
-                        <Box
-                          sx={{
-                            px: 1,
-                            py: 0.5,
-                            borderRadius: 999,
-                            bgcolor: 'rgba(59,130,246,0.14)',
-                            color: '#DBEAFE',
-                            fontSize: 12,
-                            fontWeight: 800,
-                            whiteSpace: 'nowrap',
-                          }}
-                        >
-                          +18% this month
-                        </Box>
+                      <Box sx={{ display: 'flex', alignItems: 'baseline', gap: 1, mt: 0.5, mb: 0.5 }}>
+                        <Typography sx={{ fontWeight: 800, fontSize: '1.8rem', lineHeight: 1 }}>
+                          {enrollmentTotal.toLocaleString()}
+                        </Typography>
                       </Box>
+                        <Typography sx={{ color: 'text.secondary', opacity: 0.7, fontSize: '0.8rem', mb: 2 }}>
+                          Total enrollments across published courses.
+                        </Typography>
 
-                      <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: 0.75 }}>
+                      <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 1 }}>
                         {[
-                          { label: 'Completion', value: '86%' },
-                          { label: 'Retention', value: '92%' },
-                          { label: 'Revenue', value: '$48k' },
+                          { label: 'Courses', value: String(apiCourses.length) },
+                          { label: 'Rating', value: averageCourseRating > 0 ? `${averageCourseRating}/5` : 'N/A' },
+                          { label: 'Revenue', value: `$${Math.round(estimatedRevenue).toLocaleString()}` },
                         ].map((item) => (
-                          <Box
-                            key={item.label}
-                            sx={{
-                              borderRadius: 3,
-                              px: 1,
-                              py: 0.9,
-                              bgcolor: 'rgba(255,255,255,0.05)',
-                              border: '1px solid rgba(255,255,255,0.06)',
-                            }}
-                          >
-                            <Typography variant="caption" sx={{ color: '#94A3B8', display: 'block' }}>
+                          <Box key={item.label}>
+                            <Typography sx={{ color: 'text.secondary', opacity: 0.7, fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
                               {item.label}
                             </Typography>
-                            <Typography sx={{ fontWeight: 800, letterSpacing: '-0.02em' }}>{item.value}</Typography>
+                            <Typography sx={{ fontWeight: 700, fontSize: '1rem', color: 'grey.200', mt: 0.2 }}>
+                              {item.value}
+                            </Typography>
                           </Box>
                         ))}
                       </Box>
@@ -1458,54 +1380,43 @@ function MarketingHomepagePage() {
 
                     <Box
                       sx={{
-                        borderRadius: 4,
-                        p: 1.5,
-                        bgcolor: 'rgba(255,255,255,0.06)',
-                        border: '1px solid rgba(255,255,255,0.08)',
-                        boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.03)',
+                        borderRadius: 3,
+                        p: 2,
+                        bgcolor: alpha('#FFFFFF', 0.05),
+                        border: '1px solid',
+                        borderColor: alpha('#FFFFFF', 0.1),
+                        display: 'flex',
+                        flexDirection: 'column'
                       }}
                     >
-                      <Typography variant="caption" sx={{ color: '#94A3B8', letterSpacing: '0.14em', fontWeight: 800 }}>
+                      <Typography variant="caption" sx={{ color: 'text.secondary', opacity: 0.8, letterSpacing: '0.1em', fontWeight: 600 }}>
                         REVENUE
                       </Typography>
-                      <Typography variant="h4" sx={{ fontWeight: 900, lineHeight: 1, mt: 0.4 }}>
-                        $48k
-                      </Typography>
-                      <Typography variant="body2" sx={{ color: '#CBD5E1', mt: 0.4, mb: 1.3 }}>
+                        <Typography sx={{ fontWeight: 800, fontSize: '1.6rem', mt: 0.5 }}>
+                          ${Math.round(estimatedRevenue).toLocaleString()}
+                        </Typography>
+                      <Typography sx={{ color: 'text.secondary', opacity: 0.7, fontSize: '0.75rem', mb: 'auto' }}>
                         Last 30 days
                       </Typography>
-                      <Box sx={{ display: 'flex', alignItems: 'end', gap: 0.8, height: 102, mb: 1.2 }}>
-                        {[32, 46, 38, 58, 52, 68].map((value, index) => (
+
+                      <Box sx={{ display: 'flex', alignItems: 'flex-end', gap: 1, height: 70, mt: 2 }}>
+                          {enrollmentBars.map((value, index) => (
                           <Box
                             key={index}
                             sx={{
                               flex: 1,
-                              height: "${value}%",
-                              borderRadius: 999,
-                              background:
-                                index % 2 === 0
-                                  ? 'linear-gradient(180deg, #60A5FA 0%, #2563EB 100%)'
-                                  : 'linear-gradient(180deg, #818CF8 0%, #4F46E5 100%)',
-                              boxShadow: '0 12px 20px rgba(79,70,229,0.16)',
+                              height: `${value}%`,
+                              borderRadius: 1,
+                              bgcolor: index === 5 ? 'info.light' : alpha(theme.palette.info.main, 0.6),
+                              transition: 'all 0.3s ease',
+                              '&:hover': { bgcolor: 'info.light', transform: 'scaleY(1.05)' }
                             }}
                           />
                         ))}
                       </Box>
-                      <Box
-                        sx={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'space-between',
-                          gap: 1,
-                          pt: 1,
-                          borderTop: '1px solid rgba(255,255,255,0.08)',
-                          color: '#94A3B8',
-                          fontSize: 12,
-                        }}
-                      >
-                        <span>Updated 2m ago</span>
-                        <span>+12.8% week over week</span>
-                      </Box>
+                      <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 1.5, borderTop: '1px solid', borderColor: alpha('#FFFFFF', 0.05), pt: 1 }}>
+                         <Typography sx={{ color: 'text.secondary', opacity: 0.6, fontSize: '0.65rem' }}>From live course catalog data</Typography>
+                       </Box>
                     </Box>
                   </Box>
                 </Box>
@@ -1515,119 +1426,77 @@ function MarketingHomepagePage() {
         </Container>
       </Box>
 
-      <Box sx={{ py: 2.5, borderTop: '1px solid #E2E8F0', borderBottom: '1px solid #E2E8F0', backgroundColor: '#FFFFFF' }}>
-        <Container maxWidth="xl">
-          <Box sx={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: 1.5 }}>
-            {trustPartners.map((partner) => (
-              <Box
-                key={partner}
-                sx={{
-                  px: 2,
-                  py: 1,
-                  borderRadius: 999,
-                  border: '1px solid #E2E8F0',
-                  color: 'text.secondary',
-                  fontWeight: 700,
-                  letterSpacing: '0.02em',
-                  bgcolor: '#FFFFFF',
-                }}
-              >
-                {partner}
-              </Box>
-            ))}
-          </Box>
-        </Container>
-      </Box>
-
-      <Box id="features" sx={{ py: { xs: 7, md: 10 }, backgroundColor: '#F8FAFC' }}>
-        <Container maxWidth="xl">
-          <Stack spacing={2.25}>
+      <Box id="features" sx={{ py: { xs: 3, md: 4 }, backgroundColor: 'background.default' }}>
+        <Container maxWidth="lg">
+          <Stack spacing={1.5}>
             <Box>
-              <Typography variant="overline" sx={{ color: 'primary.main', fontWeight: 800, letterSpacing: '0.2em' }}>
-                FEATURES
-              </Typography>
-              <Typography variant="h3" sx={{ mt: 1, fontWeight: 800, letterSpacing: '-0.03em' }}>
+              <Typography variant="h4" sx={{ mt: 0, fontWeight: 800, letterSpacing: '-0.01em' }}>
                 Everything you need to teach online
               </Typography>
             </Box>
 
-            <Grid container spacing={2}>
-              {features.map((feature) => (
-                <Grid key={feature.title} size={{ xs: 12, sm: 6, lg: 4 }}>
-                  <Card sx={{ height: '100%' }}>
-                    <CardContent sx={{ p: 2.25 }}>
-                      <Stack spacing={1.5}>
-                        <Avatar sx={{ bgcolor: feature.color, color: 'text.primary', fontWeight: 800, width: 48, height: 48 }}>
-                          {feature.title[0]}
-                        </Avatar>
+            {features.length > 0 ? (
+              <Grid container spacing={2}>
+                {features.map((feature) => (
+                  <Grid key={feature.title} size={{ xs: 12, sm: 6, lg: 4 }}>
+                    <Card sx={{ height: '100%' }}>
+                      <CardContent sx={{ p: 1.5 }}>
                         <Box>
-                          <Typography variant="h6" sx={{ fontWeight: 700 }}>
+                          <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
                             {feature.title}
                           </Typography>
                           <Typography variant="body2" sx={{ mt: 1, color: 'text.secondary', lineHeight: 1.7 }}>
                             {feature.description}
                           </Typography>
                         </Box>
-                      </Stack>
-                    </CardContent>
-                  </Card>
-                </Grid>
-              ))}
-            </Grid>
+                      </CardContent>
+                    </Card>
+                  </Grid>
+                ))}
+              </Grid>
+            ) : (
+              <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                No feature highlights have been published yet.
+              </Typography>
+            )}
           </Stack>
         </Container>
       </Box>
 
-      <Box id="courses" sx={{ py: { xs: 7, md: 10 }, backgroundColor: '#FFFFFF' }}>
-        <Container maxWidth="xl">
-          <Stack spacing={2.25}>
+      <Box id="courses" sx={{ py: { xs: 3, md: 4 }, backgroundColor: '#FFFFFF' }}>
+        <Container maxWidth="lg">
+          <Stack spacing={1.5}>
             <Box sx={{ display: 'flex', alignItems: 'end', justifyContent: 'space-between', gap: 2, flexWrap: 'wrap' }}>
               <Box>
-                <Typography variant="overline" sx={{ color: 'primary.main', fontWeight: 800, letterSpacing: '0.2em' }}>
-                  POPULAR COURSES
-                </Typography>
-                <Typography variant="h3" sx={{ mt: 1, fontWeight: 800, letterSpacing: '-0.03em' }}>
+                <Typography variant="h4" sx={{ mt: 0, fontWeight: 800, letterSpacing: '-0.01em' }}>
                   Popular Courses
                 </Typography>
               </Box>
-              <Button component={RouterLink} to="/courses/explore" variant="outlined" sx={{ px: 3, py: 1.3, borderColor: '#CBD5E1' }}>
+              <Button component={RouterLink} to="/courses/explore" variant="outlined" sx={{ px: 2, py: 0.9, borderColor: 'divider' }}>
                 Explore all courses
               </Button>
             </Box>
 
             <Grid container spacing={2}>
               {courses.map((course) => (
-                <Grid key={course.title} size={{ xs: 12, sm: 6, lg: 3 }}>
+                <Grid key={course.id} size={{ xs: 12, sm: 6, lg: 3 }}>
                   <Card sx={{ height: '100%', overflow: 'hidden' }}>
                     <Box
                       sx={{
                         height: 190,
-                        backgroundImage: "linear-gradient(180deg, rgba(15,23,42,0.08), rgba(15,23,42,0.28)), url({course.image})",
+                        backgroundImage: course.image
+                          ? `linear-gradient(180deg, rgba(15,23,42,0.08), rgba(15,23,42,0.28)), url(${course.image})`
+                          : 'linear-gradient(135deg, #CBD5E1 0%, #94A3B8 100%)',
                         backgroundSize: 'cover',
                         backgroundPosition: 'center',
                       }}
-                    >
-                      <Box sx={{ p: 2 }}>
-                        <Box
-                          sx={{
-                            display: 'inline-flex',
-                            px: 1.5,
-                            py: 0.75,
-                            borderRadius: 999,
-                            bgcolor: 'rgba(255,255,255,0.18)',
-                            color: '#FFFFFF',
-                            fontSize: 12,
-                            fontWeight: 700,
-                            backdropFilter: 'blur(8px)',
-                          }}
-                        >
-                          {course.category}
-                        </Box>
-                      </Box>
-                    </Box>
-                    <CardContent sx={{ p: 2.25 }}>
+                    />
+                    <CardContent sx={{ p: 1.5 }}>
                       <Stack spacing={1}>
-                        <Typography variant="h6" sx={{ fontWeight: 700, lineHeight: 1.25 }}>
+                        <Typography variant="caption" sx={{ color: 'text.secondary', fontWeight: 600 }}>
+                          {course.category}
+                        </Typography>
+                        <Typography variant="subtitle1" sx={{ fontWeight: 700, lineHeight: 1.25 }}>
                           {course.title}
                         </Typography>
                         <Typography variant="body2" sx={{ color: 'text.secondary' }}>
@@ -1637,7 +1506,7 @@ function MarketingHomepagePage() {
                           <Typography variant="body2" sx={{ color: 'text.secondary', fontWeight: 600 }}>
                             ★ {course.rating}
                           </Typography>
-                          <Typography variant="h6" sx={{ color: 'primary.main', fontWeight: 800 }}>
+                          <Typography variant="subtitle1" sx={{ color: 'primary.main', fontWeight: 800 }}>
                             {course.price}
                           </Typography>
                         </Box>
@@ -1647,18 +1516,20 @@ function MarketingHomepagePage() {
                 </Grid>
               ))}
             </Grid>
+            {!coursesLoading && courses.length === 0 ? (
+              <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                No published courses available yet.
+              </Typography>
+            ) : null}
           </Stack>
         </Container>
       </Box>
 
-      <Box id="testimonials" sx={{ py: { xs: 7, md: 10 }, backgroundColor: '#F8FAFC' }}>
-        <Container maxWidth="xl">
-          <Stack spacing={2.25}>
+      <Box id="testimonials" sx={{ py: { xs: 3, md: 4 }, backgroundColor: 'background.default' }}>
+        <Container maxWidth="lg">
+          <Stack spacing={1.5}>
             <Box>
-              <Typography variant="overline" sx={{ color: 'primary.main', fontWeight: 800, letterSpacing: '0.2em' }}>
-                TESTIMONIALS
-              </Typography>
-              <Typography variant="h3" sx={{ mt: 1, fontWeight: 800, letterSpacing: '-0.03em' }}>
+              <Typography variant="h4" sx={{ mt: 0, fontWeight: 800, letterSpacing: '-0.01em' }}>
                 Loved by students and teachers
               </Typography>
             </Box>
@@ -1667,21 +1538,18 @@ function MarketingHomepagePage() {
               {testimonials.map((item) => (
                 <Grid key={item.name} size={{ xs: 12, md: 4 }}>
                   <Card sx={{ height: '100%' }}>
-                    <CardContent sx={{ p: 2.25 }}>
+                    <CardContent sx={{ p: 1.5 }}>
                       <Stack spacing={1.75}>
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-                          <Avatar src={item.avatar} alt={item.name} sx={{ width: 52, height: 52 }} />
-                          <Box>
-                            <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
-                              {item.name}
-                            </Typography>
-                            <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                              {item.role}
-                            </Typography>
-                          </Box>
+                        <Box>
+                          <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
+                            {item.name}
+                          </Typography>
+                          <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                            {item.role}
+                          </Typography>
                         </Box>
                         <Typography variant="body1" sx={{ color: 'text.secondary', lineHeight: 1.8 }}>
-                          “{item.quote}”
+                          "{item.quote}"
                         </Typography>
                       </Stack>
                     </CardContent>
@@ -1689,97 +1557,99 @@ function MarketingHomepagePage() {
                 </Grid>
               ))}
             </Grid>
+            {!coursesLoading && testimonials.length === 0 ? (
+              <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                Ratings and learner feedback will appear here when courses receive reviews.
+              </Typography>
+            ) : null}
           </Stack>
         </Container>
       </Box>
 
-      <Box id="pricing" sx={{ py: { xs: 7, md: 10 }, backgroundColor: '#FFFFFF' }}>
-        <Container maxWidth="xl">
-          <Stack spacing={2.25}>
+      <Box id="pricing" sx={{ py: { xs: 3, md: 4 }, backgroundColor: '#FFFFFF' }}>
+        <Container maxWidth="lg">
+          <Stack spacing={1.5}>
             <Box>
-              <Typography variant="overline" sx={{ color: 'primary.main', fontWeight: 800, letterSpacing: '0.2em' }}>
-                PRICING
-              </Typography>
-              <Typography variant="h3" sx={{ mt: 1, fontWeight: 800, letterSpacing: '-0.03em' }}>
+              <Typography variant="h4" sx={{ mt: 0, fontWeight: 800, letterSpacing: '-0.01em' }}>
                 Simple, transparent pricing
               </Typography>
             </Box>
 
-            <Grid container spacing={2}>
-              {pricing.map((plan) => (
-                <Grid key={plan.name} size={{ xs: 12, md: 4 }}>
-                  <Card
-                    sx={{
-                      height: '100%',
-                      borderColor: plan.featured ? 'primary.main' : '#E2E8F0',
-                      boxShadow: plan.featured ? '0 18px 42px rgba(0,102,255,0.12)' : '0 4px 20px rgba(0,0,0,0.06)',
-                      borderWidth: plan.featured ? 2 : 1,
-                    }}
-                  >
-                    <CardContent sx={{ p: 2.25 }}>
-                      <Stack spacing={1.75}>
-                        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 2 }}>
-                          <Typography variant="h6" sx={{ fontWeight: 800 }}>
-                            {plan.name}
-                          </Typography>
-                          {plan.featured ? (
-                            <Box sx={{ px: 1.5, py: 0.75, borderRadius: 999, bgcolor: alpha(theme.palette.primary.main, 0.1), color: 'primary.main', fontSize: 12, fontWeight: 700 }}>
-                              Most popular
-                            </Box>
-                          ) : null}
-                        </Box>
-                        <Box>
-                          <Typography variant="h3" sx={{ fontWeight: 900, lineHeight: 1 }}>
-                            {plan.price}
-                            <Typography component="span" variant="body1" sx={{ color: 'text.secondary', fontWeight: 600 }}>
-                              /mo
+            {pricing.length > 0 ? (
+              <Grid container spacing={2}>
+                {pricing.map((plan) => (
+                  <Grid key={plan.name} size={{ xs: 12, md: 4 }}>
+                    <Card
+                      sx={{
+                        height: '100%',
+                        borderColor: plan.featured ? 'primary.main' : 'divider',
+                        borderWidth: plan.featured ? 2 : 1,
+                      }}
+                    >
+                      <CardContent sx={{ p: 1.5 }}>
+                        <Stack spacing={1.75}>
+                          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 2 }}>
+                            <Typography variant="subtitle1" sx={{ fontWeight: 800 }}>
+                              {plan.name}
                             </Typography>
-                          </Typography>
-                          <Typography variant="body2" sx={{ mt: 1, color: 'text.secondary', lineHeight: 1.7 }}>
-                            {plan.description}
-                          </Typography>
-                        </Box>
-                        <Box sx={{ display: 'grid', gap: 1 }}>
-                          {plan.features.map((feature) => (
-                            <Typography key={feature} variant="body2" sx={{ color: 'text.primary', display: 'flex', alignItems: 'center', gap: 1 }}>
-                              <Box sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: 'success.main' }} />
-                              {feature}
+                          </Box>
+                          <Box>
+                            <Typography variant="h4" sx={{ fontWeight: 900, lineHeight: 1 }}>
+                              {plan.price}
+                              <Typography component="span" variant="body1" sx={{ color: 'text.secondary', fontWeight: 600 }}>
+                                /mo
+                              </Typography>
                             </Typography>
-                          ))}
-                        </Box>
-                        <Button component={RouterLink} to="/auth/signup" variant={plan.featured ? 'contained' : 'outlined'} fullWidth sx={{ py: 1.4 }}>
-                          Get Started
-                        </Button>
-                      </Stack>
-                    </CardContent>
-                  </Card>
-                </Grid>
-              ))}
-            </Grid>
+                            <Typography variant="body2" sx={{ mt: 1, color: 'text.secondary', lineHeight: 1.7 }}>
+                              {plan.description}
+                            </Typography>
+                          </Box>
+                          <Box sx={{ display: 'grid', gap: 1 }}>
+                            {plan.features.map((feature) => (
+                              <Typography key={feature} variant="body2" sx={{ color: 'text.primary', display: 'flex', alignItems: 'center', gap: 1 }}>
+                                <Box sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: 'success.main' }} />
+                                {feature}
+                              </Typography>
+                            ))}
+                          </Box>
+                          <Button component={RouterLink} to="/auth/signup" variant={plan.featured ? 'contained' : 'outlined'} fullWidth sx={{ py: 1.1 }}>
+                            Get Started
+                          </Button>
+                        </Stack>
+                      </CardContent>
+                    </Card>
+                  </Grid>
+                ))}
+              </Grid>
+            ) : (
+              <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                No pricing plans are configured yet.
+              </Typography>
+            )}
           </Stack>
         </Container>
       </Box>
 
-      <Box sx={{ py: { xs: 6, md: 8 }, background: 'linear-gradient(135deg, #5B3DF5 0%, #6D28D9 100%)', color: '#FFFFFF' }}>
-        <Container maxWidth="xl">
+      <Box sx={{ py: { xs: 3, md: 4 }, bgcolor: 'primary.main', color: '#FFFFFF' }}>
+        <Container maxWidth="lg">
           <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, alignItems: 'center', justifyContent: 'space-between', gap: 1.5 }}>
             <Box sx={{ maxWidth: 720 }}>
-              <Typography variant="h3" sx={{ fontWeight: 900, letterSpacing: '-0.03em' }}>
+              <Typography variant="h4" sx={{ fontWeight: 800, fontSize: { xs: '1.5rem', md: '1.5rem' }, letterSpacing: '-0.02em' }}>
                 Ready to launch your online academy?
               </Typography>
-              <Typography variant="h6" sx={{ mt: 0.75, fontWeight: 500, color: 'rgba(255,255,255,0.82)', lineHeight: 1.55 }}>
+              <Typography variant="body1" sx={{ mt: 0.5, fontWeight: 500, color: 'rgba(255,255,255,0.9)', lineHeight: 1.5, fontSize: { xs: '0.9rem', md: '1rem' } }}>
                 Build, sell, and scale your learning experience from one clean platform.
               </Typography>
             </Box>
-            <Button component={RouterLink} to="/auth/signup" variant="contained" sx={{ bgcolor: '#FFFFFF', color: '#5B3DF5', px: 3.25, py: 1.15, '&:hover': { bgcolor: '#F8FAFC' } }}>
+            <Button component={RouterLink} to="/auth/signup" variant="contained" sx={{ bgcolor: '#FFFFFF', color: 'primary.main', px: 2.5, py: 0.8, fontSize: '0.9rem', '&:hover': { bgcolor: '#F1F5F9' } }}>
               Get Started for Free
             </Button>
           </Box>
         </Container>
       </Box>
 
-      <Box id="about" sx={{ py: { xs: 7, md: 9 }, backgroundColor: '#FFFFFF' }}>
-        <Container maxWidth="xl">
+      <Box id="about" sx={{ py: { xs: 3, md: 4 }, backgroundColor: '#FFFFFF' }}>
+        <Container maxWidth="lg">
           <Grid container spacing={2}>
             <Grid size={{ xs: 12, md: 4 }}>
               <Stack spacing={1.5}>
@@ -1787,7 +1657,7 @@ function MarketingHomepagePage() {
                   <Box sx={{ width: 40, height: 40, borderRadius: 2.5, bgcolor: 'primary.main', display: 'grid', placeItems: 'center', color: '#FFFFFF', fontWeight: 800 }}>
                     LS
                   </Box>
-                  <Typography variant="h6" sx={{ fontWeight: 800 }}>
+                  <Typography variant="subtitle1" sx={{ fontWeight: 800 }}>
                     LearnSpace
                   </Typography>
                 </Box>
@@ -1855,7 +1725,7 @@ function MarketingHomepagePage() {
             </Grid>
           </Grid>
 
-          <Box sx={{ mt: 4, pt: 2, borderTop: '1px solid #E2E8F0' }}>
+          <Box sx={{ mt: 2, pt: 1, borderTop: '1px solid', borderColor: 'divider' }}>
             <Typography variant="body2" sx={{ color: 'text.secondary' }}>
               © 2026 LearnSpace. All rights reserved.
             </Typography>
@@ -1919,16 +1789,17 @@ function AppRoutes() {
         <Route path="/auth/signup" element={<SignupAuthPage />} />
         <Route path="/auth/reset-password" element={<PasswordResetPage />} />
         <Route path="/reset-password" element={<LegacyResetPasswordRedirect />} />
-        <Route path="/about" element={<PlaceholderPage title="About LearnSpace" description="Learn how LearnSpace helps educators and teams launch polished learning experiences with a compact, modern workflow." eyebrow="Company" actionLabel="Talk to Sales" actionTo="/contact" />} />
+        <Route path="/about" element={<CmsContentPage slug="about" eyebrow="Company" />} />
         <Route path="/blog" element={<BlogLandingPage />} />
-        <Route path="/careers" element={<PlaceholderPage title="Careers at LearnSpace" description="We are building a focused team around product design, engineering, and customer success. Explore current opportunities and how to join us." eyebrow="Company" actionLabel="View open roles" actionTo="/contact" />} />
-        <Route path="/help-center" element={<PlaceholderPage title="Help Center" description="Find quick answers, onboarding guides, and support resources for learners, instructors, and admins." eyebrow="Resources" actionLabel="Contact support" actionTo="/contact" />} />
-        <Route path="/docs" element={<PlaceholderPage title="Docs" description="Read setup guides, workflow references, and platform documentation for LearnSpace features and roles." eyebrow="Resources" actionLabel="Visit blog" actionTo="/blog" />} />
-        <Route path="/community" element={<PlaceholderPage title="Community" description="Join the LearnSpace community to share course ideas, product feedback, and best practices." eyebrow="Resources" actionLabel="Explore courses" actionTo="/courses/explore" />} />
-        <Route path="/status" element={<PlaceholderPage title="System Status" description="Track platform health, uptime, and service updates for the LearnSpace product stack." eyebrow="Resources" actionLabel="Check updates" actionTo="/contact" />} />
-        <Route path="/terms" element={<PlaceholderPage title="Terms of Service" description="Review the LearnSpace terms that govern platform use, subscriptions, and account responsibilities." eyebrow="Legal" actionLabel="Create account" actionTo="/auth/signup" />} />
-        <Route path="/privacy" element={<PlaceholderPage title="Privacy Policy" description="Understand how LearnSpace handles account data, course activity, and billing information." eyebrow="Legal" actionLabel="Create account" actionTo="/auth/signup" />} />
-        <Route path="/cookies" element={<PlaceholderPage title="Cookie Policy" description="Learn how LearnSpace uses cookies and related technologies to keep the platform fast, secure, and personalized." eyebrow="Legal" actionLabel="Review privacy" actionTo="/privacy" />} />
+        <Route path="/blog/:slug" element={<CmsContentPage eyebrow="Blog" />} />
+        <Route path="/careers" element={<CmsContentPage slug="careers" eyebrow="Company" />} />
+        <Route path="/help-center" element={<CmsContentPage slug="help-center" eyebrow="Resources" />} />
+        <Route path="/docs" element={<CmsContentPage slug="docs" eyebrow="Resources" />} />
+        <Route path="/community" element={<CmsContentPage slug="community" eyebrow="Resources" />} />
+        <Route path="/status" element={<CmsContentPage slug="status" eyebrow="Resources" />} />
+        <Route path="/terms" element={<CmsContentPage slug="terms" eyebrow="Legal" />} />
+        <Route path="/privacy" element={<CmsContentPage slug="privacy" eyebrow="Legal" />} />
+        <Route path="/cookies" element={<CmsContentPage slug="cookies" eyebrow="Legal" />} />
         <Route path="/home" element={<MarketingHomepagePage />} />
         <Route path="/courses/:courseSlug" element={<CourseDetailPage />} />
         <Route path="/courses/bootcamp-2025" element={<CourseDetailPage />} />
@@ -1943,6 +1814,7 @@ function AppRoutes() {
             <Route path="/courses/bootcamp-2025/learn" element={<CoursePlayer />} />
             <Route path="/courses/:courseId/learn" element={<CoursePlayer />} />
             <Route path="/courses/explore" element={<ExploreCourses />} />
+            <Route path="/courses/:courseSlug/details" element={<CourseDetailPage embedded />} />
             <Route path="/messages" element={<Messages />} />
             <Route path="/discussions" element={<CourseDiscussions />} />
             <Route path="/discussions/:threadId" element={<CourseDiscussions />} />
@@ -2004,3 +1876,7 @@ function App() {
 }
 
 export default App;
+
+
+
+

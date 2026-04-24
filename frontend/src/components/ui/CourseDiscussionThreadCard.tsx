@@ -1,7 +1,4 @@
-import { Avatar, Badge, Box, Chip, Stack, Typography } from '@mui/material';
-import { alpha } from '@mui/material/styles';
-import { BookmarkBorderOutlined, InsertDriveFileOutlined } from '@mui/icons-material';
-import { theme } from '../../theme';
+import { Avatar, Box, Stack, Typography } from '@mui/material';
 
 export type ThreadCategory = 'All' | 'Announcements' | 'Q&A' | 'Study Group' | 'Project Help';
 
@@ -38,24 +35,6 @@ export type Thread = {
   repliesList: Reply[];
 };
 
-function getAttachmentDetails(fileName: string) {
-  const extension = fileName.split('.').pop()?.toLowerCase() ?? '';
-
-  if (['png', 'jpg', 'jpeg', 'gif', 'webp'].includes(extension)) {
-    return { label: 'Image attachment', sizeLabel: '1.2 MB', accent: '#0EA5E9' };
-  }
-
-  if (extension === 'pdf') {
-    return { label: 'PDF document', sizeLabel: '842 KB', accent: '#EF4444' };
-  }
-
-  if (['zip', 'rar'].includes(extension)) {
-    return { label: 'Compressed archive', sizeLabel: '3.6 MB', accent: '#7C3AED' };
-  }
-
-  return { label: 'File attachment', sizeLabel: '512 KB', accent: '#64748B' };
-}
-
 export function ThreadItem({ thread, active, onClick }: { thread: Thread; active: boolean; onClick: () => void }) {
   return (
     <Box
@@ -67,18 +46,17 @@ export function ThreadItem({ thread, active, onClick }: { thread: Thread; active
       sx={{
         cursor: 'pointer',
         borderRadius: 3,
-        border: '1px solid #E2E8F0',
-        bgcolor: active ? alpha(theme.palette.primary.main, 0.08) : '#FFFFFF',
+        border: '1px solid',
+        borderColor: active ? 'primary.main' : 'divider',
+        bgcolor: active ? 'background.default' : 'background.paper',
         alignItems: 'flex-start',
         gap: 1.25,
         px: 1.5,
         py: 1.3,
-        transition: 'transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease',
+        transition: 'border-color 160ms ease',
         display: 'flex',
         '&:hover': {
-          transform: 'translateY(-1px)',
-          boxShadow: '0 12px 28px rgba(15,23,42,0.08)',
-          borderColor: alpha(theme.palette.primary.main, 0.25),
+          borderColor: 'primary.main',
         },
       }}
     >
@@ -90,17 +68,29 @@ export function ThreadItem({ thread, active, onClick }: { thread: Thread; active
           <Typography variant="subtitle2" sx={{ fontWeight: 800 }} noWrap>
             {thread.title}
           </Typography>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-            {thread.pinned ? <BookmarkBorderOutlined fontSize="small" /> : null}
-            {thread.unread > 0 ? <Badge color="error" badgeContent={thread.unread} /> : null}
-          </Box>
+          {thread.unread > 0 ? (
+            <Typography variant="caption" sx={{ color: 'text.secondary', fontWeight: 700 }}>
+              {thread.unread} unread
+            </Typography>
+          ) : null}
         </Box>
         <Typography variant="body2" sx={{ mt: 0.5, color: 'text.secondary' }} noWrap>
           {thread.summary}
         </Typography>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 1, flexWrap: 'wrap' }}>
-          <Chip size="small" label={thread.category} sx={{ bgcolor: alpha(thread.accent, 0.12), color: thread.accent, fontWeight: 700 }} />
-          {thread.live ? <Chip size="small" label="Live" color="success" /> : null}
+          <Typography variant="caption" sx={{ color: 'text.secondary', fontWeight: 700 }}>
+            {thread.category}
+          </Typography>
+          {thread.live ? (
+            <Typography variant="caption" sx={{ color: 'text.secondary', fontWeight: 700 }}>
+              Live
+            </Typography>
+          ) : null}
+          {thread.pinned ? (
+            <Typography variant="caption" sx={{ color: 'text.secondary', fontWeight: 700 }}>
+              Pinned
+            </Typography>
+          ) : null}
           <Typography variant="caption" sx={{ color: 'text.secondary', fontWeight: 600 }}>
             {thread.replies} replies
           </Typography>
@@ -111,7 +101,6 @@ export function ThreadItem({ thread, active, onClick }: { thread: Thread; active
 }
 
 export function ReplyBubble({ reply }: { reply: Reply }) {
-  const isInstructor = Boolean(reply.isInstructor);
   const hasUnreadMarker = reply.isRead === false;
 
   return (
@@ -126,17 +115,12 @@ export function ReplyBubble({ reply }: { reply: Reply }) {
               <Typography variant="subtitle2" sx={{ fontWeight: 800 }}>
                 {reply.author}
               </Typography>
-              <Chip label={reply.role} size="small" sx={{ height: 22, bgcolor: isInstructor ? alpha(theme.palette.primary.main, 0.1) : '#F8FAFC', color: isInstructor ? 'primary.main' : 'text.secondary', fontWeight: 700 }} />
-              <Chip
-                label={hasUnreadMarker ? 'Unread' : 'Read'}
-                size="small"
-                sx={{
-                  height: 22,
-                  bgcolor: hasUnreadMarker ? alpha('#EF4444', 0.1) : alpha('#10B981', 0.1),
-                  color: hasUnreadMarker ? '#EF4444' : '#10B981',
-                  fontWeight: 700,
-                }}
-              />
+              <Typography variant="caption" sx={{ color: 'text.secondary', fontWeight: 700 }}>
+                {reply.role}
+              </Typography>
+              <Typography variant="caption" sx={{ color: 'text.secondary', fontWeight: 700 }}>
+                {hasUnreadMarker ? 'Unread' : 'Read'}
+              </Typography>
             </Box>
             <Typography variant="caption" sx={{ color: 'text.secondary' }}>
               {reply.time}
@@ -148,8 +132,9 @@ export function ReplyBubble({ reply }: { reply: Reply }) {
           sx={{
             ml: 6.1,
             borderRadius: 3,
-            bgcolor: isInstructor ? alpha(theme.palette.primary.main, 0.08) : '#F8FAFC',
-            border: '1px solid #E2E8F0',
+            bgcolor: 'background.default',
+            border: '1px solid',
+            borderColor: 'divider',
             px: 2,
             py: 1.6,
           }}
@@ -160,7 +145,6 @@ export function ReplyBubble({ reply }: { reply: Reply }) {
           {reply.attachments?.length ? (
             <Stack spacing={1} sx={{ mt: 1.75 }}>
               {reply.attachments.map((attachment) => {
-                const details = getAttachmentDetails(attachment);
                 return (
                   <Box
                     key={attachment}
@@ -170,32 +154,19 @@ export function ReplyBubble({ reply }: { reply: Reply }) {
                       gap: 1.2,
                       p: 1.3,
                       borderRadius: 2.5,
-                      border: '1px solid #E2E8F0',
-                      bgcolor: '#FFFFFF',
+                      border: '1px solid',
+                      borderColor: 'divider',
+                      bgcolor: 'background.paper',
                     }}
                   >
-                    <Box
-                      sx={{
-                        width: 42,
-                        height: 42,
-                        borderRadius: 2,
-                        bgcolor: alpha(details.accent, 0.12),
-                        color: details.accent,
-                        display: 'grid',
-                        placeItems: 'center',
-                      }}
-                    >
-                      <InsertDriveFileOutlined fontSize="small" />
-                    </Box>
                     <Box sx={{ minWidth: 0, flex: 1 }}>
                       <Typography variant="body2" sx={{ fontWeight: 800 }} noWrap>
                         {attachment}
                       </Typography>
                       <Typography variant="caption" sx={{ color: 'text.secondary' }} noWrap>
-                        {details.label} • {details.sizeLabel}
+                        Attachment
                       </Typography>
                     </Box>
-                    <Chip label="Preview" size="small" sx={{ bgcolor: '#F8FAFC' }} />
                   </Box>
                 );
               })}
@@ -204,7 +175,20 @@ export function ReplyBubble({ reply }: { reply: Reply }) {
           {reply.reactions?.length ? (
             <Stack direction="row" spacing={1} sx={{ mt: 1.5, flexWrap: 'wrap' }}>
               {reply.reactions.map((reaction) => (
-                <Chip key={`${reply.id}-${reaction.emoji}`} label={`${reaction.emoji} ${reaction.count}`} size="small" sx={{ bgcolor: '#FFFFFF' }} />
+                <Typography
+                  key={`${reply.id}-${reaction.emoji}`}
+                  variant="caption"
+                  sx={{
+                    px: 1,
+                    py: 0.5,
+                    borderRadius: 1,
+                    border: '1px solid',
+                    borderColor: 'divider',
+                    bgcolor: 'background.paper',
+                  }}
+                >
+                  {reaction.emoji} {reaction.count}
+                </Typography>
               ))}
             </Stack>
           ) : null}

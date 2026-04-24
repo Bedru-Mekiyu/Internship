@@ -1,22 +1,44 @@
-import { Box } from '@mui/material';
+import { Box, Typography } from '@mui/material';
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 
-const revenueData = [
-  { month: 'Jan', revenue: 22 },
-  { month: 'Feb', revenue: 28 },
-  { month: 'Mar', revenue: 25 },
-  { month: 'Apr', revenue: 34 },
-  { month: 'May', revenue: 39 },
-  { month: 'Jun', revenue: 45 },
-];
+export type InstructorRevenuePoint = {
+  month: string;
+  revenue: number;
+};
 
 const revenueTooltipStyle = {
   borderRadius: 14,
   border: '1px solid #E2E8F0',
-  boxShadow: '0 12px 28px rgba(15,23,42,0.12)',
+  boxShadow: 'none',
 };
 
-export default function InstructorRevenueChart() {
+type InstructorRevenueChartProps = {
+  data?: InstructorRevenuePoint[];
+};
+
+export default function InstructorRevenueChart({ data }: InstructorRevenueChartProps) {
+  const revenueData = data ?? [];
+
+  if (revenueData.length === 0) {
+    return (
+      <Box
+        sx={{
+          height: 320,
+          borderRadius: 1.5,
+          border: '1px solid',
+          borderColor: 'divider',
+          bgcolor: 'background.default',
+          display: 'grid',
+          placeItems: 'center',
+        }}
+      >
+        <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+          No revenue data available yet.
+        </Typography>
+      </Box>
+    );
+  }
+
   return (
     <Box sx={{ height: 320 }}>
       <ResponsiveContainer width="100%" height="100%">

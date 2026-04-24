@@ -5,7 +5,6 @@ import {
   Button,
   Card,
   CardContent,
-  Chip,
   Grid,
   LinearProgress,
   MenuItem,
@@ -14,16 +13,17 @@ import {
   Tab,
   Tabs,
   TextField,
+  InputAdornment,
   Typography,
 } from '@mui/material';
-import { alpha } from '@mui/material/styles';
 import {
-  FilterAltOutlined,
-  MenuBookOutlined,
   SearchOutlined,
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { api, normalizeApiError } from '../../services/api';
+import DashboardPageFrame, { DashboardSection } from '../../components/common/DashboardPageFrame';
+import { useGetCoursesQuery } from '../../store/api/courseApi';
+import { sanitizeHttpUrl } from '../../utils/safeUrl';
 
 type CourseStatus = 'All' | 'In Progress' | 'Completed' | 'Wishlist';
 type CourseCategory = 'All Categories' | 'Development' | 'Design' | 'Business' | 'Marketing';
@@ -58,10 +58,17 @@ function CourseCard({
   onResume: (course: Course, resumeLesson: ResumeLessonState) => void;
 }) {
   return (
-    <Card sx={{ height: '100%', borderRadius: '16px', border: '1px solid #E2E8F0', boxShadow: '0 4px 20px rgba(0,0,0,0.06)', transition: 'transform 180ms ease, box-shadow 180ms ease', '&:hover': { transform: 'translateY(-2px)', boxShadow: '0 10px 28px rgba(15,23,42,0.1)' } }}>
-      <Box sx={{ height: 170, position: 'relative', backgroundImage: `linear-gradient(180deg, rgba(2,6,23,0.12), rgba(2,6,23,0.26)), url(${course.image})`, backgroundSize: 'cover', backgroundPosition: 'center' }}>
-        <Chip label={course.status} sx={{ position: 'absolute', top: 16, left: 16, bgcolor: 'rgba(255,255,255,0.92)', color: 'text.primary', fontWeight: 800 }} />
-      </Box>
+    <Card sx={{ height: '100%', borderRadius: 2, border: '1px solid', borderColor: 'divider' }}>
+      <Box
+        sx={{
+          height: 170,
+          position: 'relative',
+          backgroundImage: course.image ? `url(${course.image})` : 'none',
+          bgcolor: course.image ? 'transparent' : 'background.default',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+        }}
+      />
       <CardContent sx={{ p: 2.5 }}>
         <Stack spacing={1.25}>
           <Box>
@@ -70,14 +77,18 @@ function CourseCard({
           </Box>
 
           <Stack direction="row" spacing={1} sx={{ flexWrap: 'wrap' }}>
-            <Chip label={course.category} size="small" sx={{ bgcolor: alpha(course.accent, 0.12), color: course.accent, fontWeight: 800 }} />
-            <Chip label={`Last accessed ${course.lastAccessed}`} size="small" sx={{ bgcolor: '#F8FAFC', color: 'text.secondary', fontWeight: 700 }} />
+            <Typography variant="caption" sx={{ color: 'text.secondary', fontWeight: 700 }}>
+              {course.category}
+            </Typography>
+            {course.lastAccessed ? (
+              <Typography variant="caption" sx={{ color: 'text.secondary', fontWeight: 700 }}>
+                Last accessed {course.lastAccessed}
+              </Typography>
+            ) : null}
             {resumeLesson?.lessonId ? (
-              <Chip
-                label="Resume available"
-                size="small"
-                sx={{ bgcolor: alpha('#0066FF', 0.1), color: '#0066FF', fontWeight: 800 }}
-              />
+              <Typography variant="caption" sx={{ color: 'text.secondary', fontWeight: 700 }}>
+                Resume available
+              </Typography>
             ) : null}
           </Stack>
 
@@ -92,18 +103,18 @@ function CourseCard({
               <Typography variant="body2" sx={{ color: 'text.secondary', fontWeight: 600 }}>Progress</Typography>
               <Typography variant="body2" sx={{ color: 'text.primary', fontWeight: 800 }}>{course.progress}%</Typography>
             </Box>
-            <LinearProgress variant="determinate" value={course.progress} sx={{ height: 10, borderRadius: '999px', bgcolor: '#E2E8F0', '& .MuiLinearProgress-bar': { bgcolor: course.accent, borderRadius: '999px' } }} />
+            <LinearProgress variant="determinate" value={course.progress} sx={{ height: 10, borderRadius: 999, bgcolor: 'divider', '& .MuiLinearProgress-bar': { bgcolor: course.accent, borderRadius: 999 } }} />
           </Stack>
 
-          <Button variant="contained" fullWidth sx={{ mt: 0.5, bgcolor: '#0066FF', borderRadius: '12px', py: 1.15, fontWeight: 800, boxShadow: '0 10px 24px rgba(0,102,255,0.18)' }} onClick={() => onOpen(course)}>
-            {course.status === 'Wishlist' ? 'View Course' : 'Continue'}
+          <Button variant="contained" fullWidth sx={{ mt: 0.5, borderRadius: 1.5, py: 1.15, fontWeight: 800 }} onClick={() => onOpen(course)}>
+            View Details
           </Button>
 
           {course.status !== 'Wishlist' && resumeLesson?.lessonId ? (
             <Button
               variant="outlined"
               fullWidth
-              sx={{ borderRadius: '12px', py: 1.05, fontWeight: 800 }}
+              sx={{ borderRadius: 1.5, py: 1.05, fontWeight: 800 }}
               onClick={() => onResume(course, resumeLesson)}
             >
               Resume Lesson
@@ -117,11 +128,8 @@ function CourseCard({
 
 function EmptyState() {
   return (
-    <Card sx={{ borderRadius: '16px', border: '1px dashed #CBD5E1', boxShadow: 'none', bgcolor: '#FFFFFF' }}>
+    <Card sx={{ borderRadius: 2, border: '1px dashed', borderColor: 'divider', bgcolor: 'background.paper' }}>
       <CardContent sx={{ p: { xs: 4, md: 6 }, textAlign: 'center' }}>
-        <Box sx={{ width: 72, height: 72, borderRadius: '22px', bgcolor: alpha('#0066FF', 0.08), color: 'primary.main', display: 'grid', placeItems: 'center', mx: 'auto', mb: 2 }}>
-          <MenuBookOutlined sx={{ fontSize: 36 }} />
-        </Box>
         <Typography variant="h5" sx={{ fontWeight: 900, mb: 1 }}>No courses found</Typography>
         <Typography variant="body1" sx={{ color: 'text.secondary', maxWidth: 560, mx: 'auto', lineHeight: 1.7 }}>
           Try adjusting your search, tabs, or filters. When you enroll in a course, it will appear here so you can continue learning from where you left off.
@@ -133,6 +141,7 @@ function EmptyState() {
 
 export default function MyCourses() {
   const navigate = useNavigate();
+  const { data: catalogCourses = [] } = useGetCoursesQuery();
   const { data, isLoading, isError, error } = useQuery({
     queryKey: ['dashboard', 'student', 'my-courses'],
     queryFn: async () => {
@@ -171,26 +180,42 @@ export default function MyCourses() {
       return [];
     }
 
-    return data.enrolledCourses.map((course, index) => ({
-      id: course.courseId,
-      title: course.title,
-      instructor: 'Course Instructor',
-      category: index % 2 === 0 ? 'Development' : 'Design',
-      status: Number(course.progress || 0) >= 100 ? 'Completed' : 'In Progress',
-      progress: Number(course.progress || 0),
-      lastAccessed: 'Recently',
-      image: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=1200&q=80',
-      accent: ['#0066FF', '#6366F1', '#10B981', '#F59E0B'][index % 4],
-    }));
-  }, [data]);
+    const catalogById = new Map(catalogCourses.map((course) => [String(course._id), course]));
+
+    return data.enrolledCourses.map((course, index) => {
+      const catalogCourse = catalogById.get(course.courseId);
+      const instructorName =
+        typeof catalogCourse?.instructor === 'string'
+          ? catalogCourse.instructor
+          : catalogCourse?.instructor?.firstName
+            ? `${catalogCourse.instructor.firstName} ${catalogCourse.instructor.lastName || ''}`.trim()
+            : catalogCourse?.instructor?.email || '';
+      const rawCategory = String(catalogCourse?.category || '').toLowerCase();
+      const normalizedCategory: Exclude<CourseCategory, 'All Categories'> =
+        rawCategory === 'design'
+          ? 'Design'
+          : rawCategory === 'business'
+            ? 'Business'
+            : rawCategory === 'marketing'
+              ? 'Marketing'
+              : 'Development';
+
+      return {
+        id: course.courseId,
+        title: course.title,
+        instructor: instructorName,
+        category: normalizedCategory,
+        status: Number(course.progress || 0) >= 100 ? 'Completed' : 'In Progress',
+        progress: Number(course.progress || 0),
+        lastAccessed: catalogCourse?.updatedAt ? new Date(catalogCourse.updatedAt).toLocaleDateString() : '',
+        image: sanitizeHttpUrl(catalogCourse?.thumbnail) || '',
+        accent: ['#0066FF', '#6366F1', '#10B981', '#F59E0B'][index % 4],
+      };
+    });
+  }, [catalogCourses, data]);
 
   const openCourse = (course: Course) => {
-    if (course.status === 'Wishlist') {
-      navigate('/courses/explore');
-      return;
-    }
-
-    navigate(`/courses/${course.id}/learn`);
+    navigate(`/courses/${course.id}/details`);
   };
 
   const resumeCourseLesson = (course: Course, resumeLesson: ResumeLessonState) => {
@@ -222,8 +247,11 @@ export default function MyCourses() {
   }, [category, courses, search, sort, tab]);
 
   return (
-    <Box sx={{ minHeight: '100%', bgcolor: '#F8FAFC', p: { xs: 1.75, sm: 2.25, md: 2.5 } }}>
-        <Stack spacing={2}>
+    <Box sx={{ minHeight: '100%', bgcolor: 'background.default' }}>
+        <DashboardPageFrame
+          title="Courses"
+          description="Track enrollments, review progress, and move from each course overview into lesson delivery."
+        >
           {isError ? (
             <Typography sx={{ color: 'error.main', fontWeight: 700 }}>
               {normalizeApiError(error).message || 'Failed to load your courses.'}
@@ -234,15 +262,7 @@ export default function MyCourses() {
             <Typography sx={{ color: 'text.secondary' }}>Loading your courses...</Typography>
           ) : null}
 
-          <Box>
-            <Typography variant="h4" sx={{ fontWeight: 900, letterSpacing: '-0.04em', color: 'text.primary' }}>My Courses</Typography>
-            <Typography variant="body1" sx={{ mt: 1, color: 'text.secondary', maxWidth: 760 }}>
-              Track your enrolled classes, revisit recently accessed lessons, and keep your learning momentum going.
-            </Typography>
-          </Box>
-
-          <Card sx={{ borderRadius: '16px', border: '1px solid #E2E8F0', boxShadow: '0 4px 20px rgba(0,0,0,0.06)' }}>
-            <CardContent sx={{ p: { xs: 2.25, md: 2.75 } }}>
+          <DashboardSection>
               <Tabs
                 value={tab}
                 onChange={(_, next) => setTab(next)}
@@ -258,20 +278,23 @@ export default function MyCourses() {
                 <Tab label="Wishlist" value="Wishlist" />
               </Tabs>
 
-              <Grid container spacing={1.5} sx={{ alignItems: 'center' }}>
+                <Grid container spacing={1.5} sx={{ alignItems: 'center' }}>
                 <Grid size={{ xs: 12, md: 5 }}>
-                  <Box sx={{ position: 'relative' }}>
-                    <Box sx={{ position: 'absolute', left: 18, top: '50%', transform: 'translateY(-50%)', color: 'text.secondary', pointerEvents: 'none' }}>
-                      <SearchOutlined fontSize="small" />
-                    </Box>
-                    <TextField
-                      fullWidth
-                      placeholder="Search by course or instructor"
-                      value={search}
-                      onChange={(event) => setSearch(event.target.value)}
-                      sx={{ '& .MuiInputBase-root': { pl: 5.25 } }}
-                    />
-                  </Box>
+                  <TextField
+                    fullWidth
+                    placeholder="Search by course or instructor"
+                    value={search}
+                    onChange={(event) => setSearch(event.target.value)}
+                    slotProps={{
+                      input: {
+                        startAdornment: (
+                          <InputAdornment position="start">
+                            <SearchOutlined fontSize="small" />
+                          </InputAdornment>
+                        ),
+                      },
+                    }}
+                  />
                 </Grid>
 
                 <Grid size={{ xs: 12, md: 3.5 }}>
@@ -283,15 +306,14 @@ export default function MyCourses() {
                 </Grid>
 
                 <Grid size={{ xs: 12, md: 3.5 }}>
-                  <Select fullWidth value={sort} onChange={(event) => setSort(event.target.value as CourseSort)} startAdornment={<FilterAltOutlined sx={{ ml: 1.2, mr: 1, color: 'text.secondary' }} />}>
+                  <Select fullWidth value={sort} onChange={(event) => setSort(event.target.value as CourseSort)}>
                     {['Recently Accessed', 'Progress: High to Low', 'Progress: Low to High', 'Title: A to Z'].map((item) => (
                       <MenuItem key={item} value={item}>{item}</MenuItem>
                     ))}
                   </Select>
                 </Grid>
-              </Grid>
-            </CardContent>
-          </Card>
+                </Grid>
+          </DashboardSection>
 
           {filteredCourses.length > 0 ? (
             <Grid container spacing={2}>
@@ -309,7 +331,7 @@ export default function MyCourses() {
           ) : (
             <EmptyState />
           )}
-        </Stack>
+        </DashboardPageFrame>
     </Box>
   );
 }
