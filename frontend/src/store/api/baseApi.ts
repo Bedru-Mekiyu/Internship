@@ -5,7 +5,7 @@ import {
   type FetchArgs,
   type FetchBaseQueryError,
 } from '@reduxjs/toolkit/query/react';
-import { clearStoredAccessToken, getCsrfToken, getStoredAccessToken } from '../../services/api';
+import { getCsrfToken } from '../../services/api';
 import { resolveApiBaseUrl } from '../../utils/apiBaseUrl';
 import { clearUser } from '../slices/authSlice';
 
@@ -13,12 +13,6 @@ const rawBaseQuery = fetchBaseQuery({
   baseUrl: resolveApiBaseUrl(),
   credentials: 'include',
   prepareHeaders: (headers, { endpoint }) => {
-    const token = getStoredAccessToken();
-
-    if (token) {
-      headers.set('Authorization', `Bearer ${token}`);
-    }
-
     const csrfToken = getCsrfToken();
     if (csrfToken) {
       headers.set('x-csrf-token', csrfToken);
@@ -75,7 +69,6 @@ const baseQueryWithRefresh: BaseQueryFn<string | FetchArgs, unknown, FetchBaseQu
     return result;
   }
 
-  clearStoredAccessToken();
   api.dispatch(clearUser());
   return result;
 };

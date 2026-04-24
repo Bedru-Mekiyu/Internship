@@ -1,5 +1,1 @@
-import { useAuthSession } from './useAuthSession';
-
-export const useAuth = () => {
-  return useAuthSession();
-};
+export { useAuth } from '../context/AuthContext';

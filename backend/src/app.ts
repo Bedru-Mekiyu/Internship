@@ -160,9 +160,26 @@ const startServer = async () => {
       }
     }
 
+    const getSocketAccessToken = (cookieHeader: string | undefined) => {
+      if (!cookieHeader) {
+        return '';
+      }
+
+      const cookieEntry = cookieHeader
+        .split(';')
+        .map((entry) => entry.trim())
+        .find((entry) => entry.startsWith('accessToken='));
+
+      if (!cookieEntry) {
+        return '';
+      }
+
+      return decodeURIComponent(cookieEntry.slice('accessToken='.length));
+    };
+
     io.use(async (socket, next) => {
       try {
-        const token = socket.handshake.auth.token || socket.handshake.headers.authorization?.replace('Bearer ', '');
+        const token = getSocketAccessToken(socket.handshake.headers.cookie);
         if (!token) return next(new Error('Authentication error: No token provided'));
 
         const accessSecret = requireEnv('JWT_ACCESS_SECRET');

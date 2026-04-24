@@ -10,21 +10,8 @@ interface DecodedToken {
   tokenVersion?: number;
 }
 
-/** Prefer Authorization header, then fall back to access cookie. If both differ, try header first then cookie so stale localStorage does not beat a fresh httpOnly cookie. */
 const getAccessTokensToTry = (req: Request): string[] => {
-  const authHeader = req.headers.authorization;
-  const tokenFromHeader = authHeader && authHeader.startsWith('Bearer ')
-    ? authHeader.split(' ')[1]
-    : undefined;
   const tokenFromCookie = req.cookies?.accessToken as string | undefined;
-
-  if (tokenFromHeader && tokenFromCookie && tokenFromHeader !== tokenFromCookie) {
-    return [tokenFromHeader, tokenFromCookie];
-  }
-
-  if (tokenFromHeader) {
-    return [tokenFromHeader];
-  }
 
   if (tokenFromCookie) {
     return [tokenFromCookie];

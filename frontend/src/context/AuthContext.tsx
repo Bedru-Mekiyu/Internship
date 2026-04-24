@@ -12,7 +12,6 @@ import {
 import type { AxiosResponse } from 'axios';
 import {
   api,
-  clearStoredAccessToken,
   ensureCsrfToken,
   normalizeApiError,
 } from '../services/api';
@@ -78,7 +77,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const clearSession = useCallback(() => {
     setUser(null);
     dispatch(clearAuthUser());
-    clearStoredAccessToken();
   }, [dispatch]);
 
   const refreshSession = useCallback(async () => {

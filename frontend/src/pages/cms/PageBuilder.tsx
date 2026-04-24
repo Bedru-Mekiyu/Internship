@@ -22,7 +22,6 @@ import {
   Typography,
 } from '@mui/material';
 import {
-  AddOutlined,
   ContactMailOutlined,
   ContentCopyOutlined,
   DeleteOutlined,
@@ -32,9 +31,7 @@ import {
   ImageOutlined,
   PlayCircleOutlined,
   PublishOutlined,
-  SaveOutlined,
   TextFieldsOutlined,
-  UploadOutlined,
   VisibilityOutlined,
 } from '@mui/icons-material';
 import { alpha } from '@mui/material/styles';

@@ -95,7 +95,6 @@ export const login = asyncHandler(async (req: Request, res: Response) => {
 });
 
 export const refreshToken = asyncHandler(async (req: Request, res: Response) => {
-  const refreshTokenFromBody = req.body.refreshToken;
   const refreshTokenFromCookie = req.cookies?.refreshToken;
   const csrfHeaderToken = req.headers['x-csrf-token'];
   const csrfCookieToken = req.cookies?.csrfToken;
@@ -105,15 +104,13 @@ export const refreshToken = asyncHandler(async (req: Request, res: Response) => 
     && csrfHeaderToken.length > 0
     && csrfHeaderToken === csrfCookieToken;
 
-  const refreshToken = typeof refreshTokenFromBody === 'string' && refreshTokenFromBody.trim()
-    ? refreshTokenFromBody
-    : refreshTokenFromCookie;
+  const refreshToken = refreshTokenFromCookie;
 
   if (typeof refreshToken !== 'string' || !refreshToken.trim()) {
     throw new AppError('refreshToken is required', 400);
   }
 
-  if (!hasValidCsrfToken && refreshToken === refreshTokenFromCookie) {
+  if (!hasValidCsrfToken) {
     throw new AppError('Valid CSRF token is required for cookie refresh', 403);
   }
 
