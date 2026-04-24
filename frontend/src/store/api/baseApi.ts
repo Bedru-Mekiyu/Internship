@@ -1,30 +1,18 @@
 import {
   createApi,
   fetchBaseQuery,
-  type BaseQueryApi,
   type BaseQueryFn,
   type FetchArgs,
   type FetchBaseQueryError,
 } from '@reduxjs/toolkit/query/react';
 import { clearStoredAccessToken, getCsrfToken, getStoredAccessToken } from '../../services/api';
+import { resolveApiBaseUrl } from '../../utils/apiBaseUrl';
 import { clearUser } from '../slices/authSlice';
 
-const defaultApiBaseUrl = 'http://localhost:5000';
-
-const getApiBaseUrl = () => {
-  const candidate = import.meta.env.VITE_API_URL as string | undefined;
-
-  if (candidate && candidate.trim()) {
-    return candidate.trim();
-  }
-
-  return defaultApiBaseUrl;
-};
-
 const rawBaseQuery = fetchBaseQuery({
-  baseUrl: getApiBaseUrl(),
+  baseUrl: resolveApiBaseUrl(),
   credentials: 'include',
-  prepareHeaders: (headers, { getState, endpoint, forced }) => {
+  prepareHeaders: (headers, { endpoint }) => {
     const token = getStoredAccessToken();
 
     if (token) {
@@ -36,11 +24,9 @@ const rawBaseQuery = fetchBaseQuery({
       headers.set('x-csrf-token', csrfToken);
     }
 
-    if (!headers.has('Content-Type') && endpoint !== 'uploadMedia' && !forced) {
+    if (!headers.has('Content-Type') && endpoint !== 'uploadMedia') {
       headers.set('Content-Type', 'application/json');
     }
-
-    void getState;
 
     return headers;
   },
@@ -100,5 +86,3 @@ export const baseApi = createApi({
   tagTypes: ['Auth', 'Course', 'Content', 'Media', 'Discussion', 'Quiz'],
   endpoints: () => ({}),
 });
-
-export type AppBaseQueryApi = BaseQueryApi;

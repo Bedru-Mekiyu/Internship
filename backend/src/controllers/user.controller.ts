@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import mongoose from 'mongoose';
+import bcrypt from 'bcrypt';
 import { AuthService } from '../services/auth.service';
 import { User } from '../models/User.model';
 import { AppError } from '../utils/http-error';
@@ -149,7 +150,7 @@ export const createUser = asyncHandler(async (req: Request, res: Response) => {
     firstName: firstName.trim(),
     lastName: lastName.trim(),
     email: email.trim().toLowerCase(),
-    password,
+    password: await bcrypt.hash(password, 10),
     role: (role as string) ?? 'student',
     isActive: (isActive as boolean) ?? true,
     emailVerified: true,

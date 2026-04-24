@@ -12,14 +12,11 @@ import {
   TableHead,
   TableRow,
   Button,
-  Chip,
-  CircularProgress,
   Dialog,
   DialogTitle,
   DialogContent,
   DialogActions,
 } from '@mui/material';
-import { CheckCircleOutlined, CancelOutlined } from '@mui/icons-material';
 import { api } from '../../services/api';
 
 type DraftCourse = {
@@ -70,25 +67,27 @@ export default function AdminApprovals() {
 
   if (isLoading) {
     return (
-      <Box sx={{ display: 'grid', placeItems: 'center', height: '50vh' }}>
-        <CircularProgress />
+      <Box sx={{ minHeight: '50vh', display: 'grid', placeItems: 'center' }}>
+        <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+          Loading pending approvals...
+        </Typography>
       </Box>
     );
   }
 
   return (
-    <Box>
+    <Box sx={{ minHeight: '100%', bgcolor: 'background.default', p: { xs: 2, sm: 2.5, md: 3 } }}>
       <Box sx={{ mb: 4 }}>
         <Typography variant="h4" sx={{ fontWeight: 800 }}>Pending Approvals</Typography>
         <Typography variant="body1" color="text.secondary">Review and approve new courses submitted by instructors.</Typography>
       </Box>
 
-      <Card sx={{ borderRadius: 4, boxShadow: '0 4px 20px rgba(0,0,0,0.05)' }}>
+      <Card sx={{ borderRadius: 2, border: '1px solid', borderColor: 'divider' }}>
         <CardContent sx={{ p: 0 }}>
-          <TableContainer>
+          <TableContainer sx={{ overflowX: 'auto' }}>
             <Table>
               <TableHead>
-                <TableRow>
+                <TableRow sx={{ '& .MuiTableCell-root': { borderBottom: '1px solid', borderColor: 'divider', fontWeight: 800, color: 'text.secondary' } }}>
                   <TableCell>Course Title</TableCell>
                   <TableCell>Instructor</TableCell>
                   <TableCell>Category</TableCell>
@@ -105,12 +104,14 @@ export default function AdminApprovals() {
                   </TableRow>
                 ) : (
                   courses?.map((course) => (
-                    <TableRow key={course._id}>
+                    <TableRow key={course._id} hover sx={{ '& .MuiTableCell-root': { borderBottomColor: 'divider' } }}>
                       <TableCell sx={{ fontWeight: 600 }}>{course.title}</TableCell>
                       <TableCell>{course.instructor?.firstName} {course.instructor?.lastName}</TableCell>
                       <TableCell>{course.category}</TableCell>
                       <TableCell>
-                        <Chip label="Pending" color="warning" size="small" />
+                        <Typography variant="body2" sx={{ color: 'text.secondary', fontWeight: 700 }}>
+                          Pending
+                        </Typography>
                       </TableCell>
                       <TableCell align="right">
                         <Button
@@ -137,12 +138,11 @@ export default function AdminApprovals() {
             Are you sure you want to approve or reject <strong>{selectedCourse?.title}</strong>?
           </Typography>
         </DialogContent>
-        <DialogActions sx={{ p: 2, pt: 0 }}>
+        <DialogActions sx={{ p: 2.5, pt: 0 }}>
           <Button onClick={() => setModalOpen(false)}>Cancel</Button>
           <Button
             variant="contained"
             color="error"
-            startIcon={<CancelOutlined />}
             onClick={() => confirmAction('archived')}
             disabled={updateStatusMutation.isPending}
           >
@@ -151,7 +151,6 @@ export default function AdminApprovals() {
           <Button
             variant="contained"
             color="success"
-            startIcon={<CheckCircleOutlined />}
             onClick={() => confirmAction('published')}
             disabled={updateStatusMutation.isPending}
           >

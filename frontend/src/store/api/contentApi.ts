@@ -25,7 +25,13 @@ export const contentApi = baseApi.injectEndpoints({
       query: () => ({
         url: '/api/content/media',
       }),
-      providesTags: ['Media'],
+      providesTags: (result) =>
+        result
+          ? [
+            ...result.map((item) => ({ type: 'Media' as const, id: item._id })),
+            { type: 'Media' as const, id: 'LIST' },
+          ]
+          : [{ type: 'Media' as const, id: 'LIST' }],
     }),
     createContent: builder.mutation<ContentItem, Partial<ContentItem>>({
       query: (payload) => ({
@@ -56,7 +62,22 @@ export const contentApi = baseApi.injectEndpoints({
         method: 'POST',
         body: payload,
       }),
-      invalidatesTags: ['Media'],
+      invalidatesTags: [{ type: 'Media', id: 'LIST' }],
+    }),
+    deleteMedia: builder.mutation<{ message: string; id: string }, string>({
+      query: (id) => ({
+        url: `/api/content/media/${id}`,
+        method: 'DELETE',
+      }),
+      invalidatesTags: (_result, _error, id) => [{ type: 'Media', id }, { type: 'Media', id: 'LIST' }],
+    }),
+    renameMedia: builder.mutation<MediaItem, { id: string; originalName: string }>({
+      query: ({ id, originalName }) => ({
+        url: `/api/content/media/${id}`,
+        method: 'PATCH',
+        body: { originalName },
+      }),
+      invalidatesTags: (_result, _error, arg) => [{ type: 'Media', id: arg.id }, { type: 'Media', id: 'LIST' }],
     }),
   }),
 });
@@ -70,4 +91,6 @@ export const {
   useUpdateContentMutation,
   useDeleteContentMutation,
   useUploadMediaMutation,
+  useDeleteMediaMutation,
+  useRenameMediaMutation,
 } = contentApi;

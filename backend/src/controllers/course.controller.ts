@@ -20,6 +20,8 @@ import {
   setCachedCourseListJson,
 } from '../services/cache.service';
 
+const publicInstructorSelect = 'firstName lastName avatar bio role';
+
 const ensureCourseCompletionNotification = async (userId: string, courseTitle: string) => {
   const title = 'Course completed';
   const message = `Congratulations! You completed ${courseTitle}.`;
@@ -248,7 +250,7 @@ export const getCourses = asyncHandler(async (req: Request, res: Response) => {
         .sort({ updatedAt: -1 })
         .skip(skip)
         .limit(limit)
-        .populate('instructor'),
+        .populate({ path: 'instructor', select: publicInstructorSelect }),
     ]);
     const body = {
       items: courses,
@@ -260,7 +262,9 @@ export const getCourses = asyncHandler(async (req: Request, res: Response) => {
     return res.json(body);
   }
 
-  const courses = await Course.find(filters).sort({ updatedAt: -1 }).populate('instructor');
+  const courses = await Course.find(filters)
+    .sort({ updatedAt: -1 })
+    .populate({ path: 'instructor', select: publicInstructorSelect });
   if (cacheablePublished) {
     void setCachedCourseListJson({ filters, paginated, page, limit }, JSON.stringify(courses));
   }
@@ -274,7 +278,10 @@ export const getCourseById = asyncHandler(async (req: Request, res: Response) =>
   }
 
   await ensureCourseDetailAccess(course, req.user);
-  await course.populate(['instructor', 'modules']);
+  await course.populate([
+    { path: 'instructor', select: publicInstructorSelect },
+    { path: 'modules' },
+  ]);
 
   return res.json(course);
 });

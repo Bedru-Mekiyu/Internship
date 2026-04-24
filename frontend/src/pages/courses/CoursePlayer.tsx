@@ -9,8 +9,6 @@ import {
   Card,
   CardContent,
   Checkbox,
-  Chip,
-  Divider,
   Drawer,
   Grid,
   IconButton,
@@ -30,7 +28,6 @@ import {
   CloseOutlined,
   DescriptionOutlined,
   ExpandMoreOutlined,
-  ForumOutlined,
   MenuOutlined,
   PictureAsPdfOutlined,
   QuizOutlined,
@@ -49,6 +46,7 @@ import { useCourseModules, useCourseProgress } from '../../hooks/useCourses';
 import { api, normalizeApiError } from '../../services/api';
 import { buildLessonQuizPath } from '../../services/lessonFlow';
 import { theme } from '../../theme';
+import { sanitizeHttpUrl } from '../../utils/safeUrl';
 
 type LessonType = 'video' | 'pdf' | 'quiz' | 'text';
 
@@ -77,82 +75,6 @@ type ResumeLessonState = {
   lessonTitle?: string;
 };
 
-const modules: Module[] = [
-  {
-    title: 'Module 1 - Getting Started',
-    lessons: [
-      {
-        id: 'welcome',
-        title: 'Welcome and Course Overview',
-        type: 'video',
-        duration: '08:14',
-        description: 'A quick introduction to the course structure, outcomes, and how to get the most out of LearnSpace.',
-        resources: ['Course syllabus', 'Setup checklist'],
-        videoUrl: 'https://storage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
-      },
-      {
-        id: 'setup',
-        title: 'Workspace Setup Guide',
-        type: 'pdf',
-        duration: '12 min',
-        description: 'Downloadable setup guide with tools, templates, and recommended workflows.',
-        resources: ['Setup Guide PDF', 'Starter files'],
-      },
-    ],
-  },
-  {
-    title: 'Module 2 - Core Concepts',
-    lessons: [
-      {
-        id: 'principles',
-        title: 'Learning Principles and Concepts',
-        type: 'text',
-        duration: '10 min',
-        description: 'Review the conceptual framework before jumping into hands-on practice.',
-        resources: ['Summary notes', 'Practice prompts'],
-        textContent: [
-          'Understand how the course is structured to help you build momentum.',
-          'Apply each lesson immediately by following the exercises and challenges.',
-          'Use the discussion button to ask questions whenever something is unclear.',
-        ],
-      },
-      {
-        id: 'checkpoint',
-        title: 'Knowledge Check',
-        type: 'quiz',
-        duration: '7 min',
-        description: 'Test your understanding with a short checkpoint quiz before moving ahead.',
-        resources: ['Quiz instructions', 'Answer review sheet'],
-      },
-    ],
-  },
-  {
-    title: 'Module 3 - Project Work',
-    lessons: [
-      {
-        id: 'project',
-        title: 'Project Walkthrough',
-        type: 'video',
-        duration: '18:42',
-        description: 'A guided walkthrough of the course project and implementation details.',
-        resources: ['Project brief', 'Source assets'],
-        videoUrl: 'https://storage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4',
-      },
-    ],
-  },
-];
-
-const flatLessons = modules.flatMap((module) => module.lessons);
-const fallbackLesson: Lesson = {
-  id: 'fallback-lesson',
-  title: 'Loading lesson',
-  type: 'text',
-  duration: '--',
-  description: 'Lesson data is loading.',
-  resources: [],
-  textContent: ['Lesson data is loading.'],
-};
-
 function slugifyPathSegment(value: string) {
   return value
     .toLowerCase()
@@ -163,13 +85,13 @@ function slugifyPathSegment(value: string) {
 function lessonTypeChip(type: LessonType) {
   switch (type) {
     case 'video':
-      return { label: 'Video', icon: <PlayArrowOutlined />, color: '#0066FF', bg: alpha('#0066FF', 0.1) };
+      return { label: 'Video', color: '#0066FF' };
     case 'pdf':
-      return { label: 'PDF', icon: <PictureAsPdfOutlined />, color: '#EF4444', bg: alpha('#EF4444', 0.1) };
+      return { label: 'PDF', color: '#EF4444' };
     case 'quiz':
-      return { label: 'Quiz', icon: <QuizOutlined />, color: '#F59E0B', bg: alpha('#F59E0B', 0.14) };
+      return { label: 'Quiz', color: '#F59E0B' };
     default:
-      return { label: 'Text', icon: <TextSnippetOutlined />, color: '#10B981', bg: alpha('#10B981', 0.1) };
+      return { label: 'Text', color: '#10B981' };
   }
 }
 
@@ -225,19 +147,22 @@ export default function CoursePlayer() {
   const navigate = useNavigate();
   const location = useLocation();
   const { courseId } = useParams();
-  const isBackendCourseMode = Boolean(courseId);
   const queryLessonId = new URLSearchParams(location.search).get('lesson') || undefined;
-  const lessonResumeKey = `learnspace-active-lesson-${courseId || 'demo'}`;
+  const lessonResumeKey = `learnspace-active-lesson-${courseId || ''}`;
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [expandedModule, setExpandedModule] = useState<string>(modules[0].title);
+  const [expandedModule, setExpandedModule] = useState<string>('');
   const [activeLessonId, setActiveLessonId] = useState(() => {
+    if (!courseId) {
+      return '';
+    }
+
     if (queryLessonId) {
       return queryLessonId;
     }
 
     const storedResumeValue = window.localStorage.getItem(lessonResumeKey);
     if (!storedResumeValue) {
-      return flatLessons[0].id;
+      return '';
     }
 
     try {
@@ -249,7 +174,7 @@ export default function CoursePlayer() {
       return storedResumeValue;
     }
 
-    return flatLessons[0].id;
+    return '';
   });
   const [completedLessons, setCompletedLessons] = useState<string[]>([]);
   const [videoState, setVideoState] = useState({ playing: false, currentTime: 0, duration: 0, volume: 0.85 });
@@ -300,21 +225,18 @@ export default function CoursePlayer() {
         title: lesson.title || `Lesson ${lessonIndex + 1}`,
         type: lesson.type === 'video' || lesson.type === 'quiz' ? lesson.type : 'text',
         duration: typeof lesson.duration === 'number' ? `${lesson.duration} min` : '--',
-        description: lesson.content || 'No lesson description available.',
+        description: lesson.content || '',
         resources: [],
-        videoUrl: lesson.type === 'video' ? 'https://storage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4' : undefined,
-        textContent: lesson.type === 'text' || lesson.type === 'assignment' ? [lesson.content || 'Lesson content is not available yet.'] : undefined,
+        videoUrl: lesson.type === 'video' ? lesson.content : undefined,
+        textContent:
+          lesson.type === 'text' || lesson.type === 'assignment'
+            ? (lesson.content ? lesson.content.split('\n').filter(Boolean) : [])
+            : undefined,
       })),
     }));
   }, [modulesQuery.data]);
 
-  const courseModules = useMemo<Module[]>(() => {
-    if (!isBackendCourseMode) {
-      return modules;
-    }
-
-    return mappedApiModules ?? [];
-  }, [isBackendCourseMode, mappedApiModules]);
+  const courseModules = useMemo<Module[]>(() => mappedApiModules ?? [], [mappedApiModules]);
 
   useEffect(() => {
     if (!progressQuery.data?.completedLessons) {
@@ -329,13 +251,7 @@ export default function CoursePlayer() {
   }, [progressQuery.data]);
 
   const flatCourseLessons = useMemo(() => courseModules.flatMap((moduleItem) => moduleItem.lessons), [courseModules]);
-  const lessonPool = useMemo(() => {
-    if (flatCourseLessons.length > 0) {
-      return flatCourseLessons;
-    }
-
-    return isBackendCourseMode ? [] : flatLessons;
-  }, [flatCourseLessons, isBackendCourseMode]);
+  const lessonPool = useMemo(() => flatCourseLessons, [flatCourseLessons]);
 
   const resolvedActiveLessonId = useMemo(() => {
     if (lessonPool.length === 0) {
@@ -348,12 +264,16 @@ export default function CoursePlayer() {
   }, [activeLessonId, lessonPool]);
 
   const activeLesson = useMemo(
-    () => lessonPool.find((lesson) => lesson.id === resolvedActiveLessonId) ?? lessonPool[0] ?? fallbackLesson,
+    () => lessonPool.find((lesson) => lesson.id === resolvedActiveLessonId) ?? lessonPool[0] ?? null,
     [lessonPool, resolvedActiveLessonId]
   );
   const activeIndex = useMemo(() => lessonPool.findIndex((lesson) => lesson.id === resolvedActiveLessonId), [lessonPool, resolvedActiveLessonId]);
 
   useEffect(() => {
+    if (!activeLesson || !resolvedActiveLessonId) {
+      return;
+    }
+
     window.localStorage.setItem(
       lessonResumeKey,
       JSON.stringify({
@@ -361,10 +281,10 @@ export default function CoursePlayer() {
         lessonTitle: activeLesson.title,
       } satisfies ResumeLessonState),
     );
-  }, [activeLesson.title, lessonResumeKey, resolvedActiveLessonId]);
+  }, [activeLesson, lessonResumeKey, resolvedActiveLessonId]);
 
   useEffect(() => {
-    const storageKey = `learnspace-course-progress-${courseId || 'demo'}-${resolvedActiveLessonId}`;
+    const storageKey = `learnspace-course-progress-${courseId || ''}-${resolvedActiveLessonId}`;
     const saved = window.localStorage.getItem(storageKey);
 
     if (saved) {
@@ -386,17 +306,17 @@ export default function CoursePlayer() {
   }, [courseId, resolvedActiveLessonId]);
 
   useEffect(() => {
-    if (!videoRef.current || activeLesson.type !== 'video') {
+    if (!videoRef.current || !activeLesson || activeLesson.type !== 'video') {
       return;
     }
 
     videoRef.current.currentTime = videoState.currentTime;
     videoRef.current.volume = videoState.volume;
-  }, [activeLesson.type, videoState.currentTime, videoState.volume, activeLessonId]);
+  }, [activeLesson, videoState.currentTime, videoState.volume, activeLessonId]);
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
-      const storageKey = `learnspace-course-progress-${courseId || 'demo'}-${resolvedActiveLessonId}`;
+      const storageKey = `learnspace-course-progress-${courseId || ''}-${resolvedActiveLessonId}`;
       window.localStorage.setItem(
         storageKey,
         JSON.stringify({
@@ -412,6 +332,10 @@ export default function CoursePlayer() {
 
   // Handle 90% video completion auto-complete
   useEffect(() => {
+    if (!activeLesson) {
+      return undefined;
+    }
+
     if (activeLesson.type === 'video' && videoState.duration > 0) {
       const progress = videoState.currentTime / videoState.duration;
       if (progress >= 0.9 && !completedLessons.includes(activeLesson.id)) {
@@ -427,14 +351,14 @@ export default function CoursePlayer() {
       }
     }
     return undefined;
-  }, [activeLesson.type, activeLesson.id, videoState.currentTime, videoState.duration, completedLessons, courseId, completeLessonMutation]);
+  }, [activeLesson, videoState.currentTime, videoState.duration, completedLessons, courseId, completeLessonMutation]);
 
   const setLesson = (lesson: Lesson) => {
-    setActiveLessonId(lesson.id);
-    setVideoState((current) => ({ ...current, playing: false, currentTime: 0, duration: 0 }));
-    if (lesson.type === 'video') {
-      setExpandedModule(courseModules.find((module) => module.lessons.some((item) => item.id === lesson.id))?.title ?? modules[0].title);
-    }
+      setActiveLessonId(lesson.id);
+      setVideoState((current) => ({ ...current, playing: false, currentTime: 0, duration: 0 }));
+      if (lesson.type === 'video') {
+      setExpandedModule(courseModules.find((module) => module.lessons.some((item) => item.id === lesson.id))?.title ?? '');
+      }
   };
 
   const goNext = () => {
@@ -452,26 +376,26 @@ export default function CoursePlayer() {
   };
 
   const toggleComplete = () => {
+    if (!activeLesson) {
+      return;
+    }
+
     if (completedLessons.includes(activeLesson.id)) {
       return;
     }
 
-    if (courseId) {
-      completeLessonMutation.mutate(activeLesson.id);
-      return;
-    }
-
-    setCompletedLessons((current) =>
-      current.includes(activeLesson.id) ? current.filter((item) => item !== activeLesson.id) : [...current, activeLesson.id]
-    );
+    completeLessonMutation.mutate(activeLesson.id);
   };
 
-  const lessonInfo = lessonTypeChip(activeLesson.type);
-  const discussionPath = `/courses/${courseId || 'bootcamp-2025'}/lessons/${slugifyPathSegment(activeLesson.title)}/discussions/1`;
-  const noLessonsAvailable = isBackendCourseMode && !modulesQuery.isLoading && flatCourseLessons.length === 0;
+  const lessonInfo = activeLesson ? lessonTypeChip(activeLesson.type) : null;
+  const safeVideoUrl = sanitizeHttpUrl(activeLesson?.videoUrl);
+  const discussionPath = activeLesson
+    ? `/courses/${courseId || ''}/lessons/${slugifyPathSegment(activeLesson.title)}/discussions/1`
+    : `/courses/${courseId || ''}/discussions/1`;
+  const noLessonsAvailable = Boolean(courseId) && !modulesQuery.isLoading && flatCourseLessons.length === 0;
 
   const saveProgressNow = () => {
-    const storageKey = `learnspace-course-progress-${courseId || 'demo'}-${resolvedActiveLessonId}`;
+    const storageKey = `learnspace-course-progress-${courseId || ''}-${resolvedActiveLessonId}`;
     window.localStorage.setItem(
       storageKey,
       JSON.stringify({
@@ -480,10 +404,8 @@ export default function CoursePlayer() {
       })
     );
 
-    if (courseId) {
-      const progress = lessonPool.length === 0 ? 0 : Math.round((completedLessons.length / lessonPool.length) * 100);
-      updateProgressMutation.mutate(progress);
-    }
+    const progress = lessonPool.length === 0 ? 0 : Math.round((completedLessons.length / lessonPool.length) * 100);
+    updateProgressMutation.mutate(progress);
 
     setLastSaved(`Saved at ${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`);
   };
@@ -502,29 +424,47 @@ export default function CoursePlayer() {
     await mediaElement.requestFullscreen();
   };
 
+  if (!courseId) {
+    return (
+      <Box sx={{ minHeight: '100vh', bgcolor: 'background.default', p: 3 }}>
+        <Alert severity="warning" sx={{ mb: 2 }}>
+          Select a course from your dashboard before opening the course player.
+        </Alert>
+        <Button variant="outlined" onClick={() => navigate('/my-courses')}>
+          Back to my courses
+        </Button>
+      </Box>
+    );
+  }
+
+  if (modulesQuery.isLoading) {
+    return (
+      <Box sx={{ minHeight: '100vh', bgcolor: 'background.default', p: 3 }}>
+        <Alert severity="info">Loading course lessons...</Alert>
+      </Box>
+    );
+  }
+
+  if (!activeLesson || noLessonsAvailable) {
+    return (
+      <Box sx={{ minHeight: '100vh', bgcolor: 'background.default', p: 3 }}>
+        <Alert severity="warning" sx={{ mb: 2 }}>
+          No lessons are available for this course yet.
+        </Alert>
+        <Button variant="outlined" onClick={() => navigate('/courses')}>Back to my courses</Button>
+      </Box>
+    );
+  }
+
   return (
-    <Box sx={{ minHeight: '100vh', bgcolor: '#F8FAFC' }}>
-      {modulesQuery.isLoading && isBackendCourseMode ? (
-        <Alert severity="info" sx={{ m: 2 }}>Loading course lessons...</Alert>
-      ) : null}
-
-      {noLessonsAvailable ? (
-        <Box sx={{ p: 3 }}>
-          <Alert severity="warning" sx={{ mb: 2 }}>
-            No lessons are available for this course yet.
-          </Alert>
-          <Button variant="outlined" onClick={() => navigate('/courses')}>Back to my courses</Button>
-        </Box>
-      ) : null}
-
-      {noLessonsAvailable ? null : (
+    <Box sx={{ minHeight: '100vh', bgcolor: 'background.default' }}>
       <>
       <Drawer
         open={mobileOpen}
         onClose={() => setMobileOpen(false)}
         variant="temporary"
         ModalProps={{ keepMounted: true }}
-        sx={{ display: { xs: 'block', lg: 'none' }, '& .MuiDrawer-paper': { width: '100%', maxWidth: 340, bgcolor: '#FFFFFF' } }}
+        sx={{ display: { xs: 'block', lg: 'none' }, '& .MuiDrawer-paper': { width: '100%', maxWidth: 340, bgcolor: 'background.paper' } }}
       >
         <Box sx={{ p: 2.5 }}>
           <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
@@ -533,7 +473,7 @@ export default function CoursePlayer() {
           </Box>
           <List disablePadding sx={{ display: 'grid', gap: 0.75 }}>
             {courseModules.map((module) => (
-              <Accordion key={module.title} expanded={expandedModule === module.title} onChange={(_, next) => setExpandedModule(next ? module.title : '')} sx={{ borderRadius: '16px', boxShadow: 'none', border: '1px solid #E2E8F0', '&:before': { display: 'none' } }}>
+              <Accordion key={module.title} expanded={expandedModule === module.title} onChange={(_, next) => setExpandedModule(next ? module.title : '')} sx={{ borderRadius: 2, boxShadow: 'none', border: '1px solid', borderColor: 'divider', '&:before': { display: 'none' } }}>
                 <AccordionSummary expandIcon={<ExpandMoreOutlined />}>
                   <Typography sx={{ fontWeight: 800 }}>{module.title}</Typography>
                 </AccordionSummary>
@@ -551,21 +491,21 @@ export default function CoursePlayer() {
       </Drawer>
 
       <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', lg: '340px minmax(0, 1fr) 340px' }, minHeight: '100vh' }}>
-        <Box sx={{ display: { xs: 'none', lg: 'block' }, bgcolor: '#FFFFFF', borderRight: '1px solid #E2E8F0', p: 2.5, position: 'sticky', top: 0, height: '100vh', overflowY: 'auto' }}>
+        <Box sx={{ display: { xs: 'none', lg: 'block' }, bgcolor: 'background.paper', borderRight: '1px solid', borderColor: 'divider', p: 2.5, position: 'sticky', top: 0, height: '100vh', overflowY: 'auto' }}>
           <Stack spacing={2.25}>
             <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               <Box>
                 <Typography variant="h6" sx={{ fontWeight: 900 }}>Curriculum</Typography>
                 <Typography variant="body2" sx={{ color: 'text.secondary' }}>Modules and lessons</Typography>
               </Box>
-              <IconButton sx={{ border: '1px solid #E2E8F0', bgcolor: '#FFFFFF', display: { lg: 'none' } }} onClick={() => setMobileOpen(true)}>
+              <IconButton sx={{ border: '1px solid', borderColor: 'divider', bgcolor: 'background.paper', display: { lg: 'none' } }} onClick={() => setMobileOpen(true)}>
                 <MenuOutlined />
               </IconButton>
             </Box>
 
             <List disablePadding sx={{ display: 'grid', gap: 1 }}>
               {courseModules.map((module) => (
-                <Accordion key={module.title} expanded={expandedModule === module.title} onChange={(_, next) => setExpandedModule(next ? module.title : '')} sx={{ borderRadius: '16px', boxShadow: 'none', border: '1px solid #E2E8F0', '&:before': { display: 'none' } }}>
+                <Accordion key={module.title} expanded={expandedModule === module.title} onChange={(_, next) => setExpandedModule(next ? module.title : '')} sx={{ borderRadius: 2, boxShadow: 'none', border: '1px solid', borderColor: 'divider', '&:before': { display: 'none' } }}>
                   <AccordionSummary expandIcon={<ExpandMoreOutlined />}>
                     <Typography sx={{ fontWeight: 800 }}>{module.title}</Typography>
                   </AccordionSummary>
@@ -586,7 +526,7 @@ export default function CoursePlayer() {
           <Stack spacing={2.5}>
             <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 2, flexWrap: 'wrap' }}>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.25 }}>
-                <IconButton sx={{ display: { xs: 'inline-flex', lg: 'none' }, bgcolor: '#FFFFFF', border: '1px solid #E2E8F0' }} onClick={() => setMobileOpen(true)}>
+                <IconButton sx={{ display: { xs: 'inline-flex', lg: 'none' }, bgcolor: 'background.paper', border: '1px solid', borderColor: 'divider' }} onClick={() => setMobileOpen(true)}>
                   <MenuOutlined />
                 </IconButton>
                 <Box>
@@ -594,27 +534,34 @@ export default function CoursePlayer() {
                   <Typography variant="body2" sx={{ color: 'text.secondary', mt: 0.75 }}>Course player and lesson workspace</Typography>
                 </Box>
               </Box>
-              <Chip label={lessonInfo.label} icon={<Box sx={{ display: 'inherit', color: 'inherit' }}>{lessonInfo.icon}</Box>} sx={{ bgcolor: lessonInfo.bg, color: lessonInfo.color, fontWeight: 800 }} />
+              <Typography variant="body2" sx={{ color: lessonInfo?.color || 'text.secondary', fontWeight: 700 }}>
+                {lessonInfo?.label || 'Lesson'}
+              </Typography>
             </Box>
 
-            <Card sx={{ borderRadius: '16px', border: '1px solid #E2E8F0', boxShadow: '0 4px 20px rgba(0,0,0,0.06)' }}>
+            <Card sx={{ borderRadius: 2, border: '1px solid', borderColor: 'divider', boxShadow: 'none' }}>
               <CardContent sx={{ p: 0 }}>
                 {activeLesson.type === 'video' ? (
                   <Box sx={{ position: 'relative', background: '#0F172A' }}>
-                    <Box
-                      component="video"
-                      ref={videoRef}
-                      src={activeLesson.videoUrl}
-                      onLoadedMetadata={(event) => setVideoState((current) => ({ ...current, duration: event.currentTarget.duration }))}
-                      onTimeUpdate={(event) => setVideoState((current) => ({ ...current, currentTime: event.currentTarget.currentTime, duration: event.currentTarget.duration }))}
-                      onPlay={() => setVideoState((current) => ({ ...current, playing: true }))}
-                      onPause={() => setVideoState((current) => ({ ...current, playing: false }))}
-                      sx={{ width: '100%', display: 'block', maxHeight: 540, objectFit: 'cover' }}
-                    />
-                    <Box sx={{ position: 'absolute', inset: 0, pointerEvents: 'none', background: 'linear-gradient(180deg, rgba(15,23,42,0.05), rgba(15,23,42,0.18))' }} />
+                    {safeVideoUrl ? (
+                      <Box
+                        component="video"
+                        ref={videoRef}
+                        src={safeVideoUrl}
+                        onLoadedMetadata={(event) => setVideoState((current) => ({ ...current, duration: event.currentTarget.duration }))}
+                        onTimeUpdate={(event) => setVideoState((current) => ({ ...current, currentTime: event.currentTarget.currentTime, duration: event.currentTarget.duration }))}
+                        onPlay={() => setVideoState((current) => ({ ...current, playing: true }))}
+                        onPause={() => setVideoState((current) => ({ ...current, playing: false }))}
+                        sx={{ width: '100%', display: 'block', maxHeight: 540, objectFit: 'cover' }}
+                      />
+                    ) : (
+                      <Box sx={{ width: '100%', p: 3 }}>
+                        <Alert severity="warning">Video URL is invalid and was blocked for security.</Alert>
+                      </Box>
+                    )}
                   </Box>
                 ) : (
-                  <Box sx={{ p: { xs: 2.5, md: 4 }, minHeight: 420, display: 'grid', placeItems: 'center', bgcolor: '#FFFFFF' }}>
+                  <Box sx={{ p: { xs: 2.5, md: 4 }, minHeight: 420, display: 'grid', placeItems: 'center', bgcolor: 'background.paper' }}>
                     {activeLesson.type === 'pdf' ? (
                       <Stack spacing={2} sx={{ alignItems: 'center', textAlign: 'center', maxWidth: 620 }}>
                         <Box sx={{ width: 88, height: 88, borderRadius: '24px', bgcolor: alpha('#EF4444', 0.1), color: '#EF4444', display: 'grid', placeItems: 'center' }}>
@@ -622,7 +569,7 @@ export default function CoursePlayer() {
                         </Box>
                         <Typography variant="h5" sx={{ fontWeight: 900 }}>PDF lesson preview</Typography>
                         <Typography variant="body1" sx={{ color: 'text.secondary', lineHeight: 1.8 }}>{activeLesson.description}</Typography>
-                        <Button variant="contained" onClick={() => navigate('/docs')} sx={{ bgcolor: '#0066FF', borderRadius: '12px', fontWeight: 800 }}>Open PDF resource</Button>
+                        <Button variant="contained" onClick={() => navigate('/docs')} sx={{ borderRadius: 1.5, fontWeight: 800 }}>Open PDF resource</Button>
                       </Stack>
                     ) : activeLesson.type === 'quiz' ? (
                       <Stack spacing={2} sx={{ alignItems: 'center', textAlign: 'center', maxWidth: 620 }}>
@@ -631,13 +578,13 @@ export default function CoursePlayer() {
                         </Box>
                         <Typography variant="h5" sx={{ fontWeight: 900 }}>Quiz lesson</Typography>
                         <Typography variant="body1" sx={{ color: 'text.secondary', lineHeight: 1.8 }}>{activeLesson.description}</Typography>
-                        <Button variant="contained" onClick={() => navigate(buildLessonQuizPath(courseId, activeLesson.id))} sx={{ bgcolor: '#6366F1', borderRadius: '12px', fontWeight: 800 }}>Start Quiz</Button>
+                        <Button variant="contained" onClick={() => navigate(buildLessonQuizPath(courseId, activeLesson.id))} sx={{ borderRadius: 1.5, fontWeight: 800 }}>Start Quiz</Button>
                       </Stack>
                     ) : (
                       <Stack spacing={2} sx={{ maxWidth: 760 }}>
                         <Typography variant="h5" sx={{ fontWeight: 900 }}>Text lesson</Typography>
                         <Typography variant="body1" sx={{ color: 'text.secondary', lineHeight: 1.8 }}>{activeLesson.description}</Typography>
-                        <Card sx={{ bgcolor: '#F8FAFC', border: '1px solid #E2E8F0', boxShadow: 'none' }}>
+                        <Card sx={{ bgcolor: 'background.default', border: '1px solid', borderColor: 'divider', boxShadow: 'none' }}>
                           <CardContent>
                             <Stack spacing={1.5}>
                               {(activeLesson.textContent ?? []).map((paragraph) => (
@@ -651,22 +598,22 @@ export default function CoursePlayer() {
                   </Box>
                 )}
 
-                <Box sx={{ p: { xs: 2, md: 2.5 }, borderTop: '1px solid #E2E8F0', bgcolor: '#FFFFFF' }}>
+                <Box sx={{ p: { xs: 2, md: 2.5 }, borderTop: '1px solid', borderColor: 'divider', bgcolor: 'background.paper' }}>
                   {activeLesson.type === 'video' ? (
                     <Stack spacing={1.5}>
-                      <LinearProgress variant="determinate" value={activeLesson.type === 'video' && videoState.duration ? (videoState.currentTime / videoState.duration) * 100 : 0} sx={{ height: 10, borderRadius: '999px', bgcolor: '#E2E8F0', '& .MuiLinearProgress-bar': { bgcolor: '#0066FF', borderRadius: '999px' } }} />
+                      <LinearProgress variant="determinate" value={activeLesson.type === 'video' && videoState.duration ? (videoState.currentTime / videoState.duration) * 100 : 0} sx={{ height: 10, borderRadius: '999px', bgcolor: 'divider', '& .MuiLinearProgress-bar': { bgcolor: 'primary.main', borderRadius: '999px' } }} />
                       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 2, flexWrap: 'wrap' }}>
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                          <IconButton onClick={() => (videoRef.current ? (videoRef.current.currentTime = 0) : null)} sx={{ border: '1px solid #E2E8F0' }}>
+                          <IconButton onClick={() => (videoRef.current ? (videoRef.current.currentTime = 0) : null)} sx={{ border: '1px solid', borderColor: 'divider' }}>
                             <RestartAltOutlined />
                           </IconButton>
-                          <IconButton onClick={() => (videoRef.current ? (videoState.playing ? videoRef.current.pause() : videoRef.current.play()) : null)} sx={{ border: '1px solid #E2E8F0', bgcolor: alpha('#0066FF', 0.08) }}>
+                          <IconButton onClick={() => (videoRef.current ? (videoState.playing ? videoRef.current.pause() : videoRef.current.play()) : null)} sx={{ border: '1px solid', borderColor: 'divider', bgcolor: 'action.hover' }}>
                             {videoState.playing ? <PauseOutlined /> : <PlayArrowOutlined />}
                           </IconButton>
-                          <IconButton onClick={goPrevious} disabled={activeIndex <= 0} sx={{ border: '1px solid #E2E8F0' }}>
+                          <IconButton onClick={goPrevious} disabled={activeIndex <= 0} sx={{ border: '1px solid', borderColor: 'divider' }}>
                             <SkipPreviousOutlined />
                           </IconButton>
-                          <IconButton onClick={goNext} disabled={activeIndex >= lessonPool.length - 1} sx={{ border: '1px solid #E2E8F0' }}>
+                          <IconButton onClick={goNext} disabled={activeIndex >= lessonPool.length - 1} sx={{ border: '1px solid', borderColor: 'divider' }}>
                             <SkipNextOutlined />
                           </IconButton>
                           <Typography variant="body2" sx={{ color: 'text.secondary', fontWeight: 700 }}>
@@ -677,9 +624,9 @@ export default function CoursePlayer() {
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, flexWrap: 'wrap' }}>
                           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, minWidth: 190 }}>
                             <VolumeUpOutlined sx={{ color: 'text.secondary' }} />
-                            <LinearProgress variant="determinate" value={videoState.volume * 100} sx={{ flex: 1, height: 8, borderRadius: '999px', bgcolor: '#E2E8F0', '& .MuiLinearProgress-bar': { bgcolor: '#6366F1', borderRadius: '999px' } }} />
+                            <LinearProgress variant="determinate" value={videoState.volume * 100} sx={{ flex: 1, height: 8, borderRadius: '999px', bgcolor: 'divider', '& .MuiLinearProgress-bar': { bgcolor: 'primary.main', borderRadius: '999px' } }} />
                           </Box>
-                          <IconButton onClick={toggleFullscreen} sx={{ border: '1px solid #E2E8F0' }}>
+                          <IconButton onClick={toggleFullscreen} sx={{ border: '1px solid', borderColor: 'divider' }}>
                             <FullscreenOutlined />
                           </IconButton>
                         </Box>
@@ -692,7 +639,7 @@ export default function CoursePlayer() {
 
             <Grid container spacing={2.5}>
               <Grid size={{ xs: 12, lg: 8 }}>
-                <Card sx={{ borderRadius: '16px', border: '1px solid #E2E8F0', boxShadow: '0 4px 20px rgba(0,0,0,0.06)' }}>
+                <Card sx={{ borderRadius: 2, border: '1px solid', borderColor: 'divider', boxShadow: 'none' }}>
                   <CardContent sx={{ p: { xs: 2.5, md: 3 } }}>
                     <Stack spacing={2.25}>
                       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 2, flexWrap: 'wrap' }}>
@@ -700,20 +647,19 @@ export default function CoursePlayer() {
                           <Typography variant="h6" sx={{ fontWeight: 900 }}>Lesson Details</Typography>
                           <Typography variant="body2" sx={{ color: 'text.secondary', mt: 0.5 }}>{activeLesson.description}</Typography>
                         </Box>
-                        <Button component={RouterLink} to="/messages" variant="outlined" startIcon={<ForumOutlined />} sx={{ borderRadius: '12px', fontWeight: 800, textTransform: 'none' }}>
+                        <Button component={RouterLink} to="/messages" variant="outlined" sx={{ borderRadius: 1.5, fontWeight: 800, textTransform: 'none' }}>
                           Discussion
                         </Button>
                       </Box>
 
                       <Grid container spacing={2}>
                         <Grid size={{ xs: 12, sm: 6 }}>
-                          <Card sx={{ boxShadow: 'none', bgcolor: '#F8FAFC', border: '1px solid #E2E8F0' }}>
+                          <Card sx={{ boxShadow: 'none', bgcolor: 'background.default', border: '1px solid', borderColor: 'divider' }}>
                             <CardContent>
-                              <Typography variant="caption" sx={{ color: 'text.secondary', fontWeight: 800 }}>Resources</Typography>
-                              <Stack spacing={1} sx={{ mt: 1.25 }}>
-                                {activeLesson.resources.map((resource) => (
-                                  <Box key={resource} sx={{ display: 'flex', alignItems: 'center', gap: 1, color: 'text.primary' }}>
-                                    <DescriptionOutlined fontSize="small" sx={{ color: 'primary.main' }} />
+                                <Typography variant="caption" sx={{ color: 'text.secondary', fontWeight: 800 }}>Resources</Typography>
+                                <Stack spacing={1} sx={{ mt: 1.25 }}>
+                                  {activeLesson.resources.map((resource) => (
+                                  <Box key={resource} sx={{ display: 'flex', alignItems: 'center', color: 'text.primary' }}>
                                     <Typography variant="body2" sx={{ fontWeight: 700 }}>{resource}</Typography>
                                   </Box>
                                 ))}
@@ -722,7 +668,7 @@ export default function CoursePlayer() {
                           </Card>
                         </Grid>
                         <Grid size={{ xs: 12, sm: 6 }}>
-                          <Card sx={{ boxShadow: 'none', bgcolor: '#F8FAFC', border: '1px solid #E2E8F0' }}>
+                          <Card sx={{ boxShadow: 'none', bgcolor: 'background.default', border: '1px solid', borderColor: 'divider' }}>
                             <CardContent>
                               <Typography variant="caption" sx={{ color: 'text.secondary', fontWeight: 800 }}>Completion</Typography>
                               <Stack spacing={1.25} sx={{ mt: 1.25 }}>
@@ -738,16 +684,16 @@ export default function CoursePlayer() {
                       </Grid>
 
                       {activeLesson.type === 'text' ? (
-                        <Alert severity="info" sx={{ borderRadius: '12px' }}>
+                        <Alert severity="info" sx={{ borderRadius: 1.5 }}>
                           This lesson is text-based. Read the overview above and use the discussion area for questions.
                         </Alert>
                       ) : null}
 
                       <Box sx={{ display: 'flex', gap: 1.5, flexWrap: 'wrap' }}>
-                        <Button variant="outlined" onClick={goPrevious} disabled={activeIndex <= 0} startIcon={<ArrowBackOutlined />} sx={{ borderRadius: '12px', fontWeight: 800, textTransform: 'none' }}>
+                        <Button variant="outlined" onClick={goPrevious} disabled={activeIndex <= 0} sx={{ borderRadius: 1.5, fontWeight: 800, textTransform: 'none' }}>
                           Previous Lesson
                         </Button>
-                        <Button variant="contained" onClick={goNext} disabled={activeIndex >= lessonPool.length - 1} endIcon={<ArrowForwardOutlined />} sx={{ bgcolor: '#0066FF', borderRadius: '12px', fontWeight: 800, textTransform: 'none' }}>
+                        <Button variant="contained" onClick={goNext} disabled={activeIndex >= lessonPool.length - 1} sx={{ borderRadius: 1.5, fontWeight: 800, textTransform: 'none' }}>
                           Next Lesson
                         </Button>
                       </Box>
@@ -757,15 +703,13 @@ export default function CoursePlayer() {
               </Grid>
 
               <Grid size={{ xs: 12, lg: 4 }}>
-                <Card sx={{ borderRadius: '16px', border: '1px solid #E2E8F0', boxShadow: '0 4px 20px rgba(0,0,0,0.06)', position: { lg: 'sticky' }, top: { lg: 24 } }}>
+                <Card sx={{ borderRadius: 2, border: '1px solid', borderColor: 'divider', boxShadow: 'none', position: { lg: 'sticky' }, top: { lg: 24 } }}>
                   <CardContent sx={{ p: { xs: 2.5, md: 3 } }}>
                     <Stack spacing={2.25}>
                       <Box>
                         <Typography variant="h6" sx={{ fontWeight: 900 }}>{activeLesson.title}</Typography>
                         <Typography variant="body2" sx={{ color: 'text.secondary', mt: 0.75, lineHeight: 1.8 }}>{activeLesson.description}</Typography>
                       </Box>
-
-                      <Divider />
 
                       <Box>
                         <Typography variant="caption" sx={{ color: 'text.secondary', fontWeight: 800 }}>Lesson Type</Typography>
@@ -775,13 +719,13 @@ export default function CoursePlayer() {
                       <Box>
                         <Typography variant="caption" sx={{ color: 'text.secondary', fontWeight: 800 }}>Quick Actions</Typography>
                         <Stack spacing={1.2} sx={{ mt: 1.25 }}>
-                          <Button variant="contained" onClick={saveProgressNow} fullWidth sx={{ bgcolor: '#0066FF', borderRadius: '12px', fontWeight: 800, textTransform: 'none' }}>
+                          <Button variant="contained" onClick={saveProgressNow} fullWidth sx={{ borderRadius: 1.5, fontWeight: 800, textTransform: 'none' }}>
                             Save progress
                           </Button>
-                          <Button variant="outlined" onClick={() => navigate('/docs')} fullWidth sx={{ borderRadius: '12px', fontWeight: 800, textTransform: 'none' }}>
+                          <Button variant="outlined" onClick={() => navigate('/docs')} fullWidth sx={{ borderRadius: 1.5, fontWeight: 800, textTransform: 'none' }}>
                             Open resources
                           </Button>
-                          <Button variant="outlined" onClick={() => navigate(discussionPath)} fullWidth sx={{ borderRadius: '12px', fontWeight: 800, textTransform: 'none' }}>
+                          <Button variant="outlined" onClick={() => navigate(discussionPath)} fullWidth sx={{ borderRadius: 1.5, fontWeight: 800, textTransform: 'none' }}>
                             Ask a question
                           </Button>
                         </Stack>
@@ -798,14 +742,12 @@ export default function CoursePlayer() {
                         </Alert>
                       ) : null}
 
-                      <Divider />
-
                       <Box>
                         <Typography variant="caption" sx={{ color: 'text.secondary', fontWeight: 800 }}>Lesson Progress</Typography>
-                        <LinearProgress variant="determinate" value={completedLessons.includes(activeLesson.id) ? 100 : videoState.currentTime && activeLesson.type === 'video' ? Math.min((videoState.currentTime / Math.max(videoState.duration, 1)) * 100, 100) : 0} sx={{ mt: 1.25, height: 10, borderRadius: '999px', bgcolor: '#E2E8F0', '& .MuiLinearProgress-bar': { bgcolor: '#0066FF', borderRadius: '999px' } }} />
+                        <LinearProgress variant="determinate" value={completedLessons.includes(activeLesson.id) ? 100 : videoState.currentTime && activeLesson.type === 'video' ? Math.min((videoState.currentTime / Math.max(videoState.duration, 1)) * 100, 100) : 0} sx={{ mt: 1.25, height: 10, borderRadius: '999px', bgcolor: 'divider', '& .MuiLinearProgress-bar': { bgcolor: 'primary.main', borderRadius: '999px' } }} />
                       </Box>
 
-                      <Box sx={{ p: 2, borderRadius: '16px', bgcolor: alpha('#0066FF', 0.06), border: '1px solid #DBEAFE' }}>
+                      <Box sx={{ p: 2, borderRadius: 2, bgcolor: alpha(theme.palette.primary.main, 0.06), border: '1px solid', borderColor: 'divider' }}>
                         <Typography variant="subtitle2" sx={{ fontWeight: 900 }}>Need help?</Typography>
                         <Typography variant="body2" sx={{ color: 'text.secondary', mt: 0.75, lineHeight: 1.8 }}>
                           Join the discussion for peer support, instructor feedback, and quick clarification on this lesson.
@@ -823,7 +765,6 @@ export default function CoursePlayer() {
         </Box>
       </Box>
       </>
-      )}
     </Box>
   );
 }

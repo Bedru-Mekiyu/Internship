@@ -317,13 +317,19 @@ export const verifyCertificate = asyncHandler(async (req: Request, res: Response
   const certificateId = routeParam(req.params.certificateId);
   const certificate = await Certificate.findById(certificateId)
     .populate('courseId', 'title slug category')
-    .populate('userId', 'firstName lastName email');
+    .populate('userId', 'firstName lastName');
 
   if (!certificate) {
     throw new AppError('Certificate not found', 404);
   }
 
-  return res.json(certificate);
+  return res.json({
+    _id: certificate._id,
+    certificateNumber: certificate.certificateNumber,
+    issuedAt: certificate.issuedAt,
+    course: certificate.courseId,
+    learner: certificate.userId,
+  });
 });
 
 export const renderCertificatePage = asyncHandler(async (req: Request, res: Response) => {

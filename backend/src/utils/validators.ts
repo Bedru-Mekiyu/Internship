@@ -14,7 +14,7 @@ export const loginSchema = Joi.object({
 });
 
 export const refreshTokenSchema = Joi.object({
-  refreshToken: Joi.string().trim().pattern(/^[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+$/).required(),
+  refreshToken: Joi.string().trim().pattern(/^[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+$/).optional(),
 });
 
 export const forgotPasswordSchema = Joi.object({
@@ -24,6 +24,22 @@ export const forgotPasswordSchema = Joi.object({
 export const resetPasswordSchema = Joi.object({
   token: Joi.string().trim().pattern(/^[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+$/).required(),
   password: Joi.string().min(8).max(128).required(),
+});
+
+export const contactCreateSchema = Joi.object({
+  fullName: Joi.string().trim().min(2).max(120).required(),
+  email: Joi.string().trim().lowercase().email().max(254).required(),
+  phone: Joi.string().trim().allow('').max(32).optional(),
+  message: Joi.string().trim().min(2).max(5000).required(),
+});
+
+export const contactAssignSchema = Joi.object({
+  assignedTo: Joi.string().trim().allow('').optional(),
+});
+
+export const contactStatusSchema = Joi.object({
+  status: Joi.string().valid('new', 'in_progress', 'resolved').required(),
+  reviewNotes: Joi.string().trim().allow('').max(2000).optional(),
 });
 
 export const courseSchema = Joi.object({
@@ -169,6 +185,97 @@ export const paymentWebhookSchema = Joi.object({
   transactionId: Joi.string().trim().optional(),
 }).or('paymentId', 'externalPaymentId');
 
+export const updateMeSchema = Joi.object({
+  firstName: Joi.string().trim().min(2).max(50).optional(),
+  lastName: Joi.string().trim().min(2).max(50).optional(),
+  phone: Joi.string().trim().allow('').max(32).optional(),
+  bio: Joi.string().trim().allow('').max(1000).optional(),
+  avatar: Joi.string().uri().allow('').optional(),
+  preferences: Joi.object({
+    language: Joi.string().trim().max(24).optional(),
+    timezone: Joi.string().trim().max(64).optional(),
+    notifications: Joi.object({
+      email: Joi.boolean().optional(),
+      push: Joi.boolean().optional(),
+    }).optional(),
+  }).optional(),
+}).min(1);
+
+export const changePasswordSchema = Joi.object({
+  currentPassword: Joi.string().min(8).max(128).required(),
+  newPassword: Joi.string().min(8).max(128).required(),
+});
+
+export const adminCreateUserSchema = Joi.object({
+  firstName: Joi.string().trim().min(2).max(50).required(),
+  lastName: Joi.string().trim().min(2).max(50).required(),
+  email: Joi.string().trim().lowercase().email().max(254).required(),
+  password: Joi.string().min(8).max(128).required(),
+  role: Joi.string().valid('student', 'instructor', 'admin', 'content_manager').optional(),
+  isActive: Joi.boolean().optional(),
+});
+
+export const adminUpdateUserSchema = Joi.object({
+  firstName: Joi.string().trim().min(2).max(50).optional(),
+  lastName: Joi.string().trim().min(2).max(50).optional(),
+  email: Joi.string().trim().lowercase().email().max(254).optional(),
+  role: Joi.string().valid('student', 'instructor', 'admin', 'content_manager').optional(),
+  isActive: Joi.boolean().optional(),
+}).min(1);
+
+export const settingsUpdateSchema = Joi.object({
+  platformName: Joi.string().trim().min(2).max(120).optional(),
+  supportEmail: Joi.string().trim().lowercase().email().max(254).optional(),
+  contactPhone: Joi.string().trim().allow('').max(64).optional(),
+  contactAddress: Joi.string().trim().allow('').max(200).optional(),
+  contactHours: Joi.string().trim().allow('').max(120).optional(),
+  contactMapUrl: Joi.string().uri().allow('').optional(),
+  contactResponseTime: Joi.string().trim().allow('').max(120).optional(),
+  logoUrl: Joi.string().uri().allow('').optional(),
+  language: Joi.string().trim().max(24).optional(),
+  timezone: Joi.string().trim().max(64).optional(),
+  themeMode: Joi.string().valid('light', 'dark', 'system').optional(),
+  provider: Joi.string().trim().max(64).optional(),
+  currency: Joi.string().trim().max(8).optional(),
+  taxRate: Joi.string().trim().max(16).optional(),
+  stripePublicKey: Joi.string().trim().allow('').max(512).optional(),
+  stripeSecretKey: Joi.string().trim().allow('').max(512).optional(),
+  smtpEnabled: Joi.boolean().optional(),
+  smtpHost: Joi.string().trim().allow('').max(255).optional(),
+  smtpPort: Joi.string().trim().allow('').max(10).optional(),
+  smtpUsername: Joi.string().trim().allow('').max(255).optional(),
+  smtpPassword: Joi.string().trim().allow('').max(512).optional(),
+  trustPartners: Joi.array().items(Joi.string().trim().min(1).max(120)).optional(),
+  homepageFeatures: Joi.array().items(
+    Joi.object({
+      title: Joi.string().trim().min(1).max(120).required(),
+      description: Joi.string().trim().min(1).max(1000).required(),
+      color: Joi.string().trim().max(32).required(),
+    }),
+  ).optional(),
+  pricingPlans: Joi.array().items(
+    Joi.object({
+      name: Joi.string().trim().min(1).max(120).required(),
+      description: Joi.string().trim().min(1).max(1000).required(),
+      monthlyPrice: Joi.string().trim().min(1).max(64).required(),
+      yearlyPrice: Joi.string().trim().min(1).max(64).required(),
+      yearlyLabel: Joi.string().trim().min(1).max(120).required(),
+      features: Joi.array().items(Joi.string().trim().min(1).max(300)).required(),
+      featured: Joi.boolean().optional(),
+      cta: Joi.string().trim().min(1).max(120).required(),
+      accent: Joi.string().trim().max(32).required(),
+    }),
+  ).optional(),
+  pricingComparison: Joi.array().items(
+    Joi.object({
+      label: Joi.string().trim().min(1).max(120).required(),
+      free: Joi.alternatives(Joi.string().trim().max(120), Joi.boolean()).required(),
+      pro: Joi.alternatives(Joi.string().trim().max(120), Joi.boolean()).required(),
+      business: Joi.alternatives(Joi.string().trim().max(120), Joi.boolean()).required(),
+    }),
+  ).optional(),
+}).min(1);
+
 export const contentSchema = Joi.object({
   type: Joi.string().valid('page', 'post', 'block').optional(),
   title: Joi.string().required(),
@@ -185,6 +292,10 @@ export const contentSchema = Joi.object({
   slug: Joi.string().optional(),
   status: Joi.string().valid('draft', 'published', 'archived').default('draft'),
 }).or('content', 'blocks');
+
+export const mediaRenameSchema = Joi.object({
+  originalName: Joi.string().trim().min(1).max(255).required(),
+});
 
 export const validationMiddleware = (schema: Joi.ObjectSchema) => {
   return (req: Request, res: Response, next: NextFunction) => {

@@ -95,6 +95,12 @@ export const getQuizzesByLesson = asyncHandler(async (req: Request, res: Respons
     if (!enrollment) {
       throw new AppError('Only enrolled students can access quizzes', 403);
     }
+  } else if (req.user?.role === 'instructor') {
+    if (!course.instructor || course.instructor.toString() !== req.user?._id.toString()) {
+      throw new AppError('Not authorized', 403);
+    }
+  } else if (req.user?.role !== 'admin') {
+    throw new AppError('Not authorized', 403);
   }
 
   const filter: Record<string, unknown> = { lessonId };

@@ -1,30 +1,45 @@
-import { Box } from '@mui/material';
-import { alpha } from '@mui/material/styles';
-import { Bar, BarChart, CartesianGrid, Cell, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
-
-const revenueData = [
-  { month: 'Jan', revenue: 42 },
-  { month: 'Feb', revenue: 48 },
-  { month: 'Mar', revenue: 51 },
-  { month: 'Apr', revenue: 56 },
-  { month: 'May', revenue: 60 },
-  { month: 'Jun', revenue: 63 },
-  { month: 'Jul', revenue: 67 },
-  { month: 'Aug', revenue: 72 },
-  { month: 'Sep', revenue: 76 },
-  { month: 'Oct', revenue: 80 },
-  { month: 'Nov', revenue: 86 },
-  { month: 'Dec', revenue: 93 },
-];
+import { Box, Typography } from '@mui/material';
+import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 
 const revenueTooltipStyle = {
   borderRadius: 12,
   border: '1px solid rgba(226, 232, 240, 0.9)',
-  boxShadow: '0 10px 24px rgba(15,23,42,0.08)',
+  boxShadow: 'none',
   padding: '10px 12px',
 };
 
-export default function AnalyticsRevenueChart() {
+export type AnalyticsRevenuePoint = {
+  month: string;
+  revenue: number;
+};
+
+type AnalyticsRevenueChartProps = {
+  data?: AnalyticsRevenuePoint[];
+};
+
+export default function AnalyticsRevenueChart({ data }: AnalyticsRevenueChartProps) {
+  const revenueData = data ?? [];
+
+  if (revenueData.length === 0) {
+    return (
+      <Box
+        sx={{
+          height: 300,
+          borderRadius: 1.5,
+          border: '1px solid',
+          borderColor: 'divider',
+          bgcolor: 'background.default',
+          display: 'grid',
+          placeItems: 'center',
+        }}
+      >
+        <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+          No revenue data available yet.
+        </Typography>
+      </Box>
+    );
+  }
+
   return (
     <Box sx={{ height: 300 }}>
       <ResponsiveContainer width="100%" height="100%">
@@ -33,17 +48,11 @@ export default function AnalyticsRevenueChart() {
           <XAxis dataKey="month" tick={{ fill: '#64748B', fontSize: 12, fontWeight: 700 }} axisLine={false} tickLine={false} />
           <YAxis width={34} tick={{ fill: '#64748B', fontSize: 12, fontWeight: 700 }} axisLine={false} tickLine={false} />
           <Tooltip
-            cursor={{ fill: alpha('#0066FF', 0.04) }}
             contentStyle={revenueTooltipStyle}
             formatter={(value) => [`$${value ?? 0}k`, 'Revenue']}
             labelStyle={{ color: '#1E2937', fontWeight: 800 }}
           />
-          <Bar dataKey="revenue" radius={[8, 8, 0, 0]}>
-            {revenueData.map((entry, index) => {
-              const fill = index % 3 === 1 ? '#8B5CF6' : '#0066FF';
-              return <Cell key={entry.month} fill={fill} />;
-            })}
-          </Bar>
+          <Bar dataKey="revenue" radius={[8, 8, 0, 0]} fill="#0066FF" />
         </BarChart>
       </ResponsiveContainer>
     </Box>

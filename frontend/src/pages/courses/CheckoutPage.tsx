@@ -1,32 +1,19 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import {
   Alert,
-  Avatar,
   Box,
   Button,
   Card,
   CardContent,
-  Chip,
   Container,
-  Divider,
   Grid,
   Link,
   Stack,
   TextField,
   Typography,
 } from '@mui/material';
-import { alpha } from '@mui/material/styles';
-import {
-  ArrowForwardOutlined,
-  CheckCircleOutlined,
-  CreditCardOutlined,
-  LockOutlined,
-  LocalOfferOutlined,
-  ReceiptLongOutlined,
-  ShieldOutlined,
-  VerifiedOutlined,
-} from '@mui/icons-material';
 import { Link as RouterLink, useLocation } from 'react-router-dom';
+import { api, ensureCsrfToken, normalizeApiError } from '../../services/api';
 
 type BillingForm = {
   nameOnCard: string;
@@ -46,11 +33,22 @@ const defaultForm: BillingForm = {
   postalCode: '',
 };
 
-const courseByPlan = {
-  free: { title: 'LearnSpace Free', price: 0, badge: 'Starter', description: 'Unlock core learning features and begin exploring the platform.' },
-  pro: { title: 'LearnSpace Pro', price: 29, badge: 'Most Popular', description: 'Advanced analytics, certificates, and premium course tools.' },
-  business: { title: 'LearnSpace Business', price: 99, badge: 'Team Plan', description: 'Best for organizations needing team roles and onboarding support.' },
-  enterprise: { title: 'LearnSpace Enterprise', price: 149, badge: 'Enterprise', description: 'Custom onboarding, SLA support, and branded deployment.' },
+const isTrustedCheckoutUrl = (value: string) => {
+  try {
+    const parsed = new URL(value, window.location.origin);
+    if (!['http:', 'https:'].includes(parsed.protocol)) {
+      return false;
+    }
+
+    if (parsed.origin === window.location.origin) {
+      return true;
+    }
+
+    const hostname = parsed.hostname.toLowerCase();
+    return hostname === 'checkout.stripe.com' || hostname === 'www.paypal.com' || hostname.endsWith('.paypal.com');
+  } catch {
+    return false;
+  }
 };
 
 function TopNav() {
@@ -62,11 +60,11 @@ function TopNav() {
   ];
 
   return (
-    <Box sx={{ position: 'sticky', top: 0, zIndex: 20, bgcolor: alpha('#FFFFFF', 0.96), backdropFilter: 'blur(16px)', borderBottom: '1px solid #E2E8F0' }}>
+    <Box sx={{ position: 'sticky', top: 0, zIndex: 20, bgcolor: 'background.paper', borderBottom: '1px solid', borderColor: 'divider' }}>
       <Container maxWidth="xl">
         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 3, py: 2 }}>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.25 }}>
-            <Box sx={{ width: 40, height: 40, borderRadius: '12px', bgcolor: 'primary.main', color: '#FFFFFF', display: 'grid', placeItems: 'center', boxShadow: '0 10px 20px rgba(0,102,255,0.18)', fontWeight: 900 }}>
+            <Box sx={{ width: 40, height: 40, borderRadius: 1.5, bgcolor: 'primary.main', color: '#FFFFFF', display: 'grid', placeItems: 'center', fontWeight: 900 }}>
               LS
             </Box>
             <Typography variant="h6" sx={{ fontWeight: 900, letterSpacing: '-0.03em' }}>
@@ -86,7 +84,7 @@ function TopNav() {
             <Link component={RouterLink} to="/auth/login" underline="none" sx={{ color: 'text.primary', fontWeight: 700 }}>
               Log in
             </Link>
-            <Button component={RouterLink} to="/auth/signup" variant="contained" sx={{ px: 3, py: 1.25, borderRadius: '12px' }}>
+            <Button component={RouterLink} to="/auth/signup" variant="contained" sx={{ px: 3, py: 1.25, borderRadius: 1.5 }}>
               Get Started
             </Button>
           </Box>
@@ -99,52 +97,147 @@ function TopNav() {
 export default function CheckoutPage() {
   const location = useLocation();
   const params = useMemo(() => new URLSearchParams(location.search), [location.search]);
-  const planKey = params.get('plan') ?? 'pro';
-  const selectedPlan = courseByPlan[(planKey as keyof typeof courseByPlan) || 'pro'] ?? courseByPlan.pro;
+  const courseId = params.get('courseId')?.trim() ?? '';
+  const [courseSummary, setCourseSummary] = useState<{
+    title: string;
+    description: string;
+    badge: string;
+    price: number;
+  } | null>(null);
+  const [summaryError, setSummaryError] = useState<string | null>(null);
+  const [summaryLoading, setSummaryLoading] = useState(false);
 
   const [form, setForm] = useState<BillingForm>(defaultForm);
   const [promoCode, setPromoCode] = useState('');
-  const [promoApplied, setPromoApplied] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [statusMessage, setStatusMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const discount = promoApplied ? Math.round(selectedPlan.price * 0.15) : 0;
-  const subtotal = selectedPlan.price;
+  const discount = 0;
+  const subtotal = courseSummary?.price ?? 0;
   const total = Math.max(subtotal - discount, 0);
   const tax = total > 0 ? Math.round(total * 0.08) : 0;
+
+  useEffect(() => {
+    if (!courseId) {
+      setCourseSummary(null);
+      setSummaryError('Select a course first, then checkout from the course page.');
+      return;
+    }
+
+    let active = true;
+    setSummaryLoading(true);
+    setSummaryError(null);
+    void (async () => {
+      try {
+        const response = await api.get<{
+          title: string;
+          shortDescription?: string;
+          description?: string;
+          pricing?: { amount?: number };
+          level?: string;
+        }>(`/api/courses/${courseId}`);
+        if (!active) {
+          return;
+        }
+        setCourseSummary({
+          title: response.data.title,
+          description: response.data.shortDescription || response.data.description || '',
+          badge: response.data.level ? response.data.level.toUpperCase() : 'COURSE',
+          price: Number(response.data.pricing?.amount ?? 0),
+        });
+      } catch (error) {
+        if (!active) {
+          return;
+        }
+        setCourseSummary(null);
+        setSummaryError(normalizeApiError(error).message || 'Unable to load course pricing details.');
+      } finally {
+        if (active) {
+          setSummaryLoading(false);
+        }
+      }
+    })();
+
+    return () => {
+      active = false;
+    };
+  }, [courseId]);
 
   const updateField = (field: keyof BillingForm) => (event: React.ChangeEvent<HTMLInputElement>) => {
     setSubmitted(false);
     setForm((current) => ({ ...current, [field]: event.target.value }));
   };
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    setSubmitted(true);
-  };
+    setStatusMessage(null);
+    setSubmitted(false);
 
-  const applyPromo = () => {
-    setPromoApplied(promoCode.trim().toLowerCase() === 'learn15');
+    if (!courseId) {
+      setStatusMessage({
+        type: 'error',
+        text: 'Select a course first, then checkout from the course page.',
+      });
+      return;
+    }
+
+    try {
+      setIsSubmitting(true);
+      await ensureCsrfToken();
+      const response = await api.post<{ checkoutUrl?: string; message?: string }>('/api/payments', {
+        courseId,
+        method: 'card',
+      });
+
+      setSubmitted(true);
+
+      if (response.data.checkoutUrl) {
+        if (!isTrustedCheckoutUrl(response.data.checkoutUrl)) {
+          setStatusMessage({
+            type: 'error',
+            text: 'Payment redirect URL was rejected for security reasons.',
+          });
+          return;
+        }
+
+        window.location.assign(response.data.checkoutUrl);
+        return;
+      }
+
+      setStatusMessage({
+        type: 'success',
+        text: response.data.message || 'Payment request submitted successfully.',
+      });
+    } catch (error) {
+      const normalized = normalizeApiError(error);
+      setStatusMessage({
+        type: 'error',
+        text: normalized.message || 'Unable to initialize payment.',
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
-    <Box sx={{ minHeight: '100vh', bgcolor: '#F8FAFC', color: 'text.primary' }}>
+    <Box sx={{ minHeight: '100vh', bgcolor: 'background.default', color: 'text.primary' }}>
       <TopNav />
 
       <Box sx={{ pt: { xs: 5, md: 8 }, pb: { xs: 7, md: 10 } }}>
         <Container maxWidth="xl">
           <Stack spacing={2.25} sx={{ alignItems: 'center', textAlign: 'center', mb: 4 }}>
-            <Chip label="SECURE CHECKOUT" sx={{ bgcolor: alpha('#0066FF', 0.08), color: 'primary.main', fontWeight: 800, letterSpacing: '0.12em' }} />
             <Typography variant="h2" sx={{ fontWeight: 900, letterSpacing: '-0.04em', fontSize: { xs: '2.35rem', md: '3.8rem' }, lineHeight: 1.08, maxWidth: 840 }}>
               Secure checkout for your LearnSpace purchase
             </Typography>
             <Typography variant="h6" sx={{ color: 'text.secondary', maxWidth: 900, fontWeight: 500, lineHeight: 1.7 }}>
-              Complete your order with a clean, trusted payment experience. Stripe Elements can be connected here, or use the secure placeholder form below.
+              Complete your order with a clean, trusted payment experience backed by the LearnSpace payments API.
             </Typography>
           </Stack>
 
           <Grid container spacing={3} sx={{ alignItems: 'flex-start' }}>
             <Grid size={{ xs: 12, lg: 7 }}>
-              <Card sx={{ borderRadius: '16px', border: '1px solid #E2E8F0', boxShadow: '0 4px 20px rgba(0,0,0,0.06)' }}>
+              <Card sx={{ borderRadius: 2, border: '1px solid', borderColor: 'divider' }}>
                 <CardContent sx={{ p: { xs: 2.5, md: 3.5 } }}>
                   <Stack spacing={2.5} component="form" onSubmit={handleSubmit}>
                     <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 2, flexWrap: 'wrap' }}>
@@ -156,24 +249,20 @@ export default function CheckoutPage() {
                           Your payment is encrypted and processed securely.
                         </Typography>
                       </Box>
-                      <Stack direction="row" spacing={1} sx={{ alignItems: 'center', flexWrap: 'wrap' }}>
-                        <Chip icon={<ShieldOutlined />} label="SSL secured" sx={{ bgcolor: alpha('#10B981', 0.1), color: 'success.main', fontWeight: 800 }} />
-                        <Chip icon={<VerifiedOutlined />} label="PCI compliant" sx={{ bgcolor: alpha('#0066FF', 0.08), color: 'primary.main', fontWeight: 800 }} />
-                      </Stack>
                     </Box>
 
-                    <Card sx={{ boxShadow: 'none', borderRadius: '16px', border: '1px solid #E2E8F0', bgcolor: '#F8FAFC' }}>
+                    <Card sx={{ boxShadow: 'none', borderRadius: 2, border: '1px solid', borderColor: 'divider', bgcolor: 'background.default' }}>
                       <CardContent sx={{ p: 2.5 }}>
                         <Stack spacing={1.25}>
-                          <Typography variant="subtitle2" sx={{ fontWeight: 900, display: 'flex', alignItems: 'center', gap: 1 }}>
-                            <CreditCardOutlined fontSize="small" /> Stripe Elements ready
+                          <Typography variant="subtitle2" sx={{ fontWeight: 900 }}>
+                            Payment gateway
                           </Typography>
                           <Typography variant="body2" sx={{ color: 'text.secondary', lineHeight: 1.7 }}>
-                            Replace this placeholder with <Box component="span" sx={{ fontWeight: 800, color: 'text.primary' }}>CardElement</Box>, <Box component="span" sx={{ fontWeight: 800, color: 'text.primary' }}>PaymentElement</Box>, or your preferred Stripe integration.
+                            Submitting this checkout creates a payment session on the backend and redirects to the provider checkout URL when available.
                           </Typography>
-                          <Box sx={{ p: 2, borderRadius: '12px', border: '1px dashed #CBD5E1', bgcolor: '#FFFFFF' }}>
-                            <Typography variant="caption" sx={{ color: 'text.secondary', fontWeight: 800 }}>Card number</Typography>
-                            <Typography variant="body2" sx={{ mt: 0.5, fontWeight: 700, color: 'text.primary' }}>•••• •••• •••• 4242</Typography>
+                          <Box sx={{ p: 2, borderRadius: 1.5, border: '1px dashed', borderColor: 'divider', bgcolor: 'background.paper' }}>
+                            <Typography variant="caption" sx={{ color: 'text.secondary', fontWeight: 800 }}>Checkout status</Typography>
+                            <Typography variant="body2" sx={{ mt: 0.5, fontWeight: 700, color: 'text.primary' }}>Ready to create payment session</Typography>
                           </Box>
                         </Stack>
                       </CardContent>
@@ -181,13 +270,13 @@ export default function CheckoutPage() {
 
                     <Grid container spacing={2}>
                       <Grid size={{ xs: 12 }}>
-                        <TextField fullWidth label="Name on card" placeholder="Jane Doe" value={form.nameOnCard} onChange={updateField('nameOnCard')} />
+                        <TextField fullWidth label="Name on card" value={form.nameOnCard} onChange={updateField('nameOnCard')} />
                       </Grid>
                       <Grid size={{ xs: 12 }}>
-                        <TextField fullWidth label="Card number" placeholder="1234 1234 1234 1234" value={form.cardNumber} onChange={updateField('cardNumber')} />
+                        <TextField fullWidth label="Card number" value={form.cardNumber} onChange={updateField('cardNumber')} />
                       </Grid>
                       <Grid size={{ xs: 12, sm: 6 }}>
-                        <TextField fullWidth label="Expiration date" placeholder="MM / YY" value={form.expiry} onChange={updateField('expiry')} />
+                        <TextField fullWidth label="Expiration date" value={form.expiry} onChange={updateField('expiry')} />
                       </Grid>
                       <Grid size={{ xs: 12, sm: 6 }}>
                         <TextField fullWidth label="CVC" placeholder="123" value={form.cvc} onChange={updateField('cvc')} />
@@ -196,48 +285,47 @@ export default function CheckoutPage() {
                         <TextField fullWidth label="Billing country" value={form.country} onChange={updateField('country')} />
                       </Grid>
                       <Grid size={{ xs: 12, sm: 6 }}>
-                        <TextField fullWidth label="Postal code" placeholder="10001" value={form.postalCode} onChange={updateField('postalCode')} />
+                        <TextField fullWidth label="Postal code" value={form.postalCode} onChange={updateField('postalCode')} />
                       </Grid>
                     </Grid>
 
-                    <Box sx={{ p: 2.5, borderRadius: '16px', border: '1px solid #E2E8F0', bgcolor: '#FFFFFF' }}>
+                    <Box sx={{ p: 2.5, borderRadius: 2, border: '1px solid', borderColor: 'divider', bgcolor: 'background.paper' }}>
                       <Stack spacing={1.5}>
-                        <Typography variant="subtitle2" sx={{ fontWeight: 900, display: 'flex', alignItems: 'center', gap: 1 }}>
-                          <LocalOfferOutlined fontSize="small" /> Promo code
+                        <Typography variant="subtitle2" sx={{ fontWeight: 900 }}>
+                          Promo code
                         </Typography>
                         <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.25}>
                           <TextField fullWidth placeholder="Enter promo code" value={promoCode} onChange={(event) => setPromoCode(event.target.value)} />
-                          <Button variant="outlined" onClick={applyPromo} sx={{ minWidth: { xs: '100%', sm: 140 }, borderRadius: '12px', fontWeight: 800, textTransform: 'none' }}>
-                            Apply
-                          </Button>
                         </Stack>
-                        {promoApplied ? (
-                          <Alert severity="success" sx={{ borderRadius: '12px' }}>
-                            Promo code applied successfully.
-                          </Alert>
-                        ) : promoCode ? (
-                          <Alert severity="info" sx={{ borderRadius: '12px' }}>
-                            Try <Box component="span" sx={{ fontWeight: 800 }}>LEARN15</Box> for 15% off.
-                          </Alert>
-                        ) : null}
+                        <Alert severity="info" sx={{ borderRadius: 1.5 }}>
+                          Promotions are validated and applied by the backend at checkout confirmation.
+                        </Alert>
                       </Stack>
                     </Box>
 
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.25 }}>
-                      <LockOutlined sx={{ color: 'success.main' }} />
-                      <Typography variant="body2" sx={{ color: 'text.secondary', lineHeight: 1.7 }}>
-                        This is a secure checkout. Your payment details are protected using industry-standard encryption.
-                      </Typography>
-                    </Box>
+                    <Typography variant="body2" sx={{ color: 'text.secondary', lineHeight: 1.7 }}>
+                      This is a secure checkout. Your payment details are protected using industry-standard encryption.
+                    </Typography>
 
-                    {submitted ? (
-                      <Alert severity="success" sx={{ borderRadius: '12px' }}>
-                        Payment submitted. This is a placeholder checkout flow ready for Stripe integration.
+                    {statusMessage ? (
+                      <Alert severity={statusMessage.type} sx={{ borderRadius: 1.5 }}>
+                        {statusMessage.text}
                       </Alert>
                     ) : null}
 
-                    <Button type="submit" variant="contained" endIcon={<ArrowForwardOutlined />} sx={{ bgcolor: '#0066FF', py: 1.5, borderRadius: '12px', fontWeight: 900, boxShadow: '0 12px 26px rgba(0,102,255,0.22)' }}>
-                      Complete Secure Payment
+                    {submitted ? (
+                      <Alert severity="success" sx={{ borderRadius: 1.5 }}>
+                        Payment submitted.
+                      </Alert>
+                    ) : null}
+
+                    <Button
+                      type="submit"
+                      variant="contained"
+                      disabled={isSubmitting}
+                      sx={{ py: 1.5, borderRadius: 1.5, fontWeight: 900 }}
+                    >
+                      {isSubmitting ? 'Processing Payment...' : 'Complete Secure Payment'}
                     </Button>
                   </Stack>
                 </CardContent>
@@ -245,27 +333,33 @@ export default function CheckoutPage() {
             </Grid>
 
             <Grid size={{ xs: 12, lg: 5 }}>
-              <Card sx={{ borderRadius: '16px', border: '1px solid #E2E8F0', boxShadow: '0 4px 20px rgba(0,0,0,0.06)', position: { lg: 'sticky' }, top: { lg: 24 } }}>
+              <Card sx={{ borderRadius: 2, border: '1px solid', borderColor: 'divider', position: { lg: 'sticky' }, top: { lg: 24 } }}>
                 <CardContent sx={{ p: { xs: 2.5, md: 3 } }}>
                   <Stack spacing={2.25}>
                     <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 2 }}>
                       <Typography variant="h6" sx={{ fontWeight: 900 }}>Order summary</Typography>
-                      <Chip label={selectedPlan.badge} sx={{ bgcolor: alpha('#0066FF', 0.08), color: 'primary.main', fontWeight: 800 }} />
                     </Box>
 
-                    <Box sx={{ p: 2.25, borderRadius: '16px', bgcolor: '#F8FAFC', border: '1px solid #E2E8F0' }}>
-                      <Stack direction="row" spacing={1.5} sx={{ alignItems: 'center' }}>
-                        <Avatar sx={{ bgcolor: 'primary.main', width: 48, height: 48 }}>LS</Avatar>
-                        <Box sx={{ minWidth: 0, flex: 1 }}>
-                          <Typography variant="subtitle1" sx={{ fontWeight: 900 }} noWrap>
-                            {selectedPlan.title}
-                          </Typography>
-                          <Typography variant="body2" sx={{ color: 'text.secondary', mt: 0.25 }}>
-                            {selectedPlan.description}
-                          </Typography>
-                        </Box>
-                      </Stack>
+                    <Box sx={{ p: 2.25, borderRadius: 2, bgcolor: 'background.default', border: '1px solid', borderColor: 'divider' }}>
+                      <Box sx={{ minWidth: 0 }}>
+                            <Typography variant="subtitle1" sx={{ fontWeight: 900 }} noWrap>
+                            {courseSummary?.title || 'Course'}
+                            </Typography>
+                            <Typography variant="body2" sx={{ color: 'text.secondary', mt: 0.25 }}>
+                            {courseSummary?.description || ''}
+                            </Typography>
+                      </Box>
                     </Box>
+                      {summaryLoading ? (
+                        <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                          Loading course pricing...
+                        </Typography>
+                      ) : null}
+                      {summaryError ? (
+                        <Alert severity="error" sx={{ borderRadius: 1.5 }}>
+                          {summaryError}
+                        </Alert>
+                      ) : null}
 
                     <Stack spacing={1.25}>
                       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 2 }}>
@@ -274,20 +368,19 @@ export default function CheckoutPage() {
                       </Box>
                       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 2 }}>
                         <Typography variant="body2" sx={{ color: 'text.secondary', fontWeight: 700 }}>Promo discount</Typography>
-                        <Typography variant="body2" sx={{ fontWeight: 800, color: promoApplied ? 'success.main' : 'text.primary' }}>-${discount}</Typography>
+                        <Typography variant="body2" sx={{ fontWeight: 800, color: 'text.primary' }}>-${discount}</Typography>
                       </Box>
                       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 2 }}>
                         <Typography variant="body2" sx={{ color: 'text.secondary', fontWeight: 700 }}>Estimated tax</Typography>
                         <Typography variant="body2" sx={{ fontWeight: 800 }}>${tax}</Typography>
                       </Box>
-                      <Divider />
-                      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 2 }}>
+                      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 2, pt: 1.25, borderTop: '1px solid', borderColor: 'divider' }}>
                         <Typography variant="h6" sx={{ fontWeight: 900 }}>Total</Typography>
                         <Typography variant="h4" sx={{ fontWeight: 900, letterSpacing: '-0.04em', color: 'primary.main' }}>${total + tax}</Typography>
                       </Box>
                     </Stack>
 
-                    <Box sx={{ p: 2.25, borderRadius: '16px', bgcolor: alpha('#10B981', 0.08), border: '1px solid #D1FAE5' }}>
+                    <Box sx={{ p: 2.25, borderRadius: 2, border: '1px solid', borderColor: 'divider', bgcolor: 'background.paper' }}>
                       <Typography variant="subtitle2" sx={{ fontWeight: 900 }}>What&apos;s included</Typography>
                       <Stack spacing={1.1} sx={{ mt: 1.25 }}>
                         {[
@@ -296,22 +389,18 @@ export default function CheckoutPage() {
                           'Immediate course and billing confirmation',
                           'Email receipt and payment summary',
                         ].map((item) => (
-                          <Typography key={item} variant="body2" sx={{ color: 'text.primary', display: 'flex', alignItems: 'center', gap: 1, lineHeight: 1.7 }}>
-                            <CheckCircleOutlined sx={{ color: 'success.main', fontSize: 18 }} />
-                            {item}
+                          <Typography key={item} variant="body2" sx={{ color: 'text.primary', lineHeight: 1.7 }}>
+                            • {item}
                           </Typography>
                         ))}
                       </Stack>
                     </Box>
 
-                    <Box sx={{ p: 2.25, borderRadius: '16px', border: '1px solid #E2E8F0', bgcolor: '#FFFFFF' }}>
-                      <Stack direction="row" spacing={1.5} sx={{ alignItems: 'center' }}>
-                        <ReceiptLongOutlined sx={{ color: 'primary.main' }} />
-                        <Box>
-                          <Typography variant="subtitle2" sx={{ fontWeight: 900 }}>Need an invoice?</Typography>
-                          <Typography variant="body2" sx={{ color: 'text.secondary', mt: 0.4 }}>Business buyers can request invoicing and purchase support.</Typography>
-                        </Box>
-                      </Stack>
+                    <Box sx={{ p: 2.25, borderRadius: 2, border: '1px solid', borderColor: 'divider', bgcolor: 'background.paper' }}>
+                      <Typography variant="subtitle2" sx={{ fontWeight: 900 }}>Need an invoice?</Typography>
+                      <Typography variant="body2" sx={{ color: 'text.secondary', mt: 0.4 }}>
+                        Business buyers can request invoicing and purchase support.
+                      </Typography>
                     </Box>
 
                     <Button component={RouterLink} to="/contact" variant="text" sx={{ textTransform: 'none', fontWeight: 800, color: 'primary.main' }}>

@@ -1,34 +1,26 @@
-import { Suspense, lazy, useEffect, useMemo, useState, type ChangeEvent, type FormEvent } from 'react';
+import { Suspense, lazy, useEffect, useMemo, useRef, useState, type ChangeEvent, type FormEvent } from 'react';
 import {
-  AddOutlined,
   MoreVert,
   SearchOutlined,
-  SendOutlined,
-  CircleOutlined,
-  FilterAltOutlined,
-  BookmarkBorderOutlined,
 } from '@mui/icons-material';
 import {
   Alert,
   Avatar,
-  Badge,
   Box,
   Button,
   Card,
   CardContent,
-  Chip,
-  Divider,
   FormControl,
   Grid,
   IconButton,
   InputLabel,
+  InputAdornment,
   MenuItem,
   Select,
   Stack,
   TextField,
   Typography,
 } from '@mui/material';
-import { alpha } from '@mui/material/styles';
 import { useNavigate, useParams } from 'react-router-dom';
 import type { Thread, ThreadCategory } from '../../components/ui/CourseDiscussionThreadCard';
 import { normalizeApiError } from '../../services/api';
@@ -111,6 +103,8 @@ export default function CourseDiscussions() {
   const [newDiscussionBody, setNewDiscussionBody] = useState('');
   const [replyText, setReplyText] = useState('');
   const [replyAttachmentName, setReplyAttachmentName] = useState('');
+  const newDiscussionSectionRef = useRef<HTMLDivElement | null>(null);
+  const newDiscussionTitleRef = useRef<HTMLInputElement | null>(null);
 
   const routeThreadId = threadId ? Number(threadId) : Number.NaN;
 
@@ -185,7 +179,7 @@ export default function CourseDiscussions() {
       const authorName = [discussion.user?.firstName, discussion.user?.lastName]
         .filter(Boolean)
         .join(' ')
-        .trim() || 'Learner';
+        .trim() || 'User';
       const authorInitials = authorName
         .split(' ')
         .filter(Boolean)
@@ -219,7 +213,7 @@ export default function CourseDiscussions() {
           {
             id: 1,
             author: authorName,
-            role: 'Learner',
+            role: 'User',
             time: toRelativeTime(discussion.createdAt),
             text: discussion.content,
             accent: '#0066FF',
@@ -365,6 +359,17 @@ export default function CourseDiscussions() {
     );
   };
 
+  const handleStartNewThread = () => {
+    newDiscussionSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    window.setTimeout(() => {
+      newDiscussionTitleRef.current?.focus();
+    }, 150);
+  };
+
+  const clearReplyAttachment = () => {
+    setReplyAttachmentName('');
+  };
+
   const createDiscussion = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
@@ -434,18 +439,18 @@ export default function CourseDiscussions() {
   };
 
   return (
-    <Box sx={{ minHeight: '100%', bgcolor: '#F8FAFC' }}>
+    <Box sx={{ minHeight: '100%', bgcolor: 'background.default' }}>
         {statusMessage ? (
           <Alert
             severity={statusMessage.toLowerCase().includes('failed') || statusMessage.toLowerCase().includes('no accessible') ? 'error' : 'success'}
-            sx={{ mx: { xs: 2, sm: 3, lg: 4 }, mt: 2.5, borderRadius: '12px' }}
+            sx={{ mx: { xs: 2, sm: 3, lg: 4 }, mt: 2.5, borderRadius: 1.5 }}
             onClose={() => setStatusMessage(null)}
           >
             {statusMessage}
           </Alert>
         ) : null}
 
-        <Box sx={{ px: { xs: 2, sm: 3, lg: 4 }, py: 3, borderBottom: '1px solid #E2E8F0', bgcolor: 'rgba(248,250,252,0.92)', position: 'sticky', top: 0, zIndex: 15, backdropFilter: 'blur(14px)' }}>
+        <Box sx={{ px: { xs: 2, sm: 3, lg: 4 }, py: 3, borderBottom: '1px solid', borderColor: 'divider', bgcolor: 'background.paper', position: 'sticky', top: 0, zIndex: 15, backdropFilter: 'blur(14px)' }}>
           <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 2, flexWrap: 'wrap' }}>
             <Box>
               <Typography variant="h4" sx={{ fontWeight: 900, letterSpacing: '-0.03em' }}>
@@ -457,8 +462,10 @@ export default function CourseDiscussions() {
             </Box>
 
             <Stack direction="row" spacing={1} sx={{ flexWrap: 'wrap' }}>
-              <Chip icon={<CircleOutlined />} label={lastPulse} color="success" variant="outlined" />
-              <Button variant="contained" startIcon={<AddOutlined />}>
+              <Typography variant="body2" sx={{ color: 'text.secondary', alignSelf: 'center' }}>
+                {lastPulse}
+              </Typography>
+              <Button variant="contained" onClick={handleStartNewThread}>
                 New thread
               </Button>
             </Stack>
@@ -468,7 +475,7 @@ export default function CourseDiscussions() {
         <Box sx={{ px: { xs: 2, sm: 3, lg: 4 }, py: { xs: 3, md: 4 } }}>
           <Grid container spacing={3} sx={{ alignItems: 'stretch' }}>
             <Grid size={{ xs: 12, xl: 4 }}>
-              <Card sx={{ height: '100%' }}>
+              <Card sx={{ height: '100%', border: '1px solid', borderColor: 'divider', borderRadius: 2 }}>
                 <CardContent sx={{ p: { xs: 2.5, md: 3 } }}>
                   <Stack spacing={2} sx={{ height: '100%' }}>
                     <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 2, flexWrap: 'wrap' }}>
@@ -480,14 +487,26 @@ export default function CourseDiscussions() {
                           Browse cohort conversations and follow active questions.
                         </Typography>
                       </Box>
-                      <Badge badgeContent={threads.length} color="primary" />
+                      <Typography variant="body2" sx={{ color: 'text.secondary', fontWeight: 700 }}>
+                        {threads.length} total
+                      </Typography>
                     </Box>
 
-                    <Box sx={{ position: 'relative' }}>
-                      <Box sx={{ position: 'absolute', left: 18, top: '50%', transform: 'translateY(-50%)', color: 'text.secondary', pointerEvents: 'none' }}>
-                        <SearchOutlined fontSize="small" />
-                      </Box>
-                      <TextField value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search threads..." sx={{ '& .MuiInputBase-root': { pl: 5.25 } }} />
+                    <Box>
+                      <TextField
+                        value={search}
+                        onChange={(event) => setSearch(event.target.value)}
+                        placeholder="Search threads..."
+                        slotProps={{
+                          input: {
+                            startAdornment: (
+                              <InputAdornment position="start">
+                                <SearchOutlined fontSize="small" />
+                              </InputAdornment>
+                            ),
+                          },
+                        }}
+                      />
                     </Box>
 
                     <FormControl fullWidth>
@@ -500,8 +519,6 @@ export default function CourseDiscussions() {
                         ))}
                       </Select>
                     </FormControl>
-
-                    <Divider />
 
                     <Box sx={{ flex: 1, minHeight: 0, overflowY: 'auto', pr: 0.5 }}>
                       {courseLessonGroups.length === 0 ? (
@@ -527,12 +544,14 @@ export default function CourseDiscussions() {
                                     <Typography variant="body2" sx={{ fontWeight: 800 }}>
                                       {lessonGroup.lessonLabel}
                                     </Typography>
-                                    <Chip size="small" label={`${lessonGroup.items.length} thread${lessonGroup.items.length === 1 ? '' : 's'}`} />
+                                    <Typography variant="caption" sx={{ color: 'text.secondary', fontWeight: 700 }}>
+                                      {lessonGroup.items.length} thread{lessonGroup.items.length === 1 ? '' : 's'}
+                                    </Typography>
                                   </Box>
 
                                   <Stack spacing={1.25}>
                                     {lessonGroup.items.map((thread) => (
-                                      <Suspense key={thread.id} fallback={<Box sx={{ height: 118, borderRadius: 3, border: '1px solid #E2E8F0', bgcolor: '#FFFFFF' }} />}>
+                                      <Suspense key={thread.id} fallback={<Box sx={{ height: 118, borderRadius: 3, border: '1px solid', borderColor: 'divider', bgcolor: 'background.paper' }} />}>
                                         <LazyThreadItem
                                         thread={thread}
                                         active={thread.id === selectedThread?.id}
@@ -568,7 +587,7 @@ export default function CourseDiscussions() {
 
             <Grid size={{ xs: 12, xl: 8 }}>
               {!selectedThread ? (
-                <Card sx={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 320 }}>
+                <Card sx={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 320, border: '1px solid', borderColor: 'divider', borderRadius: 2 }}>
                   <CardContent sx={{ textAlign: 'center', maxWidth: 420 }}>
                     <Typography variant="h6" sx={{ fontWeight: 800, mb: 1 }}>
                       No thread selected
@@ -579,9 +598,9 @@ export default function CourseDiscussions() {
                   </CardContent>
                 </Card>
               ) : (
-              <Card sx={{ height: '100%' }}>
+              <Card sx={{ height: '100%', border: '1px solid', borderColor: 'divider', borderRadius: 2 }}>
                 <CardContent sx={{ p: 0, height: '100%', display: 'flex', flexDirection: 'column' }}>
-                  <Box sx={{ p: { xs: 2.5, md: 3 }, borderBottom: '1px solid #E2E8F0' }}>
+                  <Box sx={{ p: { xs: 2.5, md: 3 }, borderBottom: '1px solid', borderColor: 'divider' }}>
                     <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 2, flexWrap: 'wrap' }}>
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, minWidth: 0 }}>
                         <Avatar sx={{ width: 48, height: 48, bgcolor: selectedThread.accent, fontWeight: 800 }}>
@@ -598,26 +617,21 @@ export default function CourseDiscussions() {
                       </Box>
 
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                        {selectedThread.pinned ? <Chip icon={<BookmarkBorderOutlined />} label="Pinned" /> : null}
-                        <IconButton>
+                        {selectedThread.pinned ? <Typography variant="body2" sx={{ color: 'text.secondary', fontWeight: 700 }}>Pinned</Typography> : null}
+                        <IconButton aria-label="Open thread route" onClick={() => navigate(selectedThread.deepLinkPath)}>
                           <MoreVert />
                         </IconButton>
                       </Box>
                     </Box>
 
-                    <Box sx={{ display: 'flex', gap: 1, mt: 2, flexWrap: 'wrap' }}>
-                      <Chip label={selectedThread.courseLabel} size="small" variant="outlined" />
-                      <Chip label={selectedThread.lessonLabel} size="small" variant="outlined" />
-                      {selectedThread.tags.map((tag) => (
-                        <Chip key={tag} label={tag} size="small" sx={{ bgcolor: alpha(selectedThread.accent, 0.1), color: selectedThread.accent, fontWeight: 700 }} />
-                      ))}
-                      <Chip label={relativeTimeLabel(selectedThread.lastActivity)} size="small" variant="outlined" />
-                    </Box>
+                    <Typography variant="body2" sx={{ color: 'text.secondary', mt: 1.5 }}>
+                      {selectedThread.courseLabel} • {selectedThread.lessonLabel} • {selectedThread.tags.join(', ')} • {relativeTimeLabel(selectedThread.lastActivity)}
+                    </Typography>
                   </Box>
 
-                  <Box sx={{ p: { xs: 2.5, md: 3 }, flex: 1, minHeight: 0, overflowY: 'auto', bgcolor: '#FFFFFF' }}>
+                  <Box sx={{ p: { xs: 2.5, md: 3 }, flex: 1, minHeight: 0, overflowY: 'auto', bgcolor: 'background.paper' }}>
                     <Stack spacing={2.25}>
-                      <Box sx={{ p: 2.25, borderRadius: 3, bgcolor: '#F8FAFC', border: '1px solid #E2E8F0' }}>
+                      <Box sx={{ p: 2.25, borderRadius: 3, bgcolor: 'background.default', border: '1px solid', borderColor: 'divider' }}>
                         <Typography variant="body1" sx={{ fontWeight: 700, lineHeight: 1.75 }}>
                           {selectedThread.summary}
                         </Typography>
@@ -631,7 +645,7 @@ export default function CourseDiscussions() {
                       <Stack spacing={1.8}>
                         {selectedThread.repliesList.map((reply) => (
                           <Box key={reply.id}>
-                            <Suspense fallback={<Box sx={{ height: 138, borderRadius: 3, border: '1px solid #E2E8F0', bgcolor: '#FFFFFF' }} />}>
+                            <Suspense fallback={<Box sx={{ height: 138, borderRadius: 3, border: '1px solid', borderColor: 'divider', bgcolor: 'background.paper' }} />}>
                               <LazyReplyBubble reply={reply} />
                             </Suspense>
                             <Stack direction="row" spacing={1} sx={{ ml: 6.1, mt: 1.15, flexWrap: 'wrap' }}>
@@ -647,13 +661,12 @@ export default function CourseDiscussions() {
                     </Stack>
                   </Box>
 
-                  <Box sx={{ p: { xs: 2.5, md: 3 }, borderTop: '1px solid #E2E8F0', bgcolor: '#FFFFFF' }}>
+                  <Box sx={{ p: { xs: 2.5, md: 3 }, borderTop: '1px solid', borderColor: 'divider', bgcolor: 'background.paper' }}>
                     <Stack spacing={2}>
                       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 2, flexWrap: 'wrap' }}>
                         <Typography variant="subtitle2" sx={{ color: 'text.secondary', fontWeight: 800, letterSpacing: '0.08em' }}>
                           POST A REPLY
                         </Typography>
-                        <Chip label="Real-time feel" color="primary" variant="outlined" />
                       </Box>
 
                       <Box component="form" onSubmit={postReply}>
@@ -669,7 +682,7 @@ export default function CourseDiscussions() {
 
                           <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 2, flexWrap: 'wrap' }}>
                             <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, color: 'text.secondary', flexWrap: 'wrap' }}>
-                              <Button component="label" size="small" variant="text" startIcon={<FilterAltOutlined />}>
+                              <Button component="label" size="small" variant="text">
                                 Attach file
                                 <input
                                   hidden
@@ -680,17 +693,27 @@ export default function CourseDiscussions() {
                                   }}
                                 />
                               </Button>
-                              <IconButton size="small" sx={{ color: 'text.secondary' }}>
+                              <IconButton
+                                size="small"
+                                sx={{ color: 'text.secondary' }}
+                                aria-label="Clear attachment"
+                                onClick={clearReplyAttachment}
+                                disabled={!replyAttachmentName}
+                              >
                                 <MoreVert fontSize="small" />
                               </IconButton>
                             </Box>
 
-                            <Button type="submit" variant="contained" startIcon={<SendOutlined />} disabled={isPosting || !activeCourse?.courseId} sx={{ minWidth: 150 }}>
+                            <Button type="submit" variant="contained" disabled={isPosting || !activeCourse?.courseId} sx={{ minWidth: 150 }}>
                               Post Reply
                             </Button>
                           </Box>
 
-                          {replyAttachmentName ? <Chip label={`Attachment ready: ${replyAttachmentName}`} size="small" sx={{ alignSelf: 'flex-start' }} /> : null}
+                          {replyAttachmentName ? (
+                            <Typography variant="caption" sx={{ color: 'text.secondary' }}>
+                              Attachment ready: {replyAttachmentName}
+                            </Typography>
+                          ) : null}
                         </Stack>
                       </Box>
                     </Stack>
@@ -701,7 +724,7 @@ export default function CourseDiscussions() {
             </Grid>
           </Grid>
 
-          <Card sx={{ mt: 3, borderRadius: 4, border: '1px solid #E2E8F0', boxShadow: 'none' }}>
+          <Card ref={newDiscussionSectionRef} sx={{ mt: 3, borderRadius: 4, border: '1px solid', borderColor: 'divider', boxShadow: 'none' }}>
             <CardContent sx={{ p: { xs: 2.5, md: 3 } }}>
               <Stack spacing={2.25}>
                 <Box>
@@ -716,14 +739,20 @@ export default function CourseDiscussions() {
                 <Box component="form" onSubmit={createDiscussion}>
                   <Grid container spacing={2}>
                     <Grid size={{ xs: 12, md: 5 }}>
-                      <TextField value={newDiscussionTitle} onChange={(event) => setNewDiscussionTitle(event.target.value)} label="Thread title" placeholder="Ask a question or start a topic" />
+                      <TextField
+                        inputRef={newDiscussionTitleRef}
+                        value={newDiscussionTitle}
+                        onChange={(event) => setNewDiscussionTitle(event.target.value)}
+                        label="Thread title"
+                        placeholder="Ask a question or start a topic"
+                      />
                     </Grid>
                     <Grid size={{ xs: 12, md: 7 }}>
                       <TextField value={newDiscussionBody} onChange={(event) => setNewDiscussionBody(event.target.value)} label="Opening post" placeholder="Write the first message for this discussion..." multiline minRows={3} />
                     </Grid>
                   </Grid>
                   <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
-                    <Button type="submit" variant="contained" startIcon={<AddOutlined />} disabled={isPosting || !activeCourse?.courseId}>
+                    <Button type="submit" variant="contained" disabled={isPosting || !activeCourse?.courseId}>
                       Create Discussion
                     </Button>
                   </Box>
@@ -733,14 +762,6 @@ export default function CourseDiscussions() {
           </Card>
         </Box>
 
-      <Box
-        sx={{
-          '@keyframes typingPulse': {
-            '0%, 80%, 100%': { transform: 'translateY(0)', opacity: 0.45 },
-            '40%': { transform: 'translateY(-3px)', opacity: 1 },
-          },
-        }}
-      />
     </Box>
   );
 }

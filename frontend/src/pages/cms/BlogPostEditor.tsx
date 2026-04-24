@@ -1,16 +1,25 @@
 import { useMemo, useState } from 'react';
 import {
   Alert,
-  Avatar,
+
+
+
+
+
+
+
+
+
   Box,
   Button,
   Card,
   CardContent,
-  Chip,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
   Grid,
-  IconButton,
-  List,
-  ListItemButton,
+  InputAdornment,
   MenuItem,
   Select,
   Stack,
@@ -19,77 +28,24 @@ import {
   TextField,
   Typography,
 } from '@mui/material';
-import { alpha } from '@mui/material/styles';
 import {
-  SearchOutlined,
   AddOutlined,
-  FormatBoldOutlined,
-  FormatItalicOutlined,
-  FormatUnderlinedOutlined,
-  LinkOutlined,
-  FormatListBulletedOutlined,
-  FormatListNumberedOutlined,
-  FormatQuoteOutlined,
-  ImageOutlined,
-  CloseOutlined,
-  PublicOutlined,
+  DeleteOutlined,
+  SaveOutlined,
+  SearchOutlined,
 } from '@mui/icons-material';
-import { useContent } from '../../hooks/useContent';
+import { alpha } from '@mui/material/styles';
 import { normalizeApiError } from '../../services/api';
-import { theme } from '../../theme';
+import { useContent } from '../../hooks/useContent';
+import type { ContentItem } from '../../types';
 
-type PostStatus = 'Published' | 'Draft';
 type PostFilter = 'all' | 'published' | 'drafts';
-
-interface BlogPost {
-  id: string;
+type FormState = {
   title: string;
-  status: PostStatus;
-  timestamp: string;
+  slug: string;
+  status: 'draft' | 'published';
   content: string;
-}
-
-const initialPosts: BlogPost[] = [
-  {
-    id: 'post-1',
-    title: '10 LMS Trends to Watch in 2024',
-    status: 'Draft',
-    timestamp: 'Just now',
-    content:
-      '<h2>Start writing your next great post...</h2><p>Build a post that helps your audience understand where LMS platforms are heading. Add data-backed trends, screenshots, and practical recommendations.</p><ol><li>Personalized learning journeys</li><li>AI-assisted content creation</li><li>Mobile-first delivery</li></ol>',
-  },
-  {
-    id: 'post-2',
-    title: 'How to Engage Students in Online Learning',
-    status: 'Published',
-    timestamp: '2 days ago',
-    content: '<h2>How to Engage Students in Online Learning</h2><p>Use interactive formats, meaningful feedback, and structured pacing to increase participation.</p>',
-  },
-  {
-    id: 'post-3',
-    title: 'Gamification in E-Learning: A Complete Guide',
-    status: 'Published',
-    timestamp: '1 week ago',
-    content: '<h2>Gamification in E-Learning</h2><p>Points, badges, and challenges can improve retention when applied with purpose.</p>',
-  },
-  {
-    id: 'post-4',
-    title: 'Why Mobile Learning is the Future',
-    status: 'Draft',
-    timestamp: '3 days ago',
-    content: '<h2>Why Mobile Learning is the Future</h2><p>Mobile devices are now a primary learning environment for many users.</p>',
-  },
-  {
-    id: 'post-5',
-    title: 'Top 5 Accessibility Tools for Courses',
-    status: 'Published',
-    timestamp: '5 days ago',
-    content: '<h2>Top 5 Accessibility Tools for Courses</h2><p>Accessible learning experiences create better outcomes for all students.</p>',
-  },
-];
-
-const categories = ['E-Learning Trends', 'Course Design', 'Student Engagement', 'Accessibility', 'Product Updates'];
-const authorOptions = ['Maria Garcia', 'Alex Morgan', 'Sarah Kim'];
+};
 
 const slugify = (value: string) =>
   value
@@ -97,457 +53,409 @@ const slugify = (value: string) =>
     .trim()
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-+|-+$/g, '')
-    .slice(0, 80) || 'untitled-post';
+    .slice(0, 80);
 
-function StatusChip({ status }: { status: PostStatus }) {
-  return (
-    <Box
-      sx={{
-        display: 'inline-flex',
-        alignItems: 'center',
-        px: 1,
-        py: 0.45,
-        borderRadius: '999px',
-        fontSize: 12,
-        fontWeight: 700,
-        bgcolor: status === 'Published' ? alpha(theme.palette.success.main, 0.12) : alpha('#64748B', 0.12),
-        color: status === 'Published' ? 'success.main' : 'text.secondary',
-      }}
-    >
-      {status}
-    </Box>
-  );
-}
+const initialForm: FormState = {
+  title: '',
+  slug: '',
+  status: 'draft',
+  content: '',
+};
 
-function PostRow({
-  post,
-  active,
-  onClick,
-}: {
-  post: BlogPost;
-  active: boolean;
-  onClick: () => void;
-}) {
-  return (
-    <ListItemButton
-      onClick={onClick}
-      selected={active}
-      sx={{
-        borderRadius: '12px',
-        px: 1.5,
-        py: 1.4,
-        alignItems: 'flex-start',
-        gap: 1.25,
-        '&.Mui-selected': {
-          bgcolor: alpha(theme.palette.primary.main, 0.08),
-          '&:hover': { bgcolor: alpha(theme.palette.primary.main, 0.12) },
-        },
-      }}
-    >
-      <Avatar sx={{ width: 42, height: 42, bgcolor: active ? 'primary.main' : alpha(theme.palette.primary.main, 0.1), color: active ? '#FFFFFF' : 'primary.main', fontWeight: 700 }}>
-        {post.title.slice(0, 1)}
-      </Avatar>
-      <Box sx={{ minWidth: 0, flex: 1 }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 1 }}>
-          <Typography variant="body2" sx={{ fontWeight: 700 }} noWrap>
-            {post.title}
-          </Typography>
-          <StatusChip status={post.status} />
-        </Box>
-        <Typography variant="caption" sx={{ color: 'text.secondary' }}>
-          {post.timestamp}
-        </Typography>
-      </Box>
-    </ListItemButton>
-  );
-}
+const getPostPreview = (content: string) => {
+  const trimmed = content.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+  return trimmed.slice(0, 90) || 'No content yet';
+};
 
-function EditorToolbar() {
-  const tools = [
-    FormatBoldOutlined,
-    FormatItalicOutlined,
-    FormatUnderlinedOutlined,
-    LinkOutlined,
-    FormatListBulletedOutlined,
-    FormatListNumberedOutlined,
-    FormatQuoteOutlined,
-    ImageOutlined,
-  ];
+const surfaceCardSx = {
+  border: '1px solid',
+  borderColor: 'divider',
+  boxShadow: 'none',
+} as const;
 
-  return (
-    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, flexWrap: 'wrap' }}>
-      {tools.map((Tool, index) => (
-        <IconButton key={`${Tool.name}-${index}`} size="small" sx={{ color: 'text.secondary', bgcolor: '#FFFFFF', border: '1px solid #E2E8F0' }}>
-          <Tool fontSize="small" />
-        </IconButton>
-      ))}
-    </Box>
-  );
-}
+const toFormState = (post: ContentItem | null): FormState => {
+  if (!post) {
+    return initialForm;
+  }
 
-function FeaturedImageCard() {
-  return (
-    <Box
-      sx={{
-        height: 180,
-        borderRadius: '12px',
-        position: 'relative',
-        overflow: 'hidden',
-        background:
-          'linear-gradient(135deg, rgba(17,24,39,0.96), rgba(30,41,59,0.96) 60%, rgba(99,102,241,0.28))',
-        border: '1px solid rgba(255,255,255,0.08)',
-        boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.08)',
-      }}
-    >
-      <Box sx={{ position: 'absolute', inset: 0, background: 'radial-gradient(circle at top left, rgba(99,102,241,0.25), transparent 28%), radial-gradient(circle at bottom right, rgba(0,102,255,0.22), transparent 25%)' }} />
-      <Box sx={{ position: 'relative', p: 2.5, height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-        <Typography variant="caption" sx={{ color: alpha('#FFFFFF', 0.78), fontWeight: 800, letterSpacing: '0.18em' }}>
-          FEATURED IMAGE
-        </Typography>
-        <Box>
-          <Typography variant="h6" sx={{ color: '#FFFFFF', fontWeight: 900, letterSpacing: '-0.02em' }}>
-            FUTURE OF E-LEARNING
-          </Typography>
-          <Box sx={{ display: 'flex', gap: 1, mt: 1.5 }}>
-            <Box sx={{ width: 74, height: 8, borderRadius: 999, bgcolor: alpha('#FFFFFF', 0.28) }} />
-            <Box sx={{ width: 46, height: 8, borderRadius: 999, bgcolor: alpha('#FFFFFF', 0.16) }} />
-          </Box>
-        </Box>
-      </Box>
-    </Box>
-  );
-}
+  return {
+    title: post.title || '',
+    slug: post.slug || '',
+    status: post.status === 'published' ? 'published' : 'draft',
+    content: post.content || '',
+  };
+};
 
 export default function BlogPostEditor() {
-  const { create, isCreating } = useContent();
+  const { managedContent, isLoading, isCreating, isUpdating, isDeleting, create, update, remove, refetch } = useContent();
   const [filter, setFilter] = useState<PostFilter>('all');
   const [search, setSearch] = useState('');
-  const [posts, setPosts] = useState(initialPosts);
-  const [selectedPostId, setSelectedPostId] = useState(initialPosts[0].id);
-  const [editorValue, setEditorValue] = useState(initialPosts[0].content);
-  const [author, setAuthor] = useState('Maria Garcia');
-  const [selectedTags, setSelectedTags] = useState(['LMS', '2024', 'AI']);
-  const [statusMessage, setStatusMessage] = useState<string | null>(null);
-  const [statusSeverity, setStatusSeverity] = useState<'success' | 'error'>('success');
+  const [selectedPostId, setSelectedPostId] = useState<string | null>(null);
+  const [form, setForm] = useState<FormState>(initialForm);
+  const [isDirty, setIsDirty] = useState(false);
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [statusMessage, setStatusMessage] = useState<{ text: string; severity: 'success' | 'error' | 'info' | 'warning' } | null>(null);
 
-  const currentPost = posts.find((post) => post.id === selectedPostId) ?? posts[0];
+  const posts = useMemo(
+    () =>
+      managedContent
+        .filter((item) => item.type === 'post')
+        .sort(
+          (a, b) =>
+            new Date(b.updatedAt || b.createdAt || 0).getTime()
+            - new Date(a.updatedAt || a.createdAt || 0).getTime(),
+        ),
+    [managedContent],
+  );
 
   const filteredPosts = useMemo(() => {
     const query = search.trim().toLowerCase();
     return posts.filter((post) => {
-      const matchesFilter = filter === 'all' ? true : filter === 'published' ? post.status === 'Published' : post.status === 'Draft';
-      const matchesSearch = !query || post.title.toLowerCase().includes(query);
-      return matchesFilter && matchesSearch;
+      const statusMatch =
+        filter === 'all'
+          ? true
+          : filter === 'published'
+            ? post.status === 'published'
+            : post.status !== 'published';
+      const queryMatch =
+        !query
+        || post.title.toLowerCase().includes(query)
+        || post.slug.toLowerCase().includes(query)
+        || getPostPreview(post.content || '').toLowerCase().includes(query);
+      return statusMatch && queryMatch;
     });
   }, [posts, search, filter]);
 
-  const publish = () => {
-    void (async () => {
-      try {
-        await create({
-          type: 'post',
-          title: currentPost.title,
-          content: editorValue,
-          slug: slugify(currentPost.title),
-          status: 'published',
-        });
+  const effectiveSelectedPostId = selectedPostId || posts[0]?._id || null;
+  const selectedPost = useMemo(
+    () => posts.find((post) => post._id === effectiveSelectedPostId) || null,
+    [posts, effectiveSelectedPostId],
+  );
+  const displayedForm = isDirty ? form : toFormState(selectedPost);
 
-        setStatusSeverity('success');
-        setStatusMessage(`Published "${currentPost.title}"`);
-        setPosts((currentPosts) =>
-          currentPosts.map((post) =>
-            post.id === currentPost.id
-              ? { ...post, status: 'Published', timestamp: 'Just published', content: editorValue }
-              : post,
-          )
-        );
-      } catch (error) {
-        setStatusSeverity('error');
-        setStatusMessage(normalizeApiError(error).message || 'Failed to publish post.');
+  const updateForm = <K extends keyof FormState>(key: K, value: FormState[K]) => {
+    setForm((current) => ({ ...(isDirty ? current : displayedForm), [key]: value }));
+    setIsDirty(true);
+  };
+
+  const createNewPostDraft = () => {
+    setSelectedPostId(null);
+    setForm({
+      title: 'Untitled post',
+      slug: '',
+      status: 'draft',
+      content: '',
+    });
+    setIsDirty(true);
+    setStatusMessage({ text: 'New draft started.', severity: 'info' });
+  };
+
+  const discardChanges = () => {
+    if (selectedPost) {
+      setForm({
+        title: selectedPost.title || '',
+        slug: selectedPost.slug || '',
+        status: selectedPost.status === 'published' ? 'published' : 'draft',
+        content: selectedPost.content || '',
+      });
+      setIsDirty(false);
+      return;
+    }
+    setForm(initialForm);
+    setIsDirty(false);
+  };
+
+  const savePost = async (status: 'draft' | 'published') => {
+    const title = form.title.trim();
+    const slug = slugify((form.slug || form.title).trim());
+    const content = form.content;
+
+    if (!title) {
+      setStatusMessage({ text: 'Post title is required.', severity: 'error' });
+      return;
+    }
+    if (!slug) {
+      setStatusMessage({ text: 'Slug is required.', severity: 'error' });
+      return;
+    }
+
+    const payload: Partial<ContentItem> = {
+      type: 'post',
+      title,
+      slug,
+      status,
+      content,
+      blocks: [
+        {
+          id: 'post-body',
+          type: 'text',
+          content,
+          order: 0,
+        },
+      ],
+    };
+
+    try {
+      if (selectedPost?._id) {
+        const saved = await update(selectedPost._id, payload);
+        setSelectedPostId(saved._id);
+      } else {
+        const saved = await create(payload);
+        setSelectedPostId(saved._id);
       }
-    })();
+      await refetch();
+      setIsDirty(false);
+      setStatusMessage({
+        text: status === 'published' ? 'Post published successfully.' : 'Draft saved successfully.',
+        severity: 'success',
+      });
+    } catch (error) {
+      setStatusMessage({
+        text: normalizeApiError(error).message || 'Failed to save post.',
+        severity: 'error',
+      });
+    }
   };
 
-  const saveDraft = () => {
-    void (async () => {
-      try {
-        await create({
-          type: 'post',
-          title: currentPost.title,
-          content: editorValue,
-          slug: slugify(currentPost.title),
-          status: 'draft',
-        });
-
-        setStatusSeverity('success');
-        setStatusMessage(`Draft saved for "${currentPost.title}"`);
-        setPosts((currentPosts) =>
-          currentPosts.map((post) =>
-            post.id === currentPost.id ? { ...post, status: 'Draft', timestamp: 'Saved just now', content: editorValue } : post,
-          )
-        );
-      } catch (error) {
-        setStatusSeverity('error');
-        setStatusMessage(normalizeApiError(error).message || 'Failed to save draft.');
-      }
-    })();
+  const deleteSelectedPost = async () => {
+    if (!selectedPost?._id) {
+      setDeleteOpen(false);
+      return;
+    }
+    try {
+      await remove(selectedPost._id);
+      await refetch();
+      setDeleteOpen(false);
+      setSelectedPostId(null);
+      setForm(initialForm);
+      setIsDirty(false);
+      setStatusMessage({ text: 'Post deleted successfully.', severity: 'success' });
+    } catch (error) {
+      setDeleteOpen(false);
+      setStatusMessage({
+        text: normalizeApiError(error).message || 'Failed to delete post.',
+        severity: 'error',
+      });
+    }
   };
 
-  const removeTag = (tag: string) => {
-    setSelectedTags((currentTags) => currentTags.filter((currentTag) => currentTag !== tag));
-    setStatusMessage(`Removed tag: ${tag}`);
-  };
-
-  const createPost = () => {
-    void (async () => {
-      const nextId = `post-${Date.now()}`;
-      const nextPost: BlogPost = {
-        id: nextId,
-        title: 'Untitled post',
-        status: 'Draft',
-        timestamp: 'Just now',
-        content: '<h2>Untitled post</h2><p>Start drafting your new article here.</p>',
-      };
-
-      try {
-        await create({
-          type: 'post',
-          title: nextPost.title,
-          content: nextPost.content,
-          slug: slugify(nextPost.title),
-          status: 'draft',
-        });
-
-        setPosts((currentPosts) => [nextPost, ...currentPosts]);
-        setSelectedPostId(nextId);
-        setEditorValue(nextPost.content);
-        setSelectedTags(['LMS', '2024', 'AI']);
-        setStatusSeverity('success');
-        setStatusMessage('New draft created');
-      } catch (error) {
-        setStatusSeverity('error');
-        setStatusMessage(normalizeApiError(error).message || 'Failed to create post draft.');
-      }
-    })();
-  };
-
-  const onSelectPost = (post: BlogPost) => {
-    setSelectedPostId(post.id);
-    setEditorValue(post.content);
-    setSelectedTags(['LMS', '2024', 'AI']);
-    setStatusMessage(null);
-  };
+  const isBusy = isCreating || isUpdating || isDeleting;
 
   return (
-    <Box sx={{ minHeight: '100%', bgcolor: 'background.default', p: { xs: 2, sm: 2.5, md: 3 } }}>
-        <Typography variant="h5" sx={{ fontWeight: 800, mb: 2.5 }}>
-          Content manager
-        </Typography>
+    <Box sx={{ minHeight: '100%', bgcolor: 'background.default', p: { xs: 1.5, sm: 2, md: 3 } }}>
+      <Stack spacing={2}>
+        <Card sx={surfaceCardSx}>
+          <CardContent sx={{ p: { xs: 2, md: 2.5 } }}>
+            <Stack
+              direction={{ xs: 'column', md: 'row' }}
+              spacing={1.5}
+              sx={{ justifyContent: 'space-between', alignItems: { xs: 'stretch', md: 'center' } }}
+            >
+              <Box>
+                <Typography variant="h5" sx={{ fontWeight: 900, letterSpacing: '-0.02em' }}>
+                  Content Manager
+                </Typography>
+                <Typography variant="body2" sx={{ color: 'text.secondary', mt: 0.5 }}>
+                  Blog posts
+                </Typography>
+              </Box>
+              <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1} sx={{ width: { xs: '100%', md: 'auto' } }}>
+                <Button
+                  variant="outlined"
+                  onClick={createNewPostDraft}
+                  disabled={isBusy}
+                  fullWidth={false}
+                >
+                  New draft
+                </Button>
+                {selectedPost ? (
+                  <Button
+                    color="error"
+                    variant="outlined"
+                    onClick={() => setDeleteOpen(true)}
+                    disabled={isBusy}
+                  >
+                    Delete
+                  </Button>
+                ) : null}
+              </Stack>
+            </Stack>
+          </CardContent>
+        </Card>
 
         {statusMessage ? (
-          <Alert severity={statusSeverity} sx={{ mb: 2.25, borderRadius: '12px' }} onClose={() => setStatusMessage(null)}>
-            {statusMessage}
+          <Alert severity={statusMessage.severity} sx={{ borderRadius: 2 }}>
+            {statusMessage.text}
           </Alert>
         ) : null}
 
-        <Grid container spacing={2.5} sx={{ alignItems: 'stretch' }}>
+        <Grid container spacing={2}>
           <Grid size={{ xs: 12, md: 4 }}>
-            <Card sx={{ height: '100%', overflow: 'hidden' }}>
-              <CardContent sx={{ p: 0, height: '100%', display: 'flex', flexDirection: 'column' }}>
-                <Box sx={{ p: 2.5, pb: 2, borderBottom: '1px solid #E2E8F0' }}>
-                  <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 1.5 }}>
-                    <Typography variant="h6" sx={{ fontWeight: 800 }}>
-                      Posts
-                    </Typography>
-                    <IconButton onClick={createPost} disabled={isCreating} sx={{ bgcolor: 'primary.main', color: '#FFFFFF', '&:hover': { bgcolor: 'primary.dark' } }}>
-                      <AddOutlined />
-                    </IconButton>
-                  </Box>
-
-                  <Box sx={{ position: 'relative', mt: 2 }}>
-                    <Box
-                      sx={{
-                        position: 'absolute',
-                        left: 18,
-                        top: '50%',
-                        transform: 'translateY(-50%)',
-                        color: 'text.secondary',
-                        pointerEvents: 'none',
-                      }}
-                    >
-                      <SearchOutlined fontSize="small" />
-                    </Box>
-                    <TextField
-                      value={search}
-                      onChange={(event) => setSearch(event.target.value)}
-                      placeholder="Search posts..."
-                      sx={{
-                        '& .MuiInputBase-root': {
-                          pl: 5.25,
-                        },
-                      }}
-                    />
-                  </Box>
-
-                  <Tabs
-                    value={filter}
-                    onChange={(_, value) => setFilter(value)}
-                    sx={{ mt: 2, minHeight: 36, '& .MuiTab-root': { minHeight: 36, textTransform: 'none', fontWeight: 700, px: 1.5 } }}
-                  >
-                    <Tab value="all" label="All" />
-                    <Tab value="published" label="Published" />
-                    <Tab value="drafts" label="Drafts" />
-                  </Tabs>
-                </Box>
-
-                <Box sx={{ p: 2.5, flex: 1, minHeight: 0, overflowY: 'auto' }}>
-                  <List disablePadding sx={{ display: 'grid', gap: 0.75 }}>
-                    {filteredPosts.map((post) => (
-                      <PostRow key={post.id} post={post} active={post.id === selectedPostId} onClick={() => onSelectPost(post)} />
-                    ))}
-                  </List>
-                </Box>
-              </CardContent>
-            </Card>
-          </Grid>
-
-          <Grid size={{ xs: 12, md: 5 }}>
-            <Card sx={{ height: '100%' }}>
-              <CardContent sx={{ p: { xs: 2.5, md: 3 }, height: '100%', display: 'flex', flexDirection: 'column' }}>
-                <Stack spacing={2} sx={{ height: '100%' }}>
-                  <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 2, flexWrap: 'wrap' }}>
-                    <Typography variant="h4" sx={{ fontWeight: 800, letterSpacing: '-0.03em' }}>
-                      {currentPost.title}
-                    </Typography>
-                    <Typography variant="body2" sx={{ color: 'text.secondary', fontWeight: 700 }}>
-                      Draft mode
-                    </Typography>
-                  </Box>
-
-                  <Box sx={{ pb: 1 }}>
-                    <EditorToolbar />
-                  </Box>
-
-                  <Box
-                    contentEditable
-                    suppressContentEditableWarning
-                    onInput={(event) => setEditorValue((event.currentTarget as HTMLDivElement).innerHTML)}
-                    dangerouslySetInnerHTML={{ __html: editorValue }}
-                    sx={{
-                      flex: 1,
-                      minHeight: 520,
-                      p: 2.5,
-                      borderRadius: '12px',
-                      border: '1px solid #E2E8F0',
-                      bgcolor: '#FFFFFF',
-                      outline: 'none',
-                      overflowY: 'auto',
-                      '&:focus': {
-                        borderColor: 'primary.main',
-                        boxShadow: '0 0 0 4px rgba(0,102,255,0.08)',
-                      },
-                    }}
-                    component="div"
-                  />
+            <Card sx={{ ...surfaceCardSx, height: '100%' }}>
+              <CardContent sx={{ p: 2, height: '100%', display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+                <TextField
+                  value={search}
+                  onChange={(event) => setSearch(event.target.value)}
+                  placeholder="Search posts..."
+                  slotProps={{
+                    input: {
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <SearchOutlined fontSize="small" />
+                        </InputAdornment>
+                      ),
+                    },
+                  }}
+                />
+                <Tabs
+                  value={filter}
+                  onChange={(_, next) => setFilter(next)}
+                  variant="fullWidth"
+                  sx={{ minHeight: 36, '& .MuiTab-root': { minHeight: 36, textTransform: 'none', fontWeight: 700 } }}
+                >
+                  <Tab value="all" label="All" />
+                  <Tab value="published" label="Published" />
+                  <Tab value="drafts" label="Drafts" />
+                </Tabs>
+                <Stack spacing={1} sx={{ overflowY: 'auto', maxHeight: { md: '62vh' }, pr: 0.5 }}>
+                  {isLoading ? (
+                    <Typography variant="body2" sx={{ color: 'text.secondary' }}>Loading posts...</Typography>
+                  ) : filteredPosts.length === 0 ? (
+                    <Typography variant="body2" sx={{ color: 'text.secondary' }}>No posts found.</Typography>
+                  ) : (
+                    filteredPosts.map((post) => (
+                      <Card
+                        key={post._id}
+                        variant="outlined"
+                        onClick={() => {
+                          setSelectedPostId(post._id);
+                          setForm(toFormState(post));
+                          setIsDirty(false);
+                        }}
+                        sx={{
+                          cursor: 'pointer',
+                          borderColor: post._id === effectiveSelectedPostId ? 'primary.main' : 'divider',
+                          bgcolor: post._id === effectiveSelectedPostId ? alpha('#0066FF', 0.05) : '#FFFFFF',
+                        }}
+                      >
+                        <CardContent sx={{ p: 1.5 }}>
+                          <Typography variant="subtitle2" sx={{ fontWeight: 800 }} noWrap>
+                            {post.title}
+                          </Typography>
+                          <Typography variant="caption" sx={{ color: 'text.secondary' }} noWrap>
+                            {getPostPreview(post.content || '')}
+                          </Typography>
+                          <Box sx={{ mt: 1 }}>
+                            <Typography variant="caption" sx={{ color: 'text.secondary', fontWeight: 700 }}>
+                              {post.status === 'published' ? 'Published' : 'Draft'}
+                            </Typography>
+                          </Box>
+                        </CardContent>
+                      </Card>
+                    ))
+                  )}
                 </Stack>
               </CardContent>
             </Card>
           </Grid>
 
-          <Grid size={{ xs: 12, md: 3 }}>
-            <Card sx={{ height: '100%' }}>
-              <CardContent sx={{ p: { xs: 2.5, md: 3 } }}>
-                <Stack spacing={2.25}>
-                  <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
-                    <Button variant="outlined" fullWidth onClick={saveDraft} disabled={isCreating}>
-                      {isCreating ? 'Saving...' : 'Save Draft'}
-                    </Button>
-                    <Button variant="contained" fullWidth onClick={publish} disabled={isCreating}>
-                      {isCreating ? 'Publishing...' : 'Publish'}
-                    </Button>
-                  </Box>
-
-                  <Box>
-                    <Typography variant="caption" sx={{ color: 'text.secondary', fontWeight: 800, letterSpacing: '0.14em' }}>
-                      SETTINGS
-                    </Typography>
-                  </Box>
-
-                  <Box>
-                    <Typography variant="body2" sx={{ color: 'text.secondary', fontWeight: 700, mb: 0.75 }}>
-                      Visibility
-                    </Typography>
-                    <Select value="Public" fullWidth>
-                      <MenuItem value="Public">
-                        <PublicOutlined sx={{ mr: 1, fontSize: 18 }} /> Public
-                      </MenuItem>
-                    </Select>
-                  </Box>
-
-                  <Box>
-                    <Typography variant="body2" sx={{ color: 'text.secondary', fontWeight: 700, mb: 0.75 }}>
-                      URL Slug
-                    </Typography>
-                    <TextField value="10-lms-trends-2024" fullWidth />
-                  </Box>
-
-                  <Box>
-                    <Typography variant="body2" sx={{ color: 'text.secondary', fontWeight: 700, mb: 0.75 }}>
-                      Category
-                    </Typography>
-                    <Select value="E-Learning Trends" fullWidth>
-                      {categories.map((category) => (
-                        <MenuItem key={category} value={category}>
-                          {category}
-                        </MenuItem>
-                      ))}
-                    </Select>
-                  </Box>
-
-                  <Box>
-                    <Typography variant="body2" sx={{ color: 'text.secondary', fontWeight: 700, mb: 0.75 }}>
-                      Tags
-                    </Typography>
-                    <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
-                      {selectedTags.map((tag) => (
-                        <Chip
-                          key={tag}
-                          label={tag}
-                          onDelete={() => removeTag(tag)}
-                          deleteIcon={<CloseOutlined />}
-                          sx={{ bgcolor: alpha('#0066FF', 0.08), color: 'primary.main', fontWeight: 700 }}
+          <Grid size={{ xs: 12, md: 8 }}>
+            <Card sx={surfaceCardSx}>
+              <CardContent sx={{ p: { xs: 2, md: 2.5 } }}>
+                <Stack spacing={2}>
+                  <Grid container spacing={1.5}>
+                    <Grid size={{ xs: 12, md: 8 }}>
+                      <TextField
+                        label="Post title"
+                        value={displayedForm.title}
+                        onChange={(event) => {
+                          const nextTitle = event.target.value;
+                          updateForm('title', nextTitle);
+                          if (!displayedForm.slug.trim()) {
+                            updateForm('slug', slugify(nextTitle));
+                          }
+                        }}
+                        fullWidth
+                      />
+                    </Grid>
+                    <Grid size={{ xs: 12, md: 4 }}>
+                        <Select
+                          value={displayedForm.status}
+                          onChange={(event) => updateForm('status', event.target.value as FormState['status'])}
+                          fullWidth
+                        >
+                        <MenuItem value="draft">Draft</MenuItem>
+                        <MenuItem value="published">Published</MenuItem>
+                      </Select>
+                    </Grid>
+                    <Grid size={{ xs: 12 }}>
+                        <TextField
+                          label="Slug"
+                          value={displayedForm.slug}
+                          onChange={(event) => updateForm('slug', slugify(event.target.value))}
+                          fullWidth
                         />
-                      ))}
-                    </Box>
-                  </Box>
+                    </Grid>
+                  </Grid>
 
-                  <Box>
-                    <Typography variant="body2" sx={{ color: 'text.secondary', fontWeight: 700, mb: 0.75 }}>
-                      Featured Image
-                    </Typography>
-                    <FeaturedImageCard />
-                    <Button variant="outlined" fullWidth sx={{ mt: 1.5 }} onClick={() => setStatusMessage('Featured image replace flow opened')}>
-                      Replace Image
+                  <TextField
+                    label="Post content"
+                    multiline
+                    minRows={18}
+                    value={displayedForm.content}
+                    onChange={(event) => updateForm('content', event.target.value)}
+                    fullWidth
+                    placeholder="Start writing your post..."
+                    sx={{ '& .MuiInputBase-root': { alignItems: 'flex-start' } }}
+                  />
+
+                  <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1}>
+                    <Button
+                      variant="outlined"
+                      onClick={() => savePost('draft')}
+                      disabled={isBusy || !isDirty}
+                      fullWidth
+                    >
+                      {isUpdating || isCreating ? 'Saving...' : 'Save Draft'}
                     </Button>
-                  </Box>
-
-                  <Box>
-                    <Typography variant="body2" sx={{ color: 'text.secondary', fontWeight: 700, mb: 0.75 }}>
-                      Author
-                    </Typography>
-                    <Select value={author} onChange={(event) => setAuthor(event.target.value)} fullWidth>
-                      {authorOptions.map((person) => (
-                        <MenuItem key={person} value={person}>
-                          {person}
-                        </MenuItem>
-                      ))}
-                    </Select>
-                  </Box>
+                    <Button
+                      variant="contained"
+                      onClick={() => savePost('published')}
+                      disabled={isBusy || !isDirty}
+                      fullWidth
+                    >
+                      {isUpdating || isCreating ? 'Publishing...' : 'Publish'}
+                    </Button>
+                    <Button
+                      variant="text"
+                      onClick={discardChanges}
+                      disabled={!isDirty || isBusy}
+                    >
+                      Discard
+                    </Button>
+                  </Stack>
                 </Stack>
               </CardContent>
             </Card>
           </Grid>
         </Grid>
+      </Stack>
+
+      <Dialog open={deleteOpen} onClose={() => setDeleteOpen(false)}>
+        <DialogTitle>Delete post?</DialogTitle>
+        <DialogContent>
+          <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+            This action permanently deletes the selected post.
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setDeleteOpen(false)}>Cancel</Button>
+          <Button color="error" variant="contained" onClick={deleteSelectedPost}>
+            Delete
+          </Button>
+        </DialogActions>
+      </Dialog>
+
     </Box>
   );
 }

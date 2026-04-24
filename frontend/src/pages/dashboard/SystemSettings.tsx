@@ -1,39 +1,51 @@
-import { useEffect, useState, type ChangeEvent } from 'react';
+import { useMemo, useState, type ChangeEvent } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
+  Alert,
   Box,
   Button,
   Card,
   CardContent,
-  Divider,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  FormControl,
+  FormControlLabel,
+  FormGroup,
   Grid,
   InputLabel,
+  List,
+  ListItemButton,
+  ListItemText,
   MenuItem,
   Select,
   Stack,
+  Switch,
   Tab,
   Tabs,
   TextField,
+  Tooltip,
   Typography,
+  useMediaQuery,
+  useTheme,
 } from '@mui/material';
 import { type SelectChangeEvent } from '@mui/material/Select';
-import { alpha } from '@mui/material/styles';
-import {
-  Settings as SettingsIcon,
-  Palette as PaletteIcon,
-  Save as SaveIcon,
-  Refresh as RefreshIcon,
-  Language as LanguageIcon,
-  Person as PersonIcon,
-} from '@mui/icons-material';
 import { api } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
+import DashboardPageFrame, { DashboardSection } from '../../components/common/DashboardPageFrame';
+import { SPACING, card } from './dashboardTokens';
 
-type SettingsTab = 'general' | 'appearance';
+type SettingsSection = 'profile' | 'account' | 'security' | 'notifications' | 'preferences';
 
 interface SystemSettingsData {
   platformName: string;
   supportEmail: string;
+  contactPhone: string;
+  contactAddress: string;
+  contactHours: string;
+  contactMapUrl: string;
+  contactResponseTime: string;
   language: string;
   timezone: string;
   themeMode: 'light' | 'dark' | 'system';
@@ -44,18 +56,34 @@ interface ApiSettingsResponse {
   message?: string;
 }
 
+interface NotificationPreferences {
+  email: boolean;
+  push: boolean;
+}
+
+interface ApiUnreadCountResponse {
+  unreadCount: number;
+}
+
 const defaultSettings: SystemSettingsData = {
-  platformName: 'LearnSpace',
-  supportEmail: 'support@learnspace.com',
+  platformName: '',
+  supportEmail: '',
+  contactPhone: '',
+  contactAddress: '',
+  contactHours: '',
+  contactMapUrl: '',
+  contactResponseTime: '',
   language: 'en',
   timezone: 'UTC',
-  themeMode: 'light',
+  themeMode: 'system',
 };
 
-const themeOptions = [
-  { value: 'light' as const, label: 'Light', description: 'Clean and bright interface', icon: '☀️' },
-  { value: 'dark' as const, label: 'Dark', description: 'Easy on the eyes', icon: '🌙' },
-  { value: 'system' as const, label: 'System', description: 'Follows device settings', icon: '💻' },
+const sectionItems: Array<{ key: SettingsSection; label: string; description: string }> = [
+  { key: 'profile', label: 'Profile', description: 'Identity and role' },
+  { key: 'account', label: 'Account', description: 'Platform and contact settings' },
+  { key: 'security', label: 'Security', description: 'Protection and sessions' },
+  { key: 'notifications', label: 'Notifications', description: 'Delivery preferences' },
+  { key: 'preferences', label: 'Preferences', description: 'Language, region, and theme' },
 ];
 
 const languageOptions = [
@@ -77,58 +105,40 @@ const timezoneOptions = [
   { value: 'Asia/Tokyo', label: 'Asia/Tokyo (JST)' },
 ];
 
-function TabPanel({ children, value, index }: { children: React.ReactNode; value: SettingsTab; index: SettingsTab }) {
-  return (
-    <Box role="tabpanel" hidden={value !== index} sx={{ pt: 3 }}>
-      {value === index && children}
-    </Box>
-  );
-}
+const themeOptions = [
+  { value: 'light' as const, label: 'Light', description: 'Clean and bright' },
+  { value: 'dark' as const, label: 'Dark', description: 'Reduced eye strain' },
+  { value: 'system' as const, label: 'System', description: 'Follows device setting' },
+];
 
-function SectionCard({ title, description, icon, children }: { title: string; description: string; icon: React.ReactNode; children: React.ReactNode }) {
-  return (
-    <Card sx={{ borderRadius: 3, boxShadow: '0 4px 20px rgba(0,0,0,0.04)', border: '1px solid #E2E8F0' }}>
-      <CardContent sx={{ p: { xs: 2.5, md: 3.5 } }}>
-        <Stack spacing={2.5}>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-            <Box
-              sx={{
-                width: 48,
-                height: 48,
-                borderRadius: 2.5,
-                bgcolor: alpha('#0066FF', 0.08),
-                color: 'primary.main',
-                display: 'grid',
-                placeItems: 'center',
-              }}
-            >
-              {icon}
-            </Box>
-            <Box>
-              <Typography variant="h6" sx={{ fontWeight: 800, letterSpacing: '-0.02em' }}>
-                {title}
-              </Typography>
-              <Typography variant="body2" sx={{ color: 'text.secondary', mt: 0.25 }}>
-                {description}
-              </Typography>
-            </Box>
-          </Box>
-          <Divider sx={{ borderColor: '#E2E8F0' }} />
-          {children}
-        </Stack>
-      </CardContent>
-    </Card>
-  );
-}
+const isValidEmail = (value: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim());
+
+const isValidUrl = (value: string) => {
+  if (!value.trim()) {
+    return true;
+  }
+
+  try {
+    const parsed = new URL(value.trim());
+    return parsed.protocol === 'http:' || parsed.protocol === 'https:';
+  } catch {
+    return false;
+  }
+};
 
 export default function SystemSettings() {
   const { user, refreshSession } = useAuth();
   const queryClient = useQueryClient();
-  const [activeTab, setActiveTab] = useState<SettingsTab>('general');
-  const [form, setForm] = useState<SystemSettingsData>(defaultSettings);
-  const [dirty, setDirty] = useState(false);
+  const muiTheme = useTheme();
+  const isDesktop = useMediaQuery(muiTheme.breakpoints.up('md'));
 
-  // Fetch settings from backend
+  const [activeSection, setActiveSection] = useState<SettingsSection>('profile');
+  const [form, setForm] = useState<SystemSettingsData>(defaultSettings);
+  const [notificationPrefs, setNotificationPrefs] = useState<NotificationPreferences>({ email: true, push: true });
+  const [hasLocalEdits, setHasLocalEdits] = useState(false);
+  const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
+  const [confirmDiscardOpen, setConfirmDiscardOpen] = useState(false);
+
   const { data: settingsData, isLoading } = useQuery({
     queryKey: ['system-settings'],
     queryFn: async () => {
@@ -138,7 +148,15 @@ export default function SystemSettings() {
     enabled: true,
   });
 
-  // Save settings mutation - updates platform settings
+  const { data: unreadData } = useQuery({
+    queryKey: ['notifications', 'unread-count'],
+    queryFn: async () => {
+      const response = await api.get<ApiUnreadCountResponse>('/api/notifications/me/unread-count');
+      return response.data;
+    },
+    retry: false,
+  });
+
   const saveSettingsMutation = useMutation({
     mutationFn: async (settings: Partial<SystemSettingsData>) => {
       const response = await api.patch('/api/settings', settings);
@@ -147,355 +165,491 @@ export default function SystemSettings() {
     onSuccess: async () => {
       await refreshSession();
       queryClient.invalidateQueries({ queryKey: ['system-settings'] });
-      setDirty(false);
+      setHasLocalEdits(false);
     },
   });
 
-  // Save user preferences mutation
   const savePreferencesMutation = useMutation({
-    mutationFn: async (preferences: { language?: string; timezone?: string; themeMode?: string }) => {
+    mutationFn: async (preferences: {
+      language?: string;
+      timezone?: string;
+      themeMode?: string;
+      notifications?: NotificationPreferences;
+    }) => {
       const response = await api.patch('/api/users/me', { preferences });
       return response.data;
     },
     onSuccess: async () => {
       await refreshSession();
-      setDirty(false);
+      setHasLocalEdits(false);
     },
   });
 
-  // Sync form with fetched data
-  useEffect(() => {
-    if (settingsData) {
-      setForm(settingsData);
-      setDirty(false);
-    }
-  }, [settingsData]);
+  const mergedSettings = useMemo<SystemSettingsData>(() => ({
+    ...defaultSettings,
+    ...(settingsData || {}),
+    language: user?.preferences?.language || settingsData?.language || defaultSettings.language,
+    timezone: user?.preferences?.timezone || settingsData?.timezone || defaultSettings.timezone,
+    supportEmail: user?.email || settingsData?.supportEmail || defaultSettings.supportEmail,
+  }), [settingsData, user]);
 
-  // Sync form with user data on mount
-  useEffect(() => {
-    if (user) {
-      setForm((prev) => ({
-        ...prev,
-        language: user.preferences?.language || 'en',
-        timezone: user.preferences?.timezone || 'UTC',
-        supportEmail: user.email || '',
-      }));
-    }
-  }, [user]);
+  const activeForm = hasLocalEdits ? form : mergedSettings;
+  const isSaving = saveSettingsMutation.isPending || savePreferencesMutation.isPending;
 
-  // Mark dirty on form change
-  useEffect(() => {
-    setDirty(true);
-  }, [form]);
+  const supportEmailError = activeForm.supportEmail.trim().length > 0 && !isValidEmail(activeForm.supportEmail);
+  const mapUrlError = !isValidUrl(activeForm.contactMapUrl);
+  const hasValidationErrors = supportEmailError || mapUrlError;
+  const unreadCount = unreadData?.unreadCount ?? 0;
+  const effectiveNotificationPrefs = hasLocalEdits
+    ? notificationPrefs
+    : {
+      email: user?.preferences?.notifications?.email ?? true,
+      push: user?.preferences?.notifications?.push ?? true,
+    };
+
+  const applyFormPatch = (patch: Partial<SystemSettingsData>) => {
+    setForm((prev) => ({ ...(hasLocalEdits ? prev : activeForm), ...patch }));
+    setHasLocalEdits(true);
+  };
 
   const handleFormChange =
     (field: keyof SystemSettingsData) =>
-    (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-      setForm((prev) => ({ ...prev, [field]: e.target.value }));
+    (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+      applyFormPatch({ [field]: event.target.value } as Partial<SystemSettingsData>);
     };
 
   const handleSelectChange =
     (field: keyof SystemSettingsData) =>
-    (e: SelectChangeEvent) => {
-      setForm((prev) => ({ ...prev, [field]: e.target.value }));
+    (event: SelectChangeEvent) => {
+      applyFormPatch({ [field]: event.target.value } as Partial<SystemSettingsData>);
     };
 
   const handleSave = async () => {
+    if (hasValidationErrors) {
+      setFeedback({ type: 'error', message: 'Fix validation errors before saving changes.' });
+      return;
+    }
+
     try {
-      // Save platform settings
       await saveSettingsMutation.mutateAsync({
-        platformName: form.platformName,
-        supportEmail: form.supportEmail,
+        platformName: activeForm.platformName,
+        supportEmail: activeForm.supportEmail,
+        contactPhone: activeForm.contactPhone,
+        contactAddress: activeForm.contactAddress,
+        contactHours: activeForm.contactHours,
+        contactMapUrl: activeForm.contactMapUrl,
+        contactResponseTime: activeForm.contactResponseTime,
       });
-      // Save user preferences
+
       await savePreferencesMutation.mutateAsync({
-        language: form.language,
-        timezone: form.timezone,
-        themeMode: form.themeMode,
+        language: activeForm.language,
+        timezone: activeForm.timezone,
+        themeMode: activeForm.themeMode,
+        notifications: effectiveNotificationPrefs,
       });
-    } catch (error) {
-      console.error('Failed to save settings', error);
+
+      setFeedback({ type: 'success', message: 'Settings saved successfully.' });
+    } catch {
+      setFeedback({ type: 'error', message: 'Failed to save settings. Please try again.' });
     }
   };
 
-  const handleReset = () => {
-    if (settingsData) {
-      setForm(settingsData);
-    } else {
-      setForm(defaultSettings);
-    }
-    setDirty(false);
+  const handleDiscardChanges = () => {
+    setForm(mergedSettings);
+    setNotificationPrefs({
+      email: user?.preferences?.notifications?.email ?? true,
+      push: user?.preferences?.notifications?.push ?? true,
+    });
+    setHasLocalEdits(false);
+    setFeedback(null);
   };
 
-  const tabs = [
-    { value: 'general', label: 'General', icon: <SettingsIcon /> },
-    { value: 'appearance', label: 'Appearance', icon: <PaletteIcon /> },
-  ];
+  const saveDisabled = !hasLocalEdits || isSaving || isLoading || hasValidationErrors;
+
+  const sectionNav = isDesktop ? (
+    <Card sx={{ ...card, position: 'sticky', top: 88 }}>
+      <List sx={{ p: 1 }}>
+        {sectionItems.map((item) => (
+          <ListItemButton
+            key={item.key}
+            selected={activeSection === item.key}
+            onClick={() => setActiveSection(item.key)}
+            sx={{
+              borderRadius: 2,
+              mb: 0.5,
+              alignItems: 'flex-start',
+              py: 1.25,
+              '&.Mui-selected': {
+                bgcolor: 'background.default',
+                '&:hover': { bgcolor: 'background.default' },
+              },
+            }}
+          >
+            <ListItemText
+              primary={(
+                <Typography sx={{ fontWeight: 700, color: activeSection === item.key ? 'primary.main' : 'text.primary' }}>
+                  {item.label}
+                </Typography>
+              )}
+              secondary={(
+                <Typography variant="caption" sx={{ color: 'text.secondary' }}>
+                  {item.description}
+                </Typography>
+              )}
+            />
+          </ListItemButton>
+        ))}
+      </List>
+    </Card>
+  ) : (
+    <Tabs
+      value={activeSection}
+      onChange={(_, value) => setActiveSection(value)}
+      variant="scrollable"
+      scrollButtons="auto"
+      sx={{
+        minHeight: 44,
+        '& .MuiTab-root': { minHeight: 44, textTransform: 'none', fontWeight: 700 },
+      }}
+      >
+        {sectionItems.map((item) => (
+          <Tab key={item.key} value={item.key} label={item.label} />
+        ))}
+      </Tabs>
+  );
 
   return (
-    <Box sx={{ minHeight: '100%', bgcolor: 'background.default' }}>
-      {/* Header */}
-      <Box
-        sx={{
-          px: { xs: 2, sm: 3, lg: 4 },
-          pt: { xs: 3, lg: 4 },
-          pb: 3,
-          borderBottom: '1px solid #E2E8F0',
-          bgcolor: 'background.paper',
-        }}
-      >
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 2, flexWrap: 'wrap' }}>
-          <Stack spacing={0.5}>
-            <Typography variant="h4" sx={{ fontWeight: 900, letterSpacing: '-0.03em' }}>
-              System Settings
-            </Typography>
-            <Typography variant="body1" sx={{ color: 'text.secondary' }}>
-              Configure your platform preferences
-            </Typography>
-          </Stack>
-          {dirty && (
-            <Box sx={{ display: 'flex', gap: 1.5 }}>
-              <Button variant="outlined" onClick={handleReset} startIcon={<RefreshIcon />} sx={{ borderRadius: 2.5 }}>
-                Discard
-              </Button>
-              <Button
-                variant="contained"
-                onClick={handleSave}
-                startIcon={<SaveIcon />}
-                disabled={saveSettingsMutation.isPending || isLoading}
-                sx={{ borderRadius: 2.5 }}
-              >
-                {saveSettingsMutation.isPending ? 'Saving...' : 'Save Changes'}
-              </Button>
-            </Box>
-          )}
-        </Box>
-      </Box>
+    <DashboardPageFrame
+      title="System Settings"
+      description="Manage profile, account, security, notification, and preference settings with a consistent structure."
+      actions={(
+        <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1} sx={{ width: { xs: '100%', sm: 'auto' } }}>
+          <Button
+            variant="outlined"
+            onClick={() => (hasLocalEdits ? setConfirmDiscardOpen(true) : handleDiscardChanges())}
+            disabled={!hasLocalEdits || isSaving}
+            fullWidth={!isDesktop}
+          >
+            Discard
+          </Button>
+          <Button
+            variant="contained"
+            onClick={handleSave}
+            disabled={saveDisabled}
+            fullWidth={!isDesktop}
+          >
+            {isSaving ? 'Saving...' : 'Save Changes'}
+          </Button>
+        </Stack>
+      )}
+    >
+      {feedback ? (
+        <Alert severity={feedback.type} onClose={() => setFeedback(null)} sx={{ borderRadius: 2 }}>
+          {feedback.message}
+        </Alert>
+      ) : null}
 
-      {/* Tabs */}
-      <Box sx={{ px: { xs: 2, sm: 3, lg: 4 }, pt: 2, borderBottom: '1px solid #E2E8F0', bgcolor: 'background.paper' }}>
-        <Tabs
-          value={activeTab}
-          onChange={(_, value) => setActiveTab(value)}
-          variant="scrollable"
-          scrollButtons="auto"
-          sx={{
-            minHeight: 56,
-            '& .MuiTabs-indicator': {
-              height: 3,
-              borderRadius: '3px 3px 0 0',
-              bgcolor: 'primary.main',
-            },
-            '& .MuiTab-root': {
-              minHeight: 56,
-              textTransform: 'none',
-              fontWeight: 600,
-              fontSize: 15,
-              px: 3,
-              gap: 1,
-              color: 'text.secondary',
-              '&.Mui-selected': {
-                color: 'primary.main',
-              },
-            },
-          }}
-        >
-          {tabs.map((tab) => (
-            <Tab key={tab.value} value={tab.value} label={tab.label} icon={tab.icon} iconPosition="start" />
-          ))}
-        </Tabs>
-      </Box>
+      <Grid container spacing={SPACING.lg} sx={{ alignItems: 'flex-start' }}>
+        <Grid size={{ xs: 12, md: 3 }}>{sectionNav}</Grid>
 
-      {/* Tab Panels */}
-      <Box sx={{ px: { xs: 2, sm: 3, lg: 4 }, pb: 6 }}>
-        <TabPanel value={activeTab} index="general">
-          <Grid container spacing={3}>
-            <Grid size={{ xs: 12, md: 6 }}>
-              <SectionCard title="Platform Information" description="Basic details about your platform" icon={<SettingsIcon />}>
-                <Stack spacing={2.5}>
-                  <TextField
-                    label="Platform Name"
-                    value={form.platformName}
-                    onChange={handleFormChange('platformName')}
-                    fullWidth
-                    sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2.5 } }}
-                  />
-                  <TextField
-                    label="Support Email"
-                    value={form.supportEmail}
-                    onChange={handleFormChange('supportEmail')}
-                    type="email"
-                    fullWidth
-                    sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2.5 } }}
-                  />
-                </Stack>
-              </SectionCard>
-            </Grid>
-
-            <Grid size={{ xs: 12, md: 6 }}>
-              <SectionCard title="User Profile" description="Your personal information" icon={<PersonIcon />}>
-                <Stack spacing={2.5}>
-                  <TextField
-                    label="Email Address"
-                    value={user?.email || ''}
-                    fullWidth
-                    disabled
-                    sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2.5 } }}
-                  />
-                  <TextField
-                    label="Role"
-                    value={user?.role || ''}
-                    fullWidth
-                    disabled
-                    sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2.5 } }}
-                  />
-                </Stack>
-              </SectionCard>
-            </Grid>
-          </Grid>
-        </TabPanel>
-
-        <TabPanel value={activeTab} index="appearance">
-          <Grid container spacing={3}>
-            <Grid size={{ xs: 12, lg: 6 }}>
-              <SectionCard title="Language & Region" description="Localize your platform experience" icon={<LanguageIcon />}>
-                <Stack spacing={2.5}>
-                  <Box>
-                    <InputLabel id="language-select-label">Language</InputLabel>
-                    <Select
-                      labelId="language-select-label"
-                      label="Language"
-                      value={form.language}
-                      onChange={handleSelectChange('language')}
-                      fullWidth
-                      sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2.5 } }}
-                    >
-                      {languageOptions.map((opt) => (
-                        <MenuItem key={opt.value} value={opt.value}>
-                          {opt.label}
-                        </MenuItem>
-                      ))}
-                    </Select>
-                  </Box>
-                  <Box>
-                    <InputLabel id="timezone-select-label">Timezone</InputLabel>
-                    <Select
-                      labelId="timezone-select-label"
-                      label="Timezone"
-                      value={form.timezone}
-                      onChange={handleSelectChange('timezone')}
-                      fullWidth
-                      sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2.5 } }}
-                    >
-                      {timezoneOptions.map((opt) => (
-                        <MenuItem key={opt.value} value={opt.value}>
-                          {opt.label}
-                        </MenuItem>
-                      ))}
-                    </Select>
-                  </Box>
-                </Stack>
-              </SectionCard>
-            </Grid>
-
-            <Grid size={{ xs: 12, lg: 6 }}>
-              <SectionCard title="Theme Preference" description="Choose your interface appearance" icon={<PaletteIcon />}>
-                <Grid container spacing={2}>
-                  {themeOptions.map((option) => (
-                    <Grid size={{ xs: 12, sm: 4 }} key={option.value}>
-                      <Card
-                        onClick={() => setForm((prev) => ({ ...prev, themeMode: option.value }))}
-                        sx={{
-                          cursor: 'pointer',
-                          borderRadius: 3,
-                          border: '2px solid',
-                          borderColor: form.themeMode === option.value ? 'primary.main' : '#E2E8F0',
-                          bgcolor: form.themeMode === option.value ? alpha('#0066FF', 0.04) : 'background.paper',
-                          transition: 'all 160ms ease',
-                          '&:hover': {
-                            transform: 'translateY(-2px)',
-                            boxShadow: '0 8px 24px rgba(0,0,0,0.08)',
-                          },
-                        }}
-                      >
-                        <CardContent sx={{ p: 2, textAlign: 'center' }}>
-                          <Typography sx={{ fontSize: 32, mb: 1 }}>{option.icon}</Typography>
-                          <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>
-                            {option.label}
-                          </Typography>
-                          <Typography variant="caption" sx={{ color: 'text.secondary' }}>
-                            {option.description}
-                          </Typography>
-                        </CardContent>
-                      </Card>
-                    </Grid>
-                  ))}
+        <Grid size={{ xs: 12, md: 9 }}>
+          <Stack spacing={SPACING.lg}>
+            {activeSection === 'profile' ? (
+              <DashboardSection title="Profile" description="Read-only identity details for the signed-in account.">
+                <Grid container spacing={SPACING.md}>
+                  <Grid size={{ xs: 12, sm: 6 }}>
+                    <TextField label="Email Address" value={user?.email || ''} disabled helperText="Managed by your authentication account." />
+                  </Grid>
+                  <Grid size={{ xs: 12, sm: 6 }}>
+                    <TextField label="Role" value={user?.role || ''} disabled helperText="Role permissions are controlled by administrators." />
+                  </Grid>
                 </Grid>
-              </SectionCard>
-            </Grid>
-          </Grid>
-        </TabPanel>
-      </Box>
+              </DashboardSection>
+            ) : null}
 
-      {/* Floating Save Bar */}
-      {dirty && (
+            {activeSection === 'account' ? (
+              <>
+                <DashboardSection
+                  title="Account"
+                  description="Platform and public contact information."
+                  action={(
+                    <Button variant="contained" size="small" onClick={handleSave} disabled={saveDisabled}>
+                      {isSaving ? 'Saving...' : 'Save section'}
+                    </Button>
+                  )}
+                >
+                  <Grid container spacing={SPACING.md}>
+                    <Grid size={{ xs: 12, sm: 6 }}>
+                      <TextField
+                        label="Platform Name"
+                        value={activeForm.platformName}
+                        onChange={handleFormChange('platformName')}
+                        disabled={isLoading || isSaving}
+                        helperText="Displayed across headers and public pages."
+                      />
+                    </Grid>
+                    <Grid size={{ xs: 12, sm: 6 }}>
+                      <TextField
+                        label="Support Email"
+                        value={activeForm.supportEmail}
+                        onChange={handleFormChange('supportEmail')}
+                        disabled={isLoading || isSaving}
+                        error={supportEmailError}
+                        helperText={supportEmailError ? 'Use a valid email address.' : 'Used in contact and system communications.'}
+                      />
+                    </Grid>
+                    <Grid size={{ xs: 12, sm: 6 }}>
+                      <TextField label="Contact Phone" value={activeForm.contactPhone} onChange={handleFormChange('contactPhone')} disabled={isLoading || isSaving} />
+                    </Grid>
+                    <Grid size={{ xs: 12, sm: 6 }}>
+                      <TextField label="Business Hours" value={activeForm.contactHours} onChange={handleFormChange('contactHours')} disabled={isLoading || isSaving} />
+                    </Grid>
+                    <Grid size={{ xs: 12 }}>
+                      <TextField label="Contact Address" value={activeForm.contactAddress} onChange={handleFormChange('contactAddress')} disabled={isLoading || isSaving} />
+                    </Grid>
+                    <Grid size={{ xs: 12, sm: 6 }}>
+                      <TextField label="Expected Response Time" value={activeForm.contactResponseTime} onChange={handleFormChange('contactResponseTime')} disabled={isLoading || isSaving} />
+                    </Grid>
+                    <Grid size={{ xs: 12, sm: 6 }}>
+                      <TextField
+                        label="Map Embed URL"
+                        value={activeForm.contactMapUrl}
+                        onChange={handleFormChange('contactMapUrl')}
+                        disabled={isLoading || isSaving}
+                        error={mapUrlError}
+                        helperText={mapUrlError ? 'Use a full URL starting with http:// or https://.' : 'Optional. Supports Google Maps embed links.'}
+                      />
+                    </Grid>
+                  </Grid>
+                </DashboardSection>
+
+                <DashboardSection title="Danger Zone" description="Destructive account actions are protected by confirmation and backend policies.">
+                  <Stack spacing={SPACING.md}>
+                    <Alert severity="warning" sx={{ borderRadius: 2 }}>
+                      Account deletion is currently disabled in this console and requires administrator workflow.
+                    </Alert>
+                    <Tooltip title="Deletion requires backend approval flow">
+                      <span>
+                        <Button variant="outlined" color="error" disabled>
+                          Delete Account
+                        </Button>
+                      </span>
+                    </Tooltip>
+                  </Stack>
+                </DashboardSection>
+              </>
+            ) : null}
+
+            {activeSection === 'security' ? (
+              <DashboardSection title="Security" description="Security controls are shown for consistency and future expansion.">
+                <FormGroup>
+                  <FormControlLabel
+                    control={<Switch checked disabled />}
+                    label="Require strong passwords"
+                  />
+                  <FormControlLabel
+                    control={<Switch checked disabled />}
+                    label="Enable two-factor authentication (coming soon)"
+                  />
+                  <FormControlLabel
+                    control={<Switch disabled />}
+                    label="Automatic sign-out on inactive sessions (coming soon)"
+                  />
+                </FormGroup>
+                <Typography variant="body2" sx={{ color: 'text.secondary', mt: 1.5 }}>
+                  Security policy management is currently read-only in this UI.
+                </Typography>
+              </DashboardSection>
+            ) : null}
+
+            {activeSection === 'notifications' ? (
+              <DashboardSection
+                title="Notifications"
+                description="Control your delivery preferences and see current unread volume."
+                action={(
+                  <Button variant="contained" size="small" onClick={handleSave} disabled={saveDisabled}>
+                    {isSaving ? 'Saving...' : 'Save section'}
+                  </Button>
+                )}
+              >
+                <Grid container spacing={SPACING.md}>
+                  <Grid size={{ xs: 12, sm: 4 }}>
+                    <Card sx={{ border: '1px solid', borderColor: 'divider', boxShadow: 'none' }}>
+                      <CardContent>
+                        <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                          Unread notifications
+                        </Typography>
+                        <Typography variant="h5" sx={{ fontWeight: 800, color: 'primary.main' }}>
+                          {unreadCount}
+                        </Typography>
+                      </CardContent>
+                    </Card>
+                  </Grid>
+                  <Grid size={{ xs: 12, sm: 8 }}>
+                    <FormGroup>
+                      <FormControlLabel
+                        control={(
+                          <Switch
+                            checked={effectiveNotificationPrefs.email}
+                            onChange={(_, checked) => {
+                              setNotificationPrefs((current) => ({
+                                ...(hasLocalEdits ? current : effectiveNotificationPrefs),
+                                email: checked,
+                              }));
+                              setHasLocalEdits(true);
+                            }}
+                            disabled={isSaving}
+                          />
+                        )}
+                        label="Email notifications"
+                      />
+                      <FormControlLabel
+                        control={(
+                          <Switch
+                            checked={effectiveNotificationPrefs.push}
+                            onChange={(_, checked) => {
+                              setNotificationPrefs((current) => ({
+                                ...(hasLocalEdits ? current : effectiveNotificationPrefs),
+                                push: checked,
+                              }));
+                              setHasLocalEdits(true);
+                            }}
+                            disabled={isSaving}
+                          />
+                        )}
+                        label="Push notifications"
+                      />
+                    </FormGroup>
+                    <Typography variant="body2" sx={{ color: 'text.secondary', mt: 1.5 }}>
+                      Preferences are loaded from your account and saved to your user profile settings.
+                    </Typography>
+                  </Grid>
+                </Grid>
+              </DashboardSection>
+            ) : null}
+
+            {activeSection === 'preferences' ? (
+              <DashboardSection
+                title="Preferences"
+                description="Personalize language, regional defaults, and theme."
+                action={(
+                  <Button variant="contained" size="small" onClick={handleSave} disabled={saveDisabled}>
+                    {isSaving ? 'Saving...' : 'Save section'}
+                  </Button>
+                )}
+              >
+                <Grid container spacing={SPACING.md}>
+                  <Grid size={{ xs: 12, sm: 6 }}>
+                    <FormControl fullWidth disabled={isLoading || isSaving}>
+                      <InputLabel id="language-label">Language</InputLabel>
+                      <Select labelId="language-label" label="Language" value={activeForm.language} onChange={handleSelectChange('language')}>
+                        {languageOptions.map((option) => (
+                          <MenuItem key={option.value} value={option.value}>
+                            {option.label}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
+                  </Grid>
+
+                  <Grid size={{ xs: 12, sm: 6 }}>
+                    <FormControl fullWidth disabled={isLoading || isSaving}>
+                      <InputLabel id="timezone-label">Timezone</InputLabel>
+                      <Select labelId="timezone-label" label="Timezone" value={activeForm.timezone} onChange={handleSelectChange('timezone')}>
+                        {timezoneOptions.map((option) => (
+                          <MenuItem key={option.value} value={option.value}>
+                            {option.label}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
+                  </Grid>
+
+                  <Grid size={{ xs: 12 }}>
+                    <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 1.25 }}>
+                      Theme Mode
+                    </Typography>
+                    <Grid container spacing={SPACING.md}>
+                      {themeOptions.map((option) => (
+                        <Grid key={option.value} size={{ xs: 12, sm: 4 }}>
+                          <Card
+                            onClick={() => applyFormPatch({ themeMode: option.value })}
+                            sx={{
+                              p: 2,
+                              cursor: isLoading || isSaving ? 'not-allowed' : 'pointer',
+                              border: '2px solid',
+                              borderColor: activeForm.themeMode === option.value ? 'primary.main' : 'divider',
+                              bgcolor: activeForm.themeMode === option.value ? 'background.default' : 'background.paper',
+                              opacity: isLoading || isSaving ? 0.7 : 1,
+                              transition: 'border-color 160ms ease, background-color 160ms ease',
+                            }}
+                          >
+                            <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>
+                              {option.label}
+                            </Typography>
+                            <Typography variant="caption" sx={{ color: 'text.secondary' }}>
+                              {option.description}
+                            </Typography>
+                          </Card>
+                        </Grid>
+                      ))}
+                    </Grid>
+                  </Grid>
+                </Grid>
+              </DashboardSection>
+            ) : null}
+          </Stack>
+        </Grid>
+      </Grid>
+
+      <Dialog open={confirmDiscardOpen} onClose={() => setConfirmDiscardOpen(false)}>
+        <DialogTitle>Discard unsaved changes?</DialogTitle>
+        <DialogContent>
+          <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+            Your pending updates will be removed and replaced with the latest saved values.
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setConfirmDiscardOpen(false)}>Cancel</Button>
+          <Button
+            color="error"
+            onClick={() => {
+              handleDiscardChanges();
+              setConfirmDiscardOpen(false);
+            }}
+          >
+            Discard changes
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {!isDesktop && hasLocalEdits ? (
         <Box
           sx={{
             position: 'fixed',
-            bottom: 24,
-            left: '50%',
-            transform: 'translateX(-50%)',
-            zIndex: 1000,
+            left: 16,
+            right: 16,
+            bottom: 16,
+            zIndex: 1200,
           }}
         >
-          <Card
-            sx={{
-              borderRadius: 3,
-              bgcolor: '#0F172A',
-              color: '#FFFFFF',
-              boxShadow: '0 20px 60px rgba(15, 23, 42, 0.3)',
-              border: '1px solid rgba(255,255,255,0.1)',
-            }}
-          >
-            <CardContent sx={{ p: 2 }}>
-              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 2 }}>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-                  <Box
-                    sx={{
-                      width: 10,
-                      height: 10,
-                      borderRadius: '50%',
-                      bgcolor: '#22C55E',
-                    }}
-                  />
-                  <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
-                    Unsaved changes
-                  </Typography>
-                </Box>
-                <Box sx={{ display: 'flex', gap: 1 }}>
-                  <Button size="small" variant="text" onClick={handleReset} sx={{ color: '#FFFFFF' }}>
-                    Discard
-                  </Button>
-                  <Button
-                    size="small"
-                    variant="contained"
-                    onClick={handleSave}
-                    disabled={saveSettingsMutation.isPending}
-                    sx={{
-                      bgcolor: 'primary.main',
-                      '&:hover': { bgcolor: 'primary.dark' },
-                      borderRadius: 2.5,
-                      px: 2.5,
-                    }}
-                  >
-                    {saveSettingsMutation.isPending ? 'Saving...' : 'Save'}
-                  </Button>
-                </Box>
-              </Box>
-            </CardContent>
+          <Card sx={{ ...card, p: 1.25 }}>
+            <Stack direction="row" spacing={1} sx={{ alignItems: 'center', justifyContent: 'space-between' }}>
+              <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                Unsaved changes
+              </Typography>
+              <Stack direction="row" spacing={1}>
+                <Button size="small" variant="text" onClick={() => setConfirmDiscardOpen(true)} disabled={isSaving}>
+                  Discard
+                </Button>
+                <Button size="small" variant="contained" onClick={handleSave} disabled={saveDisabled}>
+                  {isSaving ? 'Saving...' : 'Save'}
+                </Button>
+              </Stack>
+            </Stack>
           </Card>
         </Box>
-      )}
-    </Box>
+      ) : null}
+    </DashboardPageFrame>
   );
 }

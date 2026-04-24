@@ -11,6 +11,24 @@ import { routeParam } from '../utils/route-params';
 
 export const getAssignmentsByCourse = asyncHandler(async (req: Request, res: Response) => {
   const courseId = routeParam(req.params.courseId);
+  const course = await Course.findById(courseId).select('instructor');
+  if (!course) {
+    throw new AppError('Course not found', 404);
+  }
+
+  if (req.user?.role === 'student') {
+    const enrollment = await Enrollment.findOne({ userId: req.user?._id, courseId });
+    if (!enrollment) {
+      throw new AppError('Only enrolled students can view assignments', 403);
+    }
+  } else if (req.user?.role === 'instructor') {
+    if (!course.instructor || course.instructor.toString() !== req.user?._id.toString()) {
+      throw new AppError('Not authorized', 403);
+    }
+  } else if (req.user?.role !== 'admin') {
+    throw new AppError('Not authorized', 403);
+  }
+
   const assignments = await Assignment.find({ courseId }).sort({ createdAt: -1 });
   return res.json(assignments);
 });

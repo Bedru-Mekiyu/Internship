@@ -2,7 +2,14 @@ import express from 'express';
 import { register, login, refreshToken, getMe, verifyEmail, logout, forgotPassword, resetPassword, getCsrfToken } from '../controllers/auth.controller';
 import { authMiddleware } from '../middlewares/auth.middleware';
 import { createRateLimiter } from '../middlewares/rate-limit.middleware';
-import { validationMiddleware, registerSchema, loginSchema, forgotPasswordSchema, resetPasswordSchema } from '../utils/validators';
+import {
+	validationMiddleware,
+	registerSchema,
+	loginSchema,
+	forgotPasswordSchema,
+	resetPasswordSchema,
+	refreshTokenSchema,
+} from '../utils/validators';
 
 const router = express.Router();
 const isProduction = process.env.NODE_ENV === 'production';
@@ -50,8 +57,8 @@ router.post('/forgot-password', forgotPasswordRateLimit, validationMiddleware(fo
 router.post('/forgotpassword', forgotPasswordRateLimit, validationMiddleware(forgotPasswordSchema), forgotPassword);
 router.post('/reset-password', resetPasswordRateLimit, validationMiddleware(resetPasswordSchema), resetPassword);
 router.post('/resetpassword', resetPasswordRateLimit, validationMiddleware(resetPasswordSchema), resetPassword);
-router.post('/refresh-token', refreshRateLimit, refreshToken);
-router.post('/refreshtoken', refreshRateLimit, refreshToken);
+router.post('/refresh-token', refreshRateLimit, validationMiddleware(refreshTokenSchema), refreshToken);
+router.post('/refreshtoken', refreshRateLimit, validationMiddleware(refreshTokenSchema), refreshToken);
 router.get('/verify-email/:token', verifyEmail);
 router.get('/csrf-token', getCsrfToken);
 router.get('/me', authMiddleware, getMe);
