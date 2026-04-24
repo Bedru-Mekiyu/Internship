@@ -14,39 +14,20 @@ export interface ApiErrorPayload {
   code?: string;
 }
 
+type RtkQueryErrorLike = {
+  status?: number | string;
+  data?: unknown;
+  error?: string;
+};
+
 type AuthenticatedRequestConfig = InternalAxiosRequestConfig & {
   skipAuthRefresh?: boolean;
   _retry?: boolean;
 };
 
-const storageKey = 'learnspace.accessToken';
 const csrfCookieName = 'csrfToken';
 
 const getApiBaseUrl = () => resolveApiBaseUrl();
-
-export const getStoredAccessToken = () => {
-  if (typeof window === 'undefined') {
-    return null;
-  }
-
-  return window.localStorage.getItem(storageKey);
-};
-
-export const setStoredAccessToken = (token: string) => {
-  if (typeof window === 'undefined') {
-    return;
-  }
-
-  window.localStorage.setItem(storageKey, token);
-};
-
-export const clearStoredAccessToken = () => {
-  if (typeof window === 'undefined') {
-    return;
-  }
-
-  window.localStorage.removeItem(storageKey);
-};
 
 export const getCookieValue = (cookieName: string) => {
   if (typeof document === 'undefined') {
@@ -127,12 +108,6 @@ const isAuthPath = (url?: string) => {
 };
 
 const applyRequestInterceptors = (config: AuthenticatedRequestConfig) => {
-  const storedToken = getStoredAccessToken();
-
-  if (storedToken) {
-    config.headers.Authorization = `Bearer ${storedToken}`;
-  }
-
   if (isUnsafeMethod(config.method)) {
     const csrfToken = getCsrfToken();
     if (csrfToken) {
@@ -161,16 +136,12 @@ api.interceptors.response.use(
       originalConfig._retry = true;
 
       try {
-        const refreshResponse = await refreshClient.post<{ accessToken?: string }>(
+        await refreshClient.post(
           '/api/auth/refresh-token',
           {},
         );
-        if (typeof refreshResponse.data?.accessToken === 'string' && refreshResponse.data.accessToken) {
-          setStoredAccessToken(refreshResponse.data.accessToken);
-        }
         return api.request(originalConfig);
       } catch (refreshError) {
-        clearStoredAccessToken();
         return Promise.reject(normalizeApiError(refreshError));
       }
     }
@@ -180,16 +151,58 @@ api.interceptors.response.use(
 );
 
 export const normalizeApiError = (error: unknown): ApiErrorPayload => {
+  const statusFallbackMessages: Record<number, string> = {
+    400: 'Please review your input and try again.',
+    401: 'Your session has expired. Please sign in again.',
+    403: 'You do not have permission to perform this action.',
+    404: 'The requested resource was not found.',
+    409: 'This action could not be completed due to a conflict.',
+    413: 'The uploaded file is too large.',
+    422: 'Some fields are invalid. Please check and try again.',
+    429: 'Too many requests. Please wait a moment and try again.',
+    500: 'Something went wrong on our side. Please try again.',
+    502: 'The service is temporarily unavailable. Please try again.',
+    503: 'The service is temporarily unavailable. Please try again.',
+    504: 'The request timed out. Please try again.',
+  };
+
+  const resolveStatusMessage = (status?: number) => {
+    if (!status) {
+      return 'Unable to complete your request right now. Please try again.';
+    }
+    return statusFallbackMessages[status] || 'Unable to complete your request right now. Please try again.';
+  };
+
+  const sanitizeMessage = (message: string | undefined, status?: number) => {
+    const normalized = message?.trim();
+    if (!normalized) {
+      return resolveStatusMessage(status);
+    }
+
+    const lower = normalized.toLowerCase();
+    if (
+      lower === 'network error'
+      || lower.includes('failed to fetch')
+      || lower.includes('timeout')
+      || lower.includes('request failed')
+    ) {
+      return 'Network connection issue. Please check your connection and try again.';
+    }
+
+    return normalized;
+  };
+
   if (axios.isAxiosError<ApiErrorPayload>(error)) {
     const responseData = error.response?.data;
     const responseMessage =
       typeof responseData?.message === 'string'
         ? responseData.message
         : error.message;
+    const status = error.response?.status;
 
     return {
-      message: responseMessage || 'Request failed',
-      status: error.response?.status,
+      message: sanitizeMessage(responseMessage, status),
+      status,
       data: responseData,
       requestId: typeof responseData?.requestId === 'string' ? responseData.requestId : undefined,
       code: typeof responseData?.code === 'string' ? responseData.code : undefined,
@@ -198,12 +211,30 @@ export const normalizeApiError = (error: unknown): ApiErrorPayload => {
 
   if (error instanceof Error) {
     return {
-      message: error.message,
+      message: sanitizeMessage(error.message),
+    };
+  }
+
+  if (error && typeof error === 'object') {
+    const maybeRtk = error as RtkQueryErrorLike;
+    const status = typeof maybeRtk.status === 'number' ? maybeRtk.status : undefined;
+    const data = maybeRtk.data;
+
+    const messageFromData =
+      typeof data === 'object' && data && 'message' in data && typeof (data as { message?: unknown }).message === 'string'
+        ? (data as { message: string }).message
+        : undefined;
+    const fallbackMessage = typeof maybeRtk.error === 'string' ? maybeRtk.error : undefined;
+
+    return {
+      message: sanitizeMessage(messageFromData || fallbackMessage, status),
+      status,
+      data,
     };
   }
 
   return {
-    message: 'Request failed',
+    message: 'Unable to complete your request right now. Please try again.',
   };
 };
 

@@ -6,6 +6,7 @@ import {
   Outlet,
   Route,
   Routes,
+  useLocation,
   useNavigate,
   useSearchParams,
 } from 'react-router-dom';
@@ -96,6 +97,7 @@ function RequireSession() {
 
 function RequireRole({ allowedRoles }: { allowedRoles: LearnSpaceRole[] }) {
   const { user, isLoading } = useAuth();
+  const location = useLocation();
 
   if (isLoading) {
     return (
@@ -113,11 +115,47 @@ function RequireRole({ allowedRoles }: { allowedRoles: LearnSpaceRole[] }) {
   }
 
   if (!user) {
-    return <Navigate to="/auth/login" replace />;
+    return <Navigate to="/auth/login" state={{ from: location.pathname }} replace />;
   }
 
   if (!allowedRoles.includes(user.role)) {
-    return <Navigate to={getLandingRouteForRole(user.role)} replace />;
+    return (
+      <Box sx={{ minHeight: '100vh', display: 'grid', placeItems: 'center', bgcolor: '#F8FAFC' }}>
+        <Card sx={{ maxWidth: 480, borderRadius: 4, boxShadow: '0 4px 20px rgba(0,0,0,0.08)' }}>
+          <CardContent sx={{ p: 4 }}>
+            <Stack spacing={2} sx={{ alignItems: 'center', textAlign: 'center' }}>
+              <Box
+                sx={{
+                  width: 64,
+                  height: 64,
+                  borderRadius: '50%',
+                  bgcolor: alpha('#F44336', 0.1),
+                  display: 'grid',
+                  placeItems: 'center',
+                  color: 'error.main',
+                }}
+              >
+                <LockOutlined sx={{ fontSize: 32 }} />
+              </Box>
+              <Typography variant="h5" sx={{ fontWeight: 800, color: 'text.primary' }}>
+                Access Denied
+              </Typography>
+              <Typography variant="body1" sx={{ color: 'text.secondary' }}>
+                You do not have permission to access this page.
+              </Typography>
+              <Button
+                component={RouterLink}
+                to={getLandingRouteForRole(user.role)}
+                variant="contained"
+                sx={{ mt: 1, px: 3, py: 1.2, borderRadius: 3 }}
+              >
+                Go to Dashboard
+              </Button>
+            </Stack>
+          </CardContent>
+        </Card>
+      </Box>
+    );
   }
 
   return <Outlet />;
@@ -257,34 +295,6 @@ function LearnSpaceBrandMark() {
           d="M6.5 12.5c0-1.1.9-2 2-2h1.5v1.5H8.5a.5.5 0 0 0-.5.5v4.5c0 .28.22.5.5.5h7c.28 0 .5-.22.5-.5V12.5a.5.5 0 0 0-.5-.5H14V10.5h1.5c1.1 0 2 .9 2 2v4.5c0 1.1-.9 2-2 2h-7c-1.1 0-2-.9-2-2v-4.5Z"
         />
       </Box>
-    </Box>
-  );
-}
-
-function GoogleIcon() {
-  return (
-    <Box
-      component="svg"
-      viewBox="0 0 24 24"
-      sx={{ width: 18, height: 18, flexShrink: 0 }}
-      aria-hidden="true"
-    >
-      <path
-        fill="#EA4335"
-        d="M12 10.2v3.95h5.62c-.24 1.25-1 2.32-2.07 3.04v2.52h3.35c1.96-1.8 3.1-4.46 3.1-7.64 0-.74-.07-1.46-.2-2.13H12Z"
-      />
-      <path
-        fill="#4285F4"
-        d="M12 23c2.64 0 4.85-.88 6.47-2.39l-3.35-2.52c-.93.63-2.11 1.01-3.12 1.01-2.4 0-4.43-1.62-5.16-3.8H3.35v2.6A10 10 0 0 0 12 23Z"
-      />
-      <path
-        fill="#FBBC05"
-        d="M6.84 15.3a6 6 0 0 1 0-3.6v-2.6H3.35a10 10 0 0 0 0 8.8l3.49-2.6Z"
-      />
-      <path
-        fill="#34A853"
-        d="M12 5.02c1.44 0 2.73.5 3.75 1.47l2.81-2.81A9.66 9.66 0 0 0 12 1a10 10 0 0 0-8.65 5.7l3.49 2.6C7.57 6.64 9.6 5.02 12 5.02Z"
-      />
     </Box>
   );
 }
@@ -647,6 +657,17 @@ function PublicAuthPage() {
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setErrorMessage('');
+
+    // Client-side validation
+    if (!formValues.email || !formValues.email.trim()) {
+      setErrorMessage('Email is required');
+      return;
+    }
+    if (!formValues.password) {
+      setErrorMessage('Password is required');
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
@@ -1745,9 +1766,6 @@ function NotificationSocketBridge() {
     }
 
     const socket = createAuthenticatedSocket();
-    if (!socket) {
-      return undefined;
-    }
 
     const onNotification = () => {
       void queryClient.invalidateQueries({ queryKey: ['notifications', 'me'] });

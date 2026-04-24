@@ -29,9 +29,6 @@ import {
   Typography,
 } from '@mui/material';
 import {
-  AddOutlined,
-  DeleteOutlined,
-  SaveOutlined,
   SearchOutlined,
 } from '@mui/icons-material';
 import { alpha } from '@mui/material/styles';

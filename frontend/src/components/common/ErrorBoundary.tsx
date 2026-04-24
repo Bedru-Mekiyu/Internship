@@ -1,5 +1,6 @@
 import { Component, type ErrorInfo, type ReactNode } from 'react';
 import { Box, Button, Stack, Typography } from '@mui/material';
+import { normalizeApiError } from '../../services/api';
 
 interface Props {
   children: ReactNode;
@@ -34,6 +35,7 @@ export default class ErrorBoundary extends Component<Props, State> {
 
   override render() {
     if (this.state.hasError && this.state.error) {
+      const errorMessage = normalizeApiError(this.state.error).message;
       return (
         <Box
           sx={{
@@ -49,7 +51,7 @@ export default class ErrorBoundary extends Component<Props, State> {
               Something went wrong
             </Typography>
             <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-              {this.state.error.message || 'An unexpected error occurred. You can reload the app or return home.'}
+              {errorMessage || 'We hit an unexpected issue. You can reload the app and continue.'}
             </Typography>
             <Button variant="contained" onClick={this.handleReload} sx={{ alignSelf: 'center' }}>
               Reload LearnSpace

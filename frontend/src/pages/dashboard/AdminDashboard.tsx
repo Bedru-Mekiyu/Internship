@@ -409,6 +409,10 @@ export default function AdminDashboard() {
                                       width: 34, height: 34,
                                       bgcolor: 'background.default',
                                       color: 'text.primary',
+
+
+
+
                                       fontWeight: 800,
                                       fontSize: '0.75rem',
                                       borderRadius: 1.25,
