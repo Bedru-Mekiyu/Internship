@@ -36,7 +36,6 @@ import { useQueryClient } from '@tanstack/react-query';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { api, ensureCsrfToken, normalizeApiError } from './services/api';
 import { useGetCoursesQuery } from './store/api/courseApi';
-import ThemeRouteProvider from './components/common/ThemeRouteProvider';
 import { createAuthenticatedSocket } from './services/realtimeSocket';
 import { theme } from './theme';
 import LearnSpaceShell from './routes/LearnSpaceShell';
@@ -1887,9 +1886,7 @@ function App() {
   return (
     <AuthProvider>
       <BrowserRouter>
-        <ThemeRouteProvider>
-          <AppRoutes />
-        </ThemeRouteProvider>
+        <AppRoutes />
       </BrowserRouter>
     </AuthProvider>
   );
