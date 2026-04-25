@@ -1,62 +1,62 @@
 import { alpha, createTheme, type Theme } from '@mui/material/styles';
 
-const baseShadow = '0 8px 24px rgba(15, 23, 42, 0.05)';
+export type ThemeMode = 'light' | 'dark' | 'system';
 
-const shadows = [
-  'none',
-  '0 1px 2px rgba(15, 23, 42, 0.03)',
-  '0 2px 4px rgba(15, 23, 42, 0.04)',
-  baseShadow,
-  '0 10px 28px rgba(15, 23, 42, 0.06)',
-  '0 12px 32px rgba(15, 23, 42, 0.07)',
-  '0 14px 36px rgba(15, 23, 42, 0.07)',
-  '0 16px 40px rgba(15, 23, 42, 0.08)',
-  '0 18px 44px rgba(15, 23, 42, 0.08)',
-  '0 20px 48px rgba(15, 23, 42, 0.09)',
-  '0 22px 52px rgba(15, 23, 42, 0.09)',
-  '0 24px 56px rgba(15, 23, 42, 0.1)',
-  '0 26px 60px rgba(15, 23, 42, 0.1)',
-  '0 28px 64px rgba(15, 23, 42, 0.11)',
-  '0 30px 68px rgba(15, 23, 42, 0.11)',
-  '0 32px 72px rgba(15, 23, 42, 0.12)',
-  '0 34px 76px rgba(15, 23, 42, 0.12)',
-  '0 36px 80px rgba(15, 23, 42, 0.13)',
-  '0 38px 84px rgba(15, 23, 42, 0.13)',
-  '0 40px 88px rgba(15, 23, 42, 0.14)',
-  '0 42px 92px rgba(15, 23, 42, 0.14)',
-  '0 44px 96px rgba(15, 23, 42, 0.15)',
-  '0 46px 100px rgba(15, 23, 42, 0.15)',
-  '0 48px 104px rgba(15, 23, 42, 0.16)',
-] as unknown as Theme['shadows'];
-
-const adminTheme = createTheme({
+const getBaseTheme = (mode: 'light' | 'dark') => createTheme({
   palette: {
-    mode: 'light',
-    primary: {
-      main: '#0066FF',
-      dark: '#0052CC',
-      light: '#4D94FF',
-      contrastText: '#FFFFFF',
-    },
-    secondary: {
-      main: '#6366F1',
-      dark: '#4F46E5',
-      light: '#818CF8',
-      contrastText: '#FFFFFF',
-    },
-    background: {
-      default: '#F8FAFC',
-      paper: '#FFFFFF',
-    },
-    text: {
-      primary: '#1E2937',
-      secondary: '#64748B',
-    },
+    mode,
+    ...(mode === 'light'
+      ? {
+          primary: {
+            main: '#0066FF',
+            dark: '#0052CC',
+            light: '#4D94FF',
+            contrastText: '#FFFFFF',
+          },
+          secondary: {
+            main: '#6366F1',
+            dark: '#4F46E5',
+            light: '#818CF8',
+            contrastText: '#FFFFFF',
+          },
+          background: {
+            default: '#F8FAFC',
+            paper: '#FFFFFF',
+          },
+          text: {
+            primary: '#1E2937',
+            secondary: '#64748B',
+          },
+          divider: '#E2E8F0',
+        }
+      : {
+          primary: {
+            main: '#60A5FA',
+            dark: '#3B82F6',
+            light: '#93C5FD',
+            contrastText: '#0F172A',
+          },
+          secondary: {
+            main: '#818CF8',
+            dark: '#6366F1',
+            light: '#A5B4FC',
+            contrastText: '#0F172A',
+          },
+          background: {
+            default: '#0F172A',
+            paper: '#1E293B',
+          },
+          text: {
+            primary: '#F1F5F9',
+            secondary: '#94A3B8',
+          },
+          divider: '#334155',
+        }),
     success: {
       main: '#10B981',
       dark: '#059669',
       light: '#34D399',
-      contrastText: '#FFFFFF',
+      contrastText: mode === 'light' ? '#FFFFFF' : '#0F172A',
     },
     error: {
       main: '#EF4444',
@@ -68,15 +68,14 @@ const adminTheme = createTheme({
       main: '#F59E0B',
       dark: '#D97706',
       light: '#FBBF24',
-      contrastText: '#FFFFFF',
+      contrastText: mode === 'light' ? '#0F172A' : '#FFFFFF',
     },
     info: {
-      main: '#0066FF',
-      dark: '#0052CC',
-      light: '#4D94FF',
-      contrastText: '#FFFFFF',
+      main: '#60A5FA',
+      dark: '#3B82F6',
+      light: '#93C5FD',
+      contrastText: '#0F172A',
     },
-    divider: '#E2E8F0',
   },
   typography: {
     fontFamily: ['Inter', 'system-ui', 'sans-serif'].join(','),
@@ -93,7 +92,6 @@ const adminTheme = createTheme({
   shape: {
     borderRadius: 14,
   },
-  shadows,
   components: {
     MuiCssBaseline: {
       styleOverrides: {
@@ -104,8 +102,8 @@ const adminTheme = createTheme({
         body: {
           width: '100%',
           minHeight: '100%',
-          backgroundColor: '#F8FAFC',
-          color: '#1E2937',
+          backgroundColor: mode === 'light' ? '#F8FAFC' : '#0F172A',
+          color: mode === 'light' ? '#1E2937' : '#F1F5F9',
         },
         '#root': {
           minHeight: '100vh',
@@ -142,7 +140,7 @@ const adminTheme = createTheme({
           },
         },
         outlined: {
-          borderColor: '#CBD5E1',
+          borderColor: mode === 'light' ? '#CBD5E1' : '#475569',
           '&:hover': {
             borderColor: '#0066FF',
             backgroundColor: alpha('#0066FF', 0.04),
@@ -154,8 +152,8 @@ const adminTheme = createTheme({
       styleOverrides: {
         root: {
           borderRadius: 14,
-          boxShadow: baseShadow,
-          border: '1px solid rgba(226, 232, 240, 0.82)',
+          boxShadow: mode === 'light' ? '0 8px 24px rgba(15, 23, 42, 0.05)' : '0 8px 24px rgba(0, 0, 0, 0.3)',
+          border: `1px solid ${mode === 'light' ? 'rgba(226, 232, 240, 0.82)' : 'rgba(51, 65, 85, 0.5)'}`,
           backgroundImage: 'none',
         },
       },
@@ -173,10 +171,10 @@ const adminTheme = createTheme({
     MuiAppBar: {
       styleOverrides: {
         root: {
-          backgroundColor: alpha('#FFFFFF', 0.96),
-          color: '#1E2937',
+          backgroundColor: alpha(mode === 'light' ? '#FFFFFF' : '#1E293B', 0.96),
+          color: mode === 'light' ? '#1E2937' : '#F1F5F9',
           boxShadow: 'none',
-          borderBottom: '1px solid rgba(226, 232, 240, 0.82)',
+          borderBottom: `1px solid ${mode === 'light' ? 'rgba(226, 232, 240, 0.82)' : 'rgba(51, 65, 85, 0.5)'}`,
           backdropFilter: 'blur(16px)',
         },
       },
@@ -184,8 +182,8 @@ const adminTheme = createTheme({
     MuiDrawer: {
       styleOverrides: {
         paper: {
-          backgroundColor: '#FFFFFF',
-          borderRight: '1px solid rgba(226, 232, 240, 0.82)',
+          backgroundColor: mode === 'light' ? '#FFFFFF' : '#1E293B',
+          borderRight: `1px solid ${mode === 'light' ? 'rgba(226, 232, 240, 0.82)' : 'rgba(51, 65, 85, 0.5)'}`,
           backgroundImage: 'none',
         },
       },
@@ -199,12 +197,12 @@ const adminTheme = createTheme({
         root: {
           '& .MuiOutlinedInput-root': {
             borderRadius: 12,
-            backgroundColor: '#FFFFFF',
+            backgroundColor: mode === 'light' ? '#FFFFFF' : '#1E293B',
             '& fieldset': {
-              borderColor: '#CBD5E1',
+              borderColor: mode === 'light' ? '#CBD5E1' : '#475569',
             },
             '&:hover fieldset': {
-              borderColor: '#94A3B8',
+              borderColor: mode === 'light' ? '#94A3B8' : '#64748B',
             },
             '&.Mui-focused fieldset': {
               borderColor: '#0066FF',
@@ -233,28 +231,60 @@ const adminTheme = createTheme({
   },
 });
 
-export const learnTheme = createTheme(adminTheme, {
-  palette: {
-    primary: {
-      main: '#5D5FEF',
-      dark: '#4B4EE0',
-      light: '#7B7EF7',
-      contrastText: '#FFFFFF',
-    },
-    info: {
-      main: '#5D5FEF',
-      dark: '#4B4EE0',
-      light: '#7B7EF7',
-      contrastText: '#FFFFFF',
-    },
-  },
-});
+export const lightTheme = getBaseTheme('light');
+export const darkTheme = getBaseTheme('dark');
 
-export const theme = learnTheme;
-
-export function themeForPath(pathname: string): Theme {
-  if (pathname.startsWith('/admin') || pathname.startsWith('/cms')) {
-    return adminTheme;
+export function getTheme(mode: ThemeMode): Theme {
+  if (mode === 'system') {
+    if (typeof window !== 'undefined') {
+      return window.matchMedia('(prefers-color-scheme: dark)').matches ? darkTheme : lightTheme;
+    }
+    return lightTheme;
   }
-  return learnTheme;
+  return mode === 'dark' ? darkTheme : lightTheme;
+}
+
+export function getAdminTheme(mode: ThemeMode): Theme {
+  const baseTheme = getTheme(mode);
+  return createTheme(baseTheme, {
+    palette: {
+      ...baseTheme.palette,
+      primary: baseTheme.palette.mode === 'dark'
+        ? { main: '#60A5FA', dark: '#3B82F6', light: '#93C5FD', contrastText: '#0F172A' }
+        : { main: '#0066FF', dark: '#0052CC', light: '#4D94FF', contrastText: '#FFFFFF' },
+      info: baseTheme.palette.mode === 'dark'
+        ? { main: '#60A5FA', dark: '#3B82F6', light: '#93C5FD', contrastText: '#0F172A' }
+        : { main: '#0066FF', dark: '#0052CC', light: '#4D94FF', contrastText: '#FFFFFF' },
+    },
+  });
+}
+
+export function getLearnTheme(mode: ThemeMode): Theme {
+  const baseTheme = getTheme(mode);
+  return createTheme(baseTheme, {
+    palette: {
+      ...baseTheme.palette,
+      primary: {
+        main: '#5D5FEF',
+        dark: '#4B4EE0',
+        light: '#7B7EF7',
+        contrastText: '#FFFFFF',
+      },
+      info: {
+        main: '#5D5FEF',
+        dark: '#4B4EE0',
+        light: '#7B7EF7',
+        contrastText: '#FFFFFF',
+      },
+    },
+  });
+}
+
+export const theme = lightTheme;
+
+export function themeForPath(pathname: string, mode: ThemeMode = 'light'): Theme {
+  if (pathname.startsWith('/admin') || pathname.startsWith('/cms')) {
+    return getAdminTheme(mode);
+  }
+  return getLearnTheme(mode);
 }
