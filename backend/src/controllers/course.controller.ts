@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+<<<<<<< HEAD
 import mongoose from 'mongoose';
 import { Course } from '../models/Course.model';
 import { Enrollment } from '../models/Enrollment.model';
@@ -44,6 +45,35 @@ const ensureCourseCompletionNotification = async (userId: string, courseTitle: s
 
 const ensureOwnedCourse = async (courseId: string, user: Request['user']) => {
   const course = await Course.findById(courseId);
+=======
+import { Course } from '../models/Course.model';
+import { Enrollment } from '../models/Enrollment.model';
+import { AppError } from '../utils/http-error';
+import { asyncHandler } from '../utils/async-handler';
+
+export const getCourses = asyncHandler(async (_req: Request, res: Response) => {
+  const courses = await Course.find({ status: 'published' }).populate('instructor');
+  return res.json(courses);
+});
+
+export const getCourseById = asyncHandler(async (req: Request, res: Response) => {
+  const course = await Course.findById(req.params.id).populate('instructor modules');
+  if (!course) {
+    throw new AppError('Course not found', 404);
+  }
+
+  return res.json(course);
+});
+
+export const createCourse = asyncHandler(async (req: Request, res: Response) => {
+  const course = new Course({ ...req.body, instructor: req.user?._id });
+  await course.save();
+  return res.status(201).json(course);
+});
+
+export const updateCourse = asyncHandler(async (req: Request, res: Response) => {
+  const course = await Course.findById(req.params.id);
+>>>>>>> 31387e7bb68b73d2fb420b5f160e50993bcbdede
   if (!course) {
     throw new AppError('Course not found', 404);
   }
@@ -52,6 +82,7 @@ const ensureOwnedCourse = async (courseId: string, user: Request['user']) => {
     throw new AppError('Invalid course instructor', 400);
   }
 
+<<<<<<< HEAD
   if (!user?._id) {
     throw new AppError('No token provided', 401);
   }
@@ -274,10 +305,23 @@ export const getCourses = asyncHandler(async (req: Request, res: Response) => {
 
 export const getCourseById = asyncHandler(async (req: Request, res: Response) => {
   const course = await Course.findById(routeParam(req.params.id));
+=======
+  if (req.user?.role !== 'admin' && course.instructor.toString() !== req.user?._id.toString()) {
+    throw new AppError('Not authorized', 403);
+  }
+
+  const updated = await Course.findByIdAndUpdate(req.params.id, req.body, { new: true });
+  return res.json(updated);
+});
+
+export const deleteCourse = asyncHandler(async (req: Request, res: Response) => {
+  const course = await Course.findById(req.params.id);
+>>>>>>> 31387e7bb68b73d2fb420b5f160e50993bcbdede
   if (!course) {
     throw new AppError('Course not found', 404);
   }
 
+<<<<<<< HEAD
   await ensureCourseDetailAccess(course, req.user);
   await course.populate([
     { path: 'instructor', select: publicInstructorSelect },
@@ -333,10 +377,22 @@ export const deleteCourse = asyncHandler(async (req: Request, res: Response) => 
 
   void bumpCourseCatalogCacheVersion();
 
+=======
+  if (!course.instructor) {
+    throw new AppError('Invalid course instructor', 400);
+  }
+
+  if (req.user?.role !== 'admin' && course.instructor.toString() !== req.user?._id.toString()) {
+    throw new AppError('Not authorized', 403);
+  }
+
+  await Course.findByIdAndDelete(req.params.id);
+>>>>>>> 31387e7bb68b73d2fb420b5f160e50993bcbdede
   return res.json({ message: 'Deleted' });
 });
 
 export const enrollCourse = asyncHandler(async (req: Request, res: Response) => {
+<<<<<<< HEAD
   const course = await Course.findById(routeParam(req.params.id));
   if (!course) {
     throw new AppError('Course not found', 404);
@@ -385,39 +441,61 @@ export const enrollCourse = asyncHandler(async (req: Request, res: Response) => 
   });
   void bumpCourseCatalogCacheVersion();
 
+=======
+  const enrollment = new Enrollment({ userId: req.user?._id, courseId: req.params.id });
+  await enrollment.save();
+>>>>>>> 31387e7bb68b73d2fb420b5f160e50993bcbdede
   return res.json({ message: 'Enrolled' });
 });
 
 export const getCourseProgress = asyncHandler(async (req: Request, res: Response) => {
+<<<<<<< HEAD
   const enrollment = await Enrollment.findOne({ userId: req.user?._id, courseId: routeParam(req.params.id) });
+=======
+  const enrollment = await Enrollment.findOne({ userId: req.user?._id, courseId: req.params.id });
+>>>>>>> 31387e7bb68b73d2fb420b5f160e50993bcbdede
   if (!enrollment) {
     throw new AppError('Enrollment not found', 404);
   }
 
+<<<<<<< HEAD
   const modules = await Module.find({ courseId: routeParam(req.params.id) }).select('_id lessons');
   const totalLessons = modules.reduce((sum, moduleItem: any) => sum + ((moduleItem.lessons || []).length), 0);
   const completedLessonIds = (enrollment.completedLessons || []).map((lessonId: any) => lessonId.toString());
 
+=======
+>>>>>>> 31387e7bb68b73d2fb420b5f160e50993bcbdede
   return res.json({
     courseId: enrollment.courseId,
     progress: enrollment.progress,
     status: enrollment.status,
     enrolledAt: enrollment.enrolledAt,
     completedAt: enrollment.completedAt,
+<<<<<<< HEAD
     completedLessons: completedLessonIds,
     completedLessonsCount: completedLessonIds.length,
     totalLessons,
+=======
+>>>>>>> 31387e7bb68b73d2fb420b5f160e50993bcbdede
   });
 });
 
 export const createCourseReview = asyncHandler(async (req: Request, res: Response) => {
   const { rating, comment } = req.body;
+<<<<<<< HEAD
   const course = await Course.findById(routeParam(req.params.id));
+=======
+  const course = await Course.findById(req.params.id);
+>>>>>>> 31387e7bb68b73d2fb420b5f160e50993bcbdede
   if (!course) {
     throw new AppError('Course not found', 404);
   }
 
+<<<<<<< HEAD
   const enrollment = await Enrollment.findOne({ userId: req.user?._id, courseId: routeParam(req.params.id) });
+=======
+  const enrollment = await Enrollment.findOne({ userId: req.user?._id, courseId: req.params.id });
+>>>>>>> 31387e7bb68b73d2fb420b5f160e50993bcbdede
   if (!enrollment) {
     throw new AppError('Only enrolled students can review this course', 403);
   }
@@ -448,12 +526,16 @@ export const createCourseReview = asyncHandler(async (req: Request, res: Respons
   });
   course.set('updatedAt', new Date());
   await course.save();
+<<<<<<< HEAD
   void bumpCourseCatalogCacheVersion();
+=======
+>>>>>>> 31387e7bb68b73d2fb420b5f160e50993bcbdede
 
   return res.status(201).json({
     message: existingReview ? 'Review updated' : 'Review submitted',
     rating: course.get('rating'),
   });
+<<<<<<< HEAD
 });
 
 export const getCourseModules = asyncHandler(async (req: Request, res: Response) => {
@@ -744,3 +826,6 @@ export const reorderLessons = asyncHandler(async (req: Request, res: Response) =
 
   res.status(200).json({ message: 'Lessons reordered successfully', lessons: normalizedRequestedIds });
 });
+=======
+});
+>>>>>>> 31387e7bb68b73d2fb420b5f160e50993bcbdede

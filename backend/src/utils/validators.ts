@@ -6,6 +6,10 @@ export const registerSchema = Joi.object({
   password: Joi.string().min(8).max(128).required(),
   firstName: Joi.string().trim().min(2).max(50).required(),
   lastName: Joi.string().trim().min(2).max(50).required(),
+<<<<<<< HEAD
+=======
+  role: Joi.string().valid('student', 'instructor', 'admin', 'content_manager').default('student'),
+>>>>>>> 31387e7bb68b73d2fb420b5f160e50993bcbdede
 });
 
 export const loginSchema = Joi.object({
@@ -14,7 +18,11 @@ export const loginSchema = Joi.object({
 });
 
 export const refreshTokenSchema = Joi.object({
+<<<<<<< HEAD
   refreshToken: Joi.string().trim().pattern(/^[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+$/).optional(),
+=======
+  refreshToken: Joi.string().trim().pattern(/^[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+$/).required(),
+>>>>>>> 31387e7bb68b73d2fb420b5f160e50993bcbdede
 });
 
 export const forgotPasswordSchema = Joi.object({
@@ -26,6 +34,7 @@ export const resetPasswordSchema = Joi.object({
   password: Joi.string().min(8).max(128).required(),
 });
 
+<<<<<<< HEAD
 export const contactCreateSchema = Joi.object({
   fullName: Joi.string().trim().min(2).max(120).required(),
   email: Joi.string().trim().lowercase().email().max(254).required(),
@@ -42,10 +51,13 @@ export const contactStatusSchema = Joi.object({
   reviewNotes: Joi.string().trim().allow('').max(2000).optional(),
 });
 
+=======
+>>>>>>> 31387e7bb68b73d2fb420b5f160e50993bcbdede
 export const courseSchema = Joi.object({
   title: Joi.string().required(),
   slug: Joi.string().required(),
   description: Joi.string().required(),
+<<<<<<< HEAD
   shortDescription: Joi.string().allow('').optional(),
   thumbnail: Joi.string().uri().allow('').optional(),
   instructor: Joi.string().optional(), // ObjectId, but validate as string
@@ -57,6 +69,14 @@ export const courseSchema = Joi.object({
     type: Joi.string().valid('free', 'paid', 'subscription').optional(),
     amount: Joi.number().default(0),
     currency: Joi.string().max(8).optional(),
+=======
+  instructor: Joi.string().optional(), // ObjectId, but validate as string
+  category: Joi.string().required(),
+  level: Joi.string().valid('beginner', 'intermediate', 'advanced').optional(),
+  pricing: Joi.object({
+    type: Joi.string().valid('free', 'paid', 'subscription').optional(),
+    amount: Joi.number().default(0),
+>>>>>>> 31387e7bb68b73d2fb420b5f160e50993bcbdede
   }).optional(),
 });
 
@@ -65,6 +85,7 @@ export const courseReviewSchema = Joi.object({
   comment: Joi.string().trim().max(1000).allow('').optional(),
 });
 
+<<<<<<< HEAD
 export const moduleSchema = Joi.object({
   title: Joi.string().trim().min(2).max(120).required(),
   description: Joi.string().trim().allow('').max(2000).optional(),
@@ -295,6 +316,14 @@ export const contentSchema = Joi.object({
 
 export const mediaRenameSchema = Joi.object({
   originalName: Joi.string().trim().min(1).max(255).required(),
+=======
+export const contentSchema = Joi.object({
+  type: Joi.string().valid('page', 'post', 'block').optional(),
+  title: Joi.string().required(),
+  content: Joi.string().required(),
+  slug: Joi.string().optional(),
+  status: Joi.string().valid('draft', 'published').default('draft'),
+>>>>>>> 31387e7bb68b73d2fb420b5f160e50993bcbdede
 });
 
 export const validationMiddleware = (schema: Joi.ObjectSchema) => {
@@ -314,4 +343,8 @@ export const validationMiddleware = (schema: Joi.ObjectSchema) => {
     req.body = value;
     next();
   };
+<<<<<<< HEAD
 };
+=======
+};
+>>>>>>> 31387e7bb68b73d2fb420b5f160e50993bcbdede
