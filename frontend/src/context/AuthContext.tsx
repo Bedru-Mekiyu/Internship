@@ -36,6 +36,7 @@ export interface AuthUser {
       email?: boolean;
       push?: boolean;
     };
+    themeMode?: 'light' | 'dark' | 'system';
   };
   isActive?: boolean;
   createdAt?: string;
