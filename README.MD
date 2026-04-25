@@ -61,6 +61,7 @@ By completing this project, interns master:
 - [x] Rate limiting on sensitive auth endpoints
 - [x] Route-level backend tests with Supertest/Jest
 
+<<<<<<< HEAD
 ## Week 5–6 (Frontend Foundation)
 
 - [x] React app routed with protected pages (`/auth`, `/dashboard`, `/courses`, `/cms`)
@@ -98,6 +99,11 @@ By completing this project, interns master:
 
 ---
 
+=======
+---
+
+# 🏗 System Architecture
+>>>>>>> 31387e7bb68b73d2fb420b5f160e50993bcbdede
 
 The application follows a **Modular Monolith (Microservices-Inspired)** architecture.
 

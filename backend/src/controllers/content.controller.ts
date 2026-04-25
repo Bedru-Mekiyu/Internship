@@ -1,13 +1,17 @@
 import { Request, Response } from 'express';
+<<<<<<< HEAD
 import { S3Client, DeleteObjectCommand, PutObjectCommand } from '@aws-sdk/client-s3';
 import path from 'path';
 import { randomUUID } from 'crypto';
 import { rm } from 'fs/promises';
 import mongoose from 'mongoose';
+=======
+>>>>>>> 31387e7bb68b73d2fb420b5f160e50993bcbdede
 import { Content } from '../models/Content.model';
 import { Media } from '../models/Media.model';
 import { asyncHandler } from '../utils/async-handler';
 import { AppError } from '../utils/http-error';
+<<<<<<< HEAD
 import { requireEnv } from '../utils/env';
 import { routeParam } from '../utils/route-params';
 import { safeRegexFragment } from '../utils/safe-regex';
@@ -48,11 +52,20 @@ export const getManagedContents = asyncHandler(async (req: Request, res: Respons
   }
 
   const contents = await Content.find(filters).sort({ updatedAt: -1 });
+=======
+
+export const getContents = asyncHandler(async (_req: Request, res: Response) => {
+  const contents = await Content.find();
+>>>>>>> 31387e7bb68b73d2fb420b5f160e50993bcbdede
   return res.json(contents);
 });
 
 export const getContentBySlug = asyncHandler(async (req: Request, res: Response) => {
+<<<<<<< HEAD
   const content = await Content.findOne({ slug: req.params.slug, status: 'published' });
+=======
+  const content = await Content.findOne({ slug: req.params.slug });
+>>>>>>> 31387e7bb68b73d2fb420b5f160e50993bcbdede
   if (!content) {
     throw new AppError('Not found', 404);
   }
@@ -108,6 +121,7 @@ export const uploadMedia = asyncHandler(async (req: Request, res: Response) => {
     throw new AppError('No file', 400);
   }
 
+<<<<<<< HEAD
   let fileUrl = `/uploads/${file.filename}`;
   let fileName = file.filename;
 
@@ -137,6 +151,14 @@ export const uploadMedia = asyncHandler(async (req: Request, res: Response) => {
     mimetype: file.mimetype,
     size: file.size,
     url: fileUrl,
+=======
+  const media = new Media({
+    filename: file.filename || file.key,
+    originalName: file.originalname,
+    mimetype: file.mimetype,
+    size: file.size,
+    url: process.env.STORAGE_TYPE === 's3' ? file.location : `/uploads/${file.filename}`,
+>>>>>>> 31387e7bb68b73d2fb420b5f160e50993bcbdede
   });
   await media.save();
 
@@ -144,6 +166,7 @@ export const uploadMedia = asyncHandler(async (req: Request, res: Response) => {
 });
 
 export const getMedia = asyncHandler(async (_req: Request, res: Response) => {
+<<<<<<< HEAD
   const media = await Media.find().sort({ createdAt: -1 });
   return res.json(media);
 });
@@ -223,3 +246,8 @@ export const renameMedia = asyncHandler(async (req: Request, res: Response) => {
 
   return res.json(media);
 });
+=======
+  const media = await Media.find();
+  return res.json(media);
+});
+>>>>>>> 31387e7bb68b73d2fb420b5f160e50993bcbdede
