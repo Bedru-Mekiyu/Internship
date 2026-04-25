@@ -1,45 +1,24 @@
-.env
-<<<<<<< HEAD
-node_modules
-=======
-node_modules    
->>>>>>> 31387e7bb68b73d2fb420b5f160e50993bcbdede
-
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
-
-# dependencies
-/node_modules
-/.pnp
-.pnp.js
-
-# testing
-/coverage
-
-# production
-/build
-<<<<<<< HEAD
-backend/dist/
-frontend/dist/
-
-# runtime uploads and local artifacts
-backend/uploads/
-frontend/test-results/
-frontend/playwright-report/
-=======
->>>>>>> 31387e7bb68b73d2fb420b5f160e50993bcbdede
-
-# misc
-.DS_Store
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
-
+# Logs
+logs
+*.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-<<<<<<< HEAD
-=======
+pnpm-debug.log*
+lerna-debug.log*
 
-.qodo
->>>>>>> 31387e7bb68b73d2fb420b5f160e50993bcbdede
+node_modules
+dist
+dist-ssr
+*.local
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
