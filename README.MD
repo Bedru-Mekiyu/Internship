@@ -1,4 +1,4 @@
-# 🚀Dynamic CMS & Advanced Learning Management System (LMS)
+## 🚀Dynamic CMS & Advanced Learning Management System (LMS)
 
 <p align="center">
   <img src="https://img.shields.io/badge/MERN-Full%20Stack-green?style=for-the-badge" />
