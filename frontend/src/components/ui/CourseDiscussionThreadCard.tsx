@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { Avatar, Box, Stack, Typography } from '@mui/material';
 
 export type ThreadCategory = 'All' | 'Announcements' | 'Q&A' | 'Study Group' | 'Project Help';
@@ -35,7 +36,7 @@ export type Thread = {
   repliesList: Reply[];
 };
 
-export function ThreadItem({ thread, active, onClick }: { thread: Thread; active: boolean; onClick: () => void }) {
+export const ThreadItem = memo(function ThreadItem({ thread, active, onClick }: { thread: Thread; active: boolean; onClick: () => void }) {
   return (
     <Box
       component="button"
@@ -98,9 +99,9 @@ export function ThreadItem({ thread, active, onClick }: { thread: Thread; active
       </Box>
     </Box>
   );
-}
+});
 
-export function ReplyBubble({ reply }: { reply: Reply }) {
+export const ReplyBubble = memo(function ReplyBubble({ reply }: { reply: Reply }) {
   const hasUnreadMarker = reply.isRead === false;
 
   return (
@@ -196,4 +197,4 @@ export function ReplyBubble({ reply }: { reply: Reply }) {
       </Box>
     </Box>
   );
-}
+});

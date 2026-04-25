@@ -130,7 +130,7 @@ const getRecommendedCourses = async (userId: string) => {
 };
 
 export const getStudentDashboard = asyncHandler(async (req: Request, res: Response) => {
-  const userId = req.user?._id;
+  const userId = req.user?._id as unknown as string;
   const enrollments = await Enrollment.find({ userId }).populate('courseId', 'title status');
 
   const totalCourses = enrollments.length;

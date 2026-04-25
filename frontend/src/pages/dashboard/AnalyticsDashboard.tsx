@@ -1,4 +1,4 @@
-import { Suspense, lazy, useMemo, useState } from 'react';
+import { memo, Suspense, lazy, useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import {
   Alert,
@@ -87,7 +87,7 @@ type StatDef = {
   positive: boolean;
 };
 
-function StatCard({ label, value, change, positive }: StatDef) {
+const StatCard = memo(function StatCard({ label, value, change, positive }: StatDef) {
   const changeColor = positive ? '#10B981' : '#EF4444';
   return (
     <Card
@@ -117,7 +117,7 @@ function StatCard({ label, value, change, positive }: StatDef) {
       </CardContent>
     </Card>
   );
-}
+});
 
 export default function AnalyticsDashboard() {
   const { user } = useAuth();

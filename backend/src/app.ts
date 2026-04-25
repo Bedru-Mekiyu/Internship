@@ -12,7 +12,7 @@ import { connectDB } from './config/database';
 import { getHelmetOptions } from './config/security-headers';
 import { User } from './models/User.model';
 import { requireEnv } from './utils/env';
-import { logInfo } from './utils/logger';
+import { logInfo, logError } from './utils/logger';
 import authRoutes from './routes/auth.routes';
 import courseRoutes from './routes/course.routes';
 import contentRoutes from './routes/content.routes';
@@ -28,6 +28,7 @@ import userRoutes from './routes/user.routes';
 import contactRoutes from './routes/contact.routes';
 import settingsRoutes from './routes/settings.routes';
 import { csrfProtection } from './middlewares/csrf.middleware';
+import { sanitizeMiddleware } from './middlewares/sanitize.middleware';
 import { errorMiddleware } from './middlewares/error.middleware';
 import { requestIdMiddleware } from './middlewares/request-id.middleware';
 import { httpLogMiddleware } from './middlewares/http-log.middleware';
@@ -84,6 +85,7 @@ export const createApp = () => {
 
   app.use(express.json({ limit: '1mb' }));
   app.use(express.urlencoded({ extended: true, limit: '1mb' }));
+  app.use(sanitizeMiddleware);
   app.use('/uploads', express.static('uploads'));
   app.use(csrfProtection);
 
@@ -143,6 +145,51 @@ const startServer = async () => {
         maxDisconnectionDuration: 2 * 60 * 1000,
         skipMiddlewares: true,
       },
+      maxHttpBufferSize: 1e6,
+      pingTimeout: 20000,
+      pingInterval: 25000,
+      transports: ['websocket', 'polling'],
+    });
+
+    io.use((socket, next) => {
+      const userId = socket.handshake.auth?.userId || socket.handshake.query?.userId;
+      if (userId && typeof userId === 'string') {
+        socket.data.userId = userId;
+      }
+      next();
+    });
+
+    const messageRates = new Map<string, { count: number; resetTime: number }>();
+    const RATE_LIMIT_WINDOW_MS = 10000;
+    const RATE_LIMIT_MAX_MESSAGES = 30;
+
+    io.on('connection', (socket) => {
+      const socketId = socket.id;
+      messageRates.set(socketId, { count: 0, resetTime: Date.now() + RATE_LIMIT_WINDOW_MS });
+
+      socket.on('disconnect', () => {
+        messageRates.delete(socketId);
+      });
+
+      socket.use((packet, next) => {
+        const now = Date.now();
+        const rateData = messageRates.get(socketId);
+        
+        if (!rateData || now > rateData.resetTime) {
+          messageRates.set(socketId, { count: 1, resetTime: now + RATE_LIMIT_WINDOW_MS });
+          return next();
+        }
+
+        if (rateData.count >= RATE_LIMIT_MAX_MESSAGES) {
+          logError('socket_rate_limit_exceeded', { socketId });
+          socket.disconnect(true);
+          return next(new Error('Rate limit exceeded'));
+        }
+
+        rateData.count++;
+        messageRates.set(socketId, rateData);
+        next();
+      });
     });
 
     const redisUrl = process.env.REDIS_URL?.trim();

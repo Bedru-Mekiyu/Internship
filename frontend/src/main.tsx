@@ -29,3 +29,12 @@ createRoot(document.getElementById('root')!).render(
     </Provider>
   </StrictMode>,
 )
+
+window.addEventListener('unhandledrejection', (event) => {
+  console.error('Unhandled promise rejection:', event.reason);
+  event.preventDefault();
+});
+
+window.addEventListener('error', (event) => {
+  console.error('Global error:', event.error);
+});

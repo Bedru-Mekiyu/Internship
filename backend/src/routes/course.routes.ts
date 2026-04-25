@@ -21,6 +21,7 @@ import {
   reorderLessons,
 } from '../controllers/course.controller';
 import { authMiddleware, optionalAuthMiddleware, roleMiddleware } from '../middlewares/auth.middleware';
+import { createRateLimiter } from '../middlewares/rate-limit.middleware';
 import {
   validationMiddleware,
   courseSchema,
@@ -36,12 +37,18 @@ import {
 
 const router = express.Router();
 
+const enrollRateLimit = createRateLimiter({
+  windowMs: 60 * 1000,
+  max: 10,
+  message: 'Too many enrollment requests. Please try again later.',
+});
+
 router.get('/', optionalAuthMiddleware, getCourses);
 router.get('/:id', optionalAuthMiddleware, getCourseById);
 router.post('/', authMiddleware, roleMiddleware(['instructor', 'admin']), validationMiddleware(courseSchema), createCourse);
 router.put('/:id', authMiddleware, roleMiddleware(['instructor', 'admin']), validationMiddleware(courseSchema), updateCourse);
 router.delete('/:id', authMiddleware, roleMiddleware(['instructor', 'admin']), deleteCourse);
-router.post('/:id/enroll', authMiddleware, roleMiddleware(['student']), enrollCourse);
+router.post('/:id/enroll', enrollRateLimit, authMiddleware, roleMiddleware(['student']), enrollCourse);
 router.get('/:id/progress', authMiddleware, roleMiddleware(['student']), getCourseProgress);
 router.patch('/:id/progress', authMiddleware, roleMiddleware(['student']), validationMiddleware(progressUpdateSchema), updateCourseProgress);
 router.post('/:id/lessons/:lessonId/complete', authMiddleware, roleMiddleware(['student']), completeCourseLesson);

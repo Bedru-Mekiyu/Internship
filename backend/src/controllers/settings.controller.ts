@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { AppError } from '../utils/http-error';
 import { asyncHandler } from '../utils/async-handler';
+import { requireEnv } from '../utils/env';
 
 interface PlatformSettings {
   platformName: string;
@@ -63,13 +64,13 @@ const defaultSettings: PlatformSettings = {
   provider: 'Stripe',
   currency: 'USD',
   taxRate: '0.00',
-  stripePublicKey: '',
-  stripeSecretKey: '',
-  smtpEnabled: false,
-  smtpHost: 'smtp.mailtrap.io',
-  smtpPort: '587',
-  smtpUsername: '',
-  smtpPassword: '',
+  stripePublicKey: process.env.STRIPE_PUBLIC_KEY || '',
+  stripeSecretKey: process.env.STRIPE_SECRET_KEY || '',
+  smtpEnabled: process.env.SMTP_ENABLED === 'true',
+  smtpHost: process.env.SMTP_HOST || 'smtp.mailtrap.io',
+  smtpPort: process.env.SMTP_PORT || '587',
+  smtpUsername: process.env.SMTP_USERNAME || '',
+  smtpPassword: process.env.SMTP_PASSWORD || '',
   trustPartners: ['ASU', 'Meta', 'Notion', 'Khan Academy', 'Udacity'],
   homepageFeatures: [
     {
@@ -201,18 +202,18 @@ export const updateSettings = asyncHandler(async (req: Request, res: Response) =
     'provider',
     'currency',
     'taxRate',
-    'stripePublicKey',
-    'stripeSecretKey',
-    'smtpEnabled',
-    'smtpHost',
-    'smtpPort',
-    'smtpUsername',
-    'smtpPassword',
     'trustPartners',
     'homepageFeatures',
     'pricingPlans',
     'pricingComparison',
   ];
+  
+  const protectedFields: (keyof PlatformSettings)[] = ['stripeSecretKey', 'smtpPassword'];
+  for (const field of protectedFields) {
+    if (field in updates && updates[field]) {
+      delete updates[field];
+    }
+  }
 
   for (const [key, value] of Object.entries(updates)) {
     if (allowedFields.includes(key)) {

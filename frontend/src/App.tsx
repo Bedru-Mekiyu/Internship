@@ -51,6 +51,7 @@ const Messages = lazy(() => import('./pages/dashboard/Messages'));
 const CourseDiscussions = lazy(() => import('./pages/courses/CourseDiscussions'));
 const MediaLibrary = lazy(() => import('./pages/cms/MediaLibrary'));
 const QuizTaker = lazy(() => import('./pages/courses/QuizTaker'));
+const QuizBuilder = lazy(() => import('./pages/courses/QuizBuilder'));
 const MyCertificates = lazy(() => import('./pages/dashboard/MyCertificates'));
 const AdminNotifications = lazy(() => import('./pages/dashboard/AdminNotifications'));
 const BlogPostEditor = lazy(() => import('./pages/cms/BlogPostEditor'));
@@ -1853,6 +1854,7 @@ function AppRoutes() {
               <Route path="/instructor/dashboard" element={<InstructorDashboard />} />
               <Route path="/lessons/upload" element={<UploadLesson />} />
               <Route path="/courses/new" element={<CreateCourse />} />
+              <Route path="/courses/:courseId/lessons/:lessonId/quiz/new" element={<QuizBuilder />} />
             </Route>
 
             <Route element={<RequireRole allowedRoles={['admin']} />}>
