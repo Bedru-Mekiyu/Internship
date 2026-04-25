@@ -4,16 +4,14 @@ import { createApp } from '../src/app';
 describe('Payment routes', () => {
   const app = createApp();
 
-  it('returns 401 for create payment without token', async () => {
-    const response = await request(app)
-      .post('/api/payments')
-      .send({ courseId: '507f191e810c19729de860ea', method: 'card' });
+  it('returns 401 for create without token', async () => {
+    const response = await request(app).post('/api/payments').send({ courseId: '507f191e810c19729de860ea' });
 
     expect(response.status).toBe(401);
     expect(response.body.message).toBe('No token provided');
   });
 
-  it('returns 401 for my payments without token', async () => {
+  it('returns 401 for get my payments without token', async () => {
     const response = await request(app).get('/api/payments/me');
 
     expect(response.status).toBe(401);
@@ -34,8 +32,8 @@ describe('Payment routes', () => {
     expect(response.body.message).toBe('No token provided');
   });
 
-  it('returns 401 for confirm payment without token', async () => {
-    const response = await request(app).post('/api/payments/507f191e810c19729de860ea/confirm');
+  it('returns 401 for confirm without token', async () => {
+    const response = await request(app).post('/api/payments/507f191e810c19729de860ea/confirm').send({});
 
     expect(response.status).toBe(401);
     expect(response.body.message).toBe('No token provided');

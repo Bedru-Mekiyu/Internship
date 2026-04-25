@@ -261,6 +261,21 @@ export default function ProfileSettings() {
     }
   };
 
+  const handleCancelProfile = () => {
+    if (!user) return;
+    setForm({
+      firstName: user.firstName || '',
+      lastName: user.lastName || '',
+      email: user.email || '',
+      phone: user.phone || '',
+      bio: user.bio || '',
+      currentPassword: '',
+      newPassword: '',
+      confirmPassword: '',
+    });
+    setStatusMessage(null);
+  };
+
   return (
     <Box sx={{ minHeight: '100%', bgcolor: 'background.default' }}>
       <DashboardPageFrame
@@ -332,9 +347,9 @@ export default function ProfileSettings() {
                       </Grid>
 
                       <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1.5, flexWrap: 'wrap' }}>
-                        <Button variant="outlined" sx={{ borderColor: 'divider', color: 'text.primary', px: 3 }}>
-                          Cancel
-                        </Button>
+                          <Button variant="outlined" sx={{ borderColor: 'divider', color: 'text.primary', px: 3 }} onClick={handleCancelProfile}>
+                            Cancel
+                          </Button>
                         <Button variant="contained" sx={{ px: 3 }} onClick={() => void handleSaveProfile()} disabled={isSavingProfile}>
                           {isSavingProfile ? 'Saving...' : 'Save Changes'}
                         </Button>

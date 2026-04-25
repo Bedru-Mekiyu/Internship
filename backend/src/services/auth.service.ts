@@ -3,6 +3,8 @@ import bcrypt from 'bcrypt';
 import { User } from '../models/User.model';
 import { EmailService } from './email.service';
 import { requireEnv } from '../utils/env';
+import { AppError } from '../utils/http-error';
+import { logError, logInfo } from '../utils/logger';
 
 interface RegisterInput {
   email: string;
@@ -70,36 +72,36 @@ export class AuthService {
   }
 
   static async verifyEmail(token: string) {
-    try {
-      const verifySecret = requireEnv('JWT_VERIFY_SECRET');
-      const decoded = jwt.verify(token, verifySecret) as { userId: string };
-      const user = await User.findById(decoded.userId);
-      if (!user || user.verificationToken !== token || (user.verificationTokenExpiry && user.verificationTokenExpiry < new Date())) {
-        throw new Error('Invalid or expired token');
-      }
-
-      user.emailVerified = true;
-      user.verificationToken = undefined;
-      user.verificationTokenExpiry = undefined;
-      await user.save();
-
-      return user;
-    } catch {
-      throw new Error('Verification failed');
+    const verifySecret = requireEnv('JWT_VERIFY_SECRET');
+    const decoded = jwt.verify(token, verifySecret) as { userId: string };
+    const user = await User.findById(decoded.userId);
+    if (!user || user.verificationToken !== token || (user.verificationTokenExpiry && user.verificationTokenExpiry < new Date())) {
+      throw new AppError('Invalid or expired email verification token', 400);
     }
+
+    user.emailVerified = true;
+    user.verificationToken = undefined;
+    user.verificationTokenExpiry = undefined;
+    await user.save();
+
+    return user;
   }
 
   static async loginUser(email: string, password: string) {
     const user = await User.findOne({ email });
     if (!user || !await bcrypt.compare(password, user.password)) {
+      logError('auth_login_failed', { email, reason: 'invalid_credentials' });
       throw new Error('Invalid credentials');
     }
     if (!user.emailVerified) {
+      logError('auth_login_failed', { email, reason: 'email_not_verified' });
       throw new Error('Email not verified');
     }
 
     user.lastLogin = new Date();
     await user.save();
+
+    logInfo('auth_login_success', { userId: user._id.toString() });
 
     return {
       tokens: this.generateTokens(user._id.toString(), user.tokenVersion ?? 0),

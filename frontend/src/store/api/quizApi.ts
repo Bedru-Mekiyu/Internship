@@ -2,7 +2,22 @@ import { baseApi } from './baseApi';
 
 export interface QuizQuestion {
   question: string;
+  type: 'multiple-choice' | 'true-false' | 'short-answer' | 'essay';
   options?: string[];
+  correctAnswer?: unknown;
+  points?: number;
+  explanation?: string;
+}
+
+export interface CreateQuizPayload {
+  lessonId: string;
+  title: string;
+  description?: string;
+  questions: QuizQuestion[];
+  timeLimit?: number;
+  attempts?: number;
+  passingScore?: number;
+  isPublished?: boolean;
 }
 
 export interface Quiz {
@@ -44,6 +59,14 @@ export const quizApi = baseApi.injectEndpoints({
       }),
       providesTags: (_result, _error, quizId) => [{ type: 'Quiz', id: `attempts-${quizId}` }],
     }),
+    createQuiz: builder.mutation<Quiz, CreateQuizPayload>({
+      query: (payload) => ({
+        url: `/api/quizzes/lesson/${payload.lessonId}`,
+        method: 'POST',
+        body: payload,
+      }),
+      invalidatesTags: (_result, _error, arg) => [{ type: 'Quiz', id: `lesson-${arg.lessonId}` }],
+    }),
     submitQuizAttempt: builder.mutation<QuizAttempt, SubmitQuizAttemptPayload>({
       query: ({ quizId, answers }) => ({
         url: `/api/quizzes/${quizId}/attempts`,
@@ -60,5 +83,6 @@ export const quizApi = baseApi.injectEndpoints({
 export const {
   useGetLessonQuizzesQuery,
   useGetQuizAttemptsMeQuery,
+  useCreateQuizMutation,
   useSubmitQuizAttemptMutation,
 } = quizApi;

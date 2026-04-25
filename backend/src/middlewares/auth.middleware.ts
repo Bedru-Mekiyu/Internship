@@ -3,6 +3,7 @@ import jwt from 'jsonwebtoken';
 import { User } from '../models/User.model';
 import { AppError } from '../utils/http-error';
 import { requireEnv } from '../utils/env';
+import { logError } from '../utils/logger';
 
 interface DecodedToken {
   userId: string;
@@ -50,6 +51,7 @@ export const authMiddleware = async (req: Request, res: Response, next: NextFunc
   const tokensToTry = getAccessTokensToTry(req);
 
   if (tokensToTry.length === 0) {
+    logError('auth_missing_token', { path: req.path, ip: req.ip });
     return res.status(401).json({ message: 'No token provided' });
   }
 
@@ -57,11 +59,17 @@ export const authMiddleware = async (req: Request, res: Response, next: NextFunc
     try {
       await attachRequestUser(req, token);
       return next();
-    } catch {
-      // try next candidate (e.g. expired Bearer + valid cookie)
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      logError('auth_token_validation_failed', { 
+        path: req.path, 
+        error: errorMessage,
+        hasUser: !!req.user?._id 
+      });
     }
   }
 
+  logError('auth_all_tokens_invalid', { path: req.path, ip: req.ip });
   return res.status(401).json({ message: 'Invalid or expired token' });
 };
 
@@ -90,7 +98,16 @@ export const optionalAuthMiddleware = async (req: Request, res: Response, next: 
 
 export const roleMiddleware = (roles: string[]) => {
   return (req: Request, res: Response, next: NextFunction) => {
-    if (!req.user || !roles.includes(req.user.role)) {
+    if (!req.user) {
+      logError('auth_role_check_no_user', { path: req.path });
+      return res.status(401).json({ message: 'Access denied' });
+    }
+    if (!roles.includes(req.user.role)) {
+      logError('auth_role_check_forbidden', { 
+        path: req.path, 
+        userRole: req.user.role,
+        requiredRoles: roles 
+      });
       return res.status(403).json({ message: 'Access denied' });
     }
     next();

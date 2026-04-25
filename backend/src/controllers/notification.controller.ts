@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import mongoose from 'mongoose';
 import { Notification } from '../models/Notification.model';
 import { User } from '../models/User.model';
+import { Enrollment } from '../models/Enrollment.model';
 import { AppError } from '../utils/http-error';
 import { asyncHandler } from '../utils/async-handler';
 import { routeParam } from '../utils/route-params';
@@ -136,6 +137,28 @@ export const createNotification = asyncHandler(async (req: Request, res: Respons
 
   if (!normalizedMessage) {
     throw new AppError('message is required', 400);
+  }
+
+  const userRole = req.user?.role;
+  const adminCanNotifyAll = userRole === 'admin';
+
+  if (!adminCanNotifyAll && userRole === 'instructor') {
+    const userExists = await User.findById(userId).select('_id');
+    if (!userExists) {
+      throw new AppError('User not found', 404);
+    }
+    
+    const isStudentEnrolled = await Enrollment.findOne({
+      userId,
+      courseId: { $exists: true },
+    }).populate({
+      path: 'courseId',
+      match: { instructor: req.user?._id },
+    });
+    
+    if (!isStudentEnrolled?.courseId) {
+      throw new AppError('You can only notify students enrolled in your courses', 403);
+    }
   }
 
   const normalizedType = normalizeType(type);

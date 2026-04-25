@@ -49,17 +49,6 @@ export interface RegisterPayload {
   role?: 'student' | 'instructor';
 }
 
-export interface AuthTokens {
-  accessToken?: string;
-  refreshToken?: string;
-}
-
-export interface AuthLoginResponse {
-  message: string;
-  user?: AuthUser;
-  accessToken?: string;
-}
-
 export interface CourseModuleLesson {
   _id?: string;
   title: string;

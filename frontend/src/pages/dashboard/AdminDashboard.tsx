@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { memo, useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useGetAdminDashboardQuery } from '../../store/api/dashboardApi';
 import {
@@ -21,8 +21,6 @@ import {
   TextField,
   Typography,
 } from '@mui/material';
-import { Link as RouterLink } from 'react-router-dom';
-import CreateCourseDialog from '../../components/common/CreateCourseDialog';
 import {
   Bar,
   BarChart,
@@ -32,9 +30,11 @@ import {
   XAxis,
   YAxis,
 } from 'recharts';
-import { theme } from '../../theme';
+import { Link as RouterLink } from 'react-router-dom';
+import CreateCourseDialog from '../../components/common/CreateCourseDialog';
 import AdminApprovals from './AdminApprovals';
 import { api, normalizeApiError } from '../../services/api';
+import { theme } from '../../theme';
 import {
   ACCENT_COLORS,
   card,
@@ -50,9 +50,7 @@ type StatDef = {
   value: string;
 };
 
-// ─── Sub-components ───────────────────────────────────────────────────────────
-
-function MetricCard({ label, value }: StatDef) {
+const MetricCard = memo(function MetricCard({ label, value }: StatDef) {
   return (
     <Card sx={statCard}>
       <CardContent sx={{ p: SPACING.cardPadding }}>
@@ -69,7 +67,7 @@ function MetricCard({ label, value }: StatDef) {
       </CardContent>
     </Card>
   );
-}
+});
 
 // ─── Main component ───────────────────────────────────────────────────────────
 

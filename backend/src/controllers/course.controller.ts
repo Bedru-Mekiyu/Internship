@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+import mongoose from 'mongoose';
 import { Course } from '../models/Course.model';
 import { Enrollment } from '../models/Enrollment.model';
 import { Module } from '../models/Module.model';
@@ -314,9 +315,22 @@ export const deleteCourse = asyncHandler(async (req: Request, res: Response) => 
   const modules = await Module.find({ courseId: course._id }).select('_id');
   const moduleIds = modules.map((moduleItem) => moduleItem._id);
 
-  await Lesson.deleteMany({ moduleId: { $in: moduleIds } });
-  await Module.deleteMany({ courseId: course._id });
-  await Course.findByIdAndDelete(course._id);
+  const session = await mongoose.startSession();
+  try {
+    session.startTransaction();
+
+    await Lesson.deleteMany({ moduleId: { $in: moduleIds } }, { session });
+    await Module.deleteMany({ courseId: course._id }, { session });
+    await Course.findByIdAndDelete(course._id, { session });
+
+    await session.commitTransaction();
+  } catch (error) {
+    await session.abortTransaction();
+    throw error;
+  } finally {
+    session.endSession();
+  }
+
   void bumpCourseCatalogCacheVersion();
 
   return res.json({ message: 'Deleted' });
