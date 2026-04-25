@@ -1,6 +1,5 @@
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
-<<<<<<< HEAD
 import { logInfo, logError } from '../utils/logger';
 
 dotenv.config({ quiet: true });
@@ -34,17 +33,4 @@ export const connectDB = async (retryCount = 0): Promise<void> => {
 export const disconnectDB = async (): Promise<void> => {
   await mongoose.disconnect();
   logInfo('mongodb_disconnected');
-=======
-
-dotenv.config({ quiet: true });
-
-export const connectDB = async () => {
-  try {
-    await mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/mit-lms');
-    console.log('MongoDB connected');
-  } catch (error) {
-    console.error('MongoDB connection error:', error);
-    process.exit(1);
-  }
->>>>>>> 31387e7bb68b73d2fb420b5f160e50993bcbdede
 };

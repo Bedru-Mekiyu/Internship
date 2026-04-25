@@ -3,29 +3,20 @@ import bcrypt from 'bcrypt';
 import { User } from '../models/User.model';
 import { EmailService } from './email.service';
 import { requireEnv } from '../utils/env';
-<<<<<<< HEAD
 import { AppError } from '../utils/http-error';
 import { logError, logInfo } from '../utils/logger';
-=======
->>>>>>> 31387e7bb68b73d2fb420b5f160e50993bcbdede
 
 interface RegisterInput {
   email: string;
   password: string;
   firstName: string;
   lastName: string;
-<<<<<<< HEAD
-  /** Public signup: student or instructor only; admin is never accepted from the client. */
   role?: string;
-=======
-  role?: 'student' | 'instructor' | 'admin' | 'content_manager';
->>>>>>> 31387e7bb68b73d2fb420b5f160e50993bcbdede
 }
 
 export class AuthService {
   static async registerUser(userData: RegisterInput) {
     const existingUser = await User.findOne({ email: userData.email });
-<<<<<<< HEAD
     if (existingUser?.emailVerified) {
       return null;
     }
@@ -90,27 +81,11 @@ export class AuthService {
     user.emailVerified = true;
     user.verificationToken = undefined;
     user.verificationTokenExpiry = undefined;
-=======
-    if (existingUser) throw new Error('User already exists');
-
-    const hashedPassword = await bcrypt.hash(userData.password, 10);
-    const user = new User({
-      ...userData,
-      password: hashedPassword,
-      emailVerified: false,
-    });
-    await user.save();
-
-    const token = await EmailService.sendVerificationEmail(user._id.toString(), user.email);
-    user.verificationToken = token;
-    user.verificationTokenExpiry = new Date(Date.now() + 3600000);
->>>>>>> 31387e7bb68b73d2fb420b5f160e50993bcbdede
     await user.save();
 
     return user;
   }
 
-<<<<<<< HEAD
   static async loginUser(email: string, password: string) {
     const user = await User.findOne({ email });
     if (!user || !await bcrypt.compare(password, user.password)) {
@@ -119,50 +94,18 @@ export class AuthService {
     }
     if (!user.emailVerified) {
       logError('auth_login_failed', { email, reason: 'email_not_verified' });
-=======
-  static async verifyEmail(token: string) {
-    try {
-      const verifySecret = requireEnv('JWT_VERIFY_SECRET');
-      const decoded = jwt.verify(token, verifySecret) as { userId: string };
-      const user = await User.findById(decoded.userId);
-      if (!user || user.verificationToken !== token || (user.verificationTokenExpiry && user.verificationTokenExpiry < new Date())) {
-        throw new Error('Invalid or expired token');
-      }
-
-      user.emailVerified = true;
-      user.verificationToken = undefined;
-      user.verificationTokenExpiry = undefined;
-      await user.save();
-
-      return user;
-    } catch (error) {
-      throw new Error('Verification failed');
-    }
-  }
-
-  static async loginUser(email: string, password: string) {
-    const user = await User.findOne({ email });
-    if (!user || !await bcrypt.compare(password, user.password)) {
-      throw new Error('Invalid credentials');
-    }
-    if (!user.emailVerified) {
->>>>>>> 31387e7bb68b73d2fb420b5f160e50993bcbdede
       throw new Error('Email not verified');
     }
 
     user.lastLogin = new Date();
     await user.save();
 
-<<<<<<< HEAD
     logInfo('auth_login_success', { userId: user._id.toString() });
 
     return {
       tokens: this.generateTokens(user._id.toString(), user.tokenVersion ?? 0),
       user,
     };
-=======
-    return this.generateTokens(user._id.toString(), user.tokenVersion ?? 0);
->>>>>>> 31387e7bb68b73d2fb420b5f160e50993bcbdede
   }
 
   static generateTokens(userId: string, tokenVersion: number) {
@@ -258,7 +201,6 @@ export class AuthService {
     user.tokenVersion = (user.tokenVersion ?? 0) + 1;
     await user.save();
   }
-<<<<<<< HEAD
 
   static async changePassword(userId: string, currentPassword: string, newPassword: string) {
     const user = await User.findById(userId);
@@ -276,6 +218,3 @@ export class AuthService {
     await user.save();
   }
 }
-=======
-}
->>>>>>> 31387e7bb68b73d2fb420b5f160e50993bcbdede
