@@ -1,8 +1,8 @@
 import { Request, Response } from 'express';
+import type { IUser } from '../types/express.d';
 import { AuthService } from '../services/auth.service';
 import { AppError } from '../utils/http-error';
 import { asyncHandler } from '../utils/async-handler';
-<<<<<<< HEAD
 import { getOrCreateCsrfToken } from '../middlewares/csrf.middleware';
 
 const parseBoolean = (value: string | undefined, fallback: boolean) => {
@@ -79,13 +79,6 @@ export const register = asyncHandler(async (req: Request, res: Response) => {
     return res.status(202).json({
       message: 'If the email is eligible, a verification email has been sent.',
     });
-=======
-
-export const register = asyncHandler(async (req: Request, res: Response) => {
-  try {
-    const user = await AuthService.registerUser(req.body);
-    return res.status(201).json({ message: 'User registered. Check email for verification.', userId: user._id });
->>>>>>> 31387e7bb68b73d2fb420b5f160e50993bcbdede
   } catch (error) {
     throw new AppError(error instanceof Error ? error.message : 'Registration failed', 400);
   }
@@ -94,21 +87,15 @@ export const register = asyncHandler(async (req: Request, res: Response) => {
 export const login = asyncHandler(async (req: Request, res: Response) => {
   try {
     const { email, password } = req.body;
-<<<<<<< HEAD
     const { tokens, user } = await AuthService.loginUser(email, password);
     setAuthCookies(res, tokens.accessToken, tokens.refreshToken);
     return res.json({ message: 'Login successful', user: sanitizeUser(user) });
-=======
-    const tokens = await AuthService.loginUser(email, password);
-    return res.json(tokens);
->>>>>>> 31387e7bb68b73d2fb420b5f160e50993bcbdede
   } catch (error) {
     throw new AppError(error instanceof Error ? error.message : 'Authentication failed', 401);
   }
 });
 
 export const refreshToken = asyncHandler(async (req: Request, res: Response) => {
-<<<<<<< HEAD
   const refreshTokenFromCookie = req.cookies?.refreshToken;
   const csrfHeaderToken = req.headers['x-csrf-token'];
   const csrfCookieToken = req.cookies?.csrfToken;
@@ -120,14 +107,10 @@ export const refreshToken = asyncHandler(async (req: Request, res: Response) => 
 
   const refreshToken = refreshTokenFromCookie;
 
-=======
-  const { refreshToken } = req.body;
->>>>>>> 31387e7bb68b73d2fb420b5f160e50993bcbdede
   if (typeof refreshToken !== 'string' || !refreshToken.trim()) {
     throw new AppError('refreshToken is required', 400);
   }
 
-<<<<<<< HEAD
   if (!hasValidCsrfToken) {
     throw new AppError('Valid CSRF token is required for cookie refresh', 403);
   }
@@ -136,11 +119,6 @@ export const refreshToken = asyncHandler(async (req: Request, res: Response) => 
     const newTokens = await AuthService.rotateRefreshToken(refreshToken);
     setAuthCookies(res, newTokens.accessToken, newTokens.refreshToken);
     return res.json({ message: 'Token refreshed' });
-=======
-  try {
-    const newTokens = await AuthService.rotateRefreshToken(refreshToken);
-    return res.json(newTokens);
->>>>>>> 31387e7bb68b73d2fb420b5f160e50993bcbdede
   } catch (error) {
     throw new AppError(error instanceof Error ? error.message : 'Invalid refresh token', 401);
   }
@@ -161,11 +139,7 @@ export const verifyEmail = asyncHandler(async (req: Request, res: Response) => {
 });
 
 export const getMe = asyncHandler(async (req: Request, res: Response) => {
-<<<<<<< HEAD
   return res.json(sanitizeUser(req.user));
-=======
-  return res.json(req.user);
->>>>>>> 31387e7bb68b73d2fb420b5f160e50993bcbdede
 });
 
 export const logout = asyncHandler(async (req: Request, res: Response) => {
@@ -174,10 +148,7 @@ export const logout = asyncHandler(async (req: Request, res: Response) => {
   }
 
   await AuthService.logoutUser(req.user._id.toString());
-<<<<<<< HEAD
   clearAuthCookies(res);
-=======
->>>>>>> 31387e7bb68b73d2fb420b5f160e50993bcbdede
   return res.json({ message: 'Logged out successfully' });
 });
 
@@ -211,13 +182,9 @@ export const resetPassword = asyncHandler(async (req: Request, res: Response) =>
   } catch (error) {
     throw new AppError(error instanceof Error ? error.message : 'Password reset failed', 400);
   }
-<<<<<<< HEAD
 });
 
 export const getCsrfToken = asyncHandler(async (req: Request, res: Response) => {
   const csrfToken = getOrCreateCsrfToken(req, res);
   return res.json({ csrfToken });
 });
-=======
-});
->>>>>>> 31387e7bb68b73d2fb420b5f160e50993bcbdede

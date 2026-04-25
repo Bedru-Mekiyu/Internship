@@ -34,16 +34,10 @@ export class EmailService {
   }
 
   static async sendPasswordResetEmail(email: string, token: string) {
-<<<<<<< HEAD
     const apiBase = requireEnv('BASE_URL');
     const appBase = (process.env.FRONTEND_URL || apiBase).replace(/\/$/, '');
     const sender = requireEnv('EMAIL_USER');
     const resetLink = `${appBase}/auth/reset-password?token=${encodeURIComponent(token)}`;
-=======
-    const baseUrl = requireEnv('BASE_URL');
-    const sender = requireEnv('EMAIL_USER');
-    const resetLink = `${baseUrl}/reset-password?token=${token}`;
->>>>>>> 31387e7bb68b73d2fb420b5f160e50993bcbdede
 
     const mailOptions = {
       from: sender,

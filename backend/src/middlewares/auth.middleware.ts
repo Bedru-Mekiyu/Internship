@@ -3,10 +3,7 @@ import jwt from 'jsonwebtoken';
 import { User } from '../models/User.model';
 import { AppError } from '../utils/http-error';
 import { requireEnv } from '../utils/env';
-<<<<<<< HEAD
 import { logError } from '../utils/logger';
-=======
->>>>>>> 31387e7bb68b73d2fb420b5f160e50993bcbdede
 
 interface DecodedToken {
   userId: string;
@@ -14,7 +11,6 @@ interface DecodedToken {
   tokenVersion?: number;
 }
 
-<<<<<<< HEAD
 const getAccessTokensToTry = (req: Request): string[] => {
   const tokenFromCookie = req.cookies?.accessToken as string | undefined;
 
@@ -68,7 +64,7 @@ export const authMiddleware = async (req: Request, res: Response, next: NextFunc
       logError('auth_token_validation_failed', { 
         path: req.path, 
         error: errorMessage,
-        hasUser: !!req.user?._id 
+        hasUser: !!(req as any).user?._id 
       });
     }
   }
@@ -98,47 +94,10 @@ export const optionalAuthMiddleware = async (req: Request, res: Response, next: 
   }
 
   return next();
-=======
-export const authMiddleware = async (req: Request, res: Response, next: NextFunction) => {
-  const authHeader = req.headers.authorization;
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    return res.status(401).json({ message: 'No token provided' });
-  }
-
-  const token = authHeader.split(' ')[1];
-  if (!token) return res.status(401).json({ message: 'No token provided' });
-
-  let accessSecret: string;
-  try {
-    accessSecret = requireEnv('JWT_ACCESS_SECRET');
-  } catch {
-    return next(new AppError('Authentication is not configured', 500));
-  }
-
-  try {
-    const decoded = jwt.verify(token, accessSecret) as DecodedToken;
-    if (decoded.type !== 'access') {
-      return res.status(401).json({ message: 'Invalid token type' });
-    }
-
-    const user = await User.findById(decoded.userId);
-    if (!user || !user.isActive) throw new Error('Invalid token');
-
-    const currentVersion = user.tokenVersion ?? 0;
-    const tokenVersion = decoded.tokenVersion ?? 0;
-    if (tokenVersion !== currentVersion) throw new Error('Invalid token');
-
-    req.user = user; // Attach user to request
-    return next();
-  } catch {
-    return res.status(401).json({ message: 'Invalid or expired token' });
-  }
->>>>>>> 31387e7bb68b73d2fb420b5f160e50993bcbdede
 };
 
 export const roleMiddleware = (roles: string[]) => {
   return (req: Request, res: Response, next: NextFunction) => {
-<<<<<<< HEAD
     if (!req.user) {
       logError('auth_role_check_no_user', { path: req.path });
       return res.status(401).json({ message: 'Access denied' });
@@ -146,18 +105,11 @@ export const roleMiddleware = (roles: string[]) => {
     if (!roles.includes(req.user.role)) {
       logError('auth_role_check_forbidden', { 
         path: req.path, 
-        userRole: req.user.role,
+        userRole: (req as any).user.role,
         requiredRoles: roles 
       });
-=======
-    if (!req.user || !roles.includes(req.user.role)) {
->>>>>>> 31387e7bb68b73d2fb420b5f160e50993bcbdede
       return res.status(403).json({ message: 'Access denied' });
     }
     next();
   };
-<<<<<<< HEAD
 };
-=======
-};
->>>>>>> 31387e7bb68b73d2fb420b5f160e50993bcbdede

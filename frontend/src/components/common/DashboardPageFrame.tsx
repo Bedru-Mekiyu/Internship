@@ -5,6 +5,9 @@ import { card, SPACING } from '../../pages/dashboard/dashboardTokens';
 type DashboardPageFrameProps = {
   title: string;
   description: string;
+  eyebrow?: string;
+  actionLabel?: string;
+  actionTo?: string;
   actions?: ReactNode;
   children: ReactNode;
 };
@@ -20,6 +23,9 @@ type DashboardSectionProps = {
 export default function DashboardPageFrame({
   title,
   description,
+  eyebrow,
+  actionLabel,
+  actionTo,
   actions,
   children,
 }: DashboardPageFrameProps) {
@@ -35,6 +41,11 @@ export default function DashboardPageFrame({
         }}
       >
         <Box>
+          {eyebrow ? (
+            <Typography variant="body2" sx={{ color: 'primary.main', fontWeight: 700, letterSpacing: '0.1em' }}>
+              {eyebrow}
+            </Typography>
+          ) : null}
           <Typography variant="h4" sx={{ fontWeight: 900, letterSpacing: '-0.03em' }}>
             {title}
           </Typography>

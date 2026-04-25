@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import { Types } from 'mongoose';
 
 export interface IUser {
@@ -12,8 +11,6 @@ export interface IUser {
   tokenVersion?: number;
 }
 
-=======
->>>>>>> 31387e7bb68b73d2fb420b5f160e50993bcbdede
 declare global {
   namespace Express {
     namespace Multer {
@@ -25,16 +22,9 @@ declare global {
 
     interface Request {
       user?: any;
-<<<<<<< HEAD
       requestId?: string;
-=======
->>>>>>> 31387e7bb68b73d2fb420b5f160e50993bcbdede
     }
   }
 }
 
-<<<<<<< HEAD
 export {};
-=======
-export {};
->>>>>>> 31387e7bb68b73d2fb420b5f160e50993bcbdede
