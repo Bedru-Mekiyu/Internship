@@ -3,14 +3,17 @@ import Joi from 'joi';
 
 export const registerSchema = Joi.object({
   email: Joi.string().trim().lowercase().email().max(254).required(),
-  password: Joi.string().min(8).max(128).required(),
+  password: Joi.string().min(8).max(128).pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/).required()
+    .messages({
+      'string.pattern.base': 'Password must contain at least one uppercase letter, one lowercase letter, and one number.',
+    }),
   firstName: Joi.string().trim().min(2).max(50).required(),
   lastName: Joi.string().trim().min(2).max(50).required(),
   role: Joi.string().valid('student', 'instructor').default('student'),
 });
 
 export const loginSchema = Joi.object({
-  email: Joi.string().trim().lowercase().email().max(254).required(),
+  email: Joi.string().trim().lowercase().email({ tlds: { allow: false } }).max(254).required(),
   password: Joi.string().min(8).max(128).required(),
 });
 
@@ -24,7 +27,10 @@ export const forgotPasswordSchema = Joi.object({
 
 export const resetPasswordSchema = Joi.object({
   token: Joi.string().trim().pattern(/^[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+$/).required(),
-  password: Joi.string().min(8).max(128).required(),
+  password: Joi.string().min(8).max(128).pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/).required()
+    .messages({
+      'string.pattern.base': 'Password must contain at least one uppercase letter, one lowercase letter, and one number.',
+    }),
 });
 
 export const contactCreateSchema = Joi.object({

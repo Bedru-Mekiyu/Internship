@@ -47,6 +47,7 @@ interface AuthInputFieldProps {
   icon: ReactNode;
   error?: string;
   showPasswordToggle?: boolean;
+  autoComplete?: string;
 }
 
 function AuthInputField({
@@ -58,6 +59,7 @@ function AuthInputField({
   icon,
   error,
   showPasswordToggle,
+  autoComplete,
 }: AuthInputFieldProps) {
   const [showPassword, setShowPassword] = useState(false);
 
@@ -74,6 +76,7 @@ function AuthInputField({
         size="small"
         error={Boolean(error)}
         helperText={error}
+        autoComplete={autoComplete}
         slotProps={{
           input: {
             startAdornment: (
@@ -412,6 +415,7 @@ if (signupStatus === 'success') {
                     onChange={updateField('fullName')}
                     icon={<PersonOutlined fontSize="small" />}
                     error={fieldErrors.fullName}
+                    autoComplete="name"
                   />
                   <AuthInputField
                     label="Email address"
@@ -421,6 +425,7 @@ if (signupStatus === 'success') {
                     onChange={updateField('email')}
                     icon={<EmailOutlined fontSize="small" />}
                     error={fieldErrors.email}
+                    autoComplete="email"
                   />
                   <AuthInputField
                     label="Password"
@@ -431,6 +436,7 @@ if (signupStatus === 'success') {
                     icon={<LockOutlined fontSize="small" />}
                     error={fieldErrors.password}
                     showPasswordToggle
+                    autoComplete="new-password"
                   />
 
                   {submitError ? (
