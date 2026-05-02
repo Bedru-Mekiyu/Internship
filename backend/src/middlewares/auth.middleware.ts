@@ -29,7 +29,7 @@ const resolveAccessSecret = () => {
 
 const attachRequestUser = async (req: AuthRequest, token: string) => {
   const accessSecret = resolveAccessSecret();
-  const decoded = jwt.verify(token, accessSecret) as DecodedToken;
+  const decoded = jwt.verify(token, accessSecret, { algorithms: ['HS256'] }) as DecodedToken;
 
   if (decoded.type !== 'access') {
     throw new AppError('Invalid token type', 401);

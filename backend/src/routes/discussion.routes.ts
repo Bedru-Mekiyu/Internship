@@ -5,11 +5,12 @@ import {
   getAccessibleDiscussionCourses,
   getCourseDiscussions,
 } from '../controllers/discussion.controller';
+import { validationMiddleware, discussionCreateSchema } from '../utils/validators';
 
 const router = express.Router();
 
 router.get('/conversations', authMiddleware, getAccessibleDiscussionCourses);
 router.get('/course/:courseId', authMiddleware, getCourseDiscussions);
-router.post('/course/:courseId', authMiddleware, createDiscussionMessage);
+router.post('/course/:courseId', authMiddleware, validationMiddleware(discussionCreateSchema), createDiscussionMessage);
 
 export default router;

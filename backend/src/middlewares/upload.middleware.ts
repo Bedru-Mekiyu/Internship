@@ -53,8 +53,8 @@ const uploadFileFilter: multer.Options['fileFilter'] = (_req, file, cb) => {
   }
 
   const raw = typeof file.originalname === 'string' ? file.originalname : '';
-  const basename = raw.replace(/^.*[/\\]/, '').slice(0, 240);
-  if (!basename || basename.includes('..')) {
+  const basename = raw.replace(/^.*[/\\]/, '').slice(0, 240).replace(/[^a-zA-Z0-9._-]/g, '_').replace(/_+/g, '_');
+  if (!basename || basename.length < 3 || basename.includes('..') || basename.includes('/') || basename.includes('\\')) {
     cb(new Error('Invalid file name'));
     return;
   }

@@ -3,8 +3,9 @@ import { AuthService } from '../services/auth.service';
 import { AppError } from '../utils/http-error';
 import { asyncHandler } from '../utils/async-handler';
 import { getOrCreateCsrfToken } from '../middlewares/csrf.middleware';
+import type { IUser } from '../types/express.d.ts';
 
-type AuthRequest = Request;
+type AuthRequest = Request & { user?: IUser };
 
 const parseBoolean = (value: string | undefined, fallback: boolean) => {
   if (value === undefined) return fallback;
