@@ -10,6 +10,7 @@ import {
   CircularProgress,
   Divider,
   Grid,
+  Stack,
   Switch,
   TextField,
   Typography,
@@ -19,6 +20,7 @@ import { api, normalizeApiError } from '../../services/api';
 import { useAuth, type AuthUser } from '../../context/AuthContext';
 import { useGetStudentDashboardQuery } from '../../store/api/dashboardApi';
 import { sanitizeHttpUrl } from '../../utils/safeUrl';
+import { card, innerCard, SPACING, sectionHeader } from './dashboardTokens';
 
 type ProfileForm = {
   firstName: string;
@@ -54,38 +56,6 @@ type LabeledFieldProps = {
   id?: string;
 };
 
-const surface = {
-  border: '1px solid #DDE4F0',
-  borderRadius: 1.5,
-  bgcolor: '#FFFFFF',
-  boxShadow: 'none',
-};
-
-const fieldInputSx = {
-  '& .MuiOutlinedInput-root': {
-    bgcolor: '#F6F8FC',
-    borderRadius: 1,
-    fontSize: '0.78rem',
-    color: '#111827',
-    '& fieldset': { borderColor: 'transparent' },
-    '&:hover fieldset': { borderColor: '#E3E8F1' },
-    '&.Mui-focused fieldset': { borderColor: '#5B4CF6', borderWidth: 1 },
-    '&.Mui-disabled': {
-      bgcolor: '#F6F8FC',
-      color: '#111827',
-      WebkitTextFillColor: '#111827',
-    },
-  },
-
-  '& .MuiOutlinedInput-input': {
-    py: 1.15,
-  },
-  '& .MuiFormHelperText-root': {
-    mx: 0,
-    fontSize: '0.68rem',
-  },
-};
-
 function LabeledField({
   label,
   value,
@@ -102,13 +72,12 @@ function LabeledField({
   const labelId = id || `labeled-field-${label.toLowerCase().replace(/\s+/g, '-')}`;
   return (
     <Box>
-      <Typography id={`${labelId}-label`} sx={{ mb: 0.65, color: '#111827', fontWeight: 700, fontSize: '0.72rem' }}>
+      <Typography id={`${labelId}-label`} sx={{ mb: 0.65, color: 'text.primary', fontWeight: 600 }}>
         {label}
       </Typography>
       <TextField
         id={labelId}
         hiddenLabel
-        size="small"
         fullWidth
         value={value}
         onChange={onChange}
@@ -120,7 +89,6 @@ function LabeledField({
         error={error}
         helperText={helperText}
         inputProps={{ 'aria-labelledby': `${labelId}-label` }}
-        sx={fieldInputSx}
       />
     </Box>
   );
