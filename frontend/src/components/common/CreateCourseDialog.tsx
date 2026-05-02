@@ -26,7 +26,7 @@ interface CreateCourseDialogProps {
 
 export default function CreateCourseDialog({ open, onClose }: CreateCourseDialogProps) {
   const navigate = useNavigate();
-  const [createCourse, { isLoading, isError }] = useCreateCourseMutation();
+  const [createCourse, { isLoading, isError, error }] = useCreateCourseMutation();
 
   const [title, setTitle] = useState('');
   const [subtitle, setSubtitle] = useState('');
@@ -37,24 +37,28 @@ export default function CreateCourseDialog({ open, onClose }: CreateCourseDialog
     if (!title.trim()) return;
 
     try {
-      const result = await createCourse({
+      const payload = {
         title: title.trim(),
         subtitle: subtitle.trim(),
         visibility,
-      }).unwrap();
+      };
+      
+      console.log('[CreateCourse] Submitting payload:', payload);
+      
+      const result = await createCourse(payload).unwrap();
+
+      console.log('[CreateCourse] Success:', result);
 
       setSnackbarOpen(true);
       handleClose();
 
-      // Navigate to the course builder with the new course (if _id is available)
       if (result._id) {
         navigate(`/courses/new?courseId=${result._id}`);
       } else {
-        // Fallback: just navigate to the course builder without a specific course
         navigate('/courses/new');
       }
-    } catch {
-      // Error is handled by the mutation state
+    } catch (err) {
+      console.error('[CreateCourse] Error:', err);
     }
   };
 
@@ -63,6 +67,20 @@ export default function CreateCourseDialog({ open, onClose }: CreateCourseDialog
     setSubtitle('');
     setVisibility('Draft');
     onClose();
+  };
+
+  const getErrorMessage = () => {
+    if (!error) return 'Failed to create course. Please try again.';
+
+    // Handle RTK Query error format
+    const rtkError = error as { status?: number | string; data?: unknown };
+    if (rtkError?.data && typeof rtkError.data === 'object') {
+      const data = rtkError.data as { message?: string };
+      if (data?.message) return data.message;
+    }
+
+    // Fallback
+    return 'Failed to create course. Please try again.';
   };
 
   return (
@@ -91,7 +109,7 @@ export default function CreateCourseDialog({ open, onClose }: CreateCourseDialog
         <DialogContent sx={{ pt: 2 }}>
           {isError && (
             <Alert severity="error" sx={{ mb: 2, borderRadius: '12px' }}>
-              Failed to create course. Please try again.
+              {getErrorMessage()}
             </Alert>
           )}
 

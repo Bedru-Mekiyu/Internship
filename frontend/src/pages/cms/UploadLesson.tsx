@@ -1,37 +1,58 @@
-import { useEffect, useRef, useState, type DragEvent, type ChangeEvent } from 'react';
+import { useEffect, useMemo, useRef, useState, type ChangeEvent, type DragEvent, type ReactNode } from 'react';
+import { Link as RouterLink, useNavigate, useSearchParams } from 'react-router-dom';
 import {
   Alert,
+  Avatar,
   Box,
   Button,
-  Card,
-  CardContent,
-  FormControl,
   FormControlLabel,
-  FormLabel,
-  Grid,
   IconButton,
+  InputBase,
   MenuItem,
   Radio,
   RadioGroup,
   Select,
   Stack,
-  TextField,
   Typography,
 } from '@mui/material';
 import {
+  AnalyticsOutlined,
+  ArrowBackIosNewOutlined,
+  AttachFileOutlined,
+  CalendarMonthOutlined,
   CloseOutlined,
   CloudUploadOutlined,
+  DashboardOutlined,
+  HelpOutlineOutlined,
+  InsertDriveFileOutlined,
+  MenuBookOutlined,
+  NotificationsNoneOutlined,
+  PeopleOutlineOutlined,
+  SchoolOutlined,
+  SettingsOutlined,
+  VideocamOutlined,
 } from '@mui/icons-material';
-import { Link as RouterLink } from 'react-router-dom';
-import { useContent } from '../../hooks/useContent';
-import { api, normalizeApiError } from '../../services/api';
-import DashboardPageFrame from '../../components/common/DashboardPageFrame';
+import { useAuth } from '../../context/AuthContext';
+import { api, ensureCsrfToken, normalizeApiError } from '../../services/api';
+import { resolvePublicApiOrigin } from '../../utils/apiBaseUrl';
+
 type Visibility = 'Public' | 'Private' | 'Scheduled';
+type LessonStatus = 'published' | 'draft' | 'scheduled';
+
+interface UploadedMedia {
+  _id?: string;
+  filename?: string;
+  originalName?: string;
+  mimetype?: string;
+  size?: number;
+  url?: string;
+}
 
 interface AttachmentItem {
   name: string;
   size: string;
   url?: string;
+  mediaId?: string;
 }
 
 interface CourseOption {
@@ -42,168 +63,494 @@ interface CourseOption {
 interface ModuleOption {
   _id: string;
   title: string;
+  order?: number;
 }
 
-function FileChip({ attachment, onRemove }: { attachment: AttachmentItem; onRemove: () => void }) {
+interface CourseSectionOption {
+  _id: string;
+  title: string;
+  courseId: string;
+  courseTitle: string;
+}
+
+const sidebarWidth = 160;
+const maxVideoBytes = 2 * 1024 * 1024 * 1024;
+
+const panelSx = {
+  bgcolor: '#FFFFFF',
+  border: '1px solid #DDE5F0',
+  borderRadius: '6px',
+  boxShadow: 'none',
+};
+
+const labelSx = {
+  color: '#111827',
+  fontSize: '0.63rem',
+  fontWeight: 700,
+  lineHeight: 1.2,
+};
+
+function formatFileSize(bytes: number) {
+  if (!Number.isFinite(bytes) || bytes <= 0) {
+    return '0 MB';
+  }
+
+  const mb = bytes / (1024 * 1024);
+  return `${mb >= 10 ? Math.round(mb) : mb.toFixed(1)} MB`;
+}
+
+function resolveMediaUrl(value: string | undefined) {
+  const trimmedValue = typeof value === 'string' ? value.trim() : '';
+  if (!trimmedValue) {
+    return '';
+  }
+
+  if (trimmedValue.startsWith('/uploads/')) {
+    return new URL(trimmedValue, resolvePublicApiOrigin()).toString();
+  }
+
+  return trimmedValue;
+}
+
+function visibilityToStatus(visibility: Visibility): LessonStatus {
+  if (visibility === 'Private') {
+    return 'draft';
+  }
+
+  if (visibility === 'Scheduled') {
+    return 'scheduled';
+  }
+
+  return 'published';
+}
+
+function roleLabel(role: string | undefined) {
+  if (role === 'admin') return 'Super Admin';
+  if (role === 'content_manager') return 'Content Manager';
+  if (role === 'instructor') return 'Instructor';
+  return 'Member';
+}
+
+function dashboardPath(role: string | undefined) {
+  if (role === 'admin') return '/admin/dashboard';
+  if (role === 'instructor') return '/instructor/dashboard';
+  if (role === 'content_manager') return '/cms/content';
+  return '/dashboard';
+}
+
+function AdminBrand() {
+  return (
+    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.65, px: 1.8, height: 42 }}>
+      <Box
+        sx={{
+          width: 18,
+          height: 18,
+          borderRadius: '4px',
+          bgcolor: '#2563EB',
+          color: '#FFFFFF',
+          display: 'grid',
+          placeItems: 'center',
+          flexShrink: 0,
+        }}
+      >
+        <SchoolOutlined sx={{ fontSize: 12 }} />
+      </Box>
+      <Typography sx={{ color: '#2563EB', fontSize: '0.84rem', fontWeight: 800, lineHeight: 1 }}>
+        EduAdmin
+      </Typography>
+    </Box>
+  );
+}
+
+function SidebarItem({
+  icon,
+  label,
+  to,
+  active,
+}: {
+  icon: ReactNode;
+  label: string;
+  to: string;
+  active?: boolean;
+}) {
+  return (
+    <Box
+      component={RouterLink}
+      to={to}
+      sx={{
+        minHeight: 24,
+        px: 1.9,
+        display: 'flex',
+        alignItems: 'center',
+        gap: 1,
+        color: active ? '#111827' : '#8B9AAF',
+        bgcolor: active ? '#DBEAFE' : 'transparent',
+        borderRadius: '4px',
+        textDecoration: 'none',
+        fontSize: '0.66rem',
+        fontWeight: active ? 700 : 600,
+        '& svg': { fontSize: 13.5, color: active ? '#111827' : '#8B9AAF' },
+        '&:hover': {
+          bgcolor: active ? '#DBEAFE' : '#F3F6FB',
+        },
+      }}
+    >
+      {icon}
+      <Box component="span" sx={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+        {label}
+      </Box>
+    </Box>
+  );
+}
+
+function SidebarSection({
+  title,
+  children,
+}: {
+  title: string;
+  children: ReactNode;
+}) {
+  return (
+    <Box sx={{ display: 'grid', gap: 0.55 }}>
+      <Typography
+        sx={{
+          px: 1.9,
+          color: '#8B9AAF',
+          fontSize: '0.52rem',
+          fontWeight: 800,
+          lineHeight: 1,
+          textTransform: 'uppercase',
+        }}
+      >
+        {title}
+      </Typography>
+      <Stack spacing={0.22}>{children}</Stack>
+    </Box>
+  );
+}
+
+function EduAdminSidebar() {
+  const { user } = useAuth();
+  const userName = [user?.firstName, user?.lastName].filter(Boolean).join(' ') || 'Maria Garcia';
+  const initials = [user?.firstName?.[0], user?.lastName?.[0]].filter(Boolean).join('').toUpperCase() || 'MG';
+
+  return (
+    <Box
+      component="aside"
+      sx={{
+        display: { xs: 'none', md: 'flex' },
+        flexDirection: 'column',
+        width: sidebarWidth,
+        minHeight: '100vh',
+        bgcolor: '#FFFFFF',
+        borderRight: '1px solid #DDE5F0',
+      }}
+    >
+      <AdminBrand />
+
+      <Stack spacing={2.65} sx={{ px: 1.1, pt: 2, flex: 1 }}>
+        <SidebarSection title="Overview">
+          <SidebarItem icon={<DashboardOutlined />} label="Dashboard" to={dashboardPath(user?.role)} />
+          <SidebarItem icon={<AnalyticsOutlined />} label="Analytics" to="/admin/analytics" />
+        </SidebarSection>
+
+        <SidebarSection title="Management">
+          {user?.role === 'admin' ? (
+            <SidebarItem icon={<PeopleOutlineOutlined />} label="Users" to="/admin/users" />
+          ) : null}
+          <SidebarItem icon={<MenuBookOutlined />} label="Courses" to="/lessons/upload" active />
+          <SidebarItem icon={<CalendarMonthOutlined />} label="Schedule" to="/activity" />
+        </SidebarSection>
+
+        <SidebarSection title="System">
+          <SidebarItem icon={<SettingsOutlined />} label="Settings" to={user?.role === 'admin' ? '/admin/settings' : '/profile-settings'} />
+          <SidebarItem icon={<HelpOutlineOutlined />} label="Support" to="/help-center" />
+        </SidebarSection>
+      </Stack>
+
+      <Box sx={{ px: 1.9, py: 2.2, borderTop: '1px solid #EEF2F6' }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.8, minWidth: 0 }}>
+          <Avatar sx={{ width: 23, height: 23, bgcolor: '#D5E7FF', color: '#2563EB', fontSize: '0.55rem', fontWeight: 800 }}>
+            {initials}
+          </Avatar>
+          <Box sx={{ minWidth: 0 }}>
+            <Typography sx={{ color: '#111827', fontSize: '0.64rem', fontWeight: 700, lineHeight: 1.2 }} noWrap>
+              {userName}
+            </Typography>
+            <Typography sx={{ color: '#8B9AAF', fontSize: '0.54rem', fontWeight: 600, lineHeight: 1.2 }} noWrap>
+              {roleLabel(user?.role)}
+            </Typography>
+          </Box>
+        </Box>
+      </Box>
+    </Box>
+  );
+}
+
+function AttachmentRow({ attachment, onRemove }: { attachment: AttachmentItem; onRemove: () => void }) {
   return (
     <Box
       sx={{
+        minHeight: 35,
+        px: 1.1,
+        py: 0.8,
+        bgcolor: '#FFFFFF',
+        border: '1px solid #E6ECF4',
+        borderRadius: '4px',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
-        gap: 1.5,
-        px: 1.5,
-        py: 1.25,
-        borderRadius: 1.5,
-        border: '1px solid',
-        borderColor: 'divider',
-        bgcolor: 'background.paper',
+        gap: 1,
       }}
     >
-      <Box sx={{ minWidth: 0 }}>
-        <Typography variant="body2" sx={{ fontWeight: 700 }} noWrap>
-          {attachment.name}
-        </Typography>
-        <Typography variant="caption" sx={{ color: 'text.secondary' }}>
-          {attachment.size}
-        </Typography>
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.8, minWidth: 0 }}>
+        <Box
+          sx={{
+            width: 21,
+            height: 21,
+            borderRadius: '4px',
+            bgcolor: '#EDF4FF',
+            color: '#2563EB',
+            display: 'grid',
+            placeItems: 'center',
+            flexShrink: 0,
+          }}
+        >
+          <InsertDriveFileOutlined sx={{ fontSize: 13 }} />
+        </Box>
+        <Box sx={{ minWidth: 0 }}>
+          <Typography sx={{ color: '#111827', fontSize: '0.62rem', fontWeight: 700, lineHeight: 1.2 }} noWrap>
+            {attachment.name}
+          </Typography>
+          <Typography sx={{ color: '#8B9AAF', fontSize: '0.52rem', lineHeight: 1.2 }}>
+            {attachment.size}
+          </Typography>
+        </Box>
       </Box>
-      <IconButton size="small" onClick={onRemove} sx={{ color: 'text.secondary' }}>
-        <CloseOutlined fontSize="small" />
+
+      <IconButton size="small" onClick={onRemove} aria-label={`Remove ${attachment.name}`} sx={{ width: 20, height: 20, color: '#A7B1C2' }}>
+        <CloseOutlined sx={{ fontSize: 12 }} />
       </IconButton>
     </Box>
   );
 }
 
 export default function UploadLesson() {
-  const { upload, isUploading } = useContent();
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const courseIdFromUrl = searchParams.get('courseId')?.trim() || '';
+  const moduleIdFromUrl = searchParams.get('moduleId')?.trim() || '';
+
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [duration, setDuration] = useState('0');
   const [visibility, setVisibility] = useState<Visibility>('Public');
   const [attachments, setAttachments] = useState<AttachmentItem[]>([]);
-  const [courses, setCourses] = useState<CourseOption[]>([]);
-  const [courseModules, setCourseModules] = useState<ModuleOption[]>([]);
-  const [selectedCourseId, setSelectedCourseId] = useState('');
+  const [courseSections, setCourseSections] = useState<CourseSectionOption[]>([]);
   const [selectedModuleId, setSelectedModuleId] = useState('');
-  const [uploadedVideoName, setUploadedVideoName] = useState<string | null>(null);
-  const [uploadedVideoUrl, setUploadedVideoUrl] = useState<string | null>(null);
+  const [uploadedVideo, setUploadedVideo] = useState<UploadedMedia | null>(null);
+  const [uploadedVideoName, setUploadedVideoName] = useState('');
   const [statusMessage, setStatusMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
-  const [isLoadingCourses, setIsLoadingCourses] = useState(false);
-  const [isLoadingModules, setIsLoadingModules] = useState(false);
+  const [isLoadingSections, setIsLoadingSections] = useState(false);
+  const [isUploadingVideo, setIsUploadingVideo] = useState(false);
+  const [isUploadingAttachment, setIsUploadingAttachment] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
   const videoInputRef = useRef<HTMLInputElement | null>(null);
   const attachmentInputRef = useRef<HTMLInputElement | null>(null);
 
-  useEffect(() => {
-    const loadCourses = async () => {
-      setIsLoadingCourses(true);
-      try {
-        const response = await api.get<CourseOption[]>('/api/courses');
-        const nextCourses = response.data ?? [];
-        setCourses(nextCourses);
-        if (nextCourses.length > 0) {
-          setSelectedCourseId(nextCourses[0]._id);
-        }
-      } catch (requestError) {
-        setStatusMessage({
-          type: 'error',
-          text: normalizeApiError(requestError).message || 'Failed to load courses.',
-        });
-      } finally {
-        setIsLoadingCourses(false);
-      }
-    };
-
-    void loadCourses();
-  }, []);
+  const selectedSection = useMemo(
+    () => courseSections.find((section) => section._id === selectedModuleId) ?? null,
+    [courseSections, selectedModuleId],
+  );
 
   useEffect(() => {
-    if (!selectedCourseId) {
-      setCourseModules([]);
-      setSelectedModuleId('');
-      return;
+    if (!user) {
+      return undefined;
     }
 
-    const loadModules = async () => {
-      setIsLoadingModules(true);
+    let isActive = true;
+
+    const loadSections = async () => {
+      setIsLoadingSections(true);
+      setStatusMessage(null);
+
       try {
-        const response = await api.get<ModuleOption[]>(`/api/courses/${selectedCourseId}/modules`);
-        const nextModules = response.data ?? [];
-        setCourseModules(nextModules);
-        setSelectedModuleId(nextModules[0]?._id ?? '');
+        const endpoints = user.role === 'instructor'
+          ? [
+            `/api/courses?status=published&instructor=${encodeURIComponent(user._id)}`,
+            '/api/courses?status=draft',
+          ]
+          : [
+            '/api/courses?status=published',
+            '/api/courses?status=draft',
+          ];
+
+        const courseResponses = await Promise.allSettled(endpoints.map((endpoint) => api.get<CourseOption[]>(endpoint)));
+        const courseMap = new Map<string, CourseOption>();
+
+        courseResponses.forEach((response) => {
+          if (response.status !== 'fulfilled') {
+            return;
+          }
+
+          (response.value.data || []).forEach((course) => {
+            if (course?._id) {
+              courseMap.set(course._id, course);
+            }
+          });
+        });
+
+        let courses = [...courseMap.values()];
+        if (courseIdFromUrl) {
+          courses = courses.filter((course) => course._id === courseIdFromUrl);
+        }
+
+        if (courses.length === 0) {
+          if (!isActive) return;
+          setCourseSections([]);
+          setSelectedModuleId('');
+          setStatusMessage({
+            type: 'error',
+            text: 'Create a course and module before uploading a lesson.',
+          });
+          return;
+        }
+
+        const moduleResponses = await Promise.allSettled(
+          courses.map(async (course) => {
+            const response = await api.get<ModuleOption[]>(`/api/courses/${course._id}/modules`);
+            return { course, modules: response.data || [] };
+          }),
+        );
+
+        const nextSections = moduleResponses.flatMap((response) => {
+          if (response.status !== 'fulfilled') {
+            return [];
+          }
+
+          return response.value.modules.map((moduleItem) => ({
+            _id: moduleItem._id,
+            title: moduleItem.title,
+            courseId: response.value.course._id,
+            courseTitle: response.value.course.title,
+          }));
+        });
+
+        if (!isActive) return;
+
+        setCourseSections(nextSections);
+        setSelectedModuleId((current) => {
+          if (current && nextSections.some((section) => section._id === current)) {
+            return current;
+          }
+
+          if (moduleIdFromUrl && nextSections.some((section) => section._id === moduleIdFromUrl)) {
+            return moduleIdFromUrl;
+          }
+
+          return nextSections[0]?._id ?? '';
+        });
+
+        if (nextSections.length === 0) {
+          setStatusMessage({
+            type: 'error',
+            text: 'Add a module to your course before uploading a lesson.',
+          });
+        }
       } catch (requestError) {
-        setCourseModules([]);
-        setSelectedModuleId('');
+        if (!isActive) return;
         setStatusMessage({
           type: 'error',
           text: normalizeApiError(requestError).message || 'Failed to load course sections.',
         });
       } finally {
-        setIsLoadingModules(false);
+        if (isActive) {
+          setIsLoadingSections(false);
+        }
       }
     };
 
-    void loadModules();
-  }, [selectedCourseId]);
+    void loadSections();
 
-  const handleFiles = async (files: FileList | null) => {
+    return () => {
+      isActive = false;
+    };
+  }, [courseIdFromUrl, moduleIdFromUrl, user]);
+
+  const uploadMediaFile = async (file: File) => {
+    await ensureCsrfToken();
+
+    const formData = new FormData();
+    formData.append('file', file);
+
+    const response = await api.post<UploadedMedia>('/api/content/upload', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+      timeout: 0,
+    });
+
+    return response.data;
+  };
+
+  const handleVideoFiles = async (files: FileList | null) => {
     if (!files?.length) {
       return;
     }
 
     const file = files[0];
-    setUploadedVideoName(file.name);
+    if (file.size > maxVideoBytes) {
+      setStatusMessage({ type: 'error', text: 'Video files must be 2GB or smaller.' });
+      return;
+    }
 
-    const formData = new FormData();
-    formData.append('file', file);
+    setUploadedVideoName(file.name);
+    setIsUploadingVideo(true);
+    setStatusMessage(null);
 
     try {
-      const uploadedMedia = await upload(formData);
-      setUploadedVideoUrl(typeof uploadedMedia.url === 'string' ? uploadedMedia.url : null);
+      const media = await uploadMediaFile(file);
+      setUploadedVideo(media);
       setStatusMessage({ type: 'success', text: `Video uploaded: ${file.name}` });
     } catch (requestError) {
+      setUploadedVideo(null);
+      setUploadedVideoName('');
       setStatusMessage({
         type: 'error',
         text: normalizeApiError(requestError).message || `Failed to upload video: ${file.name}`,
       });
+    } finally {
+      setIsUploadingVideo(false);
     }
   };
 
   const handleDrop = (event: DragEvent<HTMLDivElement>) => {
     event.preventDefault();
     event.stopPropagation();
-    void handleFiles(event.dataTransfer.files);
-  };
-
-  const handleSelectFiles = () => {
-    videoInputRef.current?.click();
-  };
-
-  const handleSelectAttachment = () => {
-    attachmentInputRef.current?.click();
-  };
-
-  const removeAttachment = (name: string) => {
-    setAttachments((current) => current.filter((attachment) => attachment.name !== name));
+    void handleVideoFiles(event.dataTransfer.files);
   };
 
   const addAttachment = async (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     event.target.value = '';
+
     if (!file) {
       return;
     }
 
-    const formData = new FormData();
-    formData.append('file', file);
+    setIsUploadingAttachment(true);
+    setStatusMessage(null);
 
     try {
-      const uploadedMedia = await upload(formData);
-      const sizeInMb = (file.size / (1024 * 1024)).toFixed(1);
+      const media = await uploadMediaFile(file);
       setAttachments((current) => [
         ...current,
-        { name: file.name, size: `${sizeInMb} MB`, url: typeof uploadedMedia.url === 'string' ? uploadedMedia.url : undefined },
+        {
+          name: file.name,
+          size: formatFileSize(file.size),
+          url: resolveMediaUrl(media.url),
+          mediaId: media._id,
+        },
       ]);
       setStatusMessage({ type: 'success', text: `Attachment uploaded: ${file.name}` });
     } catch (requestError) {
@@ -211,56 +558,70 @@ export default function UploadLesson() {
         type: 'error',
         text: normalizeApiError(requestError).message || `Failed to upload attachment: ${file.name}`,
       });
+    } finally {
+      setIsUploadingAttachment(false);
     }
   };
 
   const createLesson = async (nextVisibility: Visibility) => {
     const trimmedTitle = title.trim();
+    const numericDuration = Number(duration);
+    const status = visibilityToStatus(nextVisibility);
+
     if (!trimmedTitle) {
       setStatusMessage({ type: 'error', text: 'Lesson title is required.' });
       return;
     }
-    if (!selectedCourseId) {
-      setStatusMessage({ type: 'error', text: 'Select a course before saving.' });
-      return;
-    }
+
     if (!selectedModuleId) {
       setStatusMessage({ type: 'error', text: 'Select a course section before saving.' });
       return;
     }
 
-    const numericDuration = Number(duration);
+    if (status === 'published' && !uploadedVideo?.url) {
+      setStatusMessage({ type: 'error', text: 'Upload a video before publishing this lesson.' });
+      return;
+    }
+
     if (!Number.isFinite(numericDuration) || numericDuration < 0) {
       setStatusMessage({ type: 'error', text: 'Duration must be a valid non-negative number.' });
       return;
     }
 
     setIsSubmitting(true);
-    try {
-      const notesLines = [
-        uploadedVideoUrl ? `Video URL: ${uploadedVideoUrl}` : null,
-        attachments.length > 0
-          ? `Attachments: ${attachments.map((attachment) => `${attachment.name}${attachment.url ? ` (${attachment.url})` : ''}`).join(', ')}`
-          : null,
-      ].filter(Boolean);
+    setStatusMessage(null);
 
+    try {
+      await ensureCsrfToken();
       await api.post(`/api/courses/modules/${selectedModuleId}/lessons`, {
         title: trimmedTitle,
         content: description.trim(),
+        videoUrl: resolveMediaUrl(uploadedVideo?.url),
         type: 'video',
         duration: Math.round(numericDuration),
-        notes: notesLines.join('\n'),
+        status,
+        attachments: attachments.map((attachment) => ({
+          name: attachment.name,
+          size: attachment.size,
+          url: attachment.url || '',
+          mediaId: attachment.mediaId || undefined,
+        })),
+        notes: selectedSection ? `Course: ${selectedSection.courseTitle}` : '',
       });
 
       setStatusMessage({
         type: 'success',
-        text: nextVisibility === 'Public' ? 'Lesson published successfully.' : 'Lesson draft saved successfully.',
+        text: status === 'published'
+          ? 'Lesson published successfully.'
+          : status === 'scheduled'
+            ? 'Lesson scheduled successfully.'
+            : 'Lesson draft saved successfully.',
       });
       setTitle('');
       setDescription('');
       setDuration('0');
-      setUploadedVideoName(null);
-      setUploadedVideoUrl(null);
+      setUploadedVideo(null);
+      setUploadedVideoName('');
       setAttachments([]);
     } catch (requestError) {
       setStatusMessage({
@@ -272,221 +633,379 @@ export default function UploadLesson() {
     }
   };
 
-  const publishLesson = () => {
-    void createLesson(visibility);
-  };
-
-  const saveDraft = () => {
-    void createLesson('Private');
-  };
+  const isBusy = isUploadingVideo || isUploadingAttachment || isSubmitting;
 
   return (
-    <Box sx={{ minHeight: '100%', bgcolor: 'background.default' }}>
-      <DashboardPageFrame
-        title="Lesson Upload"
-        description="Create lesson content and publish it into structured course modules."
-        actions={(
-          <Button
-            component={RouterLink}
-            to="/courses/new"
-            variant="outlined"
-          >
-            Back to Course Builder
-          </Button>
-        )}
-      >
-        {statusMessage ? (
-          <Alert severity={statusMessage.type} sx={{ mb: 2.25, borderRadius: 1.5 }} onClose={() => setStatusMessage(null)}>
-            {statusMessage.text}
-          </Alert>
-        ) : null}
+    <Box
+      sx={{
+        minHeight: '100vh',
+        bgcolor: '#EEF3FA',
+        display: 'grid',
+        gridTemplateColumns: { xs: '1fr', md: `${sidebarWidth}px minmax(0, 1fr)` },
+      }}
+    >
+      <EduAdminSidebar />
 
-        <Grid container spacing={2.5} sx={{ alignItems: 'stretch' }}>
-          <Grid size={{ xs: 12, lg: 8 }}>
-            <Stack spacing={2.5}>
-              <Card sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 2 }}>
-                <CardContent sx={{ p: { xs: 2.5, md: 3 } }}>
-                  <Stack spacing={2.25}>
-                    <Box>
-                      <Typography variant="h6" sx={{ fontWeight: 800, mb: 1 }}>
-                        Video Source
-                      </Typography>
+      <Box sx={{ minWidth: 0 }}>
+        <Box
+          component="header"
+          sx={{
+            height: 42,
+            bgcolor: '#FFFFFF',
+            borderBottom: '1px solid #DDE5F0',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            px: { xs: 1.5, md: 2 },
+          }}
+        >
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.2, minWidth: 0 }}>
+            <IconButton
+              aria-label="Go back"
+              onClick={() => navigate(-1)}
+              sx={{
+                width: 22,
+                height: 22,
+                border: '1px solid #E4EAF2',
+                color: '#A2ACBB',
+                bgcolor: '#FFFFFF',
+              }}
+            >
+              <ArrowBackIosNewOutlined sx={{ fontSize: 11 }} />
+            </IconButton>
+            <Typography sx={{ color: '#111827', fontSize: '0.85rem', fontWeight: 800 }} noWrap>
+              Upload Lesson
+            </Typography>
+          </Box>
+
+          <IconButton
+            component={RouterLink}
+            to="/notifications"
+            aria-label="Notifications"
+            sx={{
+              width: 24,
+              height: 24,
+              border: '1px solid #E4EAF2',
+              color: '#111827',
+              bgcolor: '#FFFFFF',
+            }}
+          >
+            <NotificationsNoneOutlined sx={{ fontSize: 14 }} />
+          </IconButton>
+        </Box>
+
+        <Box component="main" sx={{ px: { xs: 1.5, md: 2.5 }, py: { xs: 1.5, md: 2.8 } }}>
+          {statusMessage ? (
+            <Alert
+              severity={statusMessage.type}
+              onClose={() => setStatusMessage(null)}
+              sx={{ mb: 1.6, borderRadius: '6px', py: 0.35, fontSize: '0.72rem' }}
+            >
+              {statusMessage.text}
+            </Alert>
+          ) : null}
+
+          <Box
+            sx={{
+              display: 'grid',
+              gridTemplateColumns: { xs: '1fr', lg: 'minmax(460px, 1fr) 232px' },
+              gap: 2,
+              alignItems: 'start',
+              maxWidth: 900,
+            }}
+          >
+            <Box>
+              <Box sx={{ ...panelSx, p: 1.9 }}>
+                <Stack spacing={1.75}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.65 }}>
+                    <VideocamOutlined sx={{ color: '#2563EB', fontSize: 13 }} />
+                    <Typography sx={{ color: '#111827', fontSize: '0.72rem', fontWeight: 800 }}>
+                      Video Source
+                    </Typography>
+                  </Box>
+
+                  <Box
+                    onDragOver={(event) => event.preventDefault()}
+                    onDrop={handleDrop}
+                    sx={{
+                      height: { xs: 178, md: 180 },
+                      border: '1px dashed #BFD2EC',
+                      borderRadius: '5px',
+                      bgcolor: '#DDEAFB',
+                      display: 'grid',
+                      placeItems: 'center',
+                      px: 2,
+                      cursor: 'pointer',
+                    }}
+                    onClick={() => videoInputRef.current?.click()}
+                  >
+                    <Stack spacing={1.15} sx={{ alignItems: 'center', textAlign: 'center' }}>
                       <Box
-                        onDragOver={(event) => event.preventDefault()}
-                        onDrop={handleDrop}
                         sx={{
-                          border: '2px dashed',
-                          borderColor: 'divider',
-                          borderRadius: 1.5,
-                          bgcolor: 'background.default',
-                          minHeight: 250,
+                          width: 42,
+                          height: 42,
+                          borderRadius: '50%',
+                          bgcolor: '#FFFFFF',
+                          color: '#2563EB',
                           display: 'grid',
                           placeItems: 'center',
-                          p: 3,
-                          transition: 'border-color 160ms ease',
-                          '&:hover': {
-                            borderColor: 'primary.main',
-                          },
                         }}
                       >
-                        <Stack spacing={2} sx={{ alignItems: 'center', textAlign: 'center', maxWidth: 420 }}>
-                          <Box
-                            sx={{
-                              width: 68,
-                              height: 68,
-                              borderRadius: 2,
-                              border: '1px solid',
-                              borderColor: 'divider',
-                              bgcolor: 'background.paper',
-                              color: 'primary.main',
-                              display: 'grid',
-                              placeItems: 'center',
-                            }}
-                          >
-                            <CloudUploadOutlined sx={{ fontSize: 34 }} />
-                          </Box>
-                          <Box>
-                            <Typography variant="h6" sx={{ fontWeight: 800 }}>
-                              Drag and drop video files here
-                            </Typography>
-                            <Typography variant="body2" sx={{ mt: 0.75, color: 'text.secondary' }}>
-                              MP4, WebM or Ogg. Max file size 2GB.
-                            </Typography>
-                          </Box>
-                          <Button variant="contained" onClick={handleSelectFiles} sx={{ minWidth: 160 }}>
-                            Select Files
-                          </Button>
-                        </Stack>
-                        <input ref={videoInputRef} type="file" accept="video/mp4,video/webm,video/ogg" hidden onChange={(event) => {
-                          void handleFiles(event.target.files);
-                          event.target.value = '';
-                        }} />
+                        <CloudUploadOutlined sx={{ fontSize: 23 }} />
                       </Box>
-                      {uploadedVideoName ? (
-                        <Typography variant="body2" sx={{ mt: 1.5, color: 'text.secondary', fontWeight: 600 }}>
-                          Selected video: {uploadedVideoName}
+                      <Box>
+                        <Typography sx={{ color: '#111827', fontSize: '0.76rem', fontWeight: 800, lineHeight: 1.2 }}>
+                          {uploadedVideoName || isUploadingVideo ? (isUploadingVideo ? 'Uploading video...' : uploadedVideoName) : 'Drag and drop video files here'}
                         </Typography>
-                      ) : null}
-                    </Box>
-
-                    <Box>
-                      <Typography variant="body2" sx={{ color: 'text.secondary', fontWeight: 700, mb: 0.75 }}>
-                        Lesson Title
-                      </Typography>
-                      <TextField value={title} onChange={(event) => setTitle(event.target.value)} placeholder="e.g. Introduction to UX Design Principles" fullWidth />
-                    </Box>
-
-                    <Box>
-                      <Typography variant="body2" sx={{ color: 'text.secondary', fontWeight: 700, mb: 0.75 }}>
-                        Description
-                      </Typography>
-                      <TextField
-                        value={description}
-                        onChange={(event) => setDescription(event.target.value)}
-                        placeholder="Describe what students will learn in this lesson..."
-                        fullWidth
-                        multiline
-                        minRows={5}
-                      />
-                    </Box>
-
-                    <Box>
-                      <Typography variant="body2" sx={{ color: 'text.secondary', fontWeight: 700, mb: 0.75 }}>
-                        Attachments
-                      </Typography>
-                      <Stack spacing={1.25}>
-                        {attachments.map((attachment) => (
-                          <FileChip key={attachment.name} attachment={attachment} onRemove={() => removeAttachment(attachment.name)} />
-                        ))}
-                        <Button variant="outlined" onClick={handleSelectAttachment} sx={{ alignSelf: 'flex-start' }} disabled={isUploading}>
-                          + Add Attachment
-                        </Button>
-                        <input ref={attachmentInputRef} type="file" hidden onChange={(event) => { void addAttachment(event); }} />
-                      </Stack>
-                    </Box>
-                  </Stack>
-                </CardContent>
-              </Card>
-            </Stack>
-          </Grid>
-
-          <Grid size={{ xs: 12, lg: 4 }}>
-            <Card sx={{ height: '100%', border: '1px solid', borderColor: 'divider', borderRadius: 2 }}>
-              <CardContent sx={{ p: { xs: 2.5, md: 3 } }}>
-                <Stack spacing={2.25}>
-                  <Box>
-                    <Typography variant="h6" sx={{ fontWeight: 800, mb: 1 }}>
-                      Publish Settings
-                    </Typography>
-                    <FormControl>
-                      <FormLabel sx={{ color: 'text.secondary', fontWeight: 700, mb: 1 }}>Visibility</FormLabel>
-                      <RadioGroup value={visibility} onChange={(event) => setVisibility(event.target.value as Visibility)}>
-                        <FormControlLabel value="Public" control={<Radio />} label="Public" />
-                        <FormControlLabel value="Private" control={<Radio />} label="Private (Draft)" />
-                        <FormControlLabel value="Scheduled" control={<Radio />} label="Scheduled" />
-                      </RadioGroup>
-                    </FormControl>
+                        <Typography sx={{ mt: 0.35, color: '#8B9AAF', fontSize: '0.61rem', lineHeight: 1.2 }}>
+                          MP4, WebM or Ogg. Max file size 2GB.
+                        </Typography>
+                      </Box>
+                      <Button
+                        variant="outlined"
+                        size="small"
+                        disabled={isUploadingVideo}
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          videoInputRef.current?.click();
+                        }}
+                        sx={{
+                          minWidth: 67,
+                          height: 24,
+                          px: 1.1,
+                          py: 0,
+                          borderColor: '#C9D4E4',
+                          color: '#111827',
+                          bgcolor: '#EEF4FB',
+                          fontSize: '0.58rem',
+                          fontWeight: 600,
+                        }}
+                      >
+                        Select Files
+                      </Button>
+                    </Stack>
+                    <input
+                      ref={videoInputRef}
+                      type="file"
+                      accept="video/mp4,video/webm,video/ogg,video/quicktime"
+                      hidden
+                      onChange={(event) => {
+                        void handleVideoFiles(event.target.files);
+                        event.target.value = '';
+                      }}
+                    />
                   </Box>
 
                   <Box>
-                    <Typography variant="body2" sx={{ color: 'text.secondary', fontWeight: 700, mb: 0.75 }}>
-                      Course
-                    </Typography>
-                    <Select
-                      value={selectedCourseId}
-                      onChange={(event) => setSelectedCourseId(event.target.value)}
+                    <Typography sx={{ ...labelSx, mb: 0.7 }}>Lesson Title</Typography>
+                    <InputBase
+                      value={title}
+                      onChange={(event) => setTitle(event.target.value)}
+                      placeholder="e.g. Introduction to UX Design Principles"
                       fullWidth
-                      displayEmpty
-                      disabled={isLoadingCourses}
-                    >
-                      {courses.length === 0 ? (
-                        <MenuItem value="" disabled>
-                          {isLoadingCourses ? 'Loading courses...' : 'No courses available'}
-                        </MenuItem>
-                      ) : null}
-                      {courses.map((course) => (
-                        <MenuItem key={course._id} value={course._id}>{course.title}</MenuItem>
-                      ))}
-                    </Select>
+                      sx={{
+                        minHeight: 24,
+                        fontSize: '0.66rem',
+                        color: '#111827',
+                        '& input::placeholder': { color: '#8D97A6', opacity: 1 },
+                      }}
+                    />
                   </Box>
 
                   <Box>
-                    <Typography variant="body2" sx={{ color: 'text.secondary', fontWeight: 700, mb: 0.75 }}>
-                      Course Section
-                    </Typography>
-                    <Select value={selectedModuleId} onChange={(event) => setSelectedModuleId(event.target.value)} fullWidth displayEmpty disabled={!selectedCourseId || isLoadingModules}>
-                      {courseModules.length === 0 ? (
-                        <MenuItem value="" disabled>
-                          {isLoadingModules ? 'Loading sections...' : 'No sections available'}
-                        </MenuItem>
-                      ) : null}
-                      {courseModules.map((moduleItem) => (
-                        <MenuItem key={moduleItem._id} value={moduleItem._id}>{moduleItem.title}</MenuItem>
-                      ))}
-                    </Select>
+                    <Typography sx={{ ...labelSx, mb: 0.7 }}>Description</Typography>
+                    <InputBase
+                      value={description}
+                      onChange={(event) => setDescription(event.target.value)}
+                      placeholder="Describe what students will learn in this lesson..."
+                      fullWidth
+                      multiline
+                      minRows={4}
+                      sx={{
+                        minHeight: 66,
+                        alignItems: 'flex-start',
+                        bgcolor: '#FFFFFF',
+                        fontSize: '0.66rem',
+                        color: '#111827',
+                        '& textarea::placeholder': { color: '#8D97A6', opacity: 1 },
+                      }}
+                    />
                   </Box>
-
-                  <Box>
-                    <Typography variant="body2" sx={{ color: 'text.secondary', fontWeight: 700, mb: 0.75 }}>
-                      Duration (min)
-                    </Typography>
-                    <TextField value={duration} onChange={(event) => setDuration(event.target.value)} fullWidth />
-                  </Box>
-
-                  <Stack spacing={1.25}>
-                    <Button variant="contained" fullWidth onClick={publishLesson} disabled={isUploading || isSubmitting} sx={{ py: 1.5 }}>
-                      {isSubmitting ? 'Saving...' : 'Publish Lesson'}
-                    </Button>
-                    <Button variant="outlined" fullWidth onClick={saveDraft} disabled={isUploading || isSubmitting} sx={{ py: 1.5 }}>
-                      {isSubmitting ? 'Saving...' : 'Save Draft'}
-                    </Button>
-                  </Stack>
                 </Stack>
-              </CardContent>
-            </Card>
-          </Grid>
-        </Grid>
-      </DashboardPageFrame>
+              </Box>
+
+              <Box sx={{ mt: 2.45 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.65, mb: 1.05 }}>
+                  <AttachFileOutlined sx={{ color: '#2563EB', fontSize: 14 }} />
+                  <Typography sx={{ color: '#111827', fontSize: '0.75rem', fontWeight: 800 }}>
+                    Attachments
+                  </Typography>
+                </Box>
+                <Stack spacing={0.8}>
+                  {attachments.map((attachment) => (
+                    <AttachmentRow
+                      key={`${attachment.name}-${attachment.url || attachment.size}`}
+                      attachment={attachment}
+                      onRemove={() => setAttachments((current) => current.filter((item) => item !== attachment))}
+                    />
+                  ))}
+
+                  <Button
+                    variant="outlined"
+                    disabled={isUploadingAttachment}
+                    onClick={() => attachmentInputRef.current?.click()}
+                    sx={{
+                      minHeight: 24,
+                      borderStyle: 'dashed',
+                      borderColor: '#D7E0EC',
+                      color: '#111827',
+                      bgcolor: 'transparent',
+                      fontSize: '0.62rem',
+                      fontWeight: 600,
+                      py: 0.2,
+                      '&:hover': { borderStyle: 'dashed', bgcolor: '#F7FAFE' },
+                    }}
+                  >
+                    {`+  ${isUploadingAttachment ? 'Uploading Attachment' : 'Add Attachment'}`}
+                  </Button>
+                  <input ref={attachmentInputRef} type="file" hidden onChange={(event) => { void addAttachment(event); }} />
+                </Stack>
+              </Box>
+            </Box>
+
+            <Box sx={{ ...panelSx, p: 1.9 }}>
+              <Typography sx={{ color: '#111827', fontSize: '0.75rem', fontWeight: 800, mb: 1.55 }}>
+                Publish Settings
+              </Typography>
+
+              <Stack spacing={2.05}>
+                <Box>
+                  <Typography sx={{ ...labelSx, mb: 0.65 }}>Visibility</Typography>
+                  <RadioGroup
+                    value={visibility}
+                    onChange={(event) => setVisibility(event.target.value as Visibility)}
+                    sx={{
+                      gap: 0.12,
+                      '& .MuiFormControlLabel-root': { m: 0, minHeight: 19 },
+                      '& .MuiRadio-root': { p: 0.35, color: '#D1D8E4' },
+                      '& .MuiRadio-root.Mui-checked': { color: '#2563EB' },
+                      '& .MuiSvgIcon-root': { fontSize: 13 },
+                      '& .MuiFormControlLabel-label': { fontSize: '0.64rem', color: '#111827' },
+                    }}
+                  >
+                    <FormControlLabel value="Public" control={<Radio />} label="Public" />
+                    <FormControlLabel value="Private" control={<Radio />} label="Private (Draft)" />
+                    <FormControlLabel value="Scheduled" control={<Radio />} label="Scheduled" />
+                  </RadioGroup>
+                </Box>
+
+                <Box>
+                  <Typography sx={{ ...labelSx, mb: 0.75 }}>Course Section</Typography>
+                  <Select
+                    value={selectedModuleId}
+                    onChange={(event) => setSelectedModuleId(event.target.value)}
+                    variant="standard"
+                    fullWidth
+                    disableUnderline
+                    disabled={isLoadingSections}
+                    displayEmpty
+                    sx={{
+                      color: '#111827',
+                      fontSize: '0.64rem',
+                      fontWeight: 600,
+                      minHeight: 24,
+                      '& .MuiSelect-select': { px: 0, py: 0.2, pr: 2.5 },
+                      '& .MuiSelect-icon': { color: '#9CA7B8', fontSize: 16 },
+                    }}
+                    renderValue={(value) => {
+                      const section = courseSections.find((item) => item._id === value);
+                      if (section) return section.title;
+                      return isLoadingSections ? 'Loading sections...' : 'No sections available';
+                    }}
+                  >
+                    {courseSections.length === 0 ? (
+                      <MenuItem value="" disabled>
+                        {isLoadingSections ? 'Loading sections...' : 'No sections available'}
+                      </MenuItem>
+                    ) : null}
+                    {courseSections.map((section) => (
+                      <MenuItem key={section._id} value={section._id}>
+                        <Box>
+                          <Typography sx={{ fontSize: '0.72rem', fontWeight: 700 }}>
+                            {section.title}
+                          </Typography>
+                          <Typography sx={{ fontSize: '0.58rem', color: '#8B9AAF' }}>
+                            {section.courseTitle}
+                          </Typography>
+                        </Box>
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </Box>
+
+                <Box>
+                  <Typography sx={{ ...labelSx, mb: 0.75 }}>Duration (min)</Typography>
+                  <InputBase
+                    value={duration}
+                    onChange={(event) => setDuration(event.target.value)}
+                    inputProps={{ inputMode: 'numeric' }}
+                    fullWidth
+                    sx={{
+                      minHeight: 24,
+                      color: '#111827',
+                      fontSize: '0.64rem',
+                      '& input': { px: 0 },
+                    }}
+                  />
+                </Box>
+
+                <Box sx={{ height: 1, bgcolor: '#E7EDF5', my: 0.25 }} />
+
+                <Stack spacing={0.9}>
+                  <Button
+                    variant="contained"
+                    disabled={isBusy}
+                    onClick={() => { void createLesson(visibility); }}
+                    sx={{
+                      height: 26,
+                      bgcolor: '#2563EB',
+                      color: '#FFFFFF',
+                      fontSize: '0.62rem',
+                      fontWeight: 600,
+                      borderRadius: '4px',
+                      py: 0,
+                      '&:hover': { bgcolor: '#1D4ED8' },
+                    }}
+                  >
+                    {isSubmitting ? 'Saving...' : 'Publish Lesson'}
+                  </Button>
+                  <Button
+                    variant="outlined"
+                    disabled={isBusy}
+                    onClick={() => {
+                      setVisibility('Private');
+                      void createLesson('Private');
+                    }}
+                    sx={{
+                      height: 27,
+                      bgcolor: '#EAF2FD',
+                      borderColor: '#C9D8EA',
+                      color: '#111827',
+                      fontSize: '0.62rem',
+                      fontWeight: 600,
+                      borderRadius: '4px',
+                      py: 0,
+                      '&:hover': { bgcolor: '#DFEBFA', borderColor: '#B9CAE0' },
+                    }}
+                  >
+                    {isSubmitting ? 'Saving...' : 'Save Draft'}
+                  </Button>
+                </Stack>
+              </Stack>
+            </Box>
+          </Box>
+        </Box>
+      </Box>
     </Box>
   );
 }

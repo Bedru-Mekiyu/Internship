@@ -20,5 +20,6 @@ const quizAttemptSchema = new mongoose.Schema({
 });
 
 quizAttemptSchema.index({ quizId: 1, userId: 1, submittedAt: -1 });
+quizAttemptSchema.index({ userId: 1, submittedAt: -1 });
 
 export const QuizAttempt = mongoose.model('QuizAttempt', quizAttemptSchema);

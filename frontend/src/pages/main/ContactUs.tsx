@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, type ChangeEvent, type FormEvent } from 'react';
+import { useEffect, useMemo, useState, type ChangeEvent, type FormEvent, type ReactNode } from 'react';
 import {
   Alert,
   Box,
@@ -12,6 +12,12 @@ import {
   TextField,
   Typography,
 } from '@mui/material';
+import {
+  BoltOutlined,
+  EmailOutlined,
+  LocationOnOutlined,
+  PhoneOutlined,
+} from '@mui/icons-material';
 import { Link as RouterLink } from 'react-router-dom';
 import { api, normalizeApiError } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
@@ -52,23 +58,7 @@ const emptySettings: ContactPublicSettings = {
 };
 
 function BrandMark() {
-  return (
-    <Box
-      sx={{
-        width: 40,
-        height: 40,
-        borderRadius: 1.5,
-        bgcolor: 'primary.main',
-        color: '#FFFFFF',
-        display: 'grid',
-        placeItems: 'center',
-        fontWeight: 900,
-        flexShrink: 0,
-      }}
-    >
-      LS
-    </Box>
-  );
+  return <BoltOutlined sx={{ fontSize: 16, color: 'primary.main', flexShrink: 0 }} />;
 }
 
 function TopNav() {
@@ -80,38 +70,29 @@ function TopNav() {
   ];
 
   return (
-    <Box
-      sx={{
-        position: 'sticky',
-        top: 0,
-        zIndex: 20,
-        bgcolor: 'background.paper',
-        borderBottom: '1px solid',
-        borderColor: 'divider',
-      }}
-    >
+    <Box sx={{ bgcolor: '#FFFFFF', borderBottom: '1px solid', borderColor: '#E3E8F1' }}>
       <Container maxWidth="xl">
-        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 3, py: 2 }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.25 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 2, py: 1 }}>
+          <Link component={RouterLink} to="/" underline="none" sx={{ display: 'flex', alignItems: 'center', gap: 1.1, color: 'inherit' }}>
             <BrandMark />
-            <Typography variant="h6" sx={{ fontWeight: 900, letterSpacing: '-0.03em' }}>
+            <Typography variant="subtitle1" sx={{ fontWeight: 800, letterSpacing: '-0.025em', color: 'primary.main', fontSize: '0.92rem' }}>
               LearnSpace
             </Typography>
-          </Box>
+          </Link>
 
-          <Box sx={{ display: { xs: 'none', md: 'flex' }, alignItems: 'center', gap: 3 }}>
+          <Box sx={{ display: { xs: 'none', md: 'flex' }, alignItems: 'center', gap: 2.5 }}>
             {navItems.map((item) => (
-              <Link key={item.label} component={RouterLink} to={item.to} underline="none" sx={{ color: 'text.secondary', fontWeight: 600, '&:hover': { color: 'primary.main' } }}>
+              <Link key={item.label} component={RouterLink} to={item.to} underline="none" sx={{ color: 'text.secondary', fontSize: '0.75rem', '&:hover': { color: 'primary.main' } }}>
                 {item.label}
               </Link>
             ))}
           </Box>
 
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-            <Link component={RouterLink} to="/auth/login" underline="none" sx={{ color: 'text.primary', fontWeight: 700 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <Link component={RouterLink} to="/auth/login" underline="none" sx={{ color: 'text.secondary', fontSize: '0.72rem' }}>
               Log in
             </Link>
-            <Button component={RouterLink} to="/auth/signup" variant="contained" sx={{ px: 3, py: 1.25, borderRadius: 1.5 }}>
+            <Button component={RouterLink} to="/auth/signup" variant="contained" color="secondary" sx={{ px: 1.15, py: 0.48, borderRadius: 0.8, fontSize: '0.66rem', minWidth: 0 }}>
               Get Started
             </Button>
           </Box>
@@ -121,42 +102,41 @@ function TopNav() {
   );
 }
 
-function ContactCard({ title, description, value, href }: { title: string; description: string; value: string; href?: string }) {
-  const safeHref = sanitizeUrl(
-    href,
-    new Set(['http:', 'https:', 'mailto:', 'tel:']),
-  );
+function ContactCard({
+  title,
+  description,
+  value,
+  icon,
+  href,
+}: {
+  title: string;
+  description: string;
+  value: string;
+  icon: ReactNode;
+  href?: string;
+}) {
+  const safeHref = sanitizeUrl(href, new Set(['http:', 'https:', 'mailto:', 'tel:']));
   const content = (
-    <Card
-      sx={{
-        borderRadius: 2,
-        border: '1px solid',
-        borderColor: 'divider',
-      }}
-    >
-      <CardContent sx={{ p: 2.5 }}>
-        <Typography variant="h6" sx={{ fontWeight: 800, mb: 0.75 }}>
+    <Card sx={{ borderRadius: 1, border: '1px solid', borderColor: '#DFE5F1', boxShadow: 'none' }}>
+      <CardContent sx={{ p: 2 }}>
+        <Box sx={{ width: 22, height: 22, borderRadius: 0.8, bgcolor: '#EEF3FF', color: 'primary.main', display: 'grid', placeItems: 'center', mb: 1.2 }}>
+          {icon}
+        </Box>
+        <Typography variant="h6" sx={{ fontWeight: 700, mb: 0.45, fontSize: '1rem' }}>
           {title}
         </Typography>
-        <Typography variant="body2" sx={{ color: 'text.secondary', lineHeight: 1.75, mb: 1 }}>
+        <Typography variant="body2" sx={{ color: 'text.secondary', lineHeight: 1.65, mb: 0.9, fontSize: '0.76rem' }}>
           {description}
         </Typography>
-        <Typography variant="body1" sx={{ fontWeight: 800 }}>
+        <Typography variant="body2" sx={{ fontWeight: 700, fontSize: '0.78rem' }}>
           {value}
         </Typography>
       </CardContent>
     </Card>
   );
 
-  if (!safeHref) {
-    return content;
-  }
-
-  return (
-    <Link href={safeHref} underline="none" sx={{ color: 'inherit' }}>
-      {content}
-    </Link>
-  );
+  if (!safeHref) return content;
+  return <Link href={safeHref} underline="none" sx={{ color: 'inherit' }}>{content}</Link>;
 }
 
 function FooterColumn({ heading, items }: { heading: string; items: string[] }) {
@@ -164,8 +144,6 @@ function FooterColumn({ heading, items }: { heading: string; items: string[] }) 
     switch (item) {
       case 'Features':
         return '/#features';
-      case 'Courses':
-        return '/#courses';
       case 'Pricing':
         return '/pricing';
       case 'About':
@@ -179,24 +157,18 @@ function FooterColumn({ heading, items }: { heading: string; items: string[] }) 
         return '/contact';
       case 'Help Center':
         return '/help-center';
-      case 'Docs':
-        return '/docs';
       case 'Community':
         return '/community';
-      case 'Status':
-        return '/status';
       default:
-        return '/home';
+        return '/';
     }
   };
 
   return (
-    <Stack spacing={1.25}>
-      <Typography variant="subtitle1" sx={{ fontWeight: 800 }}>
-        {heading}
-      </Typography>
+    <Stack spacing={1.1}>
+      <Typography variant="subtitle2" sx={{ fontWeight: 800 }}>{heading}</Typography>
       {items.map((item) => (
-        <Link key={item} component={RouterLink} to={resolveLink(item)} underline="none" sx={{ color: 'text.secondary', fontWeight: 500, '&:hover': { color: 'primary.main' } }}>
+        <Link key={item} component={RouterLink} to={resolveLink(item)} underline="none" sx={{ color: 'text.secondary', fontSize: '0.78rem', '&:hover': { color: 'primary.main' } }}>
           {item}
         </Link>
       ))}
@@ -227,10 +199,7 @@ export default function ContactUs() {
   }, []);
 
   useEffect(() => {
-    if (!user) {
-      return;
-    }
-
+    if (!user) return;
     setForm((current) => ({
       ...current,
       fullName: [user.firstName, user.lastName].filter(Boolean).join(' ').trim() || current.fullName,
@@ -242,27 +211,29 @@ export default function ContactUs() {
   const contactCards = useMemo(
     () => [
       {
-        title: 'Email support',
-        description: settings.contactResponseTime
-          ? `Our ${settings.platformName} team replies ${settings.contactResponseTime.toLowerCase()}.`
-          : 'Get in touch with our support team.',
-        value: settings.supportEmail,
+        title: 'Chat with us',
+        description: 'Speak to our friendly team via email.',
+        value: settings.supportEmail || 'hello@learnspace.com',
+        icon: <EmailOutlined sx={{ fontSize: 13 }} />,
         href: settings.supportEmail ? `mailto:${settings.supportEmail}` : undefined,
       },
       {
         title: 'Call us',
-        description: settings.contactHours || 'Business hours vary by region.',
-        value: settings.contactPhone,
+        description: settings.contactHours || 'Mon-Fri from 8am to 5pm EST.',
+        value: settings.contactPhone || '+1 (555) 000-0000',
+        icon: <PhoneOutlined sx={{ fontSize: 13 }} />,
         href: settings.contactPhone ? `tel:${settings.contactPhone.replace(/\s+/g, '')}` : undefined,
       },
       {
         title: 'Visit us',
-        description: 'For partnerships, enterprise onboarding, and strategic support.',
-        value: settings.contactAddress,
+        description: 'Visit our office HQ.',
+        value: settings.contactAddress || '100 Smith Street, Collingwood VIC 3066',
+        icon: <LocationOnOutlined sx={{ fontSize: 13 }} />,
       },
     ],
     [settings],
   );
+
   const safeMapUrl = useMemo(() => sanitizeHttpUrl(settings.contactMapUrl), [settings.contactMapUrl]);
 
   const updateField = (field: keyof FormState) => (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -272,7 +243,6 @@ export default function ContactUs() {
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-
     if (!form.fullName.trim() || !form.email.trim() || !form.message.trim()) {
       setStatusSeverity('error');
       setStatusMessage('Full name, email, and message are required.');
@@ -281,7 +251,6 @@ export default function ContactUs() {
 
     setIsSubmitting(true);
     setStatusMessage(null);
-
     try {
       await api.post('/api/contact', {
         fullName: form.fullName,
@@ -289,9 +258,8 @@ export default function ContactUs() {
         phone: form.phone,
         message: form.message,
       });
-
       setStatusSeverity('success');
-      setStatusMessage(`Thanks for reaching out to ${settings.platformName}. Our team will get back to you shortly.`);
+      setStatusMessage(`Thanks for reaching out to ${settings.platformName || 'LearnSpace'}. Our team will get back to you shortly.`);
       setForm((current) => ({ ...current, message: '' }));
     } catch (error) {
       setStatusSeverity('error');
@@ -302,187 +270,129 @@ export default function ContactUs() {
   };
 
   return (
-    <Box sx={{ bgcolor: 'background.paper', color: 'text.primary' }}>
+    <Box sx={{ bgcolor: '#F5F7FD', color: 'text.primary' }}>
       <TopNav />
 
-      <Box
-        sx={{
-          pt: { xs: 6, md: 9 },
-          pb: { xs: 8, md: 10 },
-          bgcolor: 'background.default',
-        }}
-      >
+      <Box sx={{ pt: { xs: 4.5, md: 5.5 }, pb: { xs: 6.5, md: 7.5 } }}>
         <Container maxWidth="xl">
-          <Grid container spacing={3.5} sx={{ alignItems: 'stretch' }}>
-            <Grid size={{ xs: 12, lg: 5 }}>
-              <Stack spacing={2.5}>
-                <Card sx={{ borderRadius: 2, border: '1px solid', borderColor: 'divider' }}>
-                  <CardContent sx={{ p: { xs: 2.5, md: 3.5 } }}>
-                    <Stack spacing={1.5}>
-                      <Typography variant="h3" sx={{ fontWeight: 900, letterSpacing: '-0.04em', lineHeight: 1.1 }}>
-                        Let&apos;s build something great together
-                      </Typography>
-                      <Typography variant="body1" sx={{ color: 'text.secondary', lineHeight: 1.8 }}>
-                        Whether you need product support, enterprise onboarding, or integration help, the {settings.platformName} team is ready.
-                      </Typography>
-                      {settings.contactResponseTime ? (
-                        <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                          Average response time: <Box component="span" sx={{ fontWeight: 800, color: 'text.primary' }}>{settings.contactResponseTime}</Box>
-                        </Typography>
-                      ) : null}
-                      {settingsError ? (
-                        <Alert severity="error" sx={{ borderRadius: 1.5 }}>
-                          {settingsError}
-                        </Alert>
-                      ) : null}
-                    </Stack>
-                  </CardContent>
-                </Card>
+          <Stack spacing={4.25}>
+            <Box sx={{ textAlign: 'center' }}>
+              <Box sx={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', px: 1.2, py: 0.45, borderRadius: 999, bgcolor: '#EEF3FF', border: '1px solid #E1E8F6', color: 'primary.main', fontSize: '0.68rem', fontWeight: 700 }}>
+                Contact Us
+              </Box>
+              <Typography variant="h2" sx={{ mt: 1.15, fontWeight: 900, letterSpacing: '-0.035em', fontSize: { xs: '2.1rem', md: '2.9rem' }, lineHeight: 1.1 }}>
+                We&apos;d love to hear from you
+              </Typography>
+              <Typography variant="body2" sx={{ mt: 1.05, color: 'text.secondary', maxWidth: 650, mx: 'auto', lineHeight: 1.75, fontSize: '0.88rem' }}>
+                Whether you have a question about features, pricing, or enterprise solutions, our team is ready to answer all your questions.
+              </Typography>
+            </Box>
 
-                <Stack spacing={2.25}>
+            <Grid container spacing={3} sx={{ alignItems: 'stretch' }}>
+              <Grid size={{ xs: 12, lg: 5 }}>
+                <Stack spacing={1}>
+                  {settingsError ? (
+                    <Alert severity="error" sx={{ borderRadius: 1 }}>
+                      {settingsError}
+                    </Alert>
+                  ) : null}
                   {contactCards.map((item) => (
-                    <ContactCard key={item.title} title={item.title} description={item.description} value={item.value} href={item.href} />
+                    <ContactCard key={item.title} title={item.title} description={item.description} value={item.value} icon={item.icon} href={item.href} />
                   ))}
                 </Stack>
-              </Stack>
-            </Grid>
+              </Grid>
 
-            <Grid size={{ xs: 12, lg: 7 }}>
-                <Card sx={{ borderRadius: 2, border: '1px solid', borderColor: 'divider', height: '100%' }}>
-                  <CardContent sx={{ p: { xs: 2.5, md: 3.5 } }}>
+              <Grid size={{ xs: 12, lg: 7 }}>
+                <Card sx={{ borderRadius: 1, border: '1px solid', borderColor: '#DFE5F1', boxShadow: 'none' }}>
+                  <CardContent sx={{ p: { xs: 2.2, md: 2.4 } }}>
                     <Box component="form" onSubmit={handleSubmit}>
-                      <Stack spacing={2.25}>
-                        <Typography variant="h5" sx={{ fontWeight: 900, letterSpacing: '-0.02em' }}>
-                          Send us a message
-                        </Typography>
+                      <Stack spacing={1.15}>
+                        <Typography variant="caption" sx={{ color: 'text.primary', fontWeight: 600, fontSize: '0.7rem' }}>Full Name</Typography>
+                        <TextField fullWidth size="small" placeholder="Enter your full name" value={form.fullName} onChange={updateField('fullName')} />
+                        <Typography variant="caption" sx={{ color: 'text.primary', fontWeight: 600, fontSize: '0.7rem' }}>Email Address</Typography>
+                        <TextField fullWidth size="small" placeholder="you@company.com" type="email" value={form.email} onChange={updateField('email')} />
+                        <Typography variant="caption" sx={{ color: 'text.primary', fontWeight: 600, fontSize: '0.7rem' }}>Phone Number (Optional)</Typography>
+                        <TextField fullWidth size="small" placeholder={settings.contactPhone || '+1 (555) 000-0000'} value={form.phone} onChange={updateField('phone')} />
+                        <Typography variant="caption" sx={{ color: 'text.primary', fontWeight: 600, fontSize: '0.7rem' }}>Message</Typography>
+                        <TextField fullWidth multiline minRows={4} placeholder="Tell us how we can help..." value={form.message} onChange={updateField('message')} />
 
-                      <Grid container spacing={2}>
-                        <Grid size={{ xs: 12, md: 6 }}>
-                          <TextField fullWidth label="Full Name" placeholder="Enter your full name" value={form.fullName} onChange={updateField('fullName')} />
-                        </Grid>
-                        <Grid size={{ xs: 12, md: 6 }}>
-                          <TextField fullWidth label="Email Address" placeholder="you@company.com" type="email" value={form.email} onChange={updateField('email')} />
-                        </Grid>
-                        <Grid size={{ xs: 12, md: 6 }}>
-                          <TextField fullWidth label="Phone Number (Optional)" placeholder={settings.contactPhone} value={form.phone} onChange={updateField('phone')} />
-                        </Grid>
-                        <Grid size={{ xs: 12 }}>
-                          <TextField
-                            fullWidth
-                            multiline
-                            minRows={7}
-                            label="Message"
-                            placeholder="Tell us what you need help with..."
-                            value={form.message}
-                            onChange={updateField('message')}
-                          />
-                        </Grid>
-                      </Grid>
+                        {statusMessage ? (
+                          <Alert severity={statusSeverity} sx={{ borderRadius: 1 }}>
+                            {statusMessage}
+                          </Alert>
+                        ) : null}
 
-                      {statusMessage ? (
-                        <Alert severity={statusSeverity} sx={{ borderRadius: 1.5 }}>
-                          {statusMessage}
-                        </Alert>
-                      ) : null}
-
-                      <Button
-                        type="submit"
-                        variant="contained"
-                        sx={{
-                          py: 1.6,
-                          borderRadius: 1.5,
-                          fontWeight: 800,
-                        }}
-                        disabled={isSubmitting}
-                      >
-                        {isSubmitting ? 'Sending...' : 'Send Message'}
-                      </Button>
-                    </Stack>
-                  </Box>
-                </CardContent>
-              </Card>
-
-              <Card sx={{ mt: 2.5, borderRadius: 2, border: '1px solid', borderColor: 'divider', overflow: 'hidden' }}>
-                <CardContent sx={{ p: 0 }}>
-                  {safeMapUrl ? (
-                    <Box component="iframe" title="Office location" src={safeMapUrl} loading="lazy" referrerPolicy="no-referrer-when-downgrade" sx={{ width: '100%', minHeight: { xs: 240, md: 310 }, border: 0 }} />
-                  ) : (
-                    <Box
-                      sx={{
-                        minHeight: { xs: 240, md: 310 },
-                        p: 3,
-                        bgcolor: 'background.default',
-                        color: 'text.primary',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        justifyContent: 'center',
-                        gap: 1,
-                      }}
-                    >
-                      <Typography variant="h6" sx={{ fontWeight: 800 }}>
-                        Visit our office
-                      </Typography>
-                      <Typography variant="body2" sx={{ color: 'text.secondary', maxWidth: 420 }}>
-                        {settings.contactAddress}
-                      </Typography>
-                      {settings.contactHours ? (
-                        <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                          {settings.contactHours}
-                        </Typography>
-                      ) : null}
+                        <Button type="submit" variant="contained" color="secondary" sx={{ mt: 0.2, py: 1.1, borderRadius: 0.8, fontWeight: 700, fontSize: '0.8rem' }} disabled={isSubmitting}>
+                          {isSubmitting ? 'Sending...' : 'Send Message'}
+                        </Button>
+                      </Stack>
                     </Box>
-                  )}
-                </CardContent>
-              </Card>
+                  </CardContent>
+                </Card>
+              </Grid>
             </Grid>
-          </Grid>
+
+            <Card sx={{ borderRadius: 1, border: '1px solid', borderColor: '#DFE5F1', overflow: 'hidden', boxShadow: 'none' }}>
+              <CardContent sx={{ p: 0 }}>
+                {safeMapUrl ? (
+                  <Box component="iframe" title="Office location" src={safeMapUrl} loading="lazy" referrerPolicy="no-referrer-when-downgrade" sx={{ width: '100%', minHeight: { xs: 200, md: 240 }, border: 0 }} />
+                ) : (
+                  <Box sx={{ minHeight: { xs: 200, md: 240 }, p: 3, bgcolor: '#E9EEF6', color: 'text.primary', display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 1 }}>
+                    <Typography variant="h6" sx={{ fontWeight: 800 }}>
+                      Visit our office
+                    </Typography>
+                    <Typography variant="body2" sx={{ color: 'text.secondary', maxWidth: 420 }}>
+                      {settings.contactAddress || '100 Smith Street, Collingwood VIC 3066'}
+                    </Typography>
+                  </Box>
+                )}
+              </CardContent>
+            </Card>
+          </Stack>
         </Container>
       </Box>
 
-      <Box sx={{ pt: { xs: 7, md: 10 }, pb: 5, bgcolor: 'background.paper', borderTop: '1px solid', borderColor: 'divider' }}>
+      <Box sx={{ pt: { xs: 5, md: 6 }, pb: 3, bgcolor: '#FFFFFF', borderTop: '1px solid', borderColor: '#E3E8F1' }}>
         <Container maxWidth="xl">
-          <Grid container spacing={4}>
+          <Grid container spacing={3}>
             <Grid size={{ xs: 12, md: 4 }}>
               <Stack spacing={2}>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.25 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.1 }}>
                   <BrandMark />
-                  <Typography variant="h6" sx={{ fontWeight: 900 }}>
-                    {settings.platformName}
+                  <Typography variant="subtitle1" sx={{ fontWeight: 800, color: 'primary.main', fontSize: '0.92rem' }}>
+                    {settings.platformName || 'LearnSpace'}
                   </Typography>
                 </Box>
                 <Typography variant="body2" sx={{ color: 'text.secondary', maxWidth: 330, lineHeight: 1.8 }}>
-                  A modern EdTech platform for teams, creators, and learners who want polished learning experiences.
+                  Empowering educators to share knowledge and build sustainable businesses online.
                 </Typography>
               </Stack>
             </Grid>
             <Grid size={{ xs: 12, md: 8 }}>
-              <Grid container spacing={3}>
+              <Grid container spacing={2.5}>
                 <Grid size={{ xs: 12, sm: 4 }}>
-                  <FooterColumn heading="Product" items={['Features', 'Courses', 'Pricing', 'Enterprise']} />
+                  <FooterColumn heading="Product" items={['Features', 'Pricing', 'Integrations', 'Changelog']} />
                 </Grid>
                 <Grid size={{ xs: 12, sm: 4 }}>
                   <FooterColumn heading="Company" items={['About', 'Careers', 'Blog', 'Contact']} />
                 </Grid>
                 <Grid size={{ xs: 12, sm: 4 }}>
-                  <FooterColumn heading="Resources" items={['Help Center', 'Docs', 'Community', 'Status']} />
+                  <FooterColumn heading="Resources" items={['Help Center', 'Community', 'Creator Academy', 'Webinars']} />
                 </Grid>
               </Grid>
             </Grid>
           </Grid>
 
-          <Box sx={{ mt: 6, pt: 3, borderTop: '1px solid', borderColor: 'divider', display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: 2 }}>
-            <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-              © 2026 {settings.platformName}. All rights reserved.
+          <Box sx={{ mt: 4, pt: 2.5, borderTop: '1px solid', borderColor: '#E3E8F1', display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: 1.5 }}>
+            <Typography variant="caption" sx={{ color: 'text.secondary' }}>
+              © 2024 {settings.platformName || 'LearnSpace'} Inc. All rights reserved.
             </Typography>
-            <Stack direction="row" spacing={2} sx={{ flexWrap: 'wrap' }}>
-              <Link component={RouterLink} to="/privacy" underline="none" sx={{ color: 'text.secondary', '&:hover': { color: 'primary.main' } }}>
-                Privacy
+            <Stack direction="row" spacing={1.5} sx={{ flexWrap: 'wrap' }}>
+              <Link component={RouterLink} to="/privacy" underline="none" sx={{ color: 'text.secondary', fontSize: '0.75rem', '&:hover': { color: 'primary.main' } }}>
+                Privacy Policy
               </Link>
-              <Link component={RouterLink} to="/terms" underline="none" sx={{ color: 'text.secondary', '&:hover': { color: 'primary.main' } }}>
-                Terms
-              </Link>
-              <Link component={RouterLink} to="/cookies" underline="none" sx={{ color: 'text.secondary', '&:hover': { color: 'primary.main' } }}>
-                Cookies
+              <Link component={RouterLink} to="/terms" underline="none" sx={{ color: 'text.secondary', fontSize: '0.75rem', '&:hover': { color: 'primary.main' } }}>
+                Terms of Service
               </Link>
             </Stack>
           </Box>

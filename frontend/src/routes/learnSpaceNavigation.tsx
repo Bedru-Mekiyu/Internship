@@ -2,19 +2,20 @@ import type { ReactNode } from 'react';
 import {
   AnalyticsOutlined,
   BookOutlined,
+  CalendarMonthOutlined,
   ChatBubbleOutlined,
   DashboardOutlined,
   DescriptionOutlined,
-  ExploreOutlined,
+  EmojiEventsOutlined,
   FolderOutlined,
   GroupsOutlined,
   LayersOutlined,
   NotificationsOutlined,
   SettingsOutlined,
   VideoLibraryOutlined,
-  WorkspacePremiumOutlined,
   PersonOutlined,
   HelpOutlined,
+  TuneOutlined,
 } from '@mui/icons-material';
 import type { LearnSpaceRole } from '../context/AuthContext';
 
@@ -42,18 +43,18 @@ export interface PageProps {
   children?: ReactNode;
 }
 
-export const drawerWidth = 280;
+export const drawerWidth = 258;
 
 // Base navigation items with proper role restrictions
 export const baseNavigationItems: NavigationItem[] = [
   // Student navigation items
   { label: 'Dashboard', to: '/dashboard', icon: <DashboardOutlined />, roles: ['student'], section: 'overview' },
-  { label: 'My Courses', to: '/courses', icon: <BookOutlined />, roles: ['student'], section: 'learning' },
-  { label: 'Explore Courses', to: '/courses/explore', icon: <ExploreOutlined />, roles: ['student'], section: 'learning' },
-  { label: 'My Progress', to: '/dashboard', icon: <AnalyticsOutlined />, roles: ['student'], section: 'learning' },
-  { label: 'My Certificates', to: '/certificates', icon: <WorkspacePremiumOutlined />, roles: ['student'], section: 'learning' },
-  { label: 'Messages', to: '/messages', icon: <ChatBubbleOutlined />, roles: ['student'], section: 'settings' },
+  { label: 'My Courses', to: '/courses', icon: <BookOutlined />, roles: ['student'], section: 'overview' },
+  { label: 'Schedule', to: '/activity', icon: <CalendarMonthOutlined />, roles: ['student'], section: 'overview' },
+  { label: 'Messages', to: '/messages', icon: <ChatBubbleOutlined />, roles: ['student'], section: 'overview' },
+  { label: 'Achievements', to: '/certificates', icon: <EmojiEventsOutlined />, roles: ['student'], section: 'overview' },
   { label: 'Profile', to: '/profile-settings', icon: <PersonOutlined />, roles: ['student'], section: 'settings' },
+  { label: 'Preferences', to: '/settings/notifications', icon: <TuneOutlined />, roles: ['student'], section: 'settings' },
   { label: 'Help Center', to: '/help-center', icon: <HelpOutlined />, roles: ['student'], section: 'settings' },
 
   // Instructor navigation items
@@ -61,7 +62,7 @@ export const baseNavigationItems: NavigationItem[] = [
   { label: 'My Courses', to: '/courses', icon: <BookOutlined />, roles: ['instructor'], section: 'overview' },
   { label: 'Create New Course', to: '/courses/new', icon: <LayersOutlined />, roles: ['instructor'], section: 'overview' },
   { label: 'Upload Lesson', to: '/lessons/upload', icon: <VideoLibraryOutlined />, roles: ['instructor'], section: 'overview' },
-  { label: 'Learners', to: '/instructor/dashboard', icon: <GroupsOutlined />, roles: ['instructor'], section: 'overview' },
+  { label: 'Activity', to: '/activity', icon: <AnalyticsOutlined />, roles: ['instructor'], section: 'learning' },
   { label: 'Messages', to: '/messages', icon: <ChatBubbleOutlined />, roles: ['instructor'], section: 'settings' },
   { label: 'Analytics', to: '/admin/analytics', icon: <AnalyticsOutlined />, roles: ['instructor'], section: 'overview' },
   { label: 'Media Library', to: '/cms/media', icon: <FolderOutlined />, roles: ['instructor'], section: 'content' },
@@ -71,18 +72,23 @@ export const baseNavigationItems: NavigationItem[] = [
   // Admin navigation items
   { label: 'Admin Dashboard', to: '/admin/dashboard', icon: <DashboardOutlined />, roles: ['admin'], section: 'overview' },
   { label: 'Analytics', to: '/admin/analytics', icon: <AnalyticsOutlined />, roles: ['admin'], section: 'overview' },
+  { label: 'Courses', to: '/lessons/upload', icon: <BookOutlined />, roles: ['admin'], section: 'admin' },
   { label: 'User Management', to: '/admin/users', icon: <GroupsOutlined />, roles: ['admin'], section: 'admin' },
   { label: 'Content Manager', to: '/cms/content', icon: <DescriptionOutlined />, roles: ['admin'], section: 'content' },
   { label: 'Page Builder', to: '/cms/pages', icon: <LayersOutlined />, roles: ['admin'], section: 'content' },
   { label: 'Media Library', to: '/cms/media', icon: <FolderOutlined />, roles: ['admin'], section: 'content' },
   { label: 'System Settings', to: '/admin/settings', icon: <SettingsOutlined />, roles: ['admin'], section: 'admin' },
+  { label: 'Profile', to: '/profile-settings', icon: <PersonOutlined />, roles: ['admin'], section: 'settings' },
   { label: 'Notifications', to: '/notifications', icon: <NotificationsOutlined />, roles: ['admin'], section: 'admin' },
+  { label: 'Messages', to: '/messages', icon: <ChatBubbleOutlined />, roles: ['admin'], section: 'admin' },
 
   // Content Manager navigation items
   { label: 'Content Manager', to: '/cms/content', icon: <DescriptionOutlined />, roles: ['content_manager'], section: 'overview' },
   { label: 'Page Builder', to: '/cms/pages', icon: <LayersOutlined />, roles: ['content_manager'], section: 'overview' },
   { label: 'Media Library', to: '/cms/media', icon: <FolderOutlined />, roles: ['content_manager'], section: 'overview' },
   { label: 'Notifications', to: '/notifications', icon: <NotificationsOutlined />, roles: ['content_manager'], section: 'settings' },
+  { label: 'Messages', to: '/messages', icon: <ChatBubbleOutlined />, roles: ['content_manager'], section: 'settings' },
+  { label: 'Profile', to: '/profile-settings', icon: <PersonOutlined />, roles: ['content_manager'], section: 'settings' },
 ];
 
 export function isActiveRoute(currentPath: string, targetPath: string) {

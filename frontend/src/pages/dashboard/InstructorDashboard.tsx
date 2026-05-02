@@ -192,7 +192,7 @@ export default function InstructorDashboard() {
           </Typography>
         </Box>
 
-        {/* Metric cards */}
+{/* Metric cards */}
         <Grid container spacing={SPACING.lg}>
           {isLoading && !data ? (
             <Grid size={{ xs: 12 }}>
@@ -203,7 +203,14 @@ export default function InstructorDashboard() {
           ) : null}
           {dashboardStats.map((stat) => (
             <Grid key={stat.label} size={{ xs: 12, sm: 6, xl: 3 }}>
-              <MetricCard {...stat} />
+              <Box sx={{ opacity: isLoading && !data ? 0.6 : 1, transition: 'opacity 180ms ease' }}>
+                <MetricCard
+                  label={stat.label}
+                  value={isLoading && !data ? '…' : stat.value}
+                  change={stat.change}
+                  color={stat.color}
+                />
+              </Box>
             </Grid>
           ))}
         </Grid>
@@ -228,7 +235,7 @@ export default function InstructorDashboard() {
                         Loading revenue chart...
                       </Typography>
                     </Box>
-                  }
+}
                 >
                   <InstructorRevenueChart data={revenueChartData} />
                 </Suspense>
@@ -347,13 +354,13 @@ export default function InstructorDashboard() {
                     </Box>
                   </Grid>
                 ))
-              ) : (
-                <Grid size={{ xs: 12 }}>
-                  <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                    No courses yet. Create your first course to start tracking enrollment metrics.
-                  </Typography>
-                </Grid>
-              )}
+) : (
+                    <Grid size={{ xs: 12 }}>
+                      <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                        No courses yet. Create your first course to start your teaching journey!
+                      </Typography>
+                    </Grid>
+                  )}
             </Grid>
           </CardContent>
         </Card>

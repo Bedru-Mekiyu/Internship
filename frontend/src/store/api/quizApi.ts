@@ -25,7 +25,9 @@ export interface Quiz {
   title: string;
   description?: string;
   timeLimit?: number;
+  attempts?: number;
   passingScore?: number;
+  totalPoints?: number;
   questions: QuizQuestion[];
 }
 
@@ -35,6 +37,20 @@ export interface QuizAttempt {
   percentage: number;
   passed: boolean;
   submittedAt: string;
+  attemptNumber?: number;
+  attemptsRemaining?: number;
+  totalAttemptsAllowed?: number;
+  quiz?: {
+    _id: string;
+    title: string;
+    totalPoints?: number;
+    questionCount?: number;
+    course?: {
+      _id: string;
+      title: string;
+      slug?: string;
+    };
+  };
 }
 
 export interface SubmitQuizAttemptPayload {
@@ -51,13 +67,19 @@ export const quizApi = baseApi.injectEndpoints({
       query: (lessonId) => ({
         url: `/api/quizzes/lesson/${lessonId}`,
       }),
-      providesTags: (_result, _error, lessonId) => [{ type: 'Quiz', id: `lesson-${lessonId}` }],
+      providesTags: (...args) => [{ type: 'Quiz', id: `lesson-${args[2]}` }],
+    }),
+    getAllQuizAttempts: builder.query<QuizAttempt[], void>({
+      query: () => ({
+        url: `/api/quizzes/all-attempts/me`,
+      }),
+      providesTags: () => [{ type: 'Quiz', id: 'all-attempts' }],
     }),
     getQuizAttemptsMe: builder.query<QuizAttempt[], string>({
       query: (quizId) => ({
         url: `/api/quizzes/${quizId}/attempts/me`,
       }),
-      providesTags: (_result, _error, quizId) => [{ type: 'Quiz', id: `attempts-${quizId}` }],
+      providesTags: (...args) => [{ type: 'Quiz', id: `attempts-${args[2]}` }],
     }),
     createQuiz: builder.mutation<Quiz, CreateQuizPayload>({
       query: (payload) => ({
@@ -65,7 +87,7 @@ export const quizApi = baseApi.injectEndpoints({
         method: 'POST',
         body: payload,
       }),
-      invalidatesTags: (_result, _error, arg) => [{ type: 'Quiz', id: `lesson-${arg.lessonId}` }],
+      invalidatesTags: (...args) => [{ type: 'Quiz', id: `lesson-${args[2].lessonId}` }],
     }),
     submitQuizAttempt: builder.mutation<QuizAttempt, SubmitQuizAttemptPayload>({
       query: ({ quizId, answers }) => ({
@@ -75,13 +97,14 @@ export const quizApi = baseApi.injectEndpoints({
           answers,
         },
       }),
-      invalidatesTags: (_result, _error, arg) => [{ type: 'Quiz', id: `attempts-${arg.quizId}` }],
+      invalidatesTags: (...args) => [{ type: 'Quiz', id: `attempts-${args[2].quizId}` }],
     }),
   }),
 });
 
 export const {
   useGetLessonQuizzesQuery,
+  useGetAllQuizAttemptsQuery,
   useGetQuizAttemptsMeQuery,
   useCreateQuizMutation,
   useSubmitQuizAttemptMutation,

@@ -56,7 +56,7 @@ export const contentApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: ['Content'],
     }),
-    uploadMedia: builder.mutation<{ url?: string; filename?: string; message?: string }, FormData>({
+    uploadMedia: builder.mutation<MediaItem, FormData>({
       query: (payload) => ({
         url: '/api/content/upload',
         method: 'POST',

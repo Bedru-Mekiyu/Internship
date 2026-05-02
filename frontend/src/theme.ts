@@ -4,9 +4,9 @@ export const lightTheme = createTheme({
   palette: {
     mode: 'light',
     primary: {
-      main: '#0066FF',
-      dark: '#0052CC',
-      light: '#4D94FF',
+      main: '#1E67F2',
+      dark: '#1452CB',
+      light: '#5E91F6',
       contrastText: '#FFFFFF',
     },
     secondary: {
@@ -16,14 +16,14 @@ export const lightTheme = createTheme({
       contrastText: '#FFFFFF',
     },
     background: {
-      default: '#F8FAFC',
+      default: '#EAF0F7',
       paper: '#FFFFFF',
     },
     text: {
-      primary: '#1E2937',
-      secondary: '#64748B',
+      primary: '#111827',
+      secondary: '#6B7280',
     },
-    divider: '#E2E8F0',
+    divider: '#E3E8F1',
     success: {
       main: '#10B981',
       dark: '#059669',
@@ -61,8 +61,8 @@ export const lightTheme = createTheme({
     subtitle2: { fontWeight: 600 },
     button: { fontWeight: 600, textTransform: 'none' },
   },
-  shape: {
-    borderRadius: 14,
+    shape: {
+    borderRadius: 12,
   },
   components: {
     MuiCssBaseline: {
@@ -74,8 +74,8 @@ export const lightTheme = createTheme({
         body: {
           width: '100%',
           minHeight: '100%',
-          backgroundColor: '#F8FAFC',
-          color: '#1E2937',
+          backgroundColor: '#EAF0F7',
+          color: '#111827',
         },
         '#root': {
           minHeight: '100vh',
@@ -98,34 +98,45 @@ export const lightTheme = createTheme({
       },
       styleOverrides: {
         root: {
-          borderRadius: 12,
+          borderRadius: 8,
           fontWeight: 600,
-          padding: '10px 22px',
+          padding: '8px 16px',
           boxShadow: 'none',
           textTransform: 'none',
-          transition: 'all 180ms ease',
+          transition: 'background-color 160ms ease, border-color 160ms ease, color 160ms ease',
         },
         contained: {
+          backgroundColor: '#1E67F2',
+          '&:active': {
+            transform: 'translateY(0)',
+          },
           '&:hover': {
-            boxShadow: '0 4px 12px rgba(0, 102, 255, 0.25)',
-            transform: 'translateY(-1px)',
+            boxShadow: 'none',
+            backgroundColor: '#1452CB',
           },
         },
         outlined: {
-          borderColor: '#CBD5E1',
+          borderColor: '#D5DBE7',
           '&:hover': {
-            borderColor: '#0066FF',
-            backgroundColor: alpha('#0066FF', 0.04),
+            borderColor: '#BFC9D9',
+            backgroundColor: '#F8FAFD',
           },
+        },
+      },
+    },
+    MuiIconButton: {
+      styleOverrides: {
+        root: {
+          borderRadius: 8,
         },
       },
     },
     MuiCard: {
       styleOverrides: {
         root: {
-          borderRadius: 14,
-          boxShadow: '0 8px 24px rgba(15, 23, 42, 0.05)',
-          border: '1px solid rgba(226, 232, 240, 0.82)',
+          borderRadius: 10,
+          boxShadow: 'none',
+          border: '1px solid #DFE5F1',
           backgroundImage: 'none',
         },
       },
@@ -143,11 +154,11 @@ export const lightTheme = createTheme({
     MuiAppBar: {
       styleOverrides: {
         root: {
-          backgroundColor: alpha('#FFFFFF', 0.96),
-          color: '#1E2937',
+          backgroundColor: '#FFFFFF',
+          color: '#111827',
           boxShadow: 'none',
-          borderBottom: '1px solid rgba(226, 232, 240, 0.82)',
-          backdropFilter: 'blur(16px)',
+          borderBottom: '1px solid #E3E8F1',
+          backdropFilter: 'none',
         },
       },
     },
@@ -155,7 +166,14 @@ export const lightTheme = createTheme({
       styleOverrides: {
         paper: {
           backgroundColor: '#FFFFFF',
-          borderRight: '1px solid rgba(226, 232, 240, 0.82)',
+          borderRight: '1px solid #E3E8F1',
+          backgroundImage: 'none',
+        },
+      },
+    },
+    MuiPaper: {
+      styleOverrides: {
+        root: {
           backgroundImage: 'none',
         },
       },
@@ -168,22 +186,66 @@ export const lightTheme = createTheme({
       styleOverrides: {
         root: {
           '& .MuiOutlinedInput-root': {
-            borderRadius: 12,
+            borderRadius: 8,
             backgroundColor: '#FFFFFF',
             '& fieldset': {
-              borderColor: '#CBD5E1',
+              borderColor: '#D5DBE7',
             },
             '&:hover fieldset': {
-              borderColor: '#94A3B8',
+              borderColor: '#C6D0DF',
             },
             '&.Mui-focused fieldset': {
-              borderColor: '#0066FF',
-              borderWidth: 1.5,
+              borderColor: '#1E67F2',
+              borderWidth: 1,
             },
           },
           '& .MuiInputLabel-root.Mui-focused': {
-            color: '#0066FF',
+            color: '#1E67F2',
           },
+        },
+      },
+    },
+    MuiTabs: {
+      styleOverrides: {
+        indicator: {
+          height: 2,
+          borderRadius: 999,
+          backgroundColor: '#1E67F2',
+        },
+      },
+    },
+    MuiTab: {
+      styleOverrides: {
+        root: {
+          textTransform: 'none',
+          minHeight: 42,
+          fontWeight: 600,
+          color: '#6B7280',
+          '&.Mui-selected': {
+            color: '#1E67F2',
+            fontWeight: 700,
+          },
+        },
+      },
+    },
+    MuiListItemButton: {
+      styleOverrides: {
+        root: {
+          borderRadius: 10,
+          '&.Mui-selected': {
+            backgroundColor: alpha('#1E67F2', 0.1),
+            color: '#1E67F2',
+            '&:hover': {
+              backgroundColor: alpha('#1E67F2', 0.15),
+            },
+          },
+        },
+      },
+    },
+    MuiAlert: {
+      styleOverrides: {
+        root: {
+          borderRadius: 10,
         },
       },
     },
@@ -192,11 +254,11 @@ export const lightTheme = createTheme({
         root: {
           borderRadius: 999,
           fontWeight: 600,
-          height: 30,
+          height: 26,
         },
         filled: {
-          backgroundColor: alpha('#0066FF', 0.08),
-          color: '#0066FF',
+          backgroundColor: alpha('#1E67F2', 0.08),
+          color: '#1E67F2',
         },
       },
     },

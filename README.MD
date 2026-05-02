@@ -61,7 +61,6 @@ By completing this project, interns master:
 - [x] Rate limiting on sensitive auth endpoints
 - [x] Route-level backend tests with Supertest/Jest
 
-<<<<<<< HEAD
 ## Week 5–6 (Frontend Foundation)
 
 - [x] React app routed with protected pages (`/auth`, `/dashboard`, `/courses`, `/cms`)
@@ -99,11 +98,7 @@ By completing this project, interns master:
 
 ---
 
-=======
----
-
 # 🏗 System Architecture
->>>>>>> 31387e7bb68b73d2fb420b5f160e50993bcbdede
 
 The application follows a **Modular Monolith (Microservices-Inspired)** architecture.
 
@@ -462,7 +457,9 @@ Create `.env` in `backend`:
 ```bash
 NODE_ENV=development
 PORT=5000
-MONGO_URI=mongodb://localhost:27017/mit_lms
+MONGODB_URL=
+MONGO_URI=mongodb://127.0.0.1:27017/mit_lms
+AUTO_START_INMEMORY_MONGO=true
 CORS_ORIGIN=http://localhost:3000
 COOKIE_SECURE=false
 COOKIE_SAME_SITE=lax
@@ -472,6 +469,19 @@ JWT_ACCESS_SECRET=your_secret
 JWT_REFRESH_SECRET=your_secret
 PAYMENT_WEBHOOK_SECRET=your_secret
 ```
+
+Run MongoDB locally (without Docker), then start backend:
+
+```bash
+# Terminal 1
+mongod
+
+# Terminal 2 (from backend/)
+npm run dev
+```
+
+If local MongoDB is not running, development mode can auto-start an in-memory MongoDB instance
+when `AUTO_START_INMEMORY_MONGO=true`.
 
 For production (HTTPS), set secure cookie values explicitly:
 

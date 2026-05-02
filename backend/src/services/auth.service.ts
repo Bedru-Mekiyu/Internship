@@ -72,9 +72,23 @@ export class AuthService {
 
   static async verifyEmail(token: string) {
     const verifySecret = requireEnv('JWT_VERIFY_SECRET');
-    const decoded = jwt.verify(token, verifySecret) as { userId: string };
+    let decoded: { userId: string };
+    try {
+      decoded = jwt.verify(token, verifySecret) as { userId: string };
+    } catch {
+      throw new AppError('Invalid or expired email verification token', 400);
+    }
+
     const user = await User.findById(decoded.userId);
-    if (!user || user.verificationToken !== token || (user.verificationTokenExpiry && user.verificationTokenExpiry < new Date())) {
+    if (!user) {
+      throw new AppError('Invalid or expired email verification token', 400);
+    }
+
+    if (user.emailVerified) {
+      return user;
+    }
+
+    if (user.verificationTokenExpiry && user.verificationTokenExpiry < new Date()) {
       throw new AppError('Invalid or expired email verification token', 400);
     }
 
@@ -84,6 +98,22 @@ export class AuthService {
     await user.save();
 
     return user;
+  }
+
+  static async resendVerificationEmail(email: string) {
+    const user = await User.findOne({ email });
+    if (!user) {
+      return;
+    }
+
+    if (user.emailVerified) {
+      return;
+    }
+
+    const token = await EmailService.sendVerificationEmail(user._id.toString(), user.email);
+    user.verificationToken = token;
+    user.verificationTokenExpiry = new Date(Date.now() + 3600000);
+    await user.save();
   }
 
   static async loginUser(email: string, password: string) {

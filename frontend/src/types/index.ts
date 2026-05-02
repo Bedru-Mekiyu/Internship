@@ -18,6 +18,7 @@ export interface UserPreferences {
   notifications?: {
     email?: boolean;
     push?: boolean;
+    marketingEmails?: boolean;
   };
 }
 
@@ -55,6 +56,15 @@ export interface CourseModuleLesson {
   type?: string;
   duration?: number;
   content?: string;
+  videoUrl?: string;
+  notes?: string;
+  attachments?: Array<{
+    name?: string;
+    size?: string;
+    url?: string;
+    mediaId?: string;
+  }>;
+  status?: 'draft' | 'published' | 'scheduled';
   order?: number;
 }
 
@@ -74,6 +84,7 @@ export interface Course {
   shortDescription?: string;
   thumbnail?: string;
   category?: string;
+  subcategory?: string;
   level?: 'beginner' | 'intermediate' | 'advanced';
   language?: string;
   status?: 'draft' | 'published' | 'archived';
@@ -91,7 +102,7 @@ export interface Course {
   prerequisites?: string[];
   learningOutcomes?: string[];
   reviews?: Array<{
-    user?: string;
+    user?: string | AuthUser;
     rating?: number;
     comment?: string;
     createdAt?: string;

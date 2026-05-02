@@ -101,3 +101,19 @@ export const sectionHeader = {
   mb: SPACING.lg,
   flexWrap: 'wrap',
 } as const;
+
+/**
+ * Auth/Card page padding — matches login page design standard.
+ * Use this for any centered card form or auth-adjacent pages.
+ */
+export const brandedPadding = { xs: 2.25, sm: 2.75, md: 3 } as const;
+
+/**
+ * Auth form internal spacing — Stack between form fields.
+ */
+export const formFieldSpacing = 1.75 as const;
+
+/**
+ * Page-level container padding for centered auth pages.
+ */
+export const pageContainerPadding = { xs: 2.25, sm: 2.75, md: 3 } as const;

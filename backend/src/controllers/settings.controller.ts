@@ -1,7 +1,6 @@
 import { Request, Response } from 'express';
 import { AppError } from '../utils/http-error';
 import { asyncHandler } from '../utils/async-handler';
-import { requireEnv } from '../utils/env';
 
 interface PlatformSettings {
   platformName: string;
@@ -52,11 +51,11 @@ interface PlatformSettings {
 
 const defaultSettings: PlatformSettings = {
   platformName: 'LearnSpace',
-  supportEmail: 'support@learnspace.com',
+  supportEmail: 'hello@learnspace.com',
   contactPhone: '+1 (555) 000-0000',
   contactAddress: '100 Smith Street, Collingwood VIC 3066',
-  contactHours: 'Mon–Fri from 9am to 5pm EST',
-  contactMapUrl: '',
+  contactHours: 'Mon-Fri from 8am to 5pm EST.',
+  contactMapUrl: 'https://www.google.com/maps?q=100+Smith+Street,+Collingwood+VIC+3066&output=embed',
   contactResponseTime: 'Within 24 hours',
   language: 'en',
   timezone: 'UTC',
@@ -202,6 +201,11 @@ export const updateSettings = asyncHandler(async (req: Request, res: Response) =
     'provider',
     'currency',
     'taxRate',
+    'stripePublicKey',
+    'smtpEnabled',
+    'smtpHost',
+    'smtpPort',
+    'smtpUsername',
     'trustPartners',
     'homepageFeatures',
     'pricingPlans',

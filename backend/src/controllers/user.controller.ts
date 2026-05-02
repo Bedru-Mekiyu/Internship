@@ -1,12 +1,24 @@
 import { Request, Response } from 'express';
 import mongoose from 'mongoose';
 import bcrypt from 'bcrypt';
+import { randomUUID } from 'crypto';
+import path from 'path';
+import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { AuthService } from '../services/auth.service';
 import { User } from '../models/User.model';
 import { AppError } from '../utils/http-error';
 import { asyncHandler } from '../utils/async-handler';
+import { requireEnv } from '../utils/env';
 import { routeParam } from '../utils/route-params';
 import { safeRegexFragment } from '../utils/safe-regex';
+
+const buildS3Client = () => new S3Client({
+  region: requireEnv('AWS_REGION'),
+  credentials: {
+    accessKeyId: requireEnv('AWS_ACCESS_KEY_ID'),
+    secretAccessKey: requireEnv('AWS_SECRET_ACCESS_KEY'),
+  },
+});
 
 const sanitizeUser = (user: any) => {
   const userObject = typeof user.toObject === 'function' ? user.toObject() : { ...user };
@@ -71,6 +83,52 @@ export const updateMe = asyncHandler(async (req: Request, res: Response) => {
   await user.save();
 
   return res.json(sanitizeUser(user));
+});
+
+export const uploadMeAvatar = asyncHandler(async (req: Request, res: Response) => {
+  const user = await User.findById(req.user?._id);
+  if (!user) {
+    throw new AppError('User not found', 404);
+  }
+
+  const file = req.file;
+  if (!file) {
+    throw new AppError('No avatar file uploaded', 400);
+  }
+
+  if (!file.mimetype.startsWith('image/')) {
+    throw new AppError('Avatar must be an image', 400);
+  }
+
+  let avatarUrl = `/uploads/${file.filename}`;
+  if (process.env.STORAGE_TYPE === 's3') {
+    if (!file.buffer) {
+      throw new AppError('Missing file buffer for S3 upload', 500);
+    }
+
+    const bucket = requireEnv('AWS_S3_BUCKET');
+    const extension = path.extname(file.originalname).toLowerCase() || '.jpg';
+    const objectKey = `avatars/${Date.now()}-${randomUUID()}${extension}`;
+    const s3 = buildS3Client();
+    await s3.send(new PutObjectCommand({
+      Bucket: bucket,
+      Key: objectKey,
+      Body: file.buffer,
+      ContentType: file.mimetype,
+    }));
+
+    avatarUrl = `https://${bucket}.s3.${requireEnv('AWS_REGION')}.amazonaws.com/${objectKey}`;
+  }
+
+  user.avatar = avatarUrl;
+  user.updatedAt = new Date();
+  await user.save();
+
+  return res.json({
+    message: 'Avatar updated successfully',
+    avatar: avatarUrl,
+    user: sanitizeUser(user),
+  });
 });
 
 export const changePassword = asyncHandler(async (req: Request, res: Response) => {

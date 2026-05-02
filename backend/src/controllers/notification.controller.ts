@@ -289,7 +289,7 @@ export const markNotificationRead = asyncHandler(async (req: Request, res: Respo
 
   const notification = await ensureNotificationOwnership(
     notificationId,
-    req.user?._id.toString(),
+    req.user?._id?.toString() || '',
     req.user?.role || ''
   );
 
@@ -313,7 +313,7 @@ export const deleteNotification = asyncHandler(async (req: Request, res: Respons
 
   await ensureNotificationOwnership(
     notificationId,
-    req.user?._id.toString(),
+    req.user?._id?.toString() || '',
     req.user?.role || ''
   );
 

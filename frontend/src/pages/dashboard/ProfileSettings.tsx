@@ -1,439 +1,687 @@
-import { useEffect, useMemo, useState, type ChangeEvent } from 'react';
+import { useEffect, useMemo, useRef, useState, type ChangeEvent } from 'react';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import {
+  Alert,
   Avatar,
   Box,
   Button,
   Card,
   CardContent,
+  CircularProgress,
+  Divider,
   Grid,
-  Stack,
   Switch,
   TextField,
   Typography,
 } from '@mui/material';
+import { CameraAltOutlined } from '@mui/icons-material';
 import { api, normalizeApiError } from '../../services/api';
-import { useAuth } from '../../context/AuthContext';
+import { useAuth, type AuthUser } from '../../context/AuthContext';
+import { useGetStudentDashboardQuery } from '../../store/api/dashboardApi';
 import { sanitizeHttpUrl } from '../../utils/safeUrl';
-import DashboardPageFrame from '../../components/common/DashboardPageFrame';
-import {
-  useGetAdminDashboardQuery,
-  useGetInstructorDashboardQuery,
-  useGetStudentDashboardQuery,
-} from '../../store/api/dashboardApi';
 
-type FormState = {
+type ProfileForm = {
   firstName: string;
   lastName: string;
   email: string;
   phone: string;
   bio: string;
+};
+
+type PasswordForm = {
   currentPassword: string;
   newPassword: string;
   confirmPassword: string;
 };
 
-type NotificationState = {
-  email: boolean;
-  push: boolean;
+type NotificationPrefs = {
+  emailNotifications: boolean;
+  lessonReminders: boolean;
+  marketingEmails: boolean;
 };
 
-const notificationOptions = [
-  {
-    key: 'email',
-    title: 'Email Notifications',
-    description: 'Receive updates about course activity, announcements, and account changes.',
-    defaultChecked: true,
-  },
-  {
-    key: 'push',
-    title: 'Push Notifications',
-    description: 'Get reminders before your scheduled lessons and upcoming deadlines.',
-    defaultChecked: true,
-  },
-] as const;
-
-const initialForm: FormState = {
-  firstName: '',
-  lastName: '',
-  email: '',
-  phone: '',
-  bio: '',
-  currentPassword: '',
-  newPassword: '',
-  confirmPassword: '',
+type LabeledFieldProps = {
+  label: string;
+  value: string;
+  onChange?: (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
+  type?: string;
+  placeholder?: string;
+  disabled?: boolean;
+  multiline?: boolean;
+  rows?: number;
+  error?: boolean;
+  helperText?: string;
 };
 
-function StatChip({ label, value }: { label: string; value: string }) {
+const surface = {
+  border: '1px solid #DDE4F0',
+  borderRadius: 1.5,
+  bgcolor: '#FFFFFF',
+  boxShadow: 'none',
+};
+
+const fieldInputSx = {
+  '& .MuiOutlinedInput-root': {
+    bgcolor: '#F6F8FC',
+    borderRadius: 1,
+    fontSize: '0.78rem',
+    color: '#111827',
+    '& fieldset': { borderColor: 'transparent' },
+    '&:hover fieldset': { borderColor: '#E3E8F1' },
+    '&.Mui-focused fieldset': { borderColor: '#5B4CF6', borderWidth: 1 },
+    '&.Mui-disabled': {
+      bgcolor: '#F6F8FC',
+      color: '#111827',
+      WebkitTextFillColor: '#111827',
+    },
+  },
+  '& .MuiOutlinedInput-input': {
+    py: 1.15,
+  },
+  '& .MuiFormHelperText-root': {
+    mx: 0,
+    fontSize: '0.68rem',
+  },
+};
+
+function LabeledField({
+  label,
+  value,
+  onChange,
+  type = 'text',
+  placeholder,
+  disabled = false,
+  multiline = false,
+  rows,
+  error,
+  helperText,
+}: LabeledFieldProps) {
   return (
-    <Box
-      sx={{
-        p: 2,
-        borderRadius: 2,
-        bgcolor: 'background.default',
-        border: '1px solid',
-        borderColor: 'divider',
-      }}
-    >
-      <Typography variant="body2" sx={{ color: 'text.secondary', fontWeight: 600 }}>
+    <Box>
+      <Typography sx={{ mb: 0.65, color: '#111827', fontWeight: 700, fontSize: '0.72rem' }}>
         {label}
       </Typography>
-      <Typography variant="h6" sx={{ mt: 0.5, fontWeight: 800, color: 'text.primary' }}>
-        {value}
-      </Typography>
+      <TextField
+        hiddenLabel
+        size="small"
+        fullWidth
+        value={value}
+        onChange={onChange}
+        type={type}
+        placeholder={placeholder}
+        disabled={disabled}
+        multiline={multiline}
+        rows={rows}
+        error={error}
+        helperText={helperText}
+        sx={fieldInputSx}
+      />
     </Box>
   );
 }
 
+function formatMemberSince(value?: string) {
+  if (!value) {
+    return 'Recently';
+  }
+
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) {
+    return 'Recently';
+  }
+
+  return new Intl.DateTimeFormat('en-US', { month: 'short', year: 'numeric' }).format(date);
+}
+
+function profileSubtitle(role?: AuthUser['role']) {
+  switch (role) {
+    case 'admin':
+      return 'Platform Administrator';
+    case 'instructor':
+      return 'Course Instructor';
+    case 'content_manager':
+      return 'Content Manager';
+    case 'student':
+      return 'UX Design Student';
+    default:
+      return 'LearnSpace Member';
+  }
+}
+
 export default function ProfileSettings() {
   const { user, refreshSession } = useAuth();
-  const isStudent = user?.role === 'student';
-  const isInstructor = user?.role === 'instructor';
-  const isAdmin = user?.role === 'admin';
+  const queryClient = useQueryClient();
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
-  const { data: studentDashboard } = useGetStudentDashboardQuery(undefined, { skip: !isStudent });
-  const { data: instructorDashboard } = useGetInstructorDashboardQuery(undefined, { skip: !isInstructor });
-  const { data: adminDashboard } = useGetAdminDashboardQuery(undefined, { skip: !isAdmin });
-  const [form, setForm] = useState<FormState>(initialForm);
-  const [statusMessage, setStatusMessage] = useState<string | null>(null);
-  const [isSavingProfile, setIsSavingProfile] = useState(false);
-  const [isUpdatingPassword, setIsUpdatingPassword] = useState(false);
-  const [notifications, setNotifications] = useState<NotificationState>({
-    email: notificationOptions[0].defaultChecked,
-    push: notificationOptions[1].defaultChecked,
+  const [profileForm, setProfileForm] = useState<ProfileForm>({
+    firstName: '',
+    lastName: '',
+    email: '',
+    phone: '',
+    bio: '',
   });
+  const [passwordForm, setPasswordForm] = useState<PasswordForm>({
+    currentPassword: '',
+    newPassword: '',
+    confirmPassword: '',
+  });
+  const [notificationPrefs, setNotificationPrefs] = useState<NotificationPrefs>({
+    emailNotifications: true,
+    lessonReminders: true,
+    marketingEmails: true,
+  });
+  const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
 
-  const displayName = useMemo(() => {
-    const firstName = user?.firstName?.trim() || form.firstName.trim();
-    const lastName = user?.lastName?.trim() || form.lastName.trim();
-    return [firstName, lastName].filter(Boolean).join(' ') || 'LearnSpace User';
-  }, [form.firstName, form.lastName, user?.firstName, user?.lastName]);
-
-  const initials = useMemo(() => {
-    return displayName
-      .split(' ')
-      .filter(Boolean)
-      .slice(0, 2)
-      .map((value) => value[0]?.toUpperCase() || '')
-      .join('') || 'LS';
-  }, [displayName]);
-
-  const memberSince = useMemo(() => {
-    if (!user?.createdAt) {
-      return 'N/A';
-    }
-
-    const createdAt = new Date(user.createdAt);
-    if (Number.isNaN(createdAt.getTime())) {
-      return 'N/A';
-    }
-
-    return createdAt.toLocaleDateString(undefined, { month: 'short', year: 'numeric' });
-  }, [user?.createdAt]);
-
-  const profileStats = useMemo(
-    () => [
-      {
-        label: isStudent ? 'Enrolled Courses' : 'Managed Courses',
-        value: String(
-          isStudent
-            ? studentDashboard?.totalCourses ?? 0
-            : instructorDashboard?.totalCourses ?? adminDashboard?.totalCourses ?? 0,
-        ),
-      },
-      {
-        label: isStudent ? 'Certificates' : 'Total Learners',
-        value: String(
-          isStudent
-            ? studentDashboard?.certificatesEarned ?? 0
-            : instructorDashboard?.totalStudents ?? adminDashboard?.totalUsers ?? 0,
-        ),
-      },
-      { label: 'Member Since', value: memberSince },
-      { label: 'Phone', value: form.phone || 'N/A' },
-    ],
-    [
-      adminDashboard?.totalCourses,
-      adminDashboard?.totalUsers,
-      form.phone,
-      instructorDashboard?.totalCourses,
-      instructorDashboard?.totalStudents,
-      isStudent,
-      memberSince,
-      studentDashboard?.certificatesEarned,
-      studentDashboard?.totalCourses,
-    ],
-  );
+  const { data: studentDashboard, isLoading: isLoadingStudentStats } = useGetStudentDashboardQuery(undefined, {
+    skip: user?.role !== 'student',
+  });
 
   useEffect(() => {
     if (!user) {
       return;
     }
 
-    setForm((current) => ({
-      ...current,
+    setProfileForm({
       firstName: user.firstName || '',
       lastName: user.lastName || '',
       email: user.email || '',
       phone: user.phone || '',
       bio: user.bio || '',
-    }));
+    });
 
-    setNotifications((current) => ({
-      email: user.preferences?.notifications?.email ?? current.email,
-      push: user.preferences?.notifications?.push ?? current.push,
-    }));
+    setNotificationPrefs({
+      emailNotifications: user.preferences?.notifications?.email ?? true,
+      lessonReminders: user.preferences?.notifications?.push ?? true,
+      marketingEmails: user.preferences?.notifications?.marketingEmails ?? true,
+    });
   }, [user]);
 
-  const updateField =
-    (field: keyof FormState) =>
-    (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-      setForm((current) => ({
-        ...current,
-        [field]: event.target.value,
-      }));
-    };
+  const displayName = useMemo(() => {
+    const name = [user?.firstName, user?.lastName].filter(Boolean).join(' ').trim();
+    return name || 'LearnSpace User';
+  }, [user?.firstName, user?.lastName]);
 
-  const handleSaveProfile = async () => {
-    setStatusMessage(null);
-    if (!form.firstName.trim() || !form.lastName.trim() || !form.email.trim()) {
-      setStatusMessage('First name, last name, and email are required.');
-      return;
-    }
+  const initials = useMemo(() => {
+    return displayName
+      .split(' ')
+      .filter(Boolean)
+      .slice(0, 2)
+      .map((part) => part[0]?.toUpperCase())
+      .join('') || 'LS';
+  }, [displayName]);
 
-    setIsSavingProfile(true);
-    try {
-      await api.patch('/api/users/me', {
-        firstName: form.firstName,
-        lastName: form.lastName,
-        phone: form.phone,
-        bio: form.bio,
+  const avatarSrc = sanitizeHttpUrl(user?.avatar);
+  const memberSince = formatMemberSince(user?.createdAt);
+  const location = useMemo(() => {
+    const address = user?.address;
+    const parts = [address?.city, address?.country].filter(Boolean);
+    return parts.length > 0 ? parts.join(', ') : 'Not set';
+  }, [user?.address]);
+
+  const stats = useMemo(() => {
+    const isStudent = user?.role === 'student';
+    return [
+      {
+        label: 'Enrolled Courses',
+        value: isStudent
+          ? isLoadingStudentStats
+            ? '...'
+            : String(studentDashboard?.totalCourses ?? 0)
+          : '-',
+      },
+      {
+        label: 'Certificates',
+        value: isStudent
+          ? isLoadingStudentStats
+            ? '...'
+            : String(studentDashboard?.certificatesEarned ?? 0)
+          : '-',
+      },
+      { label: 'Member Since', value: memberSince },
+      { label: 'Location', value: location },
+    ];
+  }, [isLoadingStudentStats, location, memberSince, studentDashboard?.certificatesEarned, studentDashboard?.totalCourses, user?.role]);
+
+  const profileMutation = useMutation({
+    mutationFn: async (payload: Omit<ProfileForm, 'email'>) => {
+      const response = await api.patch<AuthUser>('/api/users/me', payload);
+      return response.data;
+    },
+    onSuccess: async () => {
+      setFeedback({ type: 'success', message: 'Profile details saved.' });
+      await refreshSession();
+      void queryClient.invalidateQueries({ queryKey: ['dashboard'] });
+    },
+    onError: (requestError) => {
+      setFeedback({ type: 'error', message: normalizeApiError(requestError).message });
+    },
+  });
+
+  const avatarMutation = useMutation({
+    mutationFn: async (file: File) => {
+      const body = new FormData();
+      body.append('file', file);
+      const response = await api.post<{ user: AuthUser; avatar: string }>('/api/users/me/avatar', body, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+      return response.data;
+    },
+    onSuccess: async () => {
+      setFeedback({ type: 'success', message: 'Avatar updated.' });
+      await refreshSession();
+    },
+    onError: (requestError) => {
+      setFeedback({ type: 'error', message: normalizeApiError(requestError).message });
+    },
+  });
+
+  const passwordMutation = useMutation({
+    mutationFn: async (payload: { currentPassword: string; newPassword: string }) => {
+      const response = await api.patch<{ message: string }>('/api/users/me/password', payload);
+      return response.data;
+    },
+    onSuccess: () => {
+      setPasswordForm({ currentPassword: '', newPassword: '', confirmPassword: '' });
+      setFeedback({ type: 'success', message: 'Password updated successfully.' });
+    },
+    onError: (requestError) => {
+      setFeedback({ type: 'error', message: normalizeApiError(requestError).message });
+    },
+  });
+
+  const notificationsMutation = useMutation({
+    mutationFn: async (prefs: NotificationPrefs) => {
+      const response = await api.patch<AuthUser>('/api/users/me', {
         preferences: {
           notifications: {
-            email: notifications.email,
-            push: notifications.push,
+            email: prefs.emailNotifications,
+            push: prefs.lessonReminders,
+            marketingEmails: prefs.marketingEmails,
           },
         },
       });
+      return response.data;
+    },
+    onSuccess: async () => {
       await refreshSession();
-      setStatusMessage('Profile updated successfully.');
-    } catch (error) {
-      setStatusMessage(normalizeApiError(error).message || 'Failed to update profile.');
-    } finally {
-      setIsSavingProfile(false);
-    }
+    },
+    onError: (requestError) => {
+      setFeedback({ type: 'error', message: normalizeApiError(requestError).message });
+      void refreshSession();
+    },
+  });
+
+  const firstNameError = profileForm.firstName.trim().length > 0 && profileForm.firstName.trim().length < 2;
+  const lastNameError = profileForm.lastName.trim().length > 0 && profileForm.lastName.trim().length < 2;
+  const isSavingProfile = profileMutation.isPending;
+  const isUploadingAvatar = avatarMutation.isPending;
+
+  const updateProfileField = (field: keyof ProfileForm) => (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    setProfileForm((current) => ({ ...current, [field]: event.target.value }));
   };
 
-  const handleUpdatePassword = async () => {
-    setStatusMessage(null);
-
-    if (!form.currentPassword || !form.newPassword || !form.confirmPassword) {
-      setStatusMessage('Please fill all password fields.');
-      return;
-    }
-
-    if (form.newPassword !== form.confirmPassword) {
-      setStatusMessage('New password and confirm password must match.');
-      return;
-    }
-
-    if (form.newPassword.length < 8) {
-      setStatusMessage('New password must be at least 8 characters.');
-      return;
-    }
-
-    setIsUpdatingPassword(true);
-    try {
-      await api.patch('/api/users/me/password', {
-        currentPassword: form.currentPassword,
-        newPassword: form.newPassword,
-      });
-      setForm((current) => ({
-        ...current,
-        currentPassword: '',
-        newPassword: '',
-        confirmPassword: '',
-      }));
-      setStatusMessage('Password updated successfully.');
-    } catch (error) {
-      setStatusMessage(normalizeApiError(error).message || 'Failed to update password.');
-    } finally {
-      setIsUpdatingPassword(false);
-    }
+  const updatePasswordField = (field: keyof PasswordForm) => (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    setPasswordForm((current) => ({ ...current, [field]: event.target.value }));
   };
 
-  const handleCancelProfile = () => {
-    if (!user) return;
-    setForm({
-      firstName: user.firstName || '',
-      lastName: user.lastName || '',
-      email: user.email || '',
-      phone: user.phone || '',
-      bio: user.bio || '',
-      currentPassword: '',
-      newPassword: '',
-      confirmPassword: '',
+  const resetProfileForm = () => {
+    setProfileForm({
+      firstName: user?.firstName || '',
+      lastName: user?.lastName || '',
+      email: user?.email || '',
+      phone: user?.phone || '',
+      bio: user?.bio || '',
     });
-    setStatusMessage(null);
+    setFeedback(null);
+  };
+
+  const saveProfile = () => {
+    if (!profileForm.firstName.trim() || !profileForm.lastName.trim()) {
+      setFeedback({ type: 'error', message: 'First name and last name are required.' });
+      return;
+    }
+
+    if (firstNameError || lastNameError) {
+      setFeedback({ type: 'error', message: 'Names must be at least 2 characters.' });
+      return;
+    }
+
+    profileMutation.mutate({
+      firstName: profileForm.firstName,
+      lastName: profileForm.lastName,
+      phone: profileForm.phone,
+      bio: profileForm.bio,
+    });
+  };
+
+  const updateAvatar = (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    event.target.value = '';
+
+    if (!file) {
+      return;
+    }
+
+    avatarMutation.mutate(file);
+  };
+
+  const savePassword = () => {
+    if (passwordForm.currentPassword.length < 8) {
+      setFeedback({ type: 'error', message: 'Enter your current password.' });
+      return;
+    }
+
+    if (passwordForm.newPassword.length < 8) {
+      setFeedback({ type: 'error', message: 'New password must be at least 8 characters.' });
+      return;
+    }
+
+    if (passwordForm.newPassword !== passwordForm.confirmPassword) {
+      setFeedback({ type: 'error', message: 'Password confirmation does not match.' });
+      return;
+    }
+
+    passwordMutation.mutate({
+      currentPassword: passwordForm.currentPassword,
+      newPassword: passwordForm.newPassword,
+    });
+  };
+
+  const toggleNotification = (key: keyof NotificationPrefs) => (_event: ChangeEvent<HTMLInputElement>, checked: boolean) => {
+    const nextPrefs = { ...notificationPrefs, [key]: checked };
+    setNotificationPrefs(nextPrefs);
+    notificationsMutation.mutate(nextPrefs);
   };
 
   return (
-    <Box sx={{ minHeight: '100%', bgcolor: 'background.default' }}>
-      <DashboardPageFrame
-        title="Profile & Settings"
-        description="Manage account information, password security, and notification preferences."
-      >
-          {statusMessage ? (
-            <Typography sx={{ mb: 2, fontWeight: 700, color: statusMessage.includes('successfully') ? 'success.main' : 'error.main' }}>
-              {statusMessage}
-            </Typography>
-          ) : null}
+    <Box sx={{ maxWidth: 1110, mx: 'auto', color: '#111827' }}>
+      <Box sx={{ mb: 2.6 }}>
+        <Typography variant="h4" sx={{ fontWeight: 900, fontSize: { xs: '1.35rem', md: '1.7rem' }, letterSpacing: 0 }}>
+          Profile &amp; Settings
+        </Typography>
+        <Typography sx={{ mt: 0.55, color: '#6B7280', fontSize: '0.78rem' }}>
+          Manage your account settings and preferences.
+        </Typography>
+      </Box>
 
-          <Grid container spacing={3}>
-            <Grid size={{ xs: 12, lg: 4 }}>
-              <Card sx={{ height: '100%', border: '1px solid', borderColor: 'divider', borderRadius: 2 }}>
-                <CardContent sx={{ p: 3 }}>
-                  <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3, textAlign: 'center' }}>
-                    <Avatar
-                      src={sanitizeHttpUrl(user?.avatar) ?? undefined}
-                      alt={displayName}
-                      sx={{ width: 116, height: 116, fontSize: 36, fontWeight: 800 }}
-                    >
-                      {initials}
-                    </Avatar>
-                    <Box>
-                      <Typography variant="h5" sx={{ fontWeight: 800 }}>
-                        {displayName}
-                      </Typography>
-                      <Typography variant="body2" sx={{ color: 'text.secondary', mt: 0.5 }}>
-                        {user?.role ? user.role.replace('_', ' ') : 'LearnSpace member'}
-                      </Typography>
-                    </Box>
-                    <Grid container spacing={1.5}>
-                      {profileStats.map((stat) => (
-                        <Grid key={stat.label} size={{ xs: 12, sm: 6 }}>
-                          <StatChip label={stat.label} value={stat.value} />
-                        </Grid>
-                      ))}
-                    </Grid>
+      {feedback ? (
+        <Alert severity={feedback.type} onClose={() => setFeedback(null)} sx={{ mb: 2, borderRadius: 1.5 }}>
+          {feedback.message}
+        </Alert>
+      ) : null}
+
+      <Grid container spacing={2.6} sx={{ alignItems: 'flex-start' }}>
+        <Grid size={{ xs: 12, md: 3.6 }}>
+          <Card sx={{ ...surface }}>
+            <CardContent sx={{ p: 2.5 }}>
+              <Box sx={{ display: 'grid', justifyItems: 'center', textAlign: 'center', pt: 1 }}>
+                <Avatar
+                  src={avatarSrc || undefined}
+                  alt={displayName}
+                  sx={{
+                    width: 92,
+                    height: 92,
+                    fontSize: 31,
+                    fontWeight: 800,
+                    bgcolor: '#DDE7F7',
+                    color: '#4F46E5',
+                    border: '4px solid #EEF3FF',
+                  }}
+                >
+                  {initials}
+                </Avatar>
+                <Typography sx={{ mt: 1.45, fontSize: '1.03rem', lineHeight: 1.2, fontWeight: 900 }}>
+                  {displayName}
+                </Typography>
+                <Typography sx={{ mt: 0.35, color: '#6B7280', fontSize: '0.76rem' }}>
+                  {profileSubtitle(user?.role)}
+                </Typography>
+                <input ref={fileInputRef} type="file" accept="image/*" hidden onChange={updateAvatar} />
+                <Button
+                  variant="contained"
+                  fullWidth
+                  disabled={isUploadingAvatar}
+                  onClick={() => fileInputRef.current?.click()}
+                  startIcon={isUploadingAvatar ? <CircularProgress size={13} color="inherit" /> : <CameraAltOutlined sx={{ fontSize: 15 }} />}
+                  sx={{
+                    mt: 2.3,
+                    py: 0.52,
+                    bgcolor: '#EEF2FF',
+                    color: '#4F46E5',
+                    fontSize: '0.72rem',
+                    '&:hover': { bgcolor: '#E0E7FF' },
+                  }}
+                >
+                  Change Avatar
+                </Button>
+              </Box>
+
+              <Box sx={{ mt: 3 }}>
+                {stats.map((item, index) => (
+                  <Box
+                    key={item.label}
+                    sx={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      gap: 2,
+                      py: 1.25,
+                      borderTop: index === 0 ? '1px solid #E6EBF3' : 0,
+                      borderBottom: '1px solid #E6EBF3',
+                    }}
+                  >
+                    <Typography sx={{ color: '#6B7280', fontSize: '0.74rem' }}>
+                      {item.label}
+                    </Typography>
+                    <Typography sx={{ color: '#111827', fontSize: '0.76rem', fontWeight: 800, textAlign: 'right' }}>
+                      {item.value}
+                    </Typography>
                   </Box>
-                </CardContent>
-              </Card>
-            </Grid>
+                ))}
+              </Box>
+            </CardContent>
+          </Card>
+        </Grid>
 
-            <Grid size={{ xs: 12, lg: 8 }}>
-              <Stack spacing={3}>
-                <Card sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 2 }}>
-                  <CardContent sx={{ p: { xs: 3, md: 4 } }}>
-                    <Stack spacing={3}>
-                      <Typography variant="h6" sx={{ fontWeight: 800 }}>
-                        Personal information
-                      </Typography>
-                      <Grid container spacing={2.5}>
-                        <Grid size={{ xs: 12, sm: 6 }}>
-                          <TextField label="First Name" value={form.firstName} onChange={updateField('firstName')} fullWidth />
-                        </Grid>
-                        <Grid size={{ xs: 12, sm: 6 }}>
-                          <TextField label="Last Name" value={form.lastName} onChange={updateField('lastName')} fullWidth />
-                        </Grid>
-                        <Grid size={{ xs: 12, sm: 6 }}>
-                          <TextField label="Email Address" value={form.email} fullWidth disabled />
-                        </Grid>
-                        <Grid size={{ xs: 12, sm: 6 }}>
-                          <TextField label="Phone Number" value={form.phone} onChange={updateField('phone')} fullWidth />
-                        </Grid>
-                        <Grid size={12}>
-                          <TextField label="Bio" value={form.bio} onChange={updateField('bio')} multiline minRows={4} fullWidth />
-                        </Grid>
-                      </Grid>
+        <Grid size={{ xs: 12, md: 8.4 }}>
+          <Box sx={{ display: 'grid', gap: 2.4 }}>
+            <Card sx={{ ...surface }}>
+              <CardContent sx={{ p: 0 }}>
+                <Box sx={{ px: 2.4, py: 1.75, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 2 }}>
+                  <Typography sx={{ fontWeight: 900, fontSize: '0.96rem' }}>
+                    Personal Information
+                  </Typography>
+                  <Button variant="outlined" sx={{ px: 1.55, py: 0.45, color: '#111827', borderColor: '#D7DEEA', fontSize: '0.72rem' }}>
+                    Edit Info
+                  </Button>
+                </Box>
+                <Divider />
+                <Box sx={{ p: 2.4 }}>
+                  <Grid container spacing={2}>
+                    <Grid size={{ xs: 12, sm: 6 }}>
+                      <LabeledField
+                        label="First Name"
+                        value={profileForm.firstName}
+                        onChange={updateProfileField('firstName')}
+                        disabled={isSavingProfile}
+                        error={firstNameError}
+                        helperText={firstNameError ? 'Use at least 2 characters.' : undefined}
+                      />
+                    </Grid>
+                    <Grid size={{ xs: 12, sm: 6 }}>
+                      <LabeledField
+                        label="Last Name"
+                        value={profileForm.lastName}
+                        onChange={updateProfileField('lastName')}
+                        disabled={isSavingProfile}
+                        error={lastNameError}
+                        helperText={lastNameError ? 'Use at least 2 characters.' : undefined}
+                      />
+                    </Grid>
+                    <Grid size={{ xs: 12, sm: 6 }}>
+                      <LabeledField label="Email Address" value={profileForm.email} disabled />
+                    </Grid>
+                    <Grid size={{ xs: 12, sm: 6 }}>
+                      <LabeledField
+                        label="Phone Number"
+                        value={profileForm.phone}
+                        onChange={updateProfileField('phone')}
+                        disabled={isSavingProfile}
+                        placeholder="+234 801 234 5678"
+                      />
+                    </Grid>
+                    <Grid size={12}>
+                      <LabeledField
+                        label="Bio"
+                        value={profileForm.bio}
+                        onChange={updateProfileField('bio')}
+                        disabled={isSavingProfile}
+                        multiline
+                        rows={4}
+                        placeholder="Tell learners a little about yourself."
+                      />
+                    </Grid>
+                  </Grid>
 
-                      <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1.5, flexWrap: 'wrap' }}>
-                          <Button variant="outlined" sx={{ borderColor: 'divider', color: 'text.primary', px: 3 }} onClick={handleCancelProfile}>
-                            Cancel
-                          </Button>
-                        <Button variant="contained" sx={{ px: 3 }} onClick={() => void handleSaveProfile()} disabled={isSavingProfile}>
-                          {isSavingProfile ? 'Saving...' : 'Save Changes'}
-                        </Button>
+                  <Box sx={{ mt: 2.35, display: 'flex', justifyContent: 'flex-end', gap: 1.2 }}>
+                    <Button
+                      variant="outlined"
+                      onClick={resetProfileForm}
+                      disabled={isSavingProfile}
+                      sx={{ px: 2, py: 0.75, color: '#111827', borderColor: '#D7DEEA', fontSize: '0.76rem' }}
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      variant="contained"
+                      onClick={saveProfile}
+                      disabled={isSavingProfile}
+                      sx={{ px: 2.1, py: 0.78, bgcolor: '#5B4CF6', fontSize: '0.76rem', '&:hover': { bgcolor: '#4F46E5' } }}
+                    >
+                      {isSavingProfile ? 'Saving...' : 'Save Changes'}
+                    </Button>
+                  </Box>
+                </Box>
+              </CardContent>
+            </Card>
+
+            <Card sx={{ ...surface }}>
+              <CardContent sx={{ p: 0 }}>
+                <Box sx={{ px: 2.4, py: 1.75 }}>
+                  <Typography sx={{ fontWeight: 900, fontSize: '0.96rem' }}>
+                    Password &amp; Security
+                  </Typography>
+                </Box>
+                <Divider />
+                <Box sx={{ p: 2.4 }}>
+                  <Grid container spacing={2}>
+                    <Grid size={12}>
+                      <LabeledField
+                        label="Current Password"
+                        type="password"
+                        value={passwordForm.currentPassword}
+                        onChange={updatePasswordField('currentPassword')}
+                        disabled={passwordMutation.isPending}
+                        placeholder="************"
+                      />
+                    </Grid>
+                    <Grid size={{ xs: 12, sm: 6 }}>
+                      <LabeledField
+                        label="New Password"
+                        type="password"
+                        value={passwordForm.newPassword}
+                        onChange={updatePasswordField('newPassword')}
+                        disabled={passwordMutation.isPending}
+                        placeholder="Enter new password"
+                      />
+                    </Grid>
+                    <Grid size={{ xs: 12, sm: 6 }}>
+                      <LabeledField
+                        label="Confirm Password"
+                        type="password"
+                        value={passwordForm.confirmPassword}
+                        onChange={updatePasswordField('confirmPassword')}
+                        disabled={passwordMutation.isPending}
+                        placeholder="Confirm new password"
+                      />
+                    </Grid>
+                  </Grid>
+                  <Box sx={{ mt: 2.35, display: 'flex', justifyContent: 'flex-end' }}>
+                    <Button
+                      variant="contained"
+                      onClick={savePassword}
+                      disabled={passwordMutation.isPending}
+                      sx={{ px: 2.1, py: 0.78, bgcolor: '#5B4CF6', fontSize: '0.76rem', '&:hover': { bgcolor: '#4F46E5' } }}
+                    >
+                      {passwordMutation.isPending ? 'Updating...' : 'Update Password'}
+                    </Button>
+                  </Box>
+                </Box>
+              </CardContent>
+            </Card>
+
+            <Card sx={{ ...surface }}>
+              <CardContent sx={{ p: 0 }}>
+                <Box sx={{ px: 2.4, py: 1.75 }}>
+                  <Typography sx={{ fontWeight: 900, fontSize: '0.96rem' }}>
+                    Notifications
+                  </Typography>
+                </Box>
+                <Divider />
+                <Box sx={{ px: 2.4, py: 2.2 }}>
+                  {[
+                    {
+                      key: 'emailNotifications' as const,
+                      title: 'Email Notifications',
+                      description: 'Receive emails about your course progress and announcements.',
+                    },
+                    {
+                      key: 'lessonReminders' as const,
+                      title: 'Lesson Reminders',
+                      description: "Get reminded to continue learning if you've been inactive.",
+                    },
+                    {
+                      key: 'marketingEmails' as const,
+                      title: 'Marketing Emails',
+                      description: 'Receive offers and updates about new courses.',
+                    },
+                  ].map((item, index, items) => (
+                    <Box
+                      key={item.key}
+                      sx={{
+                        py: 1.45,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        gap: 2,
+                        borderBottom: index === items.length - 1 ? 0 : '1px solid #EDF1F7',
+                      }}
+                    >
+                      <Box>
+                        <Typography sx={{ color: '#111827', fontWeight: 800, fontSize: '0.78rem' }}>
+                          {item.title}
+                        </Typography>
+                        <Typography sx={{ mt: 0.25, color: '#6B7280', fontSize: '0.72rem' }}>
+                          {item.description}
+                        </Typography>
                       </Box>
-                    </Stack>
-                  </CardContent>
-                </Card>
-
-                <Card sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 2 }}>
-                  <CardContent sx={{ p: { xs: 3, md: 4 } }}>
-                    <Stack spacing={3}>
-                      <Typography variant="h6" sx={{ fontWeight: 800 }}>
-                        Password & security
-                      </Typography>
-                      <Grid container spacing={2.5}>
-                        <Grid size={12}>
-                          <TextField label="Current Password" type="password" fullWidth value={form.currentPassword} onChange={updateField('currentPassword')} />
-                        </Grid>
-                        <Grid size={{ xs: 12, sm: 6 }}>
-                          <TextField label="New Password" type="password" fullWidth value={form.newPassword} onChange={updateField('newPassword')} />
-                        </Grid>
-                        <Grid size={{ xs: 12, sm: 6 }}>
-                          <TextField label="Confirm Password" type="password" fullWidth value={form.confirmPassword} onChange={updateField('confirmPassword')} />
-                        </Grid>
-                      </Grid>
-
-                      <Box sx={{ display: 'flex', justifyContent: 'flex-start' }}>
-                        <Button variant="contained" sx={{ px: 3 }} onClick={() => void handleUpdatePassword()} disabled={isUpdatingPassword}>
-                          {isUpdatingPassword ? 'Updating...' : 'Update Password'}
-                        </Button>
-                      </Box>
-                    </Stack>
-                  </CardContent>
-                </Card>
-
-                <Card sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 2 }}>
-                  <CardContent sx={{ p: { xs: 3, md: 4 } }}>
-                    <Stack spacing={3}>
-                      <Typography variant="h6" sx={{ fontWeight: 800 }}>
-                        Notifications
-                      </Typography>
-                      <Stack spacing={2.5}>
-                        {notificationOptions.map((option) => (
-                          <Box
-                            key={option.title}
-                            sx={{
-                              display: 'flex',
-                              alignItems: 'flex-start',
-                              justifyContent: 'space-between',
-                              gap: 2,
-                              p: 2,
-                              borderRadius: 2,
-                              bgcolor: 'background.default',
-                              border: '1px solid',
-                              borderColor: 'divider',
-                            }}
-                          >
-                            <Box sx={{ pr: 2 }}>
-                              <Typography variant="subtitle2" sx={{ fontWeight: 800 }}>
-                                {option.title}
-                              </Typography>
-                              <Typography variant="body2" sx={{ color: 'text.secondary', mt: 0.5, lineHeight: 1.7 }}>
-                                {option.description}
-                              </Typography>
-                            </Box>
-                            <Switch
-                              checked={notifications[option.key]}
-                              onChange={(_, checked) =>
-                                setNotifications((current) => ({
-                                  ...current,
-                                  [option.key]: checked,
-                                }))
-                              }
-                            />
-                          </Box>
-                        ))}
-                      </Stack>
-                    </Stack>
-                  </CardContent>
-                </Card>
-              </Stack>
-            </Grid>
-          </Grid>
-      </DashboardPageFrame>
+                      <Switch
+                        checked={notificationPrefs[item.key]}
+                        disabled={notificationsMutation.isPending}
+                        onChange={toggleNotification(item.key)}
+                        sx={{
+                          '& .MuiSwitch-switchBase.Mui-checked': { color: '#5B4CF6' },
+                          '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': { bgcolor: '#5B4CF6', opacity: 1 },
+                        }}
+                      />
+                    </Box>
+                  ))}
+                </Box>
+              </CardContent>
+            </Card>
+          </Box>
+        </Grid>
+      </Grid>
     </Box>
   );
 }

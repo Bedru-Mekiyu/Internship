@@ -190,7 +190,17 @@ export const deleteMedia = asyncHandler(async (req: Request, res: Response) => {
       Key: key,
     }));
   } else {
-    const uploadPath = path.join(process.cwd(), 'uploads', media.filename);
+    const uploadRoot = path.resolve(process.cwd(), 'uploads');
+    const safeFilename = path.basename(media.filename || '');
+    if (!safeFilename || safeFilename !== media.filename) {
+      throw new AppError('Invalid media storage key', 500);
+    }
+
+    const uploadPath = path.resolve(uploadRoot, safeFilename);
+    if (!uploadPath.startsWith(`${uploadRoot}${path.sep}`)) {
+      throw new AppError('Invalid media storage key', 500);
+    }
+
     await rm(uploadPath, { force: true });
   }
 

@@ -1,5 +1,5 @@
 import express from 'express';
-import { register, login, refreshToken, getMe, verifyEmail, logout, forgotPassword, resetPassword, getCsrfToken } from '../controllers/auth.controller';
+import { register, login, refreshToken, getMe, verifyEmail, logout, forgotPassword, resetPassword, getCsrfToken, resendVerification } from '../controllers/auth.controller';
 import { authMiddleware } from '../middlewares/auth.middleware';
 import { createRateLimiter } from '../middlewares/rate-limit.middleware';
 import {
@@ -60,6 +60,8 @@ router.post('/resetpassword', resetPasswordRateLimit, validationMiddleware(reset
 router.post('/refresh-token', refreshRateLimit, validationMiddleware(refreshTokenSchema), refreshToken);
 router.post('/refreshtoken', refreshRateLimit, validationMiddleware(refreshTokenSchema), refreshToken);
 router.get('/verify-email/:token', verifyEmail);
+router.get('/verify-email', verifyEmail);
+router.post('/resend-verification', forgotPasswordRateLimit, validationMiddleware(forgotPasswordSchema), resendVerification);
 router.get('/csrf-token', getCsrfToken);
 router.get('/me', authMiddleware, getMe);
 

@@ -6,7 +6,7 @@ export const registerSchema = Joi.object({
   password: Joi.string().min(8).max(128).required(),
   firstName: Joi.string().trim().min(2).max(50).required(),
   lastName: Joi.string().trim().min(2).max(50).required(),
-  role: Joi.string().valid('student', 'instructor', 'admin', 'content_manager').default('student'),
+  role: Joi.string().valid('student', 'instructor').default('student'),
 });
 
 export const loginSchema = Joi.object({
@@ -15,7 +15,7 @@ export const loginSchema = Joi.object({
 });
 
 export const refreshTokenSchema = Joi.object({
-  refreshToken: Joi.string().trim().pattern(/^[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+$/).required(),
+  refreshToken: Joi.string().trim().pattern(/^[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+$/).optional(),
 });
 
 export const forgotPasswordSchema = Joi.object({
@@ -45,14 +45,15 @@ export const contactStatusSchema = Joi.object({
 
 export const courseSchema = Joi.object({
   title: Joi.string().required(),
-  slug: Joi.string().required(),
-  description: Joi.string().required(),
+  slug: Joi.string().optional(),
+  description: Joi.string().allow('').optional(),
   shortDescription: Joi.string().allow('').optional(),
   thumbnail: Joi.string().uri().allow('').optional(),
   instructor: Joi.string().optional(),
-  category: Joi.string().required(),
+  category: Joi.string().allow('').optional(),
   level: Joi.string().valid('beginner', 'intermediate', 'advanced').optional(),
   status: Joi.string().valid('draft', 'published', 'archived').optional(),
+  visibility: Joi.string().valid('Draft', 'Published').optional(),
   featured: Joi.boolean().optional(),
   pricing: Joi.object({
     type: Joi.string().valid('free', 'paid', 'subscription').optional(),
@@ -74,12 +75,22 @@ export const moduleSchema = Joi.object({
   status: Joi.string().valid('draft', 'published').default('draft'),
 });
 
+const lessonAttachmentSchema = Joi.object({
+  name: Joi.string().trim().min(1).max(255).required(),
+  size: Joi.string().trim().allow('').max(32).optional(),
+  url: Joi.string().trim().allow('').max(2048).optional(),
+  mediaId: Joi.string().trim().allow('').optional(),
+});
+
 export const lessonSchema = Joi.object({
   title: Joi.string().trim().min(2).max(160).required(),
   content: Joi.string().allow('').optional(),
+  videoUrl: Joi.string().trim().allow('').max(2048).optional(),
   type: Joi.string().valid('video', 'text', 'quiz', 'assignment').required(),
   duration: Joi.number().integer().min(0).optional(),
   notes: Joi.string().trim().allow('').max(4000).optional(),
+  attachments: Joi.array().items(lessonAttachmentSchema).max(20).optional(),
+  status: Joi.string().valid('draft', 'published', 'scheduled').optional(),
   order: Joi.number().integer().min(0).optional(),
 });
 
@@ -94,9 +105,12 @@ export const moduleUpdateSchema = Joi.object({
 export const lessonUpdateSchema = Joi.object({
   title: Joi.string().trim().min(2).max(160).optional(),
   content: Joi.string().allow('').optional(),
+  videoUrl: Joi.string().trim().allow('').max(2048).optional(),
   type: Joi.string().valid('video', 'text', 'quiz', 'assignment').optional(),
   duration: Joi.number().integer().min(0).optional(),
   notes: Joi.string().trim().allow('').max(4000).optional(),
+  attachments: Joi.array().items(lessonAttachmentSchema).max(20).optional(),
+  status: Joi.string().valid('draft', 'published', 'scheduled').optional(),
   order: Joi.number().integer().min(0).optional(),
 }).min(1);
 
@@ -198,6 +212,7 @@ export const updateMeSchema = Joi.object({
     notifications: Joi.object({
       email: Joi.boolean().optional(),
       push: Joi.boolean().optional(),
+      marketingEmails: Joi.boolean().optional(),
     }).optional(),
   }).optional(),
 }).min(1);

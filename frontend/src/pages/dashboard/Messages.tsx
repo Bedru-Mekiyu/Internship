@@ -3,21 +3,30 @@ import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tansta
 import type { InfiniteData } from '@tanstack/react-query';
 import {
   Alert,
+  Avatar,
   Box,
   Button,
-  Card,
-  CardContent,
   CircularProgress,
+  Divider,
   Grid,
+  IconButton,
   List,
   ListItem,
   ListItemButton,
-  TextField,
   InputAdornment,
+  TextField,
   Typography,
 } from '@mui/material';
 import {
+  AddOutlined,
+  CallOutlined,
+  CircleOutlined,
+  ImageOutlined,
+  InsertEmoticonOutlined,
+  MoreHorizOutlined,
+  SendOutlined,
   SearchOutlined,
+  VideoCallOutlined,
 } from '@mui/icons-material';
 import { api, normalizeApiError } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
@@ -76,6 +85,8 @@ interface Conversation {
   preview: string;
   initials: string;
   accent: string;
+  timeLabel: string;
+  unreadCount?: number;
 }
 
 function toRelativeTime(createdAt?: string) {
@@ -129,42 +140,37 @@ function ConversationRow({
         onClick={onClick}
         selected={active}
         sx={{
-          borderRadius: 1.5,
-          px: { xs: 1, sm: 1.25 },
-          py: { xs: 1, sm: 1.25 },
+          borderRadius: 1,
+          px: 1,
+          py: 0.9,
           alignItems: 'flex-start',
-          gap: { xs: 1, sm: 1.25 },
+          gap: 1,
           '&.Mui-selected': {
-            bgcolor: 'background.default',
-            '&:hover': { bgcolor: 'background.default' },
+            bgcolor: '#E9F0FE',
+            '&:hover': { bgcolor: '#E9F0FE' },
           },
         }}
       >
-        <Box
-          sx={{
-            width: 42,
-            height: 42,
-            borderRadius: 1.5,
-            bgcolor: conversation.accent,
-            color: 'common.white',
-            fontWeight: 700,
-            flexShrink: 0,
-            display: 'grid',
-            placeItems: 'center',
-          }}
-        >
+        <Avatar sx={{ width: 30, height: 30, bgcolor: conversation.accent, color: '#FFFFFF', fontWeight: 700, fontSize: '0.74rem' }}>
           {conversation.initials}
-        </Box>
+        </Avatar>
         <Box sx={{ minWidth: 0, flex: 1 }}>
-          <Typography variant="body2" sx={{ fontWeight: 700 }} noWrap>
-            {conversation.name}
-          </Typography>
-          <Typography variant="caption" sx={{ color: 'text.secondary' }} noWrap>
-            {conversation.group}
-          </Typography>
-          <Typography variant="body2" sx={{ mt: 0.5, color: 'text.secondary' }} noWrap>
+          <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 1 }}>
+            <Typography variant="body2" sx={{ fontWeight: 700, fontSize: '0.78rem' }} noWrap>
+              {conversation.name}
+            </Typography>
+            <Typography variant="caption" sx={{ color: '#8A94A6', whiteSpace: 'nowrap' }}>
+              {conversation.timeLabel}
+            </Typography>
+          </Box>
+          <Typography variant="caption" sx={{ color: 'text.secondary', display: 'block' }} noWrap>
             {conversation.preview}
           </Typography>
+          {conversation.unreadCount ? (
+            <Box sx={{ mt: 0.35, display: 'inline-grid', placeItems: 'center', minWidth: 16, height: 16, px: 0.5, borderRadius: 999, bgcolor: '#EF4444', color: '#FFFFFF', fontSize: '0.58rem', fontWeight: 700 }}>
+              {conversation.unreadCount}
+            </Box>
+          ) : null}
         </Box>
       </ListItemButton>
     </ListItem>
@@ -225,33 +231,10 @@ export default function Messages() {
   } = useQuery({
     queryKey: ['messages', 'accessible-courses'],
     queryFn: async (): Promise<CourseRef[]> => {
-      const lookupErrors: string[] = [];
-
-      try {
-        const studentResponse = await api.get<{
-          enrolledCourses: Array<{ courseId?: string; title?: string }>;
-        }>('/api/dashboard/student');
-
-        return (studentResponse.data.enrolledCourses || [])
-          .filter((course): course is { courseId: string; title: string } => Boolean(course.courseId && course.title))
-          .map((course) => ({ courseId: course.courseId, title: course.title }));
-      } catch (error) {
-        lookupErrors.push(normalizeApiError(error).message || 'Student dashboard request failed.');
-      }
-
-      try {
-        const instructorResponse = await api.get<{
-          courses: Array<{ _id: string; title: string }>;
-        }>('/api/dashboard/instructor');
-
-        return (instructorResponse.data.courses || [])
-          .filter((course) => Boolean(course._id && course.title))
-          .map((course) => ({ courseId: course._id, title: course.title }));
-      } catch (error) {
-        lookupErrors.push(normalizeApiError(error).message || 'Instructor dashboard request failed.');
-      }
-
-      throw new Error(lookupErrors[lookupErrors.length - 1] || 'Unable to load accessible course discussions.');
+      const response = await api.get<Array<{ courseId?: string; title?: string }>>('/api/discussions/conversations');
+      return (response.data || [])
+        .filter((course): course is { courseId: string; title: string } => Boolean(course.courseId && course.title))
+        .map((course) => ({ courseId: course.courseId, title: course.title }));
     },
   });
 
@@ -387,9 +370,10 @@ export default function Messages() {
 
   const conversations = useMemo<Conversation[]>(() => {
     return accessibleCourses.map((course, index) => {
-      const preview = activeCourse?.courseId === course.courseId
-        ? (discussions[discussions.length - 1]?.content || 'No messages yet. Start the conversation.')
-        : 'Open conversation';
+      const latestForActiveCourse = activeCourse?.courseId === course.courseId
+        ? discussions[discussions.length - 1]
+        : null;
+      const preview = latestForActiveCourse?.content || 'Open course discussion';
 
       return {
         id: course.courseId,
@@ -398,6 +382,8 @@ export default function Messages() {
         preview,
         initials: initialsFromName(course.title),
         accent: ['#0EA5E9', '#6366F1', '#0066FF', '#F97316', '#14B8A6'][index % 5],
+        timeLabel: latestForActiveCourse ? toRelativeTime(latestForActiveCourse.createdAt) : '—',
+        unreadCount: 0,
       };
     });
   }, [accessibleCourses, activeCourse?.courseId, discussions]);
@@ -473,234 +459,212 @@ export default function Messages() {
   const courseLoadError = coursesError ? normalizeApiError(coursesRequestError).message : null;
   const discussionLoadError = discussionsError ? normalizeApiError(discussionsRequestError).message : null;
   const shouldShowLoadOlderMessages = canLoadOlderMessages(Boolean(activeCourse), Boolean(hasNextPage));
+  const firstReceivedMessage = chatMessages.find((message) => message.side === 'received') ?? null;
+  const activePeerName = firstReceivedMessage?.authorName || 'Discussion';
 
   return (
-    <Box sx={{ minHeight: '100%', bgcolor: 'background.default', p: { xs: 1.5, sm: 2.5, md: 3 } }}>
-        <Typography variant="h5" sx={{ fontWeight: 800, mb: 2.5 }}>
-          Messages
-        </Typography>
+    <Box sx={{ minHeight: '100%', bgcolor: '#EEF2F7', p: { xs: 1.5, md: 2 } }}>
+      {statusMessage ? (
+        <Alert severity={getStatusSeverity(statusMessage)} sx={{ mb: 1.5 }}>
+          {statusMessage}
+        </Alert>
+      ) : null}
 
-        {statusMessage ? (
-          <Alert severity={getStatusSeverity(statusMessage)} sx={{ mb: 2 }}>
-            {statusMessage}
-          </Alert>
-        ) : null}
+      <Box sx={{ border: '1px solid #DDE5F0', borderRadius: 1.5, bgcolor: '#F7F9FD', overflow: 'hidden' }}>
+        <Grid container sx={{ minHeight: { md: 640 } }}>
+          <Grid size={{ xs: 12, lg: 4 }}>
+            <Box sx={{ height: '100%', borderRight: { lg: '1px solid #DDE5F0' } }}>
+              <Box sx={{ px: 2, py: 1.5, borderBottom: '1px solid #DDE5F0', bgcolor: '#F3F6FC' }}>
+                <Typography sx={{ fontSize: '0.92rem', fontWeight: 700 }}>Conversations</Typography>
+                <TextField
+                  value={search}
+                  onChange={(event) => setSearch(event.target.value)}
+                  placeholder="Search messages..."
+                  size="small"
+                  sx={{ mt: 1.2 }}
+                  slotProps={{
+                    input: {
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <SearchOutlined fontSize="small" />
+                        </InputAdornment>
+                      ),
+                    },
+                  }}
+                />
+              </Box>
 
-        <Grid container spacing={{ xs: 2, md: 2.5 }} sx={{ alignItems: 'stretch' }}>
-          <Grid size={{ xs: 12, lg: 4 }} sx={{ minWidth: 0 }}>
-            <Card sx={{ height: '100%', overflow: 'hidden', border: '1px solid', borderColor: 'divider', borderRadius: { xs: 1.5, md: 2 } }}>
-              <CardContent sx={{ p: 0, height: '100%', display: 'flex', flexDirection: 'column' }}>
-                <Box sx={{ p: 2.5, borderBottom: '1px solid', borderColor: 'divider' }}>
-                  <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 1.5 }}>
-                    <Typography variant="h6" sx={{ fontWeight: 800 }}>
-                      Conversations
-                    </Typography>
+              <Box sx={{ p: 1.2, bgcolor: '#E8EFFA', height: { xs: 'auto', lg: 'calc(100% - 84px)' }, minHeight: 300, overflowY: 'auto' }}>
+                {coursesLoading ? (
+                  <Box sx={{ display: 'grid', placeItems: 'center', py: 6 }}>
+                    <CircularProgress size={28} />
                   </Box>
+                ) : null}
+                {courseLoadError ? (
+                  <Alert
+                    severity="error"
+                    action={
+                      <Button color="inherit" size="small" onClick={() => void refetchCourses()}>
+                        Retry
+                      </Button>
+                    }
+                  >
+                    {courseLoadError}
+                  </Alert>
+                ) : null}
+                {!coursesLoading && !courseLoadError ? (
+                  <>
+                    <Typography variant="caption" sx={{ color: '#7D8799', fontWeight: 800, letterSpacing: '0.08em' }}>
+                      COURSES / GROUPS
+                    </Typography>
+                    <List disablePadding sx={{ mt: 0.8, display: 'grid', gap: 0.6 }}>
+                      {visibleConversations.map((conversation) => (
+                        <ConversationRow
+                          key={conversation.id}
+                          conversation={conversation}
+                          active={conversation.id === resolvedConversationId}
+                          onClick={() => handleSelectConversation(conversation.id)}
+                        />
+                      ))}
+                    </List>
+                    {!hasAnyConversation ? (
+                      <Typography variant="body2" sx={{ color: 'text.secondary', mt: 1.2 }}>
+                        No conversations match your search.
+                      </Typography>
+                    ) : null}
+                    {!hasAnyCourseConversation ? (
+                      <Typography variant="body2" sx={{ color: 'text.secondary', mt: 1.2 }}>
+                        You do not have any course discussions yet.
+                      </Typography>
+                    ) : null}
+                  </>
+                ) : null}
+              </Box>
+            </Box>
+          </Grid>
 
-                  <Box sx={{ mt: 2 }}>
+          <Grid size={{ xs: 12, lg: 8 }}>
+            <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column', bgcolor: '#F7F9FD' }}>
+              <Box sx={{ px: 2, py: 1.4, borderBottom: '1px solid #DDE5F0', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 1 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <Avatar sx={{ width: 32, height: 32, bgcolor: '#93A7CB', fontSize: '0.72rem' }}>
+                    {initialsFromName(activePeerName)}
+                  </Avatar>
+                  <Box>
+                    <Typography sx={{ fontWeight: 700, fontSize: '0.83rem' }} noWrap>
+                      {activePeerName}
+                    </Typography>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                      <CircleOutlined sx={{ fontSize: 8, color: '#22C55E' }} />
+                      <Typography sx={{ color: '#22C55E', fontSize: '0.67rem', fontWeight: 600 }}>Online</Typography>
+                    </Box>
+                  </Box>
+                </Box>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                  <IconButton size="small" sx={{ border: '1px solid #DDE5F0', bgcolor: '#FFFFFF' }}>
+                    <CallOutlined sx={{ fontSize: 16 }} />
+                  </IconButton>
+                  <IconButton size="small" sx={{ border: '1px solid #DDE5F0', bgcolor: '#FFFFFF' }}>
+                    <VideoCallOutlined sx={{ fontSize: 16 }} />
+                  </IconButton>
+                  <IconButton size="small" sx={{ border: '1px solid #DDE5F0', bgcolor: '#FFFFFF' }}>
+                    <MoreHorizOutlined sx={{ fontSize: 16 }} />
+                  </IconButton>
+                </Box>
+              </Box>
+
+              <Box ref={chatContainerRef} sx={{ p: { xs: 1.25, sm: 1.75 }, flex: 1, minHeight: 0, overflowY: 'auto', bgcolor: '#F7F9FD' }}>
+                {discussionsLoading ? (
+                  <Box sx={{ display: 'grid', placeItems: 'center', py: 8 }}>
+                    <CircularProgress size={30} />
+                  </Box>
+                ) : null}
+                {discussionLoadError ? (
+                  <Alert
+                    severity="error"
+                    action={
+                      <Button color="inherit" size="small" onClick={() => void refetchDiscussions()}>
+                        Retry
+                      </Button>
+                    }
+                  >
+                    {discussionLoadError}
+                  </Alert>
+                ) : null}
+                {!discussionsLoading && !discussionLoadError && chatMessages.length === 0 ? (
+                  <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                    No messages yet for this course. Send the first one.
+                  </Typography>
+                ) : null}
+                {!discussionsLoading && !discussionLoadError && chatMessages.length > 0 ? (
+                  <Box sx={{ display: 'grid', gap: 1.2 }}>
+                    {shouldShowLoadOlderMessages ? (
+                      <Box sx={{ display: 'flex', justifyContent: 'center' }}>
+                        <Button
+                          variant="outlined"
+                          size="small"
+                          disabled={isFetchingNextPage}
+                          onClick={() => {
+                            autoScrollEnabledRef.current = false;
+                            void fetchNextPage();
+                          }}
+                        >
+                          {isFetchingNextPage ? 'Loading older messages...' : 'Load older messages'}
+                        </Button>
+                      </Box>
+                    ) : null}
+                    {chatMessages.map((message) => (
+                      <ChatBubble key={message.id} message={message} />
+                    ))}
+                  </Box>
+                ) : null}
+              </Box>
+
+              <Divider />
+              <Box sx={{ px: 1.5, py: 1.2, bgcolor: '#F6F8FC' }}>
+                <Box component="form" onSubmit={handleSendMessage}>
+                  <Box sx={{ border: '1px solid #DDE5F0', borderRadius: 1, bgcolor: '#FFFFFF' }}>
+                    <Box sx={{ px: 1, py: 0.4, borderBottom: '1px solid #EEF2F7', display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                      <IconButton size="small"><AddOutlined sx={{ fontSize: 14 }} /></IconButton>
+                      <IconButton size="small"><ImageOutlined sx={{ fontSize: 14 }} /></IconButton>
+                      <IconButton size="small"><InsertEmoticonOutlined sx={{ fontSize: 14 }} /></IconButton>
+                    </Box>
                     <TextField
-                      value={search}
-                      onChange={(event) => setSearch(event.target.value)}
-                      placeholder="Search conversations..."
-                      slotProps={{
-                        input: {
-                          startAdornment: (
-                            <InputAdornment position="start">
-                              <SearchOutlined fontSize="small" />
-                            </InputAdornment>
-                          ),
-                        },
+                      value={draftMessage}
+                      onChange={(event) => setDraftMessage(event.target.value)}
+                      placeholder={activeCourse ? `Message ${activePeerName}...` : 'Select a conversation...'}
+                      multiline
+                      minRows={3}
+                      variant="standard"
+                      slotProps={{ htmlInput: { maxLength: maxMessageLength } }}
+                      disabled={!activeCourse || sendMessageMutation.isPending}
+                      sx={{
+                        width: '100%',
+                        px: 1.2,
+                        py: 0.8,
+                        '& .MuiInputBase-root': { fontSize: '0.86rem' },
+                        '& .MuiInputBase-root:before, & .MuiInputBase-root:after': { display: 'none' },
                       }}
                     />
-                  </Box>
-                </Box>
-
-                <Box sx={{ p: 2.5, flex: 1, minHeight: 0, overflowY: 'auto' }}>
-                  {coursesLoading ? (
-                    <Box sx={{ display: 'grid', placeItems: 'center', py: 6 }}>
-                      <CircularProgress size={28} />
-                    </Box>
-                  ) : null}
-
-                  {courseLoadError ? (
-                    <Alert
-                      severity="error"
-                      action={
-                        <Button color="inherit" size="small" onClick={() => void refetchCourses()}>
-                          Retry
-                        </Button>
-                      }
-                    >
-                      {courseLoadError}
-                    </Alert>
-                  ) : null}
-
-                  {!coursesLoading && !courseLoadError ? (
-                    <Box>
-                      <Typography variant="caption" sx={{ color: 'text.secondary', fontWeight: 800, letterSpacing: '0.12em' }}>
-                        COURSES / GROUPS
-                      </Typography>
-                      <List disablePadding sx={{ mt: 1.5, display: 'grid', gap: 0.75 }}>
-                        {visibleConversations.map((conversation) => (
-                          <ConversationRow
-                            key={conversation.id}
-                            conversation={conversation}
-                            active={conversation.id === activeConversationId}
-                            onClick={() => handleSelectConversation(conversation.id)}
-                          />
-                        ))}
-                      </List>
-
-                      {!hasAnyConversation ? (
-                        <Typography variant="body2" sx={{ color: 'text.secondary', mt: 1.5 }}>
-                          No conversations match your search.
-                        </Typography>
-                      ) : null}
-
-                      {!hasAnyCourseConversation ? (
-                        <Typography variant="body2" sx={{ color: 'text.secondary', mt: 1.5 }}>
-                          You do not have any course discussions yet.
-                        </Typography>
-                      ) : null}
-                    </Box>
-                  ) : null}
-                </Box>
-              </CardContent>
-            </Card>
-          </Grid>
-
-          <Grid size={{ xs: 12, lg: 8 }} sx={{ minWidth: 0 }}>
-            <Card sx={{ height: '100%', overflow: 'hidden', border: '1px solid', borderColor: 'divider', borderRadius: { xs: 1.5, md: 2 } }}>
-              <CardContent sx={{ p: 0, height: '100%', display: 'flex', flexDirection: 'column' }}>
-                <Box sx={{ p: 2.5, borderBottom: '1px solid', borderColor: 'divider' }}>
-                  <Box sx={{ display: 'flex', alignItems: { xs: 'flex-start', sm: 'center' }, justifyContent: 'space-between', gap: 2, flexWrap: 'wrap' }}>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, minWidth: 0, width: { xs: '100%', sm: 'auto' } }}>
-                      <Box
-                        sx={{
-                          width: { xs: 40, sm: 48 },
-                          height: { xs: 40, sm: 48 },
-                          borderRadius: 1.5,
-                          bgcolor: 'primary.main',
-                          color: 'common.white',
-                          fontWeight: 700,
-                          display: 'grid',
-                          placeItems: 'center',
-                        }}
-                      >
-                        {initialsFromName(activeCourse?.title || 'Messages')}
-                      </Box>
-                      <Box sx={{ minWidth: 0 }}>
-                        <Typography variant="h6" sx={{ fontWeight: 800, fontSize: { xs: '1rem', sm: '1.25rem' } }} noWrap>
-                          {activeCourse?.title || 'Select a conversation'}
-                        </Typography>
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                          <Box sx={{ width: 8, height: 8, borderRadius: '999px', bgcolor: 'success.main' }} />
-                          <Typography variant="body2" sx={{ color: 'text.secondary', fontWeight: 600 }}>
-                            Live discussion
-                          </Typography>
-                        </Box>
-                      </Box>
-                    </Box>
-
-                  </Box>
-                </Box>
-
-                 <Box ref={chatContainerRef} sx={{ p: { xs: 2, sm: 2.5 }, flex: 1, minHeight: 0, overflowY: 'auto', bgcolor: 'background.paper' }}>
-                  {discussionsLoading ? (
-                    <Box sx={{ display: 'grid', placeItems: 'center', py: 8 }}>
-                      <CircularProgress size={30} />
-                    </Box>
-                  ) : null}
-
-                  {discussionLoadError ? (
-                    <Alert
-                      severity="error"
-                      action={
-                        <Button color="inherit" size="small" onClick={() => void refetchDiscussions()}>
-                          Retry
-                        </Button>
-                      }
-                    >
-                      {discussionLoadError}
-                    </Alert>
-                  ) : null}
-
-                  {!discussionsLoading && !discussionLoadError && chatMessages.length === 0 ? (
-                    <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                      No messages yet for this course. Send the first one.
-                    </Typography>
-                  ) : null}
-
-                  {!discussionsLoading && !discussionLoadError && chatMessages.length > 0 ? (
-                    <Box sx={{ display: 'grid', gap: 1.5 }}>
-                      {shouldShowLoadOlderMessages ? (
-                        <Box sx={{ display: 'flex', justifyContent: 'center' }}>
-                          <Button
-                            variant="outlined"
-                            size="small"
-                            disabled={isFetchingNextPage}
-                            onClick={() => {
-                              autoScrollEnabledRef.current = false;
-                              void fetchNextPage();
-                            }}
-                          >
-                            {isFetchingNextPage ? 'Loading older messages...' : 'Load older messages'}
-                          </Button>
-                        </Box>
-                      ) : null}
-
-                      {chatMessages.map((message) => (
-                        <ChatBubble key={message.id} message={message} />
-                      ))}
-                    </Box>
-                  ) : null}
-                </Box>
-
-                <Box sx={{ p: 2.5, borderTop: '1px solid', borderColor: 'divider', bgcolor: 'background.paper' }}>
-                  <Typography variant="caption" sx={{ color: 'text.secondary', fontWeight: 600, display: 'block', mb: 1.5 }}>
-                    Course discussion message
-                  </Typography>
-
-                  <Box component="form" onSubmit={handleSendMessage}>
-                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
-                      <TextField
-                        value={draftMessage}
-                        onChange={(event) => setDraftMessage(event.target.value)}
-                        placeholder={activeCourse ? `Message ${activeCourse.title}...` : 'Select a conversation...'}
-                        multiline
-                        minRows={3}
-                        slotProps={{ htmlInput: { maxLength: maxMessageLength } }}
-                        disabled={!activeCourse || sendMessageMutation.isPending}
-                        sx={{
-                          '& .MuiInputBase-root': {
-                            alignItems: 'flex-start',
-                            pt: 1.5,
-                          },
-                        }}
-                      />
-
-                      <Typography variant="caption" sx={{ color: isDraftTooLong ? 'error.main' : 'text.secondary', textAlign: 'right' }}>
+                    <Box sx={{ px: 1, pb: 0.8, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                      <Typography variant="caption" sx={{ color: isDraftTooLong ? 'error.main' : 'text.secondary' }}>
                         {trimmedDraftMessage.length}/{maxMessageLength}
                       </Typography>
-
-                      <Box sx={{ display: 'flex', alignItems: { xs: 'stretch', sm: 'center' }, justifyContent: 'space-between', gap: 1.5, flexWrap: 'wrap', flexDirection: { xs: 'column', sm: 'row' } }}>
-                        <Button
-                          type="submit"
-                          variant="contained"
-                          disabled={sendDisabled}
-                          sx={{ minWidth: 130, width: { xs: '100%', sm: 'auto' }, bgcolor: 'primary.main', '&:hover': { bgcolor: 'primary.dark' } }}
-                        >
-                          {sendMessageMutation.isPending ? 'Sending...' : 'Send'}
-                        </Button>
-                      </Box>
+                      <IconButton
+                        type="submit"
+                        disabled={sendDisabled}
+                        sx={{ bgcolor: '#2563EB', color: '#FFFFFF', width: 28, height: 28, borderRadius: 1, '&:hover': { bgcolor: '#1D4ED8' }, '&.Mui-disabled': { bgcolor: '#BFDBFE', color: '#FFFFFF' } }}
+                      >
+                        <SendOutlined sx={{ fontSize: 16 }} />
+                      </IconButton>
                     </Box>
                   </Box>
                 </Box>
-              </CardContent>
-            </Card>
+              </Box>
+            </Box>
           </Grid>
         </Grid>
-
+      </Box>
     </Box>
   );
 }

@@ -2,6 +2,7 @@ import express from 'express';
 import { authMiddleware, roleMiddleware } from '../middlewares/auth.middleware';
 import {
   createQuiz,
+  getMyAllQuizAttempts,
   getMyQuizAttempts,
   getQuizAttemptsForInstructor,
   getQuizzesByLesson,
@@ -12,6 +13,7 @@ import { quizAttemptSchema, quizCreateSchema, validationMiddleware } from '../ut
 const router = express.Router();
 
 router.get('/lesson/:lessonId', authMiddleware, getQuizzesByLesson);
+router.get('/all-attempts/me', authMiddleware, roleMiddleware(['student']), getMyAllQuizAttempts);
 router.post(
   '/lesson/:lessonId',
   authMiddleware,

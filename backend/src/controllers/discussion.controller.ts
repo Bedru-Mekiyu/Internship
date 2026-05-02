@@ -90,6 +90,66 @@ export const getCourseDiscussions = asyncHandler(async (req: Request, res: Respo
   });
 });
 
+export const getAccessibleDiscussionCourses = asyncHandler(async (req: Request, res: Response) => {
+  const user = req.user;
+  if (!user?._id) {
+    throw new AppError('Unauthorized', 401);
+  }
+
+  if (user.role === 'admin' || user.role === 'content_manager') {
+    const courses = await Course.find({})
+      .select('_id title')
+      .sort({ createdAt: -1 })
+      .limit(200);
+
+    return res.json(
+      courses
+        .filter((course) => Boolean(course._id && course.title))
+        .map((course) => ({
+          courseId: String(course._id),
+          title: String(course.title),
+        })),
+    );
+  }
+
+  if (user.role === 'instructor') {
+    const courses = await Course.find({ instructor: user._id })
+      .select('_id title')
+      .sort({ createdAt: -1 })
+      .limit(200);
+
+    return res.json(
+      courses
+        .filter((course) => Boolean(course._id && course.title))
+        .map((course) => ({
+          courseId: String(course._id),
+          title: String(course.title),
+        })),
+    );
+  }
+
+  const enrollments = await Enrollment.find({ userId: user._id })
+    .select('courseId')
+    .populate('courseId', 'title')
+    .limit(500);
+
+  const conversations = enrollments
+    .map((enrollment) => {
+      const course = enrollment.courseId as unknown as { _id?: string; title?: string } | null;
+      if (!course?._id || !course.title) {
+        return null;
+      }
+      return {
+        courseId: String(course._id),
+        title: String(course.title),
+      };
+    })
+    .filter((course): course is { courseId: string; title: string } => Boolean(course));
+
+  const deduped = Array.from(new Map(conversations.map((course) => [course.courseId, course])).values());
+  return res.json(deduped);
+});
+
 export const createDiscussionMessage = asyncHandler(async (req: Request, res: Response) => {
   const courseId = String(req.params.courseId || '');
   const { content, title } = req.body;
@@ -106,7 +166,7 @@ export const createDiscussionMessage = asyncHandler(async (req: Request, res: Re
 
   const discussion = new Discussion({
     courseId,
-    userId: req.user._id,
+    userId: req.user?._id,
     title: typeof title === 'string' && title.trim() ? title.trim() : 'Discussion',
     content: content.trim(),
     replies: [],
@@ -130,7 +190,7 @@ export const createDiscussionMessage = asyncHandler(async (req: Request, res: Re
   }
 
   const course = await Course.findById(courseId).select('instructor title');
-  if (course?.instructor && course.instructor.toString() !== req.user._id.toString()) {
+  if (course?.instructor && course.instructor.toString() !== req.user?._id?.toString()) {
     const instructorNotif = await Notification.create({
       userId: course.instructor,
       type: 'discussion',

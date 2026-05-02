@@ -29,12 +29,20 @@ export interface AuthUser {
   avatar?: string;
   bio?: string;
   phone?: string;
+  address?: {
+    street?: string;
+    city?: string;
+    state?: string;
+    zipCode?: string;
+    country?: string;
+  };
   preferences?: {
     language?: string;
     timezone?: string;
     notifications?: {
       email?: boolean;
       push?: boolean;
+      marketingEmails?: boolean;
     };
     themeMode?: 'light' | 'dark' | 'system';
   };

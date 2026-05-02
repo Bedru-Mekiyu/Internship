@@ -36,10 +36,10 @@ type Plan = {
 
 function PricingNav() {
   const navItems = [
-    { label: 'Features', to: '/home#features' },
+    { label: 'Features', to: '/#features' },
     { label: 'Courses', to: '/courses/explore' },
     { label: 'Pricing', to: '/pricing' },
-    { label: 'Enterprise', to: '/home#about' },
+    { label: 'Enterprise', to: '/#about' },
   ];
 
   return (

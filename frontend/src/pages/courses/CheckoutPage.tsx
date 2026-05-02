@@ -9,29 +9,10 @@ import {
   Grid,
   Link,
   Stack,
-  TextField,
   Typography,
 } from '@mui/material';
 import { Link as RouterLink, useLocation } from 'react-router-dom';
 import { api, ensureCsrfToken, normalizeApiError } from '../../services/api';
-
-type BillingForm = {
-  nameOnCard: string;
-  cardNumber: string;
-  expiry: string;
-  cvc: string;
-  country: string;
-  postalCode: string;
-};
-
-const defaultForm: BillingForm = {
-  nameOnCard: '',
-  cardNumber: '',
-  expiry: '',
-  cvc: '',
-  country: 'United States',
-  postalCode: '',
-};
 
 const isTrustedCheckoutUrl = (value: string) => {
   try {
@@ -53,10 +34,10 @@ const isTrustedCheckoutUrl = (value: string) => {
 
 function TopNav() {
   const navLinks = [
-    { label: 'Features', to: '/home#features' },
+    { label: 'Features', to: '/#features' },
     { label: 'Courses', to: '/courses/explore' },
     { label: 'Pricing', to: '/pricing' },
-    { label: 'Enterprise', to: '/home#about' },
+    { label: 'Enterprise', to: '/#about' },
   ];
 
   return (
@@ -107,15 +88,12 @@ export default function CheckoutPage() {
   const [summaryError, setSummaryError] = useState<string | null>(null);
   const [summaryLoading, setSummaryLoading] = useState(false);
 
-  const [form, setForm] = useState<BillingForm>(defaultForm);
-  const [promoCode, setPromoCode] = useState('');
   const [submitted, setSubmitted] = useState(false);
   const [statusMessage, setStatusMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const discount = 0;
   const subtotal = courseSummary?.price ?? 0;
-  const total = Math.max(subtotal - discount, 0);
+  const total = Math.max(subtotal, 0);
   const tax = total > 0 ? Math.round(total * 0.08) : 0;
 
   useEffect(() => {
@@ -163,11 +141,6 @@ export default function CheckoutPage() {
       active = false;
     };
   }, [courseId]);
-
-  const updateField = (field: keyof BillingForm) => (event: React.ChangeEvent<HTMLInputElement>) => {
-    setSubmitted(false);
-    setForm((current) => ({ ...current, [field]: event.target.value }));
-  };
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -255,10 +228,10 @@ export default function CheckoutPage() {
                       <CardContent sx={{ p: 2.5 }}>
                         <Stack spacing={1.25}>
                           <Typography variant="subtitle2" sx={{ fontWeight: 900 }}>
-                            Payment gateway
+                            Hosted payment gateway
                           </Typography>
                           <Typography variant="body2" sx={{ color: 'text.secondary', lineHeight: 1.7 }}>
-                            Submitting this checkout creates a payment session on the backend and redirects to the provider checkout URL when available.
+                            LearnSpace creates a backend payment session, then sends you to the approved provider checkout page. Card details are entered only on the provider page.
                           </Typography>
                           <Box sx={{ p: 2, borderRadius: 1.5, border: '1px dashed', borderColor: 'divider', bgcolor: 'background.paper' }}>
                             <Typography variant="caption" sx={{ color: 'text.secondary', fontWeight: 800 }}>Checkout status</Typography>
@@ -268,43 +241,8 @@ export default function CheckoutPage() {
                       </CardContent>
                     </Card>
 
-                    <Grid container spacing={2}>
-                      <Grid size={{ xs: 12 }}>
-                        <TextField fullWidth label="Name on card" value={form.nameOnCard} onChange={updateField('nameOnCard')} />
-                      </Grid>
-                      <Grid size={{ xs: 12 }}>
-                        <TextField fullWidth label="Card number" value={form.cardNumber} onChange={updateField('cardNumber')} />
-                      </Grid>
-                      <Grid size={{ xs: 12, sm: 6 }}>
-                        <TextField fullWidth label="Expiration date" value={form.expiry} onChange={updateField('expiry')} />
-                      </Grid>
-                      <Grid size={{ xs: 12, sm: 6 }}>
-                        <TextField fullWidth label="CVC" placeholder="123" value={form.cvc} onChange={updateField('cvc')} />
-                      </Grid>
-                      <Grid size={{ xs: 12, sm: 6 }}>
-                        <TextField fullWidth label="Billing country" value={form.country} onChange={updateField('country')} />
-                      </Grid>
-                      <Grid size={{ xs: 12, sm: 6 }}>
-                        <TextField fullWidth label="Postal code" value={form.postalCode} onChange={updateField('postalCode')} />
-                      </Grid>
-                    </Grid>
-
-                    <Box sx={{ p: 2.5, borderRadius: 2, border: '1px solid', borderColor: 'divider', bgcolor: 'background.paper' }}>
-                      <Stack spacing={1.5}>
-                        <Typography variant="subtitle2" sx={{ fontWeight: 900 }}>
-                          Promo code
-                        </Typography>
-                        <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.25}>
-                          <TextField fullWidth placeholder="Enter promo code" value={promoCode} onChange={(event) => setPromoCode(event.target.value)} />
-                        </Stack>
-                        <Alert severity="info" sx={{ borderRadius: 1.5 }}>
-                          Promotions are validated and applied by the backend at checkout confirmation.
-                        </Alert>
-                      </Stack>
-                    </Box>
-
                     <Typography variant="body2" sx={{ color: 'text.secondary', lineHeight: 1.7 }}>
-                      This is a secure checkout. Your payment details are protected using industry-standard encryption.
+                      This checkout keeps payment credentials out of the LearnSpace browser session and relies on the configured payment provider for secure collection.
                     </Typography>
 
                     {statusMessage ? (
@@ -367,10 +305,6 @@ export default function CheckoutPage() {
                         <Typography variant="body2" sx={{ fontWeight: 800 }}>${subtotal}</Typography>
                       </Box>
                       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 2 }}>
-                        <Typography variant="body2" sx={{ color: 'text.secondary', fontWeight: 700 }}>Promo discount</Typography>
-                        <Typography variant="body2" sx={{ fontWeight: 800, color: 'text.primary' }}>-${discount}</Typography>
-                      </Box>
-                      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 2 }}>
                         <Typography variant="body2" sx={{ color: 'text.secondary', fontWeight: 700 }}>Estimated tax</Typography>
                         <Typography variant="body2" sx={{ fontWeight: 800 }}>${tax}</Typography>
                       </Box>
@@ -390,7 +324,7 @@ export default function CheckoutPage() {
                           'Email receipt and payment summary',
                         ].map((item) => (
                           <Typography key={item} variant="body2" sx={{ color: 'text.primary', lineHeight: 1.7 }}>
-                            • {item}
+                            - {item}
                           </Typography>
                         ))}
                       </Stack>

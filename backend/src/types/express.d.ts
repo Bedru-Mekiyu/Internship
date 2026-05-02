@@ -11,6 +11,13 @@ export interface IUser {
   tokenVersion?: number;
 }
 
+declare module 'express-serve-static-core' {
+  interface Request {
+    user?: IUser;
+    requestId?: string;
+  }
+}
+
 declare global {
   namespace Express {
     namespace Multer {
@@ -18,11 +25,6 @@ declare global {
         key?: string;
         location?: string;
       }
-    }
-
-    interface Request {
-      user?: any;
-      requestId?: string;
     }
   }
 }
