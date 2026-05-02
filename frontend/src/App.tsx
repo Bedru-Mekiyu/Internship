@@ -827,15 +827,6 @@ function PublicAuthPage() {
                       fullWidth
                       size="large"
                       disabled={isSubmitting}
-                      sx={{
-                        bgcolor: 'primary.main',
-                        borderRadius: 1,
-                        py: 1.2,
-                        textTransform: 'none',
-                        fontWeight: 700,
-                        fontSize: 14,
-                        minHeight: 40,
-                      }}
                     >
                       {isSubmitting ? (
                         <CircularProgress size={20} sx={{ color: 'primary.contrastText' }} />
@@ -860,7 +851,6 @@ function PublicAuthPage() {
                     variant="outlined"
                     fullWidth
                     onClick={() => setErrorMessage('GitHub sign-in is not available yet. Please use email and password.')}
-                    sx={{ textTransform: 'none', borderColor: 'divider', color: 'text.primary', py: 0.85, fontSize: 12, fontWeight: 500 }}
                   >
                     <Box component="span" sx={{ mr: 0.75, fontWeight: 700 }}>
                       GH
@@ -872,7 +862,6 @@ function PublicAuthPage() {
                     variant="outlined"
                     fullWidth
                     onClick={() => setErrorMessage('Google sign-in is not available yet. Please use email and password.')}
-                    sx={{ textTransform: 'none', borderColor: 'divider', color: 'text.primary', py: 0.85, fontSize: 12, fontWeight: 500 }}
                   >
                     <Box component="span" sx={{ mr: 0.75, fontWeight: 700 }}>
                       G
@@ -949,14 +938,6 @@ function PublicAuthPage() {
                         fullWidth
                         size="large"
                         disabled={requestSubmitting}
-                        sx={{
-                          bgcolor: 'primary.main',
-                          borderRadius: 3,
-                          py: 1.5,
-                          textTransform: 'none',
-                          fontWeight: 700,
-                          fontSize: 16,
-                        }}
                       >
                         {requestSubmitting ? 'Sending link...' : 'Send reset link'}
                       </Button>

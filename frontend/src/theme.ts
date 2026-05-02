@@ -218,6 +218,7 @@ export const lightTheme = createTheme({
           '& .MuiOutlinedInput-root': {
             borderRadius: 8,
             backgroundColor: '#FFFFFF',
+            minHeight: 44,
             '& fieldset': {
               borderColor: '#D5DBE7',
             },
