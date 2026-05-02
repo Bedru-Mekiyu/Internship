@@ -22,6 +22,25 @@ import {
 } from '../services/cache.service';
 
 const publicInstructorSelect = 'firstName lastName avatar bio role';
+const objectIdPattern = /^[a-f0-9]{24}$/i;
+const courseSlugPattern = /^[a-z0-9][a-z0-9-]{0,180}$/i;
+
+const findCourseByIdentifier = async (identifier: string) => {
+  const normalized = identifier.trim();
+  if (!normalized) {
+    return null;
+  }
+
+  if (objectIdPattern.test(normalized) && mongoose.Types.ObjectId.isValid(normalized)) {
+    return Course.findById(normalized);
+  }
+
+  if (!courseSlugPattern.test(normalized)) {
+    return null;
+  }
+
+  return Course.findOne({ slug: normalized.toLowerCase() });
+};
 
 const ensureCourseCompletionNotification = async (userId: string, courseTitle: string) => {
   const title = 'Course completed';
@@ -272,7 +291,7 @@ export const getCourses = asyncHandler(async (req: Request, res: Response) => {
 });
 
 export const getCourseById = asyncHandler(async (req: Request, res: Response) => {
-  const course = await Course.findById(routeParam(req.params.id));
+  const course = await findCourseByIdentifier(routeParam(req.params.id));
   if (!course) {
     throw new AppError('Course not found', 404);
   }
@@ -280,15 +299,47 @@ export const getCourseById = asyncHandler(async (req: Request, res: Response) =>
   await ensureCourseDetailAccess(course, req.user);
   await course.populate([
     { path: 'instructor', select: publicInstructorSelect },
-    { path: 'modules' },
+    {
+      path: 'modules',
+      options: { sort: { order: 1, createdAt: 1 } },
+      populate: {
+        path: 'lessons',
+        options: { sort: { order: 1, createdAt: 1 } },
+      },
+    },
+    { path: 'reviews.user', select: publicInstructorSelect },
   ]);
 
   return res.json(course);
 });
 
 export const createCourse = asyncHandler(async (req: Request, res: Response) => {
+  const body = req.body;
+  
+  if (!body.slug && body.title) {
+    body.slug = body.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
+  }
+  
+  if (!body.description && body.shortDescription) {
+    body.description = body.shortDescription;
+  }
+  
+  if (!body.description && body.subtitle) {
+    body.description = body.subtitle;
+  }
+  
+  if (!body.category) {
+    body.category = 'General';
+  }
+  
+  if (body.visibility === 'Published') {
+    body.status = 'published';
+  } else if (body.visibility === 'Draft' || !body.status) {
+    body.status = 'draft';
+  }
+  
   const course = new Course({
-    ...req.body,
+    ...body,
     instructor: req.user?._id,
     updatedAt: new Date(),
   });
@@ -456,14 +507,14 @@ export const createCourseReview = asyncHandler(async (req: Request, res: Respons
 });
 
 export const getCourseModules = asyncHandler(async (req: Request, res: Response) => {
-  const course = await Course.findById(routeParam(req.params.id));
+  const course = await findCourseByIdentifier(routeParam(req.params.id));
   if (!course) {
     throw new AppError('Course not found', 404);
   }
 
   await ensureCourseDetailAccess(course, req.user);
 
-  const modules = await Module.find({ courseId: routeParam(req.params.id) })
+  const modules = await Module.find({ courseId: course._id })
     .sort({ order: 1, createdAt: 1 })
     .populate('lessons');
 
@@ -552,9 +603,12 @@ export const addModuleLesson = asyncHandler(async (req: Request, res: Response) 
     moduleId: routeParam(req.params.moduleId),
     title: req.body.title,
     content: req.body.content,
+    videoUrl: req.body.videoUrl || '',
     type: req.body.type,
     duration: req.body.duration,
     notes: req.body.notes || '',
+    attachments: req.body.attachments || [],
+    status: req.body.status || (moduleItem.status === 'published' ? 'published' : 'draft'),
     order: nextOrder,
     updatedAt: new Date(),
   });

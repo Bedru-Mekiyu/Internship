@@ -109,7 +109,14 @@ export const getQuizzesByLesson = asyncHandler(async (req: Request, res: Respons
   }
 
   const quizzes = await Quiz.find(filter).sort({ createdAt: -1 });
-  return res.json(quizzes);
+  const serializedQuizzes = quizzes.map((quiz) => {
+    const serialized = quiz.toObject();
+    return {
+      ...serialized,
+      totalPoints: (serialized.questions || []).reduce((sum: number, question: any) => sum + Number(question.points || 1), 0),
+    };
+  });
+  return res.json(serializedQuizzes);
 });
 
 export const submitQuizAttempt = asyncHandler(async (req: Request, res: Response) => {
@@ -182,7 +189,62 @@ export const submitQuizAttempt = asyncHandler(async (req: Request, res: Response
 
   await attempt.save();
 
-  return res.status(201).json(attempt);
+  const totalAttemptsAllowed = Number(quiz.attempts || 1);
+  const attemptNumber = existingAttempts + 1;
+  const attemptsRemaining = Math.max(0, totalAttemptsAllowed - attemptNumber);
+
+  return res.status(201).json({
+    ...attempt.toObject(),
+    attemptNumber,
+    attemptsRemaining,
+    totalAttemptsAllowed,
+  });
+});
+
+export const getMyAllQuizAttempts = asyncHandler(async (req: Request, res: Response) => {
+  const attempts = await QuizAttempt.find({ userId: req.user?._id })
+    .select('quizId score percentage passed submittedAt createdAt updatedAt')
+    .sort({ submittedAt: -1 })
+    .limit(100)
+    .populate({
+      path: 'quizId',
+      select: 'title courseId questions.points passingScore',
+      populate: {
+        path: 'courseId',
+        select: 'title slug',
+      },
+    })
+    .lean();
+
+  const serializedAttempts = attempts.map((attempt: any) => {
+    const quiz = attempt.quizId;
+    const questions = Array.isArray(quiz?.questions) ? quiz.questions : [];
+    const totalPoints = questions.reduce((sum: number, question: any) => sum + Number(question.points || 1), 0);
+    const course = quiz?.courseId;
+
+    return {
+      ...attempt,
+      quizId: quiz?._id ? String(quiz._id) : String(attempt.quizId || ''),
+      quiz: quiz
+        ? {
+            _id: String(quiz._id),
+            title: quiz.title,
+            totalPoints,
+            questionCount: questions.length,
+            passingScore: quiz.passingScore,
+            course: course
+              ? {
+                  _id: String(course._id),
+                  title: course.title,
+                  slug: course.slug,
+                }
+              : undefined,
+          }
+        : undefined,
+    };
+  });
+
+  return res.json(serializedAttempts);
 });
 
 export const getMyQuizAttempts = asyncHandler(async (req: Request, res: Response) => {

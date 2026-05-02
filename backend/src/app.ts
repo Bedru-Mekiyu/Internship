@@ -1,6 +1,7 @@
 import express from 'express';
 import dotenv from 'dotenv';
 import http from 'http';
+import path from 'path';
 import helmet from 'helmet';
 import compression from 'compression';
 import cors, { CorsOptions } from 'cors';
@@ -12,7 +13,7 @@ import { connectDB } from './config/database';
 import { getHelmetOptions } from './config/security-headers';
 import { User } from './models/User.model';
 import { requireEnv } from './utils/env';
-import { logInfo, logError } from './utils/logger';
+import { logInfo, logWarn, logError } from './utils/logger';
 import authRoutes from './routes/auth.routes';
 import courseRoutes from './routes/course.routes';
 import contentRoutes from './routes/content.routes';
@@ -86,11 +87,38 @@ export const createApp = () => {
   app.use(express.json({ limit: '1mb' }));
   app.use(express.urlencoded({ extended: true, limit: '1mb' }));
   app.use(sanitizeMiddleware);
-  app.use('/uploads', express.static('uploads'));
+
+  const uploadDirectory = path.resolve(process.cwd(), 'uploads');
+  app.use('/uploads', express.static(uploadDirectory, {
+    dotfiles: 'deny',
+    index: false,
+    setHeaders: (res) => {
+      res.setHeader('X-Content-Type-Options', 'nosniff');
+      res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+    },
+  }));
   app.use(csrfProtection);
 
   app.get('/healthz', (_req, res) => {
     res.status(200).json({ status: 'ok' });
+  });
+
+  app.get('/auth/verify-email', (req, res) => {
+    const token = typeof req.query.token === 'string' ? req.query.token : '';
+    const frontendUrl = process.env.FRONTEND_URL?.trim().replace(/\/$/, '');
+
+    if (frontendUrl) {
+      const redirectUrl = token
+        ? `${frontendUrl}/auth/verify-email?token=${encodeURIComponent(token)}`
+        : `${frontendUrl}/auth/verify-email`;
+      res.redirect(302, redirectUrl);
+      return;
+    }
+
+    const apiUrl = token
+      ? `/api/auth/verify-email?token=${encodeURIComponent(token)}`
+      : '/api/auth/verify-email';
+    res.redirect(302, apiUrl);
   });
 
   app.get('/readyz', (_req, res) => {
@@ -128,7 +156,6 @@ const app = createApp();
 
 const startServer = async () => {
   try {
-    await connectDB();
     const parsedPort = Number(process.env.PORT);
     const PORT = Number.isInteger(parsedPort) && parsedPort > 0 ? parsedPort : 5000;
 
@@ -277,9 +304,25 @@ const startServer = async () => {
       }
     });
 
-    app.set('io', io);
+    const isProduction = process.env.NODE_ENV === 'production';
+    const startListening = () => {
+      app.set('io', io);
+      httpServer.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+    };
 
-    httpServer.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+    if (isProduction) {
+      await connectDB();
+      startListening();
+    } else {
+      startListening();
+      void connectDB({ allowFailure: true }).then((connected) => {
+        if (!connected) {
+          logWarn('mongodb_startup_continued_without_connection', {
+            message: 'HTTP server is running while MongoDB keeps retrying in the background.',
+          });
+        }
+      });
+    }
 
     const shutdown = async (signal: string) => {
       logInfo('server_shutdown', { signal });

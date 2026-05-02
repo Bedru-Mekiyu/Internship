@@ -290,7 +290,6 @@ test.describe('auth edge cases', () => {
   test.describe('Session Expiry Scenarios', () => {
     test('handles 401 error on API call mid-session', async ({ page }) => {
       await setupAuthEdgeMocks(page);
-      const state = await setupAuthEdgeMocks(page);
 
       await loginFromUi(page, 'student@learnspace.dev');
       await expect(page).toHaveURL(/\/dashboard/);
@@ -412,7 +411,6 @@ test.describe('auth edge cases', () => {
   test.describe('API Failure Scenarios', () => {
     test('handles 500 server error gracefully', async ({ page }) => {
       await setupAuthEdgeMocks(page);
-      const state = await setupAuthEdgeMocks(page);
 
       await loginFromUi(page, 'student@learnspace.dev');
       await expect(page).toHaveURL(/\/dashboard/);

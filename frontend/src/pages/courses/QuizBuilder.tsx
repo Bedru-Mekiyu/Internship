@@ -259,7 +259,7 @@ export default function QuizBuilder() {
                         value={timeLimit}
                         onChange={(e) => setTimeLimit(Number(e.target.value))}
                         fullWidth
-                        inputProps={{ min: 1, max: 180 }}
+                        slotProps={{ htmlInput: { min: 1, max: 180 } }}
                       />
                     </Grid>
                     <Grid size={{ xs: 6, md: 4 }}>
@@ -269,7 +269,7 @@ export default function QuizBuilder() {
                         value={attempts}
                         onChange={(e) => setAttempts(Number(e.target.value))}
                         fullWidth
-                        inputProps={{ min: 1, max: 10 }}
+                        slotProps={{ htmlInput: { min: 1, max: 10 } }}
                       />
                     </Grid>
                     <Grid size={{ xs: 6, md: 4 }}>
@@ -279,7 +279,7 @@ export default function QuizBuilder() {
                         value={passingScore}
                         onChange={(e) => setPassingScore(Number(e.target.value))}
                         fullWidth
-                        inputProps={{ min: 0, max: 100 }}
+                        slotProps={{ htmlInput: { min: 0, max: 100 } }}
                       />
                     </Grid>
                   </Grid>
@@ -418,7 +418,7 @@ export default function QuizBuilder() {
                       value={selectedQuestion.points}
                       onChange={(e) => updateQuestion(selectedQuestion.id, { points: Number(e.target.value) })}
                       fullWidth
-                      inputProps={{ min: 1, max: 100 }}
+                      slotProps={{ htmlInput: { min: 1, max: 100 } }}
                       sx={{ maxWidth: 120 }}
                     />
 

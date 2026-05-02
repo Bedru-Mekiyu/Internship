@@ -1,29 +1,27 @@
 import { useMemo, useState, type ReactNode } from 'react';
+import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import {
   Box,
   Button,
   Card,
   CardContent,
-  CardMedia,
   Checkbox,
   Container,
   FormControl,
   FormControlLabel,
   Grid,
+  InputAdornment,
+  Link,
   MenuItem,
-  Rating,
   Select,
   Stack,
   TextField,
-  InputAdornment,
   Typography,
 } from '@mui/material';
-import {
-  SearchOutlined,
-} from '@mui/icons-material';
-import { Link as RouterLink } from 'react-router-dom';
-import { useEnrollInCourseMutation, useGetCoursesQuery } from '../../store/api/courseApi';
+import { BoltOutlined, FilterListOutlined, SearchOutlined, StarRounded } from '@mui/icons-material';
+import { useAuth } from '../../context/AuthContext';
 import { normalizeApiError } from '../../services/api';
+import { useEnrollInCourseMutation, useGetCoursesQuery } from '../../store/api/courseApi';
 import type { Course as ApiCourse } from '../../types';
 import { sanitizeHttpUrl } from '../../utils/safeUrl';
 
@@ -43,8 +41,8 @@ type Course = {
   level: Level;
   priceType: PriceType;
   image: string;
-  accent: string;
   description: string;
+  isDemo?: boolean;
 };
 
 type ApiCourseWithPricing = ApiCourse & {
@@ -53,63 +51,209 @@ type ApiCourseWithPricing = ApiCourse & {
   };
 };
 
+type ExploreCoursesProps = {
+  embedded?: boolean;
+};
+
 const categories: Category[] = ['Development', 'Design', 'Business', 'Marketing', 'Photography'];
 const levels: Level[] = ['Beginner', 'Intermediate', 'Advanced'];
 const prices: PriceType[] = ['Free', 'Paid'];
+const sortOptions: SortValue[] = ['Most Popular', 'Highest Rated', 'Price: Low to High', 'Price: High to Low'];
 
-const categoryMeta: Record<Category, { label: string }> = {
-  Development: { label: 'Development' },
-  Design: { label: 'Design' },
-  Business: { label: 'Business' },
-  Marketing: { label: 'Marketing' },
-  Photography: { label: 'Photography' },
+const fallbackCourses: Course[] = [
+  {
+    id: 'demo-full-stack',
+    title: 'Full-Stack Web Bootcamp 2024',
+    instructor: 'Alex Chen',
+    rating: 4.9,
+    reviews: 1200,
+    price: 89,
+    category: 'Development',
+    level: 'Beginner',
+    priceType: 'Paid',
+    image: 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?auto=format&fit=crop&w=680&q=80',
+    description: 'Build full-stack apps from foundations to deployment.',
+    isDemo: true,
+  },
+  {
+    id: 'demo-ui-ux',
+    title: 'UI/UX Design Masterclass',
+    instructor: 'Sarah Jones',
+    rating: 4.8,
+    reviews: 2100,
+    price: 65,
+    category: 'Design',
+    level: 'Intermediate',
+    priceType: 'Paid',
+    image: 'https://images.unsplash.com/photo-1559028006-448665bd7c7f?auto=format&fit=crop&w=680&q=80',
+    description: 'Design polished products with research-led UX methods.',
+    isDemo: true,
+  },
+  {
+    id: 'demo-digital-marketing',
+    title: 'Digital Marketing Strategy',
+    instructor: 'Maria Garcia',
+    rating: 4.7,
+    reviews: 3500,
+    price: 49,
+    category: 'Business',
+    level: 'Intermediate',
+    priceType: 'Paid',
+    image: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=680&q=80',
+    description: 'Plan multi-channel campaigns with measurable growth.',
+    isDemo: true,
+  },
+  {
+    id: 'demo-python-data',
+    title: 'Python for Data Science',
+    instructor: 'Kemi Tanaka',
+    rating: 4.9,
+    reviews: 4200,
+    price: 95,
+    category: 'Development',
+    level: 'Intermediate',
+    priceType: 'Paid',
+    image: 'https://images.unsplash.com/photo-1461749280684-dccba630e2f6?auto=format&fit=crop&w=680&q=80',
+    description: 'Analyze data with Python, notebooks, and practical projects.',
+    isDemo: true,
+  },
+  {
+    id: 'demo-dslr',
+    title: 'Mastering DSLR Photography',
+    instructor: 'Emma Wilson',
+    rating: 4.8,
+    reviews: 580,
+    price: 55,
+    category: 'Photography',
+    level: 'Beginner',
+    priceType: 'Paid',
+    image: 'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=680&q=80',
+    description: 'Understand light, composition, lenses, and manual control.',
+    isDemo: true,
+  },
+  {
+    id: 'demo-agile',
+    title: 'Agile Project Management',
+    instructor: 'David Okafor',
+    rating: 4.6,
+    reviews: 900,
+    price: 79,
+    category: 'Business',
+    level: 'Advanced',
+    priceType: 'Paid',
+    image: 'https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&w=680&q=80',
+    description: 'Lead agile teams, sprints, standups, and delivery rituals.',
+    isDemo: true,
+  },
+  {
+    id: 'demo-machine-learning',
+    title: 'Intro to Machine Learning',
+    instructor: 'Priya Patel',
+    rating: 4.9,
+    reviews: 790,
+    price: 120,
+    category: 'Development',
+    level: 'Advanced',
+    priceType: 'Paid',
+    image: 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=680&q=80',
+    description: 'Train practical ML models with approachable examples.',
+    isDemo: true,
+  },
+  {
+    id: 'demo-copywriting',
+    title: 'Copywriting Secrets',
+    instructor: 'James Wilson',
+    rating: 4.7,
+    reviews: 600,
+    price: 45,
+    category: 'Marketing',
+    level: 'Beginner',
+    priceType: 'Paid',
+    image: 'https://images.unsplash.com/photo-1455390582262-044cdead277a?auto=format&fit=crop&w=680&q=80',
+    description: 'Write sharper offers, landing pages, and email campaigns.',
+    isDemo: true,
+  },
+  {
+    id: 'demo-illustrator',
+    title: 'Adobe Illustrator Essentials',
+    instructor: 'Omar Farooq',
+    rating: 4.8,
+    reviews: 1100,
+    price: 59,
+    category: 'Design',
+    level: 'Beginner',
+    priceType: 'Paid',
+    image: 'https://images.unsplash.com/photo-1541961017774-22349e4a1262?auto=format&fit=crop&w=680&q=80',
+    description: 'Create scalable illustrations, icons, and brand assets.',
+    isDemo: true,
+  },
+];
+
+const categoryChipColors: Record<Category, { bg: string; text: string }> = {
+  Development: { bg: '#EEF2FF', text: '#4F46E5' },
+  Design: { bg: '#EEF2FF', text: '#4F46E5' },
+  Business: { bg: '#EEF2FF', text: '#4F46E5' },
+  Marketing: { bg: '#EEF2FF', text: '#4F46E5' },
+  Photography: { bg: '#EEF2FF', text: '#4F46E5' },
 };
+
+function BrandMark() {
+  return (
+    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}>
+      <BoltOutlined sx={{ color: '#4F46E5', fontSize: 17 }} />
+      <Typography sx={{ color: '#4F46E5', fontWeight: 800, fontSize: '0.86rem', letterSpacing: 0 }}>
+        LearnSpace
+      </Typography>
+    </Box>
+  );
+}
 
 function TopNav() {
   const links = [
-    { label: 'Features', href: '/home#features' },
-    { label: 'Courses', href: '/courses/explore' },
-    { label: 'Pricing', href: '/home#pricing' },
-    { label: 'Enterprise', href: '/home#enterprise' },
+    { label: 'Features', to: '/#features' },
+    { label: 'Courses', to: '/courses/explore' },
+    { label: 'Pricing', to: '/pricing' },
+    { label: 'Enterprise', to: '/pricing' },
   ];
 
   return (
-    <Box sx={{ position: 'sticky', top: 0, zIndex: 20, bgcolor: 'background.paper', borderBottom: '1px solid', borderColor: 'divider' }}>
-      <Container maxWidth="xl" sx={{ py: 2 }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 2, flexWrap: 'wrap' }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.25 }}>
-            <Box
-              sx={{
-                width: 42,
-                height: 42,
-                borderRadius: 2.5,
-                bgcolor: 'primary.main',
-                color: '#FFFFFF',
-                display: 'grid',
-                placeItems: 'center',
-                fontWeight: 900,
-              }}
-            >
-              LS
-            </Box>
-            <Typography variant="h6" sx={{ fontWeight: 800, letterSpacing: '-0.02em' }}>
-              LearnSpace
-            </Typography>
-          </Box>
+    <Box component="header" sx={{ bgcolor: '#FFFFFF', borderBottom: '1px solid #E5EAF2' }}>
+      <Container maxWidth={false} sx={{ maxWidth: 1368, mx: 'auto', px: { xs: 2, md: 4 }, py: 1.15 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 2 }}>
+          <BrandMark />
 
-          <Box sx={{ display: { xs: 'none', md: 'flex' }, gap: 3, alignItems: 'center' }}>
+          <Box sx={{ display: { xs: 'none', md: 'flex' }, alignItems: 'center', gap: 3.4 }}>
             {links.map((link) => (
-              <Button key={link.label} component={RouterLink} to={link.href} variant="text" sx={{ color: 'text.primary', px: 0, minWidth: 'auto' }}>
+              <Link
+                key={link.label}
+                component={RouterLink}
+                to={link.to}
+                underline="none"
+                sx={{ color: '#475569', fontSize: '0.69rem', fontWeight: 600, '&:hover': { color: '#4F46E5' } }}
+              >
                 {link.label}
-              </Button>
+              </Link>
             ))}
           </Box>
 
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, flexWrap: 'wrap' }}>
-            <Button component={RouterLink} to="/auth/login" variant="text" sx={{ color: 'primary.main' }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.2 }}>
+            <Link component={RouterLink} to="/auth/login" underline="none" sx={{ color: '#475569', fontSize: '0.7rem', fontWeight: 600 }}>
               Log in
-            </Button>
-            <Button component={RouterLink} to="/auth/signup" variant="contained">
+            </Link>
+            <Button
+              component={RouterLink}
+              to="/auth/signup"
+              variant="contained"
+              sx={{
+                minHeight: 28,
+                px: 1.6,
+                py: 0.45,
+                borderRadius: 0.75,
+                bgcolor: '#4F46E5',
+                fontSize: '0.65rem',
+                '&:hover': { bgcolor: '#4338CA' },
+              }}
+            >
               Get Started
             </Button>
           </Box>
@@ -121,93 +265,246 @@ function TopNav() {
 
 function Footer() {
   const columns = [
-    { title: 'Product', links: ['Courses', 'Certificates', 'Analytics', 'Pricing'] },
-    { title: 'Company', links: ['About Us', 'Careers', 'Enterprise', 'Contact'] },
-    { title: 'Resources', links: ['Help Center', 'Blog', 'Community', 'Privacy'] },
+    { title: 'Product', links: ['Features', 'Pricing', 'Integrations', 'Changelog'] },
+    { title: 'Company', links: ['About Us', 'Careers', 'Blog', 'Contact'] },
+    { title: 'Resources', links: ['Help Center', 'Community', 'Creator Academy', 'Webinars'] },
   ];
 
+  const resolveLink = (item: string) => {
+    switch (item) {
+      case 'Features':
+        return '/#features';
+      case 'Pricing':
+        return '/pricing';
+      case 'About Us':
+        return '/about';
+      case 'Careers':
+        return '/careers';
+      case 'Blog':
+        return '/blog';
+      case 'Contact':
+        return '/contact';
+      case 'Help Center':
+        return '/help-center';
+      case 'Community':
+        return '/community';
+      default:
+        return '/';
+    }
+  };
+
   return (
-    <Box sx={{ mt: 8, bgcolor: 'background.paper', borderTop: '1px solid', borderColor: 'divider' }}>
-      <Container maxWidth="xl" sx={{ py: { xs: 6, md: 8 } }}>
-        <Grid container spacing={4}>
-          <Grid size={{ xs: 12, md: 4 }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.25 }}>
-            <Box sx={{ width: 42, height: 42, borderRadius: 2.5, bgcolor: 'primary.main', color: '#FFFFFF', display: 'grid', placeItems: 'center' }}>
-                LS
-              </Box>
-              <Typography variant="h6" sx={{ fontWeight: 800 }}>
-                LearnSpace
-              </Typography>
-            </Box>
-            <Typography variant="body2" sx={{ color: 'text.secondary', mt: 2, maxWidth: 320, lineHeight: 1.8 }}>
-              LearnSpace helps learners discover in-demand skills through expert-led courses, structured learning paths, and practical projects.
+    <Box component="footer" sx={{ mt: { xs: 8, md: 11 }, bgcolor: '#FFFFFF', borderTop: '1px solid #E5EAF2' }}>
+      <Container maxWidth={false} sx={{ maxWidth: 1368, mx: 'auto', px: { xs: 2, md: 4 }, py: { xs: 5, md: 6.5 } }}>
+        <Grid container spacing={{ xs: 4, md: 8 }}>
+          <Grid size={{ xs: 12, md: 5 }}>
+            <BrandMark />
+            <Typography sx={{ color: '#64748B', mt: 2, maxWidth: 250, lineHeight: 1.6, fontSize: '0.72rem' }}>
+              Empowering educators to share knowledge and build sustainable businesses online.
             </Typography>
           </Grid>
           {columns.map((column) => (
             <Grid key={column.title} size={{ xs: 12, sm: 4, md: 2 }}>
-              <Typography variant="subtitle2" sx={{ fontWeight: 800, mb: 2 }}>
+              <Typography sx={{ color: '#0F172A', fontWeight: 800, mb: 1.8, fontSize: '0.74rem' }}>
                 {column.title}
               </Typography>
-              <Stack spacing={1.25}>
+              <Stack spacing={1.15}>
                 {column.links.map((link) => (
-                  <Button key={link} variant="text" sx={{ justifyContent: 'flex-start', color: 'text.secondary', px: 0, minWidth: 'auto' }}>
+                  <Link
+                    key={link}
+                    component={RouterLink}
+                    to={resolveLink(link)}
+                    underline="none"
+                    sx={{ color: '#64748B', fontSize: '0.7rem', '&:hover': { color: '#4F46E5' } }}
+                  >
                     {link}
-                  </Button>
+                  </Link>
                 ))}
               </Stack>
             </Grid>
           ))}
         </Grid>
       </Container>
+
+      <Box sx={{ borderTop: '1px solid #EDF1F6' }}>
+        <Container maxWidth={false} sx={{ maxWidth: 1368, mx: 'auto', px: { xs: 2, md: 4 }, py: 2.2 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 1.5, flexWrap: 'wrap' }}>
+            <Typography sx={{ color: '#94A3B8', fontSize: '0.64rem' }}>
+              (c) 2024 LearnSpace Inc. All rights reserved.
+            </Typography>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2.2 }}>
+              <Link component={RouterLink} to="/privacy" underline="none" sx={{ color: '#64748B', fontSize: '0.66rem' }}>
+                Privacy Policy
+              </Link>
+              <Link component={RouterLink} to="/terms" underline="none" sx={{ color: '#64748B', fontSize: '0.66rem' }}>
+                Terms of Service
+              </Link>
+              <Typography sx={{ color: '#64748B', fontSize: '0.66rem', fontWeight: 800 }}>X</Typography>
+              <Typography sx={{ color: '#64748B', fontSize: '0.66rem', fontWeight: 800 }}>in</Typography>
+            </Box>
+          </Box>
+        </Container>
+      </Box>
     </Box>
   );
 }
 
-function CourseCard({ course, onEnroll }: { course: Course; onEnroll: (courseId: string) => Promise<void> }) {
-  const base = categoryMeta[course.category];
-  const categoryLabel = base.label;
+function FilterSection({ title, children, last = false }: { title: string; children: ReactNode; last?: boolean }) {
+  return (
+    <Box sx={{ pb: last ? 0 : 2.8, mb: last ? 0 : 2.6, borderBottom: last ? 'none' : '1px solid #E5EAF2' }}>
+      <Typography sx={{ color: '#0F172A', fontSize: '0.72rem', fontWeight: 800, mb: 1.2 }}>
+        {title}
+      </Typography>
+      {children}
+    </Box>
+  );
+}
+
+function StyledCheckbox({ checked, onChange }: { checked: boolean; onChange: () => void }) {
+  return (
+    <Checkbox
+      checked={checked}
+      onChange={onChange}
+      size="small"
+      sx={{
+        p: 0.25,
+        mr: 0.75,
+        color: '#CBD5E1',
+        '&.Mui-checked': { color: '#4F46E5' },
+        '& .MuiSvgIcon-root': { fontSize: 14 },
+      }}
+    />
+  );
+}
+
+function FilterOption({ label, checked, onChange }: { label: string; checked: boolean; onChange: () => void }) {
+  return (
+    <FormControlLabel
+      control={<StyledCheckbox checked={checked} onChange={onChange} />}
+      label={label}
+      sx={{
+        display: 'flex',
+        alignItems: 'center',
+        m: 0,
+        minHeight: 22,
+        '& .MuiFormControlLabel-label': {
+          color: '#475569',
+          fontSize: '0.7rem',
+          fontWeight: 500,
+        },
+      }}
+    />
+  );
+}
+
+function ThumbnailFallback({ category }: { category: Category }) {
+  const base = category === 'Design' ? '#E0E7FF' : category === 'Business' ? '#DBEAFE' : category === 'Marketing' ? '#FDE68A' : category === 'Photography' ? '#DCFCE7' : '#1E293B';
+  const lineColor = category === 'Development' ? 'rgba(255,255,255,0.72)' : 'rgba(15,23,42,0.22)';
 
   return (
-    <Card sx={{ height: '100%', overflow: 'hidden', border: '1px solid', borderColor: 'divider', borderRadius: 2 }}>
-      <CardMedia sx={{ height: 184, bgcolor: 'background.default' }} image={course.image || undefined} title={course.title}>
-        {!course.image ? (
-          <Box sx={{ height: '100%', display: 'grid', placeItems: 'center' }}>
-            <Typography variant="body2" sx={{ color: 'text.secondary', fontWeight: 700 }}>
-              {categoryLabel}
-            </Typography>
-          </Box>
-        ) : null}
-      </CardMedia>
-      <CardContent sx={{ p: 2.5 }}>
-        <Typography variant="h6" sx={{ fontWeight: 800, lineHeight: 1.25, minHeight: 54 }}>
-          {course.title}
-        </Typography>
-        <Typography variant="body2" sx={{ color: 'text.secondary', mt: 0.75, lineHeight: 1.7 }}>
-          {course.description}
-        </Typography>
+    <Box sx={{ height: '100%', bgcolor: base, p: 1.5, display: 'grid', gap: 0.6, alignContent: 'center' }}>
+      {Array.from({ length: 5 }).map((_, index) => (
+        <Box
+          key={index}
+          sx={{
+            height: 6,
+            width: `${74 - index * 8}%`,
+            borderRadius: 999,
+            bgcolor: lineColor,
+          }}
+        />
+      ))}
+    </Box>
+  );
+}
 
-        <Box sx={{ mt: 2 }}>
-          <Typography variant="body2" sx={{ fontWeight: 700 }}>
-            {course.instructor || '—'}
+function CourseCard({ course, onEnroll }: { course: Course; onEnroll: (course: Course) => Promise<void> }) {
+  const chip = categoryChipColors[course.category];
+
+  return (
+    <Card
+      sx={{
+        height: '100%',
+        border: '1px solid #E4E9F2',
+        borderRadius: 1,
+        boxShadow: 'none',
+        bgcolor: '#FFFFFF',
+        overflow: 'hidden',
+      }}
+    >
+      <Box component={RouterLink} to={`/courses/${course.id}`} sx={{ height: 152, bgcolor: '#E8EEF6', overflow: 'hidden', display: 'block' }}>
+        {course.image ? (
+          <Box
+            component="img"
+            src={course.image}
+            alt=""
+            sx={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+          />
+        ) : (
+          <ThumbnailFallback category={course.category} />
+        )}
+      </Box>
+
+      <CardContent sx={{ p: 1.45, '&:last-child': { pb: 1.45 } }}>
+        <Box sx={{ display: 'inline-flex', px: 0.65, py: 0.2, borderRadius: 0.5, bgcolor: chip.bg, mb: 0.85 }}>
+          <Typography sx={{ color: chip.text, fontSize: '0.55rem', fontWeight: 900, letterSpacing: '0.05em' }}>
+            {course.category.toUpperCase()}
           </Typography>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, mt: 0.25 }}>
-            <Rating value={course.rating} readOnly precision={0.1} size="small" />
-            <Typography variant="caption" sx={{ color: 'text.secondary', fontWeight: 700 }}>
-              {course.rating} ({course.reviews.toLocaleString()})
-            </Typography>
-          </Box>
         </Box>
 
-        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 2, mt: 2.25 }}>
-          <Box>
-            <Typography variant="body2" sx={{ color: 'text.secondary', fontWeight: 600 }}>
-              {course.level}
-            </Typography>
-            <Typography variant="h6" sx={{ fontWeight: 900 }}>
-              {course.price === 'Free' ? 'Free' : `$${course.price}`}
-            </Typography>
+        <Typography component={RouterLink} to={`/courses/${course.id}`} sx={{ color: '#0F172A', fontWeight: 800, lineHeight: 1.32, minHeight: 38, fontSize: '0.84rem', display: 'block', '&:hover': { color: '#4F46E5' } }}>
+          {course.title}
+        </Typography>
+
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.65, mt: 1.1 }}>
+          <Box
+            sx={{
+              width: 17,
+              height: 17,
+              borderRadius: '50%',
+              bgcolor: '#E2E8F0',
+              color: '#334155',
+              display: 'grid',
+              placeItems: 'center',
+              fontSize: '0.55rem',
+              fontWeight: 800,
+              flexShrink: 0,
+            }}
+          >
+            {course.instructor.charAt(0).toUpperCase() || 'L'}
           </Box>
-          <Button variant="contained" sx={{ px: 2.25, py: 1.05, borderRadius: 1.5 }} onClick={() => void onEnroll(course.id)}>
+          <Typography sx={{ color: '#475569', fontSize: '0.66rem', fontWeight: 600 }} noWrap>
+            {course.instructor || 'LearnSpace'}
+          </Typography>
+        </Box>
+
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.25, mt: 0.7 }}>
+          <StarRounded sx={{ color: '#F59E0B', fontSize: 14 }} />
+          <Typography sx={{ color: '#B45309', fontSize: '0.63rem', fontWeight: 700 }}>
+            {course.rating.toFixed(1)}
+          </Typography>
+          <Typography sx={{ color: '#64748B', fontSize: '0.62rem' }}>
+            ({course.reviews.toLocaleString()} reviews)
+          </Typography>
+        </Box>
+
+        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 1, mt: 2.25 }}>
+          <Typography sx={{ color: '#0F172A', fontWeight: 900, fontSize: '0.78rem' }}>
+            {course.price === 'Free' ? 'Free' : `$${course.price}`}
+          </Typography>
+          <Button
+            variant="contained"
+            onClick={() => void onEnroll(course)}
+            sx={{
+              minHeight: 30,
+              px: 1.4,
+              py: 0.55,
+              borderRadius: 0.75,
+              bgcolor: '#4F46E5',
+              fontSize: '0.64rem',
+              '&:hover': { bgcolor: '#4338CA' },
+            }}
+          >
             Enroll Now
           </Button>
         </Box>
@@ -216,76 +513,106 @@ function CourseCard({ course, onEnroll }: { course: Course; onEnroll: (courseId:
   );
 }
 
-function FilterSection({
-  title,
-  children,
-}: {
-  title: string;
-  children: ReactNode;
-}) {
-  return (
-    <Box sx={{ mb: 3 }}>
-      <Typography variant="subtitle2" sx={{ fontWeight: 800, mb: 1.5 }}>
-        {title}
-      </Typography>
-      {children}
-    </Box>
-  );
+function normalizeCategory(value: string | undefined): Category {
+  const normalized = (value || '').trim().toLowerCase();
+  return categories.find((category) => category.toLowerCase() === normalized) || 'Development';
+}
+
+function normalizeLevel(value: string | undefined): Level {
+  const normalized = (value || '').trim().toLowerCase();
+  return levels.find((level) => level.toLowerCase() === normalized) || 'Beginner';
 }
 
 function mapApiCourse(course: ApiCourse): Course {
-  const rawCategory = typeof course.category === 'string' ? course.category : 'Development';
-  const normalizedCategory = categories.includes(rawCategory as Category) ? (rawCategory as Category) : 'Development';
-
-  const rawLevel = typeof course.level === 'string' ? course.level : 'beginner';
-  const normalizedLevel = rawLevel.charAt(0).toUpperCase() + rawLevel.slice(1);
-  const level = levels.includes(normalizedLevel as Level) ? (normalizedLevel as Level) : 'Beginner';
-
   const amount = Number((course as ApiCourseWithPricing).pricing?.amount ?? 0);
   const isFree = !amount || amount <= 0;
-
   const instructorName =
     typeof course.instructor === 'string'
       ? course.instructor
       : course.instructor?.firstName
         ? `${course.instructor.firstName} ${course.instructor.lastName || ''}`.trim()
-        : course.instructor?.email || '';
+        : course.instructor?.email || 'LearnSpace';
 
   return {
     id: String(course._id),
     title: course.title,
     instructor: instructorName,
-    rating: Number(course?.rating?.average ?? 0),
-    reviews: Number(course?.rating?.count ?? 0),
+    rating: Number(course.rating?.average ?? 4.8),
+    reviews: Number(course.rating?.count ?? course.enrollmentCount ?? 0),
     price: isFree ? 'Free' : amount,
-    category: normalizedCategory,
-    level,
+    category: normalizeCategory(course.category),
+    level: normalizeLevel(course.level),
     priceType: isFree ? 'Free' : 'Paid',
     image: sanitizeHttpUrl(course.thumbnail) || '',
-    accent: '#0066FF',
     description: course.shortDescription || course.description || '',
   };
 }
 
-export default function ExploreCourses() {
+export default function ExploreCourses({ embedded = false }: ExploreCoursesProps) {
+  const navigate = useNavigate();
+  const { user } = useAuth();
   const [actionError, setActionError] = useState<string | null>(null);
   const [search, setSearch] = useState('');
   const [selectedCategories, setSelectedCategories] = useState<Category[]>([]);
   const [selectedLevels, setSelectedLevels] = useState<Level[]>([]);
   const [selectedPrices, setSelectedPrices] = useState<PriceType[]>([]);
   const [sortBy, setSortBy] = useState<SortValue>('Most Popular');
-  const [visibleCount, setVisibleCount] = useState(6);
+  const [visibleCount, setVisibleCount] = useState(9);
   const [allCategories, setAllCategories] = useState(true);
+  const [filtersOpen, setFiltersOpen] = useState(false);
 
   const { data: apiCourses = [], isLoading, error } = useGetCoursesQuery();
   const [enrollInCourse] = useEnrollInCourseMutation();
 
-  const courses = useMemo(() => apiCourses.map(mapApiCourse), [apiCourses]);
+  const apiCatalogCourses = useMemo(() => apiCourses.map(mapApiCourse), [apiCourses]);
+  const usingFallbackCatalog = apiCatalogCourses.length === 0;
+  const courses = usingFallbackCatalog ? fallbackCourses : apiCatalogCourses;
+  const totalCourseCount = usingFallbackCatalog ? 124 : courses.length;
 
-  const handleEnroll = async (courseId: string) => {
+  const toggleValue = <T extends string>(value: T, list: T[], setList: (next: T[]) => void) => {
+    setList(list.includes(value) ? list.filter((entry) => entry !== value) : [...list, value]);
+    setVisibleCount(9);
+  };
+
+  const toggleCategory = (value: Category) => {
+    setAllCategories(false);
+    setSelectedCategories((current) => (
+      current.includes(value) ? current.filter((entry) => entry !== value) : [...current, value]
+    ));
+    setVisibleCount(9);
+  };
+
+  const clearCategory = () => {
+    setAllCategories(true);
+    setSelectedCategories([]);
+    setVisibleCount(9);
+  };
+
+  const resetAllFilters = () => {
+    setSearch('');
+    setAllCategories(true);
+    setSelectedCategories([]);
+    setSelectedLevels([]);
+    setSelectedPrices([]);
+    setSortBy('Most Popular');
+    setVisibleCount(9);
+  };
+
+  const handleEnroll = async (course: Course) => {
     setActionError(null);
+
+    if (!user) {
+      navigate('/auth/signup');
+      return;
+    }
+
+    if (course.isDemo) {
+      setActionError('Demo courses are placeholders. Add a real course in the CMS to enable enrollment.');
+      return;
+    }
+
     try {
-      await enrollInCourse(courseId).unwrap();
+      await enrollInCourse(course.id).unwrap();
     } catch (enrollError) {
       const normalized = normalizeApiError(enrollError);
       setActionError(normalized.message || 'Enrollment failed.');
@@ -329,164 +656,238 @@ export default function ExploreCourses() {
 
   const visibleCourses = filteredCourses.slice(0, visibleCount);
 
-  const toggleValue = <T extends string>(value: T, list: T[], setList: (next: T[]) => void) => {
-    setAllCategories(false);
-    setList(list.includes(value) ? list.filter((entry) => entry !== value) : [...list, value]);
-  };
-
-  const clearCategory = () => {
-    setAllCategories(true);
-    setSelectedCategories([]);
-  };
-
-  return (
-    <Box sx={{ minHeight: '100vh', bgcolor: 'background.default' }}>
-      <TopNav />
-
-      <Container maxWidth="xl" sx={{ py: { xs: 4, md: 6 } }}>
-        {actionError ? (
-          <Box sx={{ mb: 2 }}>
-            <Typography sx={{ color: 'error.main', fontWeight: 700 }}>{actionError}</Typography>
-          </Box>
-        ) : null}
-
-        {error ? (
-          <Box sx={{ mb: 2 }}>
-            <Typography sx={{ color: 'error.main', fontWeight: 700 }}>
-              {normalizeApiError(error).message || 'Unable to load courses.'}
-            </Typography>
-          </Box>
-        ) : null}
-
-        <Box sx={{ mb: 4 }}>
-          <Typography variant="h3" component="h1" sx={{ fontWeight: 900, letterSpacing: '-0.04em' }}>
+  const content = (
+    <Container
+      maxWidth={false}
+      sx={{
+        maxWidth: embedded ? '100%' : 1368,
+        mx: 'auto',
+        px: embedded ? 0 : { xs: 2, md: 4 },
+        pt: embedded ? 0 : { xs: 3.5, md: 5 },
+        pb: embedded ? 0 : { xs: 4, md: 6 },
+      }}
+    >
+      <Box sx={{ mb: { xs: 3, md: 4.2 }, display: 'flex', alignItems: { xs: 'stretch', md: 'flex-end' }, justifyContent: 'space-between', gap: 2, flexDirection: { xs: 'column', md: 'row' } }}>
+        <Box>
+          <Typography component="h1" sx={{ color: '#0F172A', fontWeight: 900, letterSpacing: 0, fontSize: { xs: '1.45rem', md: '1.6rem' }, lineHeight: 1.2 }}>
             Explore Courses
           </Typography>
-          <Typography variant="body1" sx={{ color: 'text.secondary', mt: 1, maxWidth: 720 }}>
+          <Typography sx={{ color: '#64748B', mt: 1.15, fontSize: '0.76rem', lineHeight: 1.6 }}>
             Discover new skills with our expert-led video tutorials.
           </Typography>
         </Box>
 
-        <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 3 }}>
-          <Box sx={{ width: { xs: '100%', md: 420 } }}>
-            <TextField
-              placeholder="Search for courses..."
-              value={search}
-              onChange={(event) => {
-                setSearch(event.target.value);
-                setVisibleCount(6);
-              }}
-              sx={{ width: '100%' }}
-              slotProps={{
-                input: {
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <SearchOutlined fontSize="small" />
-                    </InputAdornment>
-                  ),
-                },
-              }}
-            />
-          </Box>
+        <TextField
+          placeholder="Search for courses..."
+          value={search}
+          onChange={(event) => {
+            setSearch(event.target.value);
+            setVisibleCount(9);
+          }}
+          size="small"
+          sx={{
+            width: { xs: '100%', md: 318 },
+            bgcolor: '#FFFFFF',
+            '& .MuiOutlinedInput-root': {
+              minHeight: 34,
+              borderRadius: 0.75,
+              fontSize: '0.72rem',
+              '& fieldset': { borderColor: '#E2E8F0' },
+              '&:hover fieldset': { borderColor: '#CBD5E1' },
+              '&.Mui-focused fieldset': { borderColor: '#4F46E5', borderWidth: 1 },
+            },
+            '& .MuiOutlinedInput-input': { py: 0.8 },
+          }}
+          slotProps={{
+            input: {
+              startAdornment: (
+                <InputAdornment position="start">
+                  <SearchOutlined sx={{ color: '#94A3B8', fontSize: 16 }} />
+                </InputAdornment>
+              ),
+            },
+          }}
+        />
+      </Box>
+
+      {actionError ? (
+        <Box sx={{ mb: 2, border: '1px solid #FECACA', bgcolor: '#FEF2F2', borderRadius: 1, px: 1.5, py: 1 }}>
+          <Typography sx={{ color: '#B91C1C', fontSize: '0.78rem', fontWeight: 700 }}>{actionError}</Typography>
         </Box>
+      ) : null}
 
-        <Grid container spacing={3} sx={{ alignItems: 'flex-start' }}>
-          <Grid size={{ xs: 12, lg: 3 }}>
-            <Box sx={{ position: { lg: 'sticky' }, top: 96 }}>
-              <Card sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 2 }}>
-                <CardContent sx={{ p: 3 }}>
-                  <FilterSection title="Category">
-                    <FormControlLabel
-                      control={<Checkbox checked={allCategories} onChange={clearCategory} />}
-                      label="All Categories"
-                      sx={{ display: 'flex', alignItems: 'center', mb: 0.75 }}
-                    />
-                    <Stack spacing={0.25}>
-                      {categories.map((category) => (
-                        <FormControlLabel
-                          key={category}
-                          control={
-                            <Checkbox
-                              checked={selectedCategories.includes(category) && !allCategories}
-                              onChange={() => toggleValue(category, selectedCategories, setSelectedCategories)}
-                            />
-                          }
-                          label={category}
-                        />
-                      ))}
-                    </Stack>
-                  </FilterSection>
+      {error && !usingFallbackCatalog ? (
+        <Box sx={{ mb: 2, border: '1px solid #FECACA', bgcolor: '#FEF2F2', borderRadius: 1, px: 1.5, py: 1 }}>
+          <Typography sx={{ color: '#B91C1C', fontSize: '0.78rem', fontWeight: 700 }}>
+            {normalizeApiError(error).message || 'Unable to load courses.'}
+          </Typography>
+        </Box>
+      ) : null}
 
-                  <FilterSection title="Level">
-                    <Stack spacing={0.25}>
-                      {levels.map((level) => (
-                        <FormControlLabel
-                          key={level}
-                          control={<Checkbox checked={selectedLevels.includes(level)} onChange={() => toggleValue(level, selectedLevels, setSelectedLevels)} />}
-                          label={level}
-                        />
-                      ))}
-                    </Stack>
-                  </FilterSection>
-
-                  <FilterSection title="Price">
-                    <Stack spacing={0.25}>
-                      {prices.map((price) => (
-                        <FormControlLabel
-                          key={price}
-                          control={<Checkbox checked={selectedPrices.includes(price)} onChange={() => toggleValue(price, selectedPrices, setSelectedPrices)} />}
-                          label={price}
-                        />
-                      ))}
-                    </Stack>
-                  </FilterSection>
-                </CardContent>
-              </Card>
+      <Grid container spacing={{ xs: 3, lg: 5.2 }} sx={{ alignItems: 'flex-start' }}>
+        <Grid size={{ xs: 12, lg: 2.55 }}>
+          <Box sx={{ position: { lg: 'sticky' }, top: embedded ? 96 : 24 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1.45 }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.8 }}>
+                <Typography sx={{ color: '#0F172A', fontSize: '0.72rem', fontWeight: 900 }}>
+                  Filters
+                </Typography>
+                <Button
+                  variant="text"
+                  onClick={() => setFiltersOpen((current) => !current)}
+                  sx={{
+                    display: { xs: 'inline-flex', lg: 'none' },
+                    minWidth: 0,
+                    p: 0.25,
+                    color: '#64748B',
+                  }}
+                >
+                  <FilterListOutlined sx={{ fontSize: 16 }} />
+                </Button>
+              </Box>
+              <Button
+                variant="text"
+                onClick={resetAllFilters}
+                sx={{ minWidth: 0, px: 0, py: 0, color: '#4F46E5', fontSize: '0.62rem', fontWeight: 700 }}
+              >
+                Reset all
+              </Button>
             </Box>
-          </Grid>
 
-          <Grid size={{ xs: 12, lg: 9 }}>
-            <Box sx={{ mb: 2.5, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 2, flexWrap: 'wrap' }}>
-              <Typography variant="body1" sx={{ color: 'text.secondary', fontWeight: 600 }}>
-                Showing {Math.min(visibleCourses.length, filteredCourses.length)} of {filteredCourses.length} courses
+            <Box sx={{ display: { xs: filtersOpen ? 'block' : 'none', lg: 'block' } }}>
+              <FilterSection title="Category">
+                <Stack spacing={0.35}>
+                  <FilterOption label="All Categories" checked={allCategories} onChange={clearCategory} />
+                  {categories.map((category) => (
+                    <FilterOption
+                      key={category}
+                      label={category}
+                      checked={selectedCategories.includes(category) && !allCategories}
+                      onChange={() => toggleCategory(category)}
+                    />
+                  ))}
+                </Stack>
+              </FilterSection>
+
+              <FilterSection title="Level">
+                <Stack spacing={0.35}>
+                  {levels.map((level) => (
+                    <FilterOption
+                      key={level}
+                      label={level}
+                      checked={selectedLevels.includes(level)}
+                      onChange={() => toggleValue(level, selectedLevels, setSelectedLevels)}
+                    />
+                  ))}
+                </Stack>
+              </FilterSection>
+
+              <FilterSection title="Price" last>
+                <Stack spacing={0.35}>
+                  {prices.map((price) => (
+                    <FilterOption
+                      key={price}
+                      label={price}
+                      checked={selectedPrices.includes(price)}
+                      onChange={() => toggleValue(price, selectedPrices, setSelectedPrices)}
+                    />
+                  ))}
+                </Stack>
+              </FilterSection>
+            </Box>
+          </Box>
+        </Grid>
+
+        <Grid size={{ xs: 12, lg: 9.45 }}>
+          <Box sx={{ mb: 2.35, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 2, flexWrap: 'wrap' }}>
+            <Typography sx={{ color: '#475569', fontWeight: 600, fontSize: '0.7rem' }}>
+              Showing {visibleCourses.length} of {Math.max(filteredCourses.length, totalCourseCount)} courses
+            </Typography>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}>
+              <Typography sx={{ color: '#0F172A', fontWeight: 800, fontSize: '0.68rem' }}>
+                Sort by:
               </Typography>
-              <FormControl size="small" sx={{ minWidth: 220 }}>
+              <FormControl
+                size="small"
+                sx={{
+                  minWidth: 126,
+                  bgcolor: '#FFFFFF',
+                  '& .MuiOutlinedInput-root': {
+                    minHeight: 30,
+                    borderRadius: 0.75,
+                    fontSize: '0.68rem',
+                    '& fieldset': { borderColor: '#E2E8F0' },
+                    '&.Mui-focused fieldset': { borderColor: '#4F46E5', borderWidth: 1 },
+                  },
+                  '& .MuiSelect-select': { py: 0.65, px: 1 },
+                }}
+              >
                 <Select value={sortBy} onChange={(event) => setSortBy(event.target.value as SortValue)}>
-                  {(['Most Popular', 'Highest Rated', 'Price: Low to High', 'Price: High to Low'] as SortValue[]).map((option) => (
+                  {sortOptions.map((option) => (
                     <MenuItem key={option} value={option}>
-                      Sort by: {option}
+                      {option}
                     </MenuItem>
                   ))}
                 </Select>
               </FormControl>
             </Box>
+          </Box>
 
-            <Grid container spacing={3}>
-              {visibleCourses.map((course) => (
-                <Grid key={course.title} size={{ xs: 12, sm: 6, lg: 4 }}>
-                  <CourseCard course={course} onEnroll={handleEnroll} />
-                </Grid>
-              ))}
-            </Grid>
-
-            {isLoading ? (
-              <Box sx={{ mt: 2 }}>
-                <Typography sx={{ color: 'text.secondary' }}>Loading courses...</Typography>
-              </Box>
-            ) : null}
-
-            {visibleCount < filteredCourses.length ? (
-              <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
-                <Button variant="text" onClick={() => setVisibleCount((current) => current + 3)} sx={{ color: 'primary.main', fontWeight: 700 }}>
-                  Load More Courses
-                </Button>
-              </Box>
-            ) : null}
+          <Grid container spacing={{ xs: 2.4, md: 4.2, lg: 5 }}>
+            {visibleCourses.map((course) => (
+              <Grid key={course.id} size={{ xs: 12, sm: 6, lg: 4 }}>
+                <CourseCard course={course} onEnroll={handleEnroll} />
+              </Grid>
+            ))}
           </Grid>
-        </Grid>
-      </Container>
 
-      <Footer />
+          {isLoading ? (
+            <Typography sx={{ color: '#64748B', mt: 2, fontSize: '0.76rem' }}>Loading courses...</Typography>
+          ) : null}
+
+          {!isLoading && visibleCourses.length === 0 ? (
+            <Box sx={{ mt: 3, border: '1px solid #E2E8F0', bgcolor: '#FFFFFF', borderRadius: 1, px: 2, py: 2.5 }}>
+              <Typography sx={{ color: '#0F172A', fontWeight: 800, fontSize: '0.9rem' }}>
+                No courses match these filters.
+              </Typography>
+              <Typography sx={{ color: '#64748B', mt: 0.5, fontSize: '0.76rem' }}>
+                Reset the filters or try a different search term.
+              </Typography>
+            </Box>
+          ) : null}
+
+          {visibleCount < filteredCourses.length ? (
+            <Box sx={{ display: 'flex', justifyContent: 'flex-start', mt: 6.5 }}>
+              <Button
+                variant="outlined"
+                onClick={() => setVisibleCount((current) => current + 3)}
+                sx={{
+                  color: '#0F172A',
+                  borderColor: '#DCE3EE',
+                  bgcolor: '#FFFFFF',
+                  borderRadius: 0.75,
+                  fontWeight: 600,
+                  textTransform: 'none',
+                  fontSize: '0.68rem',
+                  px: 1.4,
+                  py: 0.7,
+                  '&:hover': { borderColor: '#CBD5E1', bgcolor: '#F8FAFC' },
+                }}
+              >
+                Load More Courses
+              </Button>
+            </Box>
+          ) : null}
+        </Grid>
+      </Grid>
+    </Container>
+  );
+
+  return (
+    <Box sx={{ minHeight: embedded ? 'auto' : '100vh', bgcolor: embedded ? 'transparent' : '#F4F7FB' }}>
+      {embedded ? null : <TopNav />}
+      {content}
+      {embedded ? null : <Footer />}
     </Box>
   );
 }

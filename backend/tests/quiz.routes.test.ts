@@ -39,6 +39,13 @@ describe('Quiz routes', () => {
     expect(response.body.message).toBe('No token provided');
   });
 
+  it('returns 401 for all my quiz attempts without token', async () => {
+    const response = await request(app).get('/api/quizzes/all-attempts/me');
+
+    expect(response.status).toBe(401);
+    expect(response.body.message).toBe('No token provided');
+  });
+
   it('returns 401 for instructor quiz attempts without token', async () => {
     const response = await request(app).get('/api/quizzes/507f191e810c19729de860ea/attempts');
 

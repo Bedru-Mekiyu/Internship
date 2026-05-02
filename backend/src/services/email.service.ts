@@ -16,11 +16,14 @@ const transporter = nodemailer.createTransport({
 export class EmailService {
   static async sendVerificationEmail(userId: string, email: string) {
     const verifySecret = requireEnv('JWT_VERIFY_SECRET');
-    const baseUrl = requireEnv('BASE_URL');
+    const apiBase = requireEnv('BASE_URL').replace(/\/$/, '');
+    const frontendBase = process.env.FRONTEND_URL?.trim().replace(/\/$/, '');
     const sender = requireEnv('EMAIL_USER');
 
     const token = jwt.sign({ userId }, verifySecret, { expiresIn: '1h' });
-    const verificationLink = `${baseUrl}/api/auth/verify-email/${token}`;
+    const verificationLink = frontendBase
+      ? `${frontendBase}/auth/verify-email?token=${encodeURIComponent(token)}`
+      : `${apiBase}/api/auth/verify-email?token=${encodeURIComponent(token)}`;
 
     const mailOptions = {
       from: sender,
@@ -34,8 +37,8 @@ export class EmailService {
   }
 
   static async sendPasswordResetEmail(email: string, token: string) {
-    const apiBase = requireEnv('BASE_URL');
-    const appBase = (process.env.FRONTEND_URL || apiBase).replace(/\/$/, '');
+    const apiBase = requireEnv('BASE_URL').replace(/\/$/, '');
+    const appBase = (process.env.FRONTEND_URL || apiBase).trim().replace(/\/$/, '');
     const sender = requireEnv('EMAIL_USER');
     const resetLink = `${appBase}/auth/reset-password?token=${encodeURIComponent(token)}`;
 

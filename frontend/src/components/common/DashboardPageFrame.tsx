@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
-import { Box, Card, CardContent, Stack, Typography } from '@mui/material';
+import { Box, Button, Card, CardContent, Stack, Typography } from '@mui/material';
+import { Link as RouterLink } from 'react-router-dom';
 import { card, SPACING } from '../../pages/dashboard/dashboardTokens';
 
 type DashboardPageFrameProps = {
@@ -9,6 +10,7 @@ type DashboardPageFrameProps = {
   actionLabel?: string;
   actionTo?: string;
   actions?: ReactNode;
+  breadcrumbs?: Array<{ label: string; to?: string }>;
   children: ReactNode;
 };
 
@@ -29,6 +31,8 @@ export default function DashboardPageFrame({
   actions,
   children,
 }: DashboardPageFrameProps) {
+  const hasAction = actionLabel && actionTo;
+
   return (
     <Stack spacing={SPACING.lg}>
       <Box
@@ -53,7 +57,18 @@ export default function DashboardPageFrame({
             {description}
           </Typography>
         </Box>
-        {actions}
+        {hasAction ? (
+          <Button
+            component={RouterLink}
+            to={actionTo}
+            variant="contained"
+            sx={{ borderRadius: 2, px: 2.5, py: 1.2, cursor: 'pointer' }}
+          >
+            {actionLabel}
+          </Button>
+        ) : actions ? (
+          actions
+        ) : null}
       </Box>
       {children}
     </Stack>

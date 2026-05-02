@@ -26,7 +26,8 @@ const userSchema = new mongoose.Schema({
     timezone: { type: String, default: 'UTC' },
     notifications: {
       email: { type: Boolean, default: true },
-      push: { type: Boolean, default: true }
+      push: { type: Boolean, default: true },
+      marketingEmails: { type: Boolean, default: true },
     }
   },
   gamification: {

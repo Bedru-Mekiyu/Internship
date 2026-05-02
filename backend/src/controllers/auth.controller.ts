@@ -1,9 +1,10 @@
 import { Request, Response } from 'express';
-import type { IUser } from '../types/express.d';
 import { AuthService } from '../services/auth.service';
 import { AppError } from '../utils/http-error';
 import { asyncHandler } from '../utils/async-handler';
 import { getOrCreateCsrfToken } from '../middlewares/csrf.middleware';
+
+type AuthRequest = Request;
 
 const parseBoolean = (value: string | undefined, fallback: boolean) => {
   if (value === undefined) return fallback;
@@ -125,8 +126,11 @@ export const refreshToken = asyncHandler(async (req: Request, res: Response) => 
 });
 
 export const verifyEmail = asyncHandler(async (req: Request, res: Response) => {
-  const { token } = req.params;
-  if (typeof token !== 'string') {
+  const paramsToken = req.params.token;
+  const queryToken = req.query.token as string | undefined;
+  const token = paramsToken || queryToken;
+
+  if (typeof token !== 'string' || !token.trim()) {
     throw new AppError('Invalid verification token', 400);
   }
 
@@ -138,16 +142,30 @@ export const verifyEmail = asyncHandler(async (req: Request, res: Response) => {
   }
 });
 
-export const getMe = asyncHandler(async (req: Request, res: Response) => {
+export const resendVerification = asyncHandler(async (req: Request, res: Response) => {
+  const { email } = req.body;
+  if (typeof email !== 'string' || !email.trim()) {
+    throw new AppError('Email is required', 400);
+  }
+
+  try {
+    await AuthService.resendVerificationEmail(email);
+    return res.json({ message: 'If the email is eligible, a new verification email has been sent.' });
+  } catch (error) {
+    throw new AppError(error instanceof Error ? error.message : 'Failed to resend verification email', 400);
+  }
+});
+
+export const getMe = asyncHandler(async (req: AuthRequest, res: Response) => {
   return res.json(sanitizeUser(req.user));
 });
 
-export const logout = asyncHandler(async (req: Request, res: Response) => {
+export const logout = asyncHandler(async (req: AuthRequest, res: Response) => {
   if (!req.user?._id) {
     throw new AppError('Unauthorized', 401);
   }
 
-  await AuthService.logoutUser(req.user._id.toString());
+  await AuthService.logoutUser(String(req.user._id));
   clearAuthCookies(res);
   return res.json({ message: 'Logged out successfully' });
 });

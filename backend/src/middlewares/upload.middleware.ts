@@ -4,11 +4,12 @@ import path from 'path';
 
 dotenv.config({ quiet: true });
 
-const maxUploadSizeMb = Number(process.env.MAX_UPLOAD_SIZE_MB || 25);
+const DEFAULT_MAX_UPLOAD_SIZE_MB = 250;
+const maxUploadSizeMb = Number(process.env.MAX_UPLOAD_SIZE_MB || DEFAULT_MAX_UPLOAD_SIZE_MB);
 const uploadLimits = {
   fileSize: Number.isFinite(maxUploadSizeMb) && maxUploadSizeMb > 0
     ? maxUploadSizeMb * 1024 * 1024
-    : 25 * 1024 * 1024,
+    : DEFAULT_MAX_UPLOAD_SIZE_MB * 1024 * 1024,
 };
 
 const allowedMimeTypes = new Set([
@@ -19,6 +20,7 @@ const allowedMimeTypes = new Set([
   'video/mp4',
   'video/webm',
   'video/quicktime',
+  'video/ogg',
   'audio/mpeg',
   'audio/wav',
   'audio/ogg',
@@ -35,6 +37,7 @@ const allowedExtensionsByMime: Record<string, Set<string>> = {
   'video/mp4': new Set(['.mp4']),
   'video/webm': new Set(['.webm']),
   'video/quicktime': new Set(['.mov']),
+  'video/ogg': new Set(['.ogv', '.ogg']),
   'audio/mpeg': new Set(['.mp3']),
   'audio/wav': new Set(['.wav']),
   'audio/ogg': new Set(['.ogg']),

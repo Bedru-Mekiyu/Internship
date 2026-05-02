@@ -2,29 +2,30 @@ import { useMemo, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   Alert,
+  Avatar,
   Box,
   Button,
   Card,
-  CardContent,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
-  Grid,
-  List,
-  ListItemButton,
-  ListItemText,
   Stack,
   Tab,
   Tabs,
   Typography,
-  useMediaQuery,
-  useTheme,
 } from '@mui/material';
+import {
+  CheckOutlined,
+  Circle,
+  LanguageOutlined,
+  NotificationsActiveOutlined,
+  PersonOutlineOutlined,
+  SettingsOutlined,
+  WarningAmberOutlined,
+} from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { api, normalizeApiError } from '../../services/api';
-import DashboardPageFrame, { DashboardSection } from '../../components/common/DashboardPageFrame';
-import { card, SPACING } from './dashboardTokens';
 
 type NotificationTab = 'all' | 'unread' | 'mentions' | 'system';
 type NotificationDate = 'TODAY' | 'YESTERDAY' | 'OLDER';
@@ -54,9 +55,6 @@ interface ApiNotificationsResponse {
   data: ApiNotification[];
   pagination?: {
     total?: number;
-    page?: number;
-    limit?: number;
-    totalPages?: number;
   };
 }
 
@@ -87,81 +85,91 @@ const inferDateGroup = (createdAt?: string): NotificationDate => {
   return 'OLDER';
 };
 
-const formatTimestamp = (createdAt?: string) => {
+const toRelativeTimestamp = (createdAt?: string) => {
   if (!createdAt) return 'Unknown time';
-
   const sourceDate = new Date(createdAt);
   if (Number.isNaN(sourceDate.getTime())) return 'Unknown time';
 
-  return sourceDate.toLocaleString(undefined, {
-    month: 'short',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit',
-  });
+  const diffMs = Date.now() - sourceDate.getTime();
+  const diffMinutes = Math.max(1, Math.round(diffMs / 60000));
+  if (diffMinutes < 60) return `${diffMinutes} min ago`;
+
+  const diffHours = Math.round(diffMinutes / 60);
+  if (diffHours < 24) return `${diffHours} hours ago`;
+
+  return `Yesterday at ${sourceDate.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}`;
 };
 
 const tabConfig: Array<{ key: NotificationTab; label: string }> = [
-  { key: 'all', label: 'All' },
+  { key: 'all', label: 'All Notifications' },
   { key: 'unread', label: 'Unread' },
   { key: 'mentions', label: 'Mentions' },
   { key: 'system', label: 'System' },
 ];
 
+function kindIcon(kind: NotificationKind) {
+  if (kind === 'mention') return <Avatar sx={{ width: 34, height: 34, bgcolor: '#DCE8FF', color: '#1E67F2' }}><PersonOutlineOutlined sx={{ fontSize: 19 }} /></Avatar>;
+  if (kind === 'warning') return <Avatar sx={{ width: 34, height: 34, bgcolor: '#FFF4DA', color: '#B7791F' }}><WarningAmberOutlined sx={{ fontSize: 19 }} /></Avatar>;
+  if (kind === 'success') return <Avatar sx={{ width: 34, height: 34, bgcolor: '#DCFCE7', color: '#13803C' }}><CheckOutlined sx={{ fontSize: 19 }} /></Avatar>;
+  return <Avatar sx={{ width: 34, height: 34, bgcolor: '#E5ECFF', color: '#1E67F2' }}><LanguageOutlined sx={{ fontSize: 18 }} /></Avatar>;
+}
+
 function NotificationRow({ item, onAction }: { item: NotificationItem; onAction: (item: NotificationItem) => void }) {
   return (
-    <Card
+    <Box
       sx={{
-        border: '1px solid',
-        borderColor: item.unread ? 'primary.main' : 'divider',
-        boxShadow: 'none',
+        display: 'flex',
+        alignItems: 'flex-start',
+        gap: 1.5,
+        px: 2.25,
+        py: 1.8,
+        borderLeft: item.unread ? '3px solid #1E67F2' : '3px solid transparent',
+        borderBottom: '1px solid',
+        borderColor: '#E5EAF2',
+        bgcolor: '#FFFFFF',
       }}
     >
-      <CardContent sx={{ p: { xs: 2, md: 2.5 } }}>
-        <Stack direction="row" spacing={SPACING.md} sx={{ alignItems: 'flex-start' }}>
-          <Box sx={{ minWidth: 0, flex: 1 }}>
-            <Stack
-              direction={{ xs: 'column', sm: 'row' }}
-              spacing={1}
-              sx={{ justifyContent: 'space-between', alignItems: { xs: 'flex-start', sm: 'flex-start' } }}
-            >
-              <Typography variant="subtitle1" sx={{ fontWeight: 800, lineHeight: 1.35 }}>
-                {item.title}
-              </Typography>
-              <Typography variant="caption" sx={{ color: 'text.secondary', whiteSpace: 'nowrap', mt: { xs: 0, sm: 0.25 } }}>
-                {item.timestamp}
-              </Typography>
-            </Stack>
-
-            <Typography variant="body2" sx={{ color: 'text.secondary', mt: 0.5, lineHeight: 1.6 }}>
-              {item.message}
-            </Typography>
-
-            <Stack direction="row" spacing={1} sx={{ mt: 1.25, alignItems: 'center', flexWrap: 'wrap' }}>
-              <Typography variant="caption" sx={{ color: 'text.secondary', fontWeight: 700 }}>
-                {item.unread ? 'Unread' : 'Read'}
-              </Typography>
-              <Typography variant="caption" sx={{ color: 'text.secondary', fontWeight: 700, textTransform: 'capitalize' }}>
-                {item.kind}
-              </Typography>
-              {item.actionLabel ? (
-                <Button size="small" variant="text" onClick={() => onAction(item)} sx={{ px: 0.5 }}>
-                  {item.actionLabel}
-                </Button>
-              ) : null}
-            </Stack>
-          </Box>
-        </Stack>
-      </CardContent>
-    </Card>
+      {kindIcon(item.kind)}
+      <Box sx={{ minWidth: 0, flex: 1 }}>
+        <Typography variant="body1" sx={{ fontWeight: 700, lineHeight: 1.4 }}>
+          {item.title}
+        </Typography>
+        <Typography variant="body2" sx={{ color: 'text.secondary', mt: 0.35, lineHeight: 1.55 }}>
+          {item.message}
+        </Typography>
+        {item.actionLabel ? (
+          <Button
+            size="small"
+            variant="outlined"
+            onClick={() => onAction(item)}
+            sx={{
+              mt: 1,
+              py: 0.2,
+              px: 1.1,
+              minWidth: 0,
+              borderRadius: 1,
+              textTransform: 'none',
+              borderColor: '#D3DAE7',
+              color: 'text.primary',
+            }}
+          >
+            {item.actionLabel}
+          </Button>
+        ) : null}
+      </Box>
+      <Stack sx={{ alignItems: 'flex-end', minWidth: 84 }}>
+        <Typography variant="caption" sx={{ color: 'text.secondary', whiteSpace: 'nowrap' }}>
+          {item.timestamp}
+        </Typography>
+        <Circle sx={{ mt: 1, fontSize: 8, color: item.unread ? '#1E67F2' : '#CBD5E1' }} />
+      </Stack>
+    </Box>
   );
 }
 
 export default function AdminNotifications() {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
-  const muiTheme = useTheme();
-  const isDesktop = useMediaQuery(muiTheme.breakpoints.up('lg'));
 
   const [tab, setTab] = useState<NotificationTab>('all');
   const [statusMessage, setStatusMessage] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
@@ -231,16 +239,16 @@ export default function AdminNotifications() {
         kind: inferNotificationKind(item.type),
         title: item.title,
         message: item.message,
-        timestamp: formatTimestamp(item.createdAt),
+        timestamp: toRelativeTimestamp(item.createdAt),
         unread: !item.isRead,
-        actionLabel: item.type === 'discussion' ? 'Open thread' : 'View details',
+        actionLabel: item.type === 'discussion' ? 'Reply' : undefined,
       }));
   }, [data]);
 
   const counts = useMemo(() => {
     const unread = unreadData?.unreadCount ?? notifications.filter((item) => item.unread).length;
     const mentions = notifications.filter((item) => item.kind === 'mention').length;
-    const system = notifications.filter((item) => item.kind === 'warning' || item.kind === 'success' || item.kind === 'user').length;
+    const system = notifications.filter((item) => item.kind !== 'mention').length;
 
     return {
       all: data?.pagination?.total ?? notifications.length,
@@ -254,7 +262,7 @@ export default function AdminNotifications() {
     return notifications.filter((item) => {
       if (tab === 'unread') return item.unread;
       if (tab === 'mentions') return item.kind === 'mention';
-      if (tab === 'system') return item.kind === 'warning' || item.kind === 'success' || item.kind === 'user';
+      if (tab === 'system') return item.kind !== 'mention';
       return true;
     });
   }, [notifications, tab]);
@@ -287,171 +295,155 @@ export default function AdminNotifications() {
     setMarkAllConfirmOpen(false);
   };
 
-  const sideFilters = (
-    <Card sx={{ ...card, position: { lg: 'sticky' }, top: { lg: 88 } }}>
-      <List sx={{ p: 1 }}>
-        {tabConfig.map((item) => (
-          <ListItemButton
-            key={item.key}
-            selected={tab === item.key}
-            onClick={() => setTab(item.key)}
+  return (
+    <Box sx={{ maxWidth: 1080, mx: 'auto', width: '100%' }}>
+      <Stack spacing={1.8}>
+        <Stack direction="row" spacing={1} sx={{ color: 'text.secondary', alignItems: 'center' }}>
+          <Typography variant="body2">Dashboard</Typography>
+          <Typography variant="body2">›</Typography>
+          <Typography variant="body2" sx={{ color: 'text.primary', fontWeight: 700 }}>Notifications</Typography>
+        </Stack>
+
+        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 1.2 }}>
+          <Typography variant="h4" sx={{ fontWeight: 900, letterSpacing: '-0.02em' }}>
+            Notifications
+          </Typography>
+          <Stack direction="row" spacing={1}>
+            <Button
+              size="small"
+              variant="outlined"
+              startIcon={<CheckOutlined />}
+              onClick={() => setMarkAllConfirmOpen(true)}
+              disabled={markAllAsReadMutation.isPending || counts.unread === 0}
+              sx={{ borderColor: '#D5DBE7', bgcolor: '#FFFFFF', textTransform: 'none' }}
+            >
+              Mark all as read
+            </Button>
+            <Button
+              size="small"
+              variant="outlined"
+              startIcon={<SettingsOutlined />}
+              onClick={() => navigate('/admin/settings')}
+              sx={{ borderColor: '#D5DBE7', bgcolor: '#FFFFFF', textTransform: 'none' }}
+            >
+              Settings
+            </Button>
+          </Stack>
+        </Box>
+
+        {statusMessage ? (
+          <Alert severity={statusMessage.type} onClose={() => setStatusMessage(null)} sx={{ borderRadius: 1.5 }}>
+            {statusMessage.message}
+          </Alert>
+        ) : null}
+
+        {isError ? (
+          <Alert severity="error" sx={{ borderRadius: 1.5 }}>
+            {normalizeApiError(error).message || 'Could not load notifications.'}
+          </Alert>
+        ) : null}
+
+        <Card sx={{ borderRadius: 1.5, border: '1px solid', borderColor: '#DFE5F1', boxShadow: 'none' }}>
+          <Tabs
+            value={tab}
+            onChange={(_, value) => setTab(value)}
             sx={{
-              borderRadius: 2,
-              mb: 0.5,
-              '&.Mui-selected': {
-                bgcolor: 'background.default',
-                '&:hover': { bgcolor: 'background.default' },
+              minHeight: 44,
+              px: 1,
+              '& .MuiTab-root': {
+                minHeight: 44,
+                textTransform: 'none',
+                fontWeight: 600,
+                color: 'text.secondary',
               },
+              '& .Mui-selected': { color: 'primary.main !important', fontWeight: 700 },
             }}
           >
-            <ListItemText primary={item.label} />
-            <Typography variant="caption" sx={{ color: 'text.secondary', fontWeight: 700 }}>
-              {counts[item.key]}
-            </Typography>
-          </ListItemButton>
-        ))}
-      </List>
-    </Card>
-  );
-
-  return (
-    <DashboardPageFrame
-      title="Notifications"
-      description="Review alerts, mentions, and system updates in a structured feed."
-      actions={(
-        <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1} sx={{ width: { xs: '100%', sm: 'auto' } }}>
-          <Button
-            variant="outlined"
-            onClick={() => setMarkAllConfirmOpen(true)}
-            disabled={markAllAsReadMutation.isPending || counts.unread === 0}
-            fullWidth={!isDesktop}
-          >
-            Mark all as read
-          </Button>
-          <Button
-            variant="outlined"
-            onClick={() => navigate('/admin/settings')}
-            fullWidth={!isDesktop}
-          >
-            Notification settings
-          </Button>
-        </Stack>
-      )}
-    >
-      {statusMessage ? (
-        <Alert severity={statusMessage.type} onClose={() => setStatusMessage(null)} sx={{ borderRadius: 2 }}>
-          {statusMessage.message}
-        </Alert>
-      ) : null}
-
-      {isError ? (
-        <Alert severity="error" sx={{ borderRadius: 2 }}>
-          {normalizeApiError(error).message || 'Could not load notifications.'}
-        </Alert>
-      ) : null}
-
-      <Grid container spacing={SPACING.lg} sx={{ alignItems: 'flex-start' }}>
-        <Grid size={{ xs: 12, lg: 3 }}>
-          {isDesktop ? sideFilters : (
-            <Tabs
-              value={tab}
-              onChange={(_, value) => setTab(value)}
-              variant="scrollable"
-              scrollButtons="auto"
-              sx={{
-                minHeight: 44,
-                '& .MuiTab-root': { minHeight: 44, textTransform: 'none', fontWeight: 700 },
-              }}
-            >
-              {tabConfig.map((item) => (
-                <Tab key={item.key} value={item.key} label={`${item.label} (${counts[item.key]})`} />
-              ))}
-            </Tabs>
-          )}
-        </Grid>
-
-        <Grid size={{ xs: 12, lg: 9 }}>
-          <Stack spacing={SPACING.lg}>
-            <DashboardSection title="Notification Summary" description="Quick visibility into inbox health.">
-              <Grid container spacing={SPACING.md}>
-                <Grid size={{ xs: 12, sm: 4 }}>
-                  <Card sx={{ border: '1px solid', borderColor: 'divider', boxShadow: 'none' }}>
-                    <CardContent>
-                      <Typography variant="body2" sx={{ color: 'text.secondary' }}>Total</Typography>
-                      <Typography variant="h5" sx={{ fontWeight: 800 }}>{counts.all}</Typography>
-                    </CardContent>
-                  </Card>
-                </Grid>
-                <Grid size={{ xs: 12, sm: 4 }}>
-                  <Card sx={{ border: '1px solid', borderColor: 'divider', boxShadow: 'none' }}>
-                    <CardContent>
-                      <Typography variant="body2" sx={{ color: 'text.secondary' }}>Unread</Typography>
-                      <Typography variant="h5" sx={{ fontWeight: 800, color: 'primary.main' }}>{counts.unread}</Typography>
-                    </CardContent>
-                  </Card>
-                </Grid>
-                <Grid size={{ xs: 12, sm: 4 }}>
-                  <Card sx={{ border: '1px solid', borderColor: 'divider', boxShadow: 'none' }}>
-                    <CardContent>
-                      <Typography variant="body2" sx={{ color: 'text.secondary' }}>Mentions</Typography>
-                      <Typography variant="h5" sx={{ fontWeight: 800 }}>{counts.mentions}</Typography>
-                    </CardContent>
-                  </Card>
-                </Grid>
-              </Grid>
-            </DashboardSection>
-
-            <DashboardSection
-              title="Notification Feed"
-              description="Notifications are grouped by date for easier scanning."
-              action={(
-                <Button
-                  size="small"
-                  variant="outlined"
-                  onClick={() => setMarkAllConfirmOpen(true)}
-                  disabled={markAllAsReadMutation.isPending || counts.unread === 0}
-                >
-                  Mark all as read
-                </Button>
-              )}
-            >
-              {isLoading ? (
-                <Typography sx={{ color: 'text.secondary' }}>Loading notifications...</Typography>
-              ) : (
-                <Stack spacing={SPACING.lg}>
-                  {(['TODAY', 'YESTERDAY', 'OLDER'] as const).map((groupKey) => {
-                    const items = grouped[groupKey];
-                    if (!items.length) return null;
-
-                    return (
-                      <Box key={groupKey}>
-                        <Typography variant="caption" sx={{ color: 'text.secondary', fontWeight: 800, letterSpacing: '0.14em', display: 'block', mb: 1.5 }}>
-                          {groupKey}
-                        </Typography>
-                        <Stack spacing={SPACING.md}>
-                          {items.map((item) => (
-                            <NotificationRow key={item.id} item={item} onAction={handleNotificationAction} />
-                          ))}
-                        </Stack>
+            {tabConfig.map((item) => (
+              <Tab
+                key={item.key}
+                value={item.key}
+                label={
+                  <Stack direction="row" spacing={0.8} sx={{ alignItems: 'center' }}>
+                    <Typography variant="body2" sx={{ fontWeight: 'inherit' }}>
+                      {item.label}
+                    </Typography>
+                    {item.key === 'all' ? (
+                      <Box
+                        sx={{
+                          minWidth: 16,
+                          height: 16,
+                          px: 0.45,
+                          borderRadius: 99,
+                          bgcolor: '#F04438',
+                          color: '#FFFFFF',
+                          display: 'grid',
+                          placeItems: 'center',
+                          fontSize: '0.62rem',
+                          fontWeight: 700,
+                          lineHeight: 1,
+                        }}
+                      >
+                        {counts.all}
                       </Box>
-                    );
-                  })}
+                    ) : null}
+                  </Stack>
+                }
+              />
+            ))}
+          </Tabs>
+        </Card>
 
-                  {!filteredNotifications.length ? (
-                    <Card sx={{ border: '1px solid', borderColor: 'divider', boxShadow: 'none' }}>
-                      <CardContent>
-                        <Typography sx={{ color: 'text.secondary' }}>
-                          {tab === 'all' ? 'No notifications yet.' : `No ${tab} notifications.`}
-                        </Typography>
-                      </CardContent>
-                    </Card>
-                  ) : null}
-                </Stack>
-              )}
-            </DashboardSection>
-          </Stack>
-        </Grid>
-      </Grid>
+        <Card sx={{ borderRadius: 1.5, border: '1px solid', borderColor: '#DFE5F1', boxShadow: 'none', overflow: 'hidden' }}>
+          {isLoading ? (
+            <Box sx={{ p: 2.5 }}>
+              <Typography sx={{ color: 'text.secondary' }}>Loading notifications...</Typography>
+            </Box>
+          ) : (
+            <Box>
+              {(['TODAY', 'YESTERDAY', 'OLDER'] as const).map((groupKey) => {
+                const items = grouped[groupKey];
+                if (!items.length) return null;
+
+                return (
+                  <Box key={groupKey}>
+                    <Typography
+                      variant="caption"
+                      sx={{
+                        px: 2.25,
+                        py: 1.1,
+                        display: 'block',
+                        bgcolor: '#F8FAFD',
+                        borderBottom: '1px solid',
+                        borderColor: '#E5EAF2',
+                        color: 'text.secondary',
+                        fontWeight: 800,
+                        letterSpacing: '0.08em',
+                      }}
+                    >
+                      {groupKey}
+                    </Typography>
+                    {items.map((item) => (
+                      <NotificationRow key={item.id} item={item} onAction={handleNotificationAction} />
+                    ))}
+                  </Box>
+                );
+              })}
+
+              {!filteredNotifications.length ? (
+                <Box sx={{ p: 2.5 }}>
+                  <Stack spacing={1} sx={{ alignItems: 'center', textAlign: 'center' }}>
+                    <NotificationsActiveOutlined sx={{ color: '#94A3B8' }} />
+                    <Typography sx={{ color: 'text.secondary' }}>
+                      {tab === 'all' ? 'No notifications yet.' : `No ${tab} notifications.`}
+                    </Typography>
+                  </Stack>
+                </Box>
+              ) : null}
+            </Box>
+          )}
+        </Card>
+      </Stack>
 
       <Dialog open={markAllConfirmOpen} onClose={() => setMarkAllConfirmOpen(false)}>
         <DialogTitle>Mark all as read?</DialogTitle>
@@ -467,6 +459,6 @@ export default function AdminNotifications() {
           </Button>
         </DialogActions>
       </Dialog>
-    </DashboardPageFrame>
+    </Box>
   );
 }

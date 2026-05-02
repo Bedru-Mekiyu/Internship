@@ -5,6 +5,8 @@ import { AppError } from '../utils/http-error';
 import { requireEnv } from '../utils/env';
 import { logError } from '../utils/logger';
 
+type AuthRequest = Request;
+
 interface DecodedToken {
   userId: string;
   type: 'access' | 'refresh';
@@ -25,7 +27,7 @@ const resolveAccessSecret = () => {
   return requireEnv('JWT_ACCESS_SECRET');
 };
 
-const attachRequestUser = async (req: Request, token: string) => {
+const attachRequestUser = async (req: AuthRequest, token: string) => {
   const accessSecret = resolveAccessSecret();
   const decoded = jwt.verify(token, accessSecret) as DecodedToken;
 
@@ -47,7 +49,7 @@ const attachRequestUser = async (req: Request, token: string) => {
   req.user = user;
 };
 
-export const authMiddleware = async (req: Request, res: Response, next: NextFunction) => {
+export const authMiddleware = async (req: AuthRequest, res: Response, next: NextFunction) => {
   const tokensToTry = getAccessTokensToTry(req);
 
   if (tokensToTry.length === 0) {
@@ -77,7 +79,7 @@ export const authMiddleware = async (req: Request, res: Response, next: NextFunc
  * Attaches `req.user` when a valid access token is present.
  * Invalid or expired tokens are ignored so the request continues unauthenticated (public catalog, etc.).
  */
-export const optionalAuthMiddleware = async (req: Request, res: Response, next: NextFunction) => {
+export const optionalAuthMiddleware = async (req: AuthRequest, res: Response, next: NextFunction) => {
   const tokensToTry = getAccessTokensToTry(req);
 
   if (tokensToTry.length === 0) {
@@ -97,7 +99,7 @@ export const optionalAuthMiddleware = async (req: Request, res: Response, next: 
 };
 
 export const roleMiddleware = (roles: string[]) => {
-  return (req: Request, res: Response, next: NextFunction) => {
+  return (req: AuthRequest, res: Response, next: NextFunction) => {
     if (!req.user) {
       logError('auth_role_check_no_user', { path: req.path });
       return res.status(401).json({ message: 'Access denied' });

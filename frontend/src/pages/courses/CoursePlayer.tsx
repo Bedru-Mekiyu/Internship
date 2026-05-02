@@ -44,6 +44,7 @@ import { useCourseModules, useCourseProgress } from '../../hooks/useCourses';
 import { api, normalizeApiError } from '../../services/api';
 import { buildLessonQuizPath } from '../../services/lessonFlow';
 import { theme } from '../../theme';
+import { resolvePublicApiOrigin } from '../../utils/apiBaseUrl';
 import { sanitizeHttpUrl } from '../../utils/safeUrl';
 
 type LessonType = 'video' | 'pdf' | 'quiz' | 'text';
@@ -72,6 +73,19 @@ type ResumeLessonState = {
   lessonId: string;
   lessonTitle?: string;
 };
+
+function resolveMediaUrl(value: string | undefined | null) {
+  const trimmedValue = typeof value === 'string' ? value.trim() : '';
+  if (!trimmedValue) {
+    return undefined;
+  }
+
+  if (trimmedValue.startsWith('/uploads/')) {
+    return new URL(trimmedValue, resolvePublicApiOrigin()).toString();
+  }
+
+  return trimmedValue;
+}
 
 function slugifyPathSegment(value: string) {
   return value
@@ -224,8 +238,10 @@ export default function CoursePlayer() {
         type: lesson.type === 'video' || lesson.type === 'quiz' ? lesson.type : 'text',
         duration: typeof lesson.duration === 'number' ? `${lesson.duration} min` : '--',
         description: lesson.content || '',
-        resources: [],
-        videoUrl: lesson.type === 'video' ? lesson.content : undefined,
+        resources: (lesson.attachments || [])
+          .map((attachment) => attachment.name || attachment.url || '')
+          .filter(Boolean),
+        videoUrl: lesson.type === 'video' ? resolveMediaUrl(lesson.videoUrl || lesson.content) : undefined,
         textContent:
           lesson.type === 'text' || lesson.type === 'assignment'
             ? (lesson.content ? lesson.content.split('\n').filter(Boolean) : [])
@@ -386,7 +402,7 @@ export default function CoursePlayer() {
   };
 
   const lessonInfo = activeLesson ? lessonTypeChip(activeLesson.type) : null;
-  const safeVideoUrl = sanitizeHttpUrl(activeLesson?.videoUrl);
+  const safeVideoUrl = sanitizeHttpUrl(resolveMediaUrl(activeLesson?.videoUrl));
   const discussionPath = activeLesson
     ? `/courses/${courseId || ''}/lessons/${slugifyPathSegment(activeLesson.title)}/discussions/1`
     : `/courses/${courseId || ''}/discussions/1`;

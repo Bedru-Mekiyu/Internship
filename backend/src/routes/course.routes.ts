@@ -45,7 +45,7 @@ const enrollRateLimit = createRateLimiter({
 
 router.get('/', optionalAuthMiddleware, getCourses);
 router.get('/:id', optionalAuthMiddleware, getCourseById);
-router.post('/', authMiddleware, roleMiddleware(['instructor', 'admin']), validationMiddleware(courseSchema), createCourse);
+router.post('/', authMiddleware, roleMiddleware(['instructor', 'admin']), createCourse);
 router.put('/:id', authMiddleware, roleMiddleware(['instructor', 'admin']), validationMiddleware(courseSchema), updateCourse);
 router.delete('/:id', authMiddleware, roleMiddleware(['instructor', 'admin']), deleteCourse);
 router.post('/:id/enroll', enrollRateLimit, authMiddleware, roleMiddleware(['student']), enrollCourse);

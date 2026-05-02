@@ -1,0 +1,463 @@
+import { useState, type ChangeEvent } from 'react';
+import {
+  Box,
+  Button,
+  Card,
+  CardContent,
+  Container,
+  Grid,
+  Link,
+  Stack,
+  TextField,
+  Typography,
+} from '@mui/material';
+import {
+  BusinessCenterOutlined,
+  CalendarTodayOutlined,
+  LocationOnOutlined,
+  SendOutlined,
+} from '@mui/icons-material';
+import { Link as RouterLink } from 'react-router-dom';
+
+interface Job {
+  id: string;
+  title: string;
+  department: string;
+  location: string;
+  type: string;
+  description: string;
+  requirements: string[];
+}
+
+function BrandMark() {
+  return (
+    <Box
+      sx={{
+        width: 40,
+        height: 40,
+        borderRadius: 1.5,
+        bgcolor: 'primary.main',
+        color: '#FFFFFF',
+        display: 'grid',
+        placeItems: 'center',
+        fontWeight: 900,
+        flexShrink: 0,
+      }}
+    >
+      LS
+    </Box>
+  );
+}
+
+function TopNav() {
+  const navItems = [
+    { label: 'Features', to: '/#features' },
+    { label: 'Courses', to: '/courses/explore' },
+    { label: 'Pricing', to: '/pricing' },
+    { label: 'Careers', to: '/careers' },
+  ];
+
+  return (
+    <Box
+      sx={{
+        position: 'sticky',
+        top: 0,
+        zIndex: 20,
+        bgcolor: 'background.paper',
+        borderBottom: '1px solid',
+        borderColor: 'divider',
+      }}
+    >
+      <Container maxWidth="xl">
+        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 3, py: 2 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.25 }}>
+            <BrandMark />
+            <Typography variant="h6" sx={{ fontWeight: 900, letterSpacing: '-0.03em' }}>
+              LearnSpace
+            </Typography>
+          </Box>
+
+          <Box sx={{ display: { xs: 'none', md: 'flex' }, alignItems: 'center', gap: 3 }}>
+            {navItems.map((item) => (
+              <Link key={item.label} component={RouterLink} to={item.to} underline="none" sx={{ color: 'text.secondary', fontWeight: 600, '&:hover': { color: 'primary.main' } }}>
+                {item.label}
+              </Link>
+            ))}
+          </Box>
+
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+            <Link component={RouterLink} to="/auth/login" underline="none" sx={{ color: 'text.primary', fontWeight: 700 }}>
+              Log in
+            </Link>
+            <Button component={RouterLink} to="/auth/signup" variant="contained" sx={{ px: 3, py: 1.25, borderRadius: 1.5 }}>
+              Get Started
+            </Button>
+          </Box>
+        </Box>
+      </Container>
+    </Box>
+  );
+}
+
+function JobCard({
+  job,
+  onApply,
+  expanded,
+  onToggle,
+}: {
+  job: Job;
+  onApply: (id: string) => void;
+  expanded: boolean;
+  onToggle: () => void;
+}) {
+  return (
+    <Card
+      sx={{
+        borderRadius: 2,
+        border: '1px solid',
+        borderColor: expanded ? 'primary.main' : 'divider',
+        transition: 'all 180ms ease',
+      }}
+    >
+      <CardContent sx={{ p: 0 }}>
+        <Box
+          component="button"
+          onClick={onToggle}
+          sx={{
+            width: '100%',
+            p: 2.5,
+            display: 'flex',
+            alignItems: 'flex-start',
+            justifyContent: 'space-between',
+            bgcolor: 'transparent',
+            border: 'none',
+            cursor: 'pointer',
+            textAlign: 'left',
+          }}
+        >
+          <Box sx={{ flex: 1 }}>
+            <Typography variant="h6" sx={{ fontWeight: 800, mb: 0.75 }}>
+              {job.title}
+            </Typography>
+            <Stack direction="row" spacing={2} sx={{ flexWrap: 'wrap', gap: 1 }}>
+              <Stack direction="row" spacing={0.5} sx={{ alignItems: 'center' }}>
+                <BusinessCenterOutlined sx={{ fontSize: 16, color: 'text.secondary' }} />
+                <Typography variant="body2" sx={{ color: 'text.secondary', fontWeight: 600 }}>
+                  {job.department}
+                </Typography>
+              </Stack>
+              <Stack direction="row" spacing={0.5} sx={{ alignItems: 'center' }}>
+                <LocationOnOutlined sx={{ fontSize: 16, color: 'text.secondary' }} />
+                <Typography variant="body2" sx={{ color: 'text.secondary', fontWeight: 600 }}>
+                  {job.location}
+                </Typography>
+              </Stack>
+              <Stack direction="row" spacing={0.5} sx={{ alignItems: 'center' }}>
+                <CalendarTodayOutlined sx={{ fontSize: 16, color: 'text.secondary' }} />
+                <Typography variant="body2" sx={{ color: 'text.secondary', fontWeight: 600 }}>
+                  {job.type}
+                </Typography>
+              </Stack>
+            </Stack>
+          </Box>
+        </Box>
+
+        {expanded && (
+          <Box sx={{ px: 2.5, pb: 2.5 }}>
+            <Typography variant="body1" sx={{ color: 'text.secondary', lineHeight: 1.8, mb: 2 }}>
+              {job.description}
+            </Typography>
+            <Typography variant="subtitle1" sx={{ fontWeight: 800, mb: 1 }}>
+              Requirements
+            </Typography>
+            <Stack spacing={0.75} sx={{ mb: 2.5 }}>
+              {job.requirements.map((req, idx) => (
+                <Typography key={idx} variant="body2" sx={{ color: 'text.secondary' }}>
+                  • {req}
+                </Typography>
+              ))}
+            </Stack>
+            <Button variant="contained" onClick={() => onApply(job.id)}>
+              Apply Now
+            </Button>
+          </Box>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
+function FooterColumn({ heading, items }: { heading: string; items: string[] }) {
+  const resolveLink = (item: string) => {
+    switch (item) {
+      case 'Features': return '/#features';
+      case 'Courses': return '/courses/explore';
+      case 'Pricing': return '/pricing';
+      case 'About': return '/about';
+      case 'Blog': return '/blog';
+      case 'Careers': return '/careers';
+      case 'Contact': return '/contact';
+      case 'Help Center': return '/help-center';
+      default: return '/home';
+    }
+  };
+
+  return (
+    <Stack spacing={1.25}>
+      <Typography variant="subtitle1" sx={{ fontWeight: 800 }}>{heading}</Typography>
+      {items.map((item) => (
+        <Link key={item} component={RouterLink} to={resolveLink(item)} underline="none" sx={{ color: 'text.secondary', fontWeight: 500, '&:hover': { color: 'primary.main' } }}>
+          {item}
+        </Link>
+      ))}
+    </Stack>
+  );
+}
+
+export default function CareersPage() {
+  const [searchQuery, setSearchQuery] = useState('');
+  const [departmentFilter, setDepartmentFilter] = useState<string | null>(null);
+  const [expandedJob, setExpandedJob] = useState<string | null>(null);
+
+  const jobs: Job[] = [
+    {
+      id: 'senior-frontend',
+      title: 'Senior Frontend Engineer',
+      department: 'Engineering',
+      location: 'Remote / San Francisco',
+      type: 'Full-time',
+      description: 'Join our frontend team to build beautiful, performant learning experiences. You\'ll work with React, TypeScript, and Material UI to create engaging course interfaces.',
+      requirements: [
+        '5+ years experience with React and TypeScript',
+        'Strong understanding of web performance',
+        'Experience with state management (Redux/RTK)',
+        'Excellent communication skills',
+      ],
+    },
+    {
+      id: 'fullstack-engineer',
+      title: 'Full Stack Engineer',
+      department: 'Engineering',
+      location: 'Remote',
+      type: 'Full-time',
+      description: 'Build and maintain our learning platform end-to-end. Work on APIs, real-time features, and learning management tools.',
+      requirements: [
+        '3+ years full-stack development',
+        'Experience with Node.js and databases',
+        'Understanding of REST and real-time APIs',
+        'Ability to work independently',
+      ],
+    },
+    {
+      id: 'product-designer',
+      title: 'Product Designer',
+      department: 'Design',
+      location: 'Remote / San Francisco',
+      type: 'Full-time',
+      description: 'Shape the future of online learning through thoughtful, beautiful design. Create experiences that inspire learners and educators.',
+      requirements: [
+        '4+ years product design experience',
+        'Strong portfolio showing UX process',
+        'Experience with design systems',
+        'Familiarity with EdTech a plus',
+      ],
+    },
+    {
+      id: 'developer-advocate',
+      title: 'Developer Advocate',
+      department: 'Marketing',
+      location: 'Remote',
+      type: 'Full-time',
+      description: 'Be the voice of our developer community. Create content, build demos, and help educators succeed on our platform.',
+      requirements: [
+        'Technical background with ability to code',
+        'Excellent written and verbal communication',
+        'Experience creating technical content',
+        'Community management experience',
+      ],
+    },
+    {
+      id: 'customer-success',
+      title: 'Customer Success Manager',
+      department: 'Success',
+      location: 'Remote',
+      type: 'Full-time',
+      description: 'Help our enterprise customers get the most from LearnSpace. Onboard new accounts, drive adoption, and ensure satisfaction.',
+      requirements: [
+        '3+ years in customer success',
+        'Strong relationship-building skills',
+        'Experience with SaaS platforms',
+        'Data-driven approach to account management',
+      ],
+    },
+    {
+      id: 'content-strategist',
+      title: 'Content Strategist',
+      department: 'Content',
+      location: 'Remote',
+      type: 'Full-time',
+      description: 'Shape our content strategy and help instructors create compelling courses. Work with top educators to optimize learning outcomes.',
+      requirements: [
+        'Experience in educational content',
+        'Strong analytical skills',
+        'Experience with LMS platforms',
+        'Excellent editorial judgment',
+      ],
+    },
+  ];
+
+  const departments = [...new Set(jobs.map((j) => j.department))];
+
+  const filteredJobs = jobs.filter((job) => {
+    const matchesSearch = !searchQuery.trim() ||
+      job.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      job.description.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesDepartment = !departmentFilter || job.department === departmentFilter;
+    return matchesSearch && matchesDepartment;
+  });
+
+  const handleApply = (jobId: string) => {
+    window.open(`/contact?subject=Application for ${jobId.replace('-', ' ')}`, '_blank');
+  };
+
+  return (
+    <Box sx={{ bgcolor: 'background.paper', color: 'text.primary' }}>
+      <TopNav />
+
+      <Box sx={{ pt: { xs: 6, md: 9 }, pb: { xs: 4, md: 5 }, bgcolor: 'background.default', textAlign: 'center' }}>
+        <Container maxWidth="md">
+          <Stack spacing={2}>
+            <Typography variant="overline" sx={{ color: 'primary.main', fontWeight: 800, letterSpacing: '0.2em' }}>
+              JOIN OUR TEAM
+            </Typography>
+            <Typography variant="h3" sx={{ fontWeight: 900, letterSpacing: '-0.03em', lineHeight: 1.1 }}>
+              Build the future of learning
+            </Typography>
+            <Typography variant="body1" sx={{ color: 'text.secondary', maxWidth: 560, mx: 'auto', lineHeight: 1.8 }}>
+              We're on a mission to make great education accessible to everyone. Join a team of passionate builders, designers, and educators creating transformative learning experiences.
+            </Typography>
+          </Stack>
+        </Container>
+      </Box>
+
+      <Box sx={{ py: { xs: 4, md: 6 } }}>
+        <Container maxWidth="lg">
+          <Stack spacing={3}>
+            <Grid container spacing={2}>
+              <Grid size={{ xs: 12, md: 6 }}>
+                <TextField
+                  fullWidth
+                  placeholder="Search jobs..."
+                  value={searchQuery}
+                  onChange={(e: ChangeEvent<HTMLInputElement>) => setSearchQuery(e.target.value)}
+                />
+              </Grid>
+              <Grid size={{ xs: 12, md: 3 }}>
+                <TextField
+                  fullWidth
+                  select
+                  value={departmentFilter || ''}
+                  onChange={(e) => setDepartmentFilter(e.target.value || null)}
+                >
+                  <option value="">All Departments</option>
+                  {departments.map((dept) => (
+                    <option key={dept} value={dept}>{dept}</option>
+                  ))}
+                </TextField>
+              </Grid>
+              <Grid size={{ xs: 12, md: 3 }}>
+                <Typography variant="body2" sx={{ color: 'text.secondary', py: 1 }}>
+                  {filteredJobs.length} position{filteredJobs.length !== 1 ? 's' : ''} available
+                </Typography>
+              </Grid>
+            </Grid>
+
+            {filteredJobs.length === 0 ? (
+              <Card sx={{ borderRadius: 2, border: '1px solid', borderColor: 'divider' }}>
+                <CardContent sx={{ p: 3, textAlign: 'center' }}>
+                  <Typography variant="body1" sx={{ color: 'text.secondary' }}>
+                    No positions match your search. Check back soon!
+                  </Typography>
+                </CardContent>
+              </Card>
+            ) : (
+              <Stack spacing={2}>
+                {filteredJobs.map((job) => (
+                  <JobCard
+                    key={job.id}
+                    job={job}
+                    onApply={handleApply}
+                    expanded={expandedJob === job.id}
+                    onToggle={() => setExpandedJob(expandedJob === job.id ? null : job.id)}
+                  />
+                ))}
+              </Stack>
+            )}
+          </Stack>
+        </Container>
+      </Box>
+
+      <Box sx={{ py: { xs: 5, md: 6 }, bgcolor: 'background.default' }}>
+        <Container maxWidth="md">
+          <Card sx={{ borderRadius: 2, border: '1px solid', borderColor: 'divider', bgcolor: 'grey.100' }}>
+            <CardContent sx={{ p: { xs: 2.5, md: 4 }, textAlign: 'center' }}>
+              <Stack spacing={2}>
+                <Typography variant="h4" sx={{ fontWeight: 900 }}>
+                  Don't see the right role?
+                </Typography>
+                <Typography variant="body1" sx={{ color: 'text.secondary', lineHeight: 1.7 }}>
+                  We're always looking for great people. Send us your resume and tell us how you'd like to contribute.
+                </Typography>
+                <Button
+                  component={RouterLink}
+                  to="/contact"
+                  variant="outlined"
+                  endIcon={<SendOutlined />}
+                  sx={{ alignSelf: 'center' }}
+                >
+                  Get in Touch
+                </Button>
+              </Stack>
+            </CardContent>
+          </Card>
+        </Container>
+      </Box>
+
+      <Box sx={{ pt: { xs: 5, md: 6 }, pb: 4, bgcolor: 'background.paper', borderTop: '1px solid', borderColor: 'divider' }}>
+        <Container maxWidth="xl">
+          <Grid container spacing={4}>
+            <Grid size={{ xs: 12, md: 4 }}>
+              <Stack spacing={2}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.25 }}>
+                  <BrandMark />
+                  <Typography variant="h6" sx={{ fontWeight: 900 }}>LearnSpace</Typography>
+                </Box>
+                <Typography variant="body2" sx={{ color: 'text.secondary', maxWidth: 330, lineHeight: 1.8 }}>
+                  A modern EdTech platform for teams, creators, and learners.
+                </Typography>
+              </Stack>
+            </Grid>
+            <Grid size={{ xs: 12, md: 8 }}>
+              <Grid container spacing={3}>
+                <Grid size={{ xs: 12, sm: 4 }}>
+                  <FooterColumn heading="Product" items={['Features', 'Courses', 'Pricing']} />
+                </Grid>
+                <Grid size={{ xs: 12, sm: 4 }}>
+                  <FooterColumn heading="Company" items={['About', 'Careers', 'Blog', 'Contact']} />
+                </Grid>
+                <Grid size={{ xs: 12, sm: 4 }}>
+                  <FooterColumn heading="Resources" items={['Help Center', 'Docs', 'Community', 'Status']} />
+                </Grid>
+              </Grid>
+            </Grid>
+          </Grid>
+          <Box sx={{ mt: 5, pt: 3, borderTop: '1px solid', borderColor: 'divider', textAlign: 'center' }}>
+            <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+              © 2026 LearnSpace. All rights reserved.
+            </Typography>
+          </Box>
+        </Container>
+      </Box>
+    </Box>
+  );
+}

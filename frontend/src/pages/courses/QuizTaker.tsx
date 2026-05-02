@@ -1,27 +1,32 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   Alert,
   Box,
   Button,
   Card,
   CardContent,
-  Checkbox,
-  FormControlLabel,
   Grid,
   Radio,
   Stack,
   Typography,
 } from '@mui/material';
+import {
+  AccessTimeOutlined,
+  ArrowBackOutlined,
+  ArrowForwardOutlined,
+  BookmarkBorderOutlined,
+  ChevronLeftOutlined,
+  FlagOutlined,
+} from '@mui/icons-material';
 import { useNavigate, useParams } from 'react-router-dom';
 import { normalizeApiError } from '../../services/api';
-import { buildCourseLearnPath, buildQuizAttemptAnswers } from '../../services/lessonFlow';
-import { theme } from '../../theme';
+import { buildCourseLearnPath } from '../../services/lessonFlow';
 import { useLessonQuiz, useQuizAttemptsMe, useSubmitQuizAttempt } from '../../hooks/useQuiz';
+import { useGetCourseByIdQuery } from '../../store/api/courseApi';
 
 type QuestionStatus = 'not-visited' | 'answered' | 'review' | 'current';
 
 interface QuizQuestion {
-  id: string;
   number: number;
   question: string;
   options: string[];
@@ -39,23 +44,28 @@ function formatTime(totalSeconds: number) {
 export default function QuizTaker() {
   const navigate = useNavigate();
   const { courseId, lessonId } = useParams();
-  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  const [selectedAnswers, setSelectedAnswers] = useState<Record<string, number | null>>({});
-  const [reviewFlags, setReviewFlags] = useState<Record<string, boolean>>({});
-  const [remainingSeconds, setRemainingSeconds] = useState(24 * 60 + 15);
 
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+  const [selectedAnswers, setSelectedAnswers] = useState<Record<number, number | null>>({});
+  const [reviewFlags, setReviewFlags] = useState<Record<number, boolean>>({});
+  const [visitedQuestions, setVisitedQuestions] = useState<Record<number, boolean>>({ 0: true });
+  const [remainingSeconds, setRemainingSeconds] = useState(24 * 60 + 15);
+  const [submitStatus, setSubmitStatus] = useState<{ type: 'success' | 'warning'; message: string } | null>(null);
+  const autoSubmitTriggeredRef = useRef(false);
+
+  const { data: course } = useGetCourseByIdQuery(courseId ?? '', { skip: !courseId });
   const {
     quiz: activeQuiz,
     isLoading: isQuizLoading,
     error: quizLoadError,
   } = useLessonQuiz(lessonId ?? '');
+
   const quizQuestions = useMemo<QuizQuestion[]>(() => {
     if (!activeQuiz) {
       return [];
     }
 
     return (activeQuiz.questions || []).map((question, index) => ({
-      id: `q${index + 1}`,
       number: index + 1,
       question: question.question,
       options: Array.isArray(question.options) && question.options.length > 0
@@ -75,28 +85,29 @@ export default function QuizTaker() {
     error: submitError,
   } = useSubmitQuizAttempt();
 
-  useEffect(() => {
-    const resetTimer = window.setTimeout(() => {
-      if (!activeQuiz) {
-        setRemainingSeconds(24 * 60 + 15);
-        return;
-      }
-
-      const configuredMinutes = Number(activeQuiz.timeLimit || 25);
-      setRemainingSeconds(Math.max(60, configuredMinutes * 60));
-    }, 0);
-
-    return () => window.clearTimeout(resetTimer);
+  const totalPoints = useMemo(() => {
+    if (!activeQuiz) return 0;
+    if (typeof activeQuiz.totalPoints === 'number') return activeQuiz.totalPoints;
+    return (activeQuiz.questions || []).reduce((sum, item) => sum + Number(item.points || 1), 0);
   }, [activeQuiz]);
 
   useEffect(() => {
-    const resetTimer = window.setTimeout(() => {
-      setCurrentQuestionIndex(0);
-      setSelectedAnswers({});
-      setReviewFlags({});
-    }, 0);
+    if (!activeQuiz) {
+      setRemainingSeconds(24 * 60 + 15);
+      return;
+    }
 
-    return () => window.clearTimeout(resetTimer);
+    const configuredMinutes = Number(activeQuiz.timeLimit || 25);
+    setRemainingSeconds(Math.max(60, configuredMinutes * 60));
+  }, [activeQuiz]);
+
+  useEffect(() => {
+    setCurrentQuestionIndex(0);
+    setSelectedAnswers({});
+    setReviewFlags({});
+    setVisitedQuestions({ 0: true });
+    setSubmitStatus(null);
+    autoSubmitTriggeredRef.current = false;
   }, [activeQuiz?._id]);
 
   useEffect(() => {
@@ -108,46 +119,110 @@ export default function QuizTaker() {
   }, []);
 
   useEffect(() => {
-    const clampTimer = window.setTimeout(() => {
-      if (quizQuestions.length === 0) {
-        setCurrentQuestionIndex(0);
-        return;
-      }
+    if (remainingSeconds > 0 || !activeQuiz?._id || autoSubmitTriggeredRef.current) {
+      return;
+    }
+    autoSubmitTriggeredRef.current = true;
 
-      setCurrentQuestionIndex((currentIndex) => Math.min(currentIndex, quizQuestions.length - 1));
-    }, 0);
+    const answers = Object.entries(selectedAnswers)
+      .filter(([, optionIndex]) => typeof optionIndex === 'number')
+      .map(([questionIndex, optionIndex]) => {
+        const index = Number(questionIndex);
+        const answer = quizQuestions[index]?.options?.[Number(optionIndex)] ?? null;
+        return { questionIndex: index, answer };
+      })
+      .filter((entry) => entry.questionIndex >= 0);
 
-    return () => window.clearTimeout(clampTimer);
+    void submitAttempt(activeQuiz._id, answers)
+      .then((attempt) => {
+        setSubmitStatus({
+          type: attempt.passed ? 'success' : 'warning',
+          message: `Time is up. Submitted automatically. Score: ${attempt.percentage}% (${attempt.passed ? 'Passed' : 'Not passed'}).`,
+        });
+      })
+      .catch(() => {
+        autoSubmitTriggeredRef.current = false;
+      });
+  }, [activeQuiz?._id, quizQuestions, remainingSeconds, selectedAnswers, submitAttempt]);
+
+  useEffect(() => {
+    if (quizQuestions.length === 0) {
+      setCurrentQuestionIndex(0);
+      return;
+    }
+
+    setCurrentQuestionIndex((currentIndex) => Math.min(currentIndex, quizQuestions.length - 1));
   }, [quizQuestions.length]);
 
   const currentQuestion = quizQuestions[currentQuestionIndex];
   const latestAttempt = attempts[0];
+  const answeredCount = useMemo(
+    () => Object.values(selectedAnswers).filter((value) => typeof value === 'number').length,
+    [selectedAnswers],
+  );
 
   const questionStatuses = useMemo(() => {
-    return quizQuestions.map((question, index) => {
+    return quizQuestions.map((_, index) => {
       if (index === currentQuestionIndex) {
         return 'current' as QuestionStatus;
       }
-      if (reviewFlags[question.id]) {
+      if (reviewFlags[index]) {
         return 'review' as QuestionStatus;
       }
-      if (typeof selectedAnswers[question.id] === 'number') {
+      if (typeof selectedAnswers[index] === 'number') {
         return 'answered' as QuestionStatus;
+      }
+      if (visitedQuestions[index]) {
+        return 'not-visited' as QuestionStatus;
       }
       return 'not-visited' as QuestionStatus;
     });
-  }, [currentQuestionIndex, quizQuestions, reviewFlags, selectedAnswers]);
+  }, [currentQuestionIndex, quizQuestions, reviewFlags, selectedAnswers, visitedQuestions]);
 
   const goToQuestion = (index: number) => {
     setCurrentQuestionIndex(index);
+    setVisitedQuestions((current) => ({ ...current, [index]: true }));
   };
 
   const handleNext = () => {
-    setCurrentQuestionIndex((currentIndex) => Math.min(currentIndex + 1, quizQuestions.length - 1));
+    setCurrentQuestionIndex((currentIndex) => {
+      const nextIndex = Math.min(currentIndex + 1, quizQuestions.length - 1);
+      setVisitedQuestions((current) => ({ ...current, [nextIndex]: true }));
+      return nextIndex;
+    });
   };
 
   const handlePrevious = () => {
-    setCurrentQuestionIndex((currentIndex) => Math.max(currentIndex - 1, 0));
+    setCurrentQuestionIndex((currentIndex) => {
+      const nextIndex = Math.max(currentIndex - 1, 0);
+      setVisitedQuestions((current) => ({ ...current, [nextIndex]: true }));
+      return nextIndex;
+    });
+  };
+
+  const handleSubmitQuiz = async () => {
+    if (!activeQuiz?._id) {
+      return;
+    }
+
+    const answers = Object.entries(selectedAnswers)
+      .filter(([, optionIndex]) => typeof optionIndex === 'number')
+      .map(([questionIndex, optionIndex]) => {
+        const index = Number(questionIndex);
+        const answer = quizQuestions[index]?.options?.[Number(optionIndex)] ?? null;
+        return { questionIndex: index, answer };
+      })
+      .filter((entry) => entry.questionIndex >= 0);
+
+    try {
+      const attempt = await submitAttempt(activeQuiz._id, answers);
+      setSubmitStatus({
+        type: attempt.passed ? 'success' : 'warning',
+        message: `Submitted successfully. Score: ${attempt.percentage}% (${attempt.passed ? 'Passed' : 'Not passed'}).`,
+      });
+    } catch {
+      // handled by submitError alert
+    }
   };
 
   if (!lessonId) {
@@ -159,269 +234,307 @@ export default function QuizTaker() {
   }
 
   return (
-      <Box sx={{ minHeight: '100%', bgcolor: 'background.default', p: { xs: 2, sm: 2.5, md: 3 } }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 2, mb: 2.5, flexWrap: 'wrap' }}>
-          <Button
-            variant="text"
-            onClick={() => navigate(buildCourseLearnPath(courseId))}
-            sx={{ color: 'text.primary', px: 0, '&:hover': { bgcolor: 'transparent', color: 'primary.main' } }}
-          >
-            Back to Course
-          </Button>
-        </Box>
+    <Box sx={{ minHeight: '100%', bgcolor: 'background.default', p: { xs: 1.75, sm: 2.25, md: 2.75 } }}>
+      <Card sx={{ mb: 1.75, borderColor: 'divider' }}>
+        <CardContent sx={{ px: 2.2, py: 1.5, '&:last-child': { pb: 1.5 } }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 1.2, flexWrap: 'wrap' }}>
+            <Button
+              variant="text"
+              onClick={() => navigate(buildCourseLearnPath(courseId))}
+              sx={{ color: 'text.secondary', px: 0, minWidth: 0, fontWeight: 500 }}
+              startIcon={<ChevronLeftOutlined />}
+            >
+              Back to Course: {course?.title || 'Course'}
+            </Button>
+            <Stack direction="row" spacing={1.2} sx={{ alignItems: 'center' }}>
+              <Typography variant="body2" sx={{ fontWeight: 700 }}>
+                Quiz Mode
+              </Typography>
+              <Button variant="outlined" size="small" startIcon={<FlagOutlined />} sx={{ borderColor: '#D5DBE7' }}>
+                Report Issue
+              </Button>
+            </Stack>
+          </Box>
+        </CardContent>
+      </Card>
 
-        {quizLoadError ? (
-          <Alert severity="error" sx={{ mb: 2.5 }}>
-            {normalizeApiError(quizLoadError).message}
-          </Alert>
-        ) : null}
+      {quizLoadError ? (
+        <Alert severity="error" sx={{ mb: 1.5 }}>
+          {normalizeApiError(quizLoadError).message}
+        </Alert>
+      ) : null}
 
-        {isQuizLoading ? (
-          <Alert severity="info" sx={{ mb: 2.5 }}>
-            Loading lesson quiz...
-          </Alert>
-        ) : null}
+      {isQuizLoading ? (
+        <Alert severity="info" sx={{ mb: 1.5 }}>
+          Loading lesson quiz...
+        </Alert>
+      ) : null}
 
-        {!isQuizLoading && !quizLoadError && !activeQuiz ? (
-          <Alert severity="warning" sx={{ mb: 2.5 }}>
-            No quiz is configured for this lesson yet.
-          </Alert>
-        ) : null}
+      {!isQuizLoading && !quizLoadError && !activeQuiz ? (
+        <Alert severity="warning" sx={{ mb: 1.5 }}>
+          No quiz is configured for this lesson yet.
+        </Alert>
+      ) : null}
 
-        {attemptsLoadError ? (
-          <Alert severity="error" sx={{ mb: 2.5 }}>
-            {normalizeApiError(attemptsLoadError).message}
-          </Alert>
-        ) : null}
+      {attemptsLoadError ? (
+        <Alert severity="error" sx={{ mb: 1.5 }}>
+          {normalizeApiError(attemptsLoadError).message}
+        </Alert>
+      ) : null}
 
-        {submitError ? (
-          <Alert severity="error" sx={{ mb: 2.5 }}>
-            {normalizeApiError(submitError).message}
-          </Alert>
-        ) : null}
+      {submitError ? (
+        <Alert severity="error" sx={{ mb: 1.5 }}>
+          {normalizeApiError(submitError).message}
+        </Alert>
+      ) : null}
 
-        <Grid container spacing={2.5} sx={{ alignItems: 'stretch' }}>
-          <Grid size={{ xs: 12, xl: 8 }}>
-            <Card sx={{ height: '100%', border: '1px solid', borderColor: 'divider', borderRadius: 2 }}>
-              <CardContent sx={{ p: { xs: 2.5, md: 3 } }}>
-                <Stack spacing={2.5}>
-                  <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 2, flexWrap: 'wrap' }}>
-                    <Box>
-                      <Typography variant="h4" sx={{ fontWeight: 800, letterSpacing: '-0.03em' }}>
-                        {activeQuiz?.title ?? 'Lesson Quiz'}
-                      </Typography>
-                      <Typography variant="body1" sx={{ mt: 0.75, color: 'text.secondary' }}>
-                        Multiple Choice • {quizQuestions.length} Questions
-                      </Typography>
-                    </Box>
+      {submitStatus ? (
+        <Alert severity={submitStatus.type} sx={{ mb: 1.5 }}>
+          {submitStatus.message}
+        </Alert>
+      ) : null}
 
-                    <Typography variant="body2" sx={{ fontWeight: 800, color: 'primary.main' }}>
-                      {formatTime(remainingSeconds)} Remaining
+      <Card sx={{ mb: 1.75, borderColor: 'divider' }}>
+        <CardContent sx={{ px: 2.5, py: 2, '&:last-child': { pb: 2 } }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 2, flexWrap: 'wrap' }}>
+            <Box>
+              <Typography variant="h4" sx={{ fontWeight: 900, letterSpacing: '-0.02em', fontSize: { xs: '1.35rem', md: '2rem' } }}>
+                {activeQuiz?.title ?? 'Assessment Quiz'}
+              </Typography>
+              <Typography variant="body2" sx={{ color: 'text.secondary', mt: 0.5 }}>
+                Multiple Choice • {quizQuestions.length} Questions • {totalPoints} Points
+              </Typography>
+            </Box>
+            <Box
+              sx={{
+                px: 1.6,
+                py: 0.9,
+                borderRadius: 1.2,
+                bgcolor: '#ECF2FF',
+                color: 'primary.main',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 0.8,
+                fontWeight: 700,
+              }}
+            >
+              <AccessTimeOutlined sx={{ fontSize: 18 }} />
+              <Typography variant="body1" sx={{ fontWeight: 800 }}>
+                {formatTime(remainingSeconds)} Remaining
+              </Typography>
+            </Box>
+          </Box>
+        </CardContent>
+      </Card>
+
+      <Grid container spacing={1.75} sx={{ alignItems: 'stretch' }}>
+        <Grid size={{ xs: 12, xl: 8.6 }}>
+          <Card sx={{ height: '100%', borderColor: 'divider' }}>
+            <CardContent sx={{ p: { xs: 2.1, md: 2.6 } }}>
+              <Stack spacing={2.1}>
+                <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 1.5, flexWrap: 'wrap' }}>
+                  <Typography variant="caption" sx={{ color: 'text.secondary', fontWeight: 800, letterSpacing: '0.09em' }}>
+                    QUESTION {currentQuestion ? currentQuestion.number : 0} OF {quizQuestions.length}
+                  </Typography>
+                  <Button
+                    variant="outlined"
+                    size="small"
+                    startIcon={<BookmarkBorderOutlined />}
+                    disabled={!currentQuestion}
+                    onClick={() => {
+                      if (typeof currentQuestionIndex !== 'number') return;
+                      setReviewFlags((current) => ({
+                        ...current,
+                        [currentQuestionIndex]: !current[currentQuestionIndex],
+                      }));
+                    }}
+                    sx={{ borderColor: '#D5DBE7' }}
+                  >
+                    Mark for Review
+                  </Button>
+                </Box>
+
+                {currentQuestion ? (
+                  <>
+                    <Typography variant="h5" sx={{ fontWeight: 800, lineHeight: 1.4 }}>
+                      {currentQuestion.question}
                     </Typography>
-                  </Box>
 
-                  <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 2, flexWrap: 'wrap' }}>
-                    <Typography variant="caption" sx={{ color: 'primary.main', fontWeight: 800, letterSpacing: '0.16em' }}>
-                      QUESTION {currentQuestion ? currentQuestion.number : 0} OF {quizQuestions.length}
-                    </Typography>
+                    <Stack spacing={1.15}>
+                      {currentQuestion.options.map((option, optionIndex) => {
+                        const selected = selectedAnswers[currentQuestionIndex] === optionIndex;
 
-                    <FormControlLabel
-                      control={
-                        <Checkbox
-                          checked={currentQuestion ? Boolean(reviewFlags[currentQuestion.id]) : false}
-                          disabled={!currentQuestion}
-                          onChange={(event) =>
-                            setReviewFlags((currentFlags) => ({
-                              ...currentFlags,
-                              [currentQuestion?.id ?? '']: event.target.checked,
-                            }))
-                          }
-                        />
-                      }
-                      label="Mark for Review"
-                    />
-                  </Box>
-
-                  {currentQuestion ? (
-                    <>
-                      <Typography variant="h5" sx={{ fontWeight: 700, lineHeight: 1.45 }}>
-                        {currentQuestion.question}
-                      </Typography>
-
-                      <Stack spacing={1.5}>
-                        {currentQuestion.options.map((option, optionIndex) => {
-                          const selected = selectedAnswers[currentQuestion.id] === optionIndex;
-
-                          return (
-                            <Box
-                              key={`${option}-${optionIndex}`}
-                              component="button"
-                              type="button"
-                              onClick={() =>
-                                setSelectedAnswers((currentAnswers) => ({
-                                  ...currentAnswers,
-                                  [currentQuestion.id]: optionIndex,
-                                }))
-                              }
-                              aria-pressed={selected}
-                              sx={{
-                                width: '100%',
-                                textAlign: 'left',
-                                 p: 0,
-                                 border: '1px solid',
-                                 borderColor: selected ? 'primary.main' : 'divider',
-                                 borderRadius: 1.5,
-                                 bgcolor: selected ? 'background.default' : 'background.paper',
-                                 transition: 'border-color 160ms ease',
-                                 overflow: 'hidden',
-                                 cursor: 'pointer',
-                                '&:hover': {
-                                  borderColor: 'primary.main',
-                                },
-                              }}
-                            >
-                              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, px: 2, py: 1.8 }}>
-                                <Radio checked={selected} sx={{ color: selected ? 'secondary.main' : 'text.secondary' }} />
-                                <Typography variant="body1" sx={{ fontWeight: 600, color: 'text.primary' }}>
-                                  {option}
-                                </Typography>
-                              </Box>
+                        return (
+                          <Box
+                            key={`${option}-${optionIndex}`}
+                            component="button"
+                            type="button"
+                            onClick={() => {
+                              setSelectedAnswers((currentAnswers) => ({
+                                ...currentAnswers,
+                                [currentQuestionIndex]: optionIndex,
+                              }));
+                              setVisitedQuestions((current) => ({ ...current, [currentQuestionIndex]: true }));
+                            }}
+                            aria-pressed={selected}
+                            sx={{
+                              width: '100%',
+                              textAlign: 'left',
+                              p: 0,
+                              border: '1px solid',
+                              borderColor: selected ? 'primary.main' : '#D7DFEC',
+                              borderRadius: 1,
+                              bgcolor: '#FFFFFF',
+                              transition: 'border-color 150ms ease',
+                              overflow: 'hidden',
+                              cursor: 'pointer',
+                              '&:hover': {
+                                borderColor: 'primary.main',
+                              },
+                            }}
+                          >
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.15, px: 1.4, py: 1.1 }}>
+                              <Radio checked={selected} sx={{ color: selected ? 'primary.main' : '#94A3B8', p: 0.4 }} />
+                              <Typography variant="body1" sx={{ fontWeight: 500, color: 'text.primary' }}>
+                                {option}
+                              </Typography>
                             </Box>
-                          );
-                        })}
-                      </Stack>
-                    </>
-                  ) : (
-                    <Alert severity="info">No questions are available for this quiz yet.</Alert>
-                  )}
+                          </Box>
+                        );
+                      })}
+                    </Stack>
+                  </>
+                ) : (
+                  <Alert severity="info">No questions are available for this quiz yet.</Alert>
+                )}
 
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between', gap: 2, pt: 1.5, flexWrap: 'wrap' }}>
-                    <Button variant="outlined" onClick={handlePrevious} disabled={currentQuestionIndex === 0}>
-                      Previous
-                    </Button>
-                    <Button variant="contained" onClick={handleNext}>
-                      Next Question
-                    </Button>
+                <Box sx={{ height: 1, bgcolor: 'divider', mt: 0.5 }} />
+
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', gap: 1.2, flexWrap: 'wrap' }}>
+                  <Button
+                    variant="outlined"
+                    onClick={handlePrevious}
+                    disabled={currentQuestionIndex === 0}
+                    startIcon={<ArrowBackOutlined />}
+                    sx={{ borderColor: '#D5DBE7', color: 'text.primary' }}
+                  >
+                    Previous
+                  </Button>
+                  <Button
+                    variant="contained"
+                    onClick={handleNext}
+                    endIcon={<ArrowForwardOutlined />}
+                    disabled={currentQuestionIndex >= quizQuestions.length - 1}
+                  >
+                    Next Question
+                  </Button>
+                </Box>
+              </Stack>
+            </CardContent>
+          </Card>
+        </Grid>
+
+        <Grid size={{ xs: 12, xl: 3.4 }}>
+          <Stack spacing={1.75} sx={{ height: '100%' }}>
+            <Card sx={{ borderColor: 'divider' }}>
+              <CardContent sx={{ p: 2 }}>
+                <Stack spacing={1.5}>
+                  <Typography variant="h6" sx={{ fontWeight: 800 }}>
+                    Question Navigator
+                  </Typography>
+
+                  <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(5, minmax(0, 1fr))', gap: 0.8 }}>
+                    {quizQuestions.map((question, index) => {
+                      const status = questionStatuses[index];
+                      const isCurrent = status === 'current';
+                      const isAnswered = status === 'answered';
+                      const isMarked = status === 'review';
+
+                      return (
+                        <Box
+                          key={`${question.number}`}
+                          component="button"
+                          type="button"
+                          onClick={() => goToQuestion(index)}
+                          aria-label={`Go to question ${question.number}`}
+                          sx={{
+                            width: '100%',
+                            height: 34,
+                            borderRadius: 0.75,
+                            border: '1px solid',
+                            borderColor: isCurrent ? '#F4B84A' : isMarked ? '#F4B84A' : isAnswered ? '#4F46E5' : '#CFD6E4',
+                            bgcolor: isAnswered ? '#4F46E5' : '#EEF3FB',
+                            color: isAnswered ? '#FFFFFF' : isCurrent || isMarked ? '#D27A00' : 'text.secondary',
+                            fontWeight: 700,
+                            cursor: 'pointer',
+                            fontSize: '0.82rem',
+                          }}
+                        >
+                          {question.number}
+                        </Box>
+                      );
+                    })}
                   </Box>
+
+                  <Stack spacing={0.8} sx={{ pt: 0.4 }}>
+                    <LegendItem color="#4F46E5" label="Answered" />
+                    <LegendItem color="#A78BFA" label="Current" />
+                    <LegendItem color="#F59E0B" label="Marked for Review" />
+                    <LegendItem color="#D1D5DB" label="Not Visited" />
+                  </Stack>
                 </Stack>
               </CardContent>
             </Card>
-          </Grid>
 
-          <Grid size={{ xs: 12, xl: 4 }}>
-            <Stack spacing={2.5} sx={{ height: '100%' }}>
-              <Card sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 2 }}>
-                <CardContent sx={{ p: { xs: 2.5, md: 3 } }}>
-                  <Stack spacing={2}>
-                    <Box>
-                      <Typography variant="h6" sx={{ fontWeight: 800 }}>
-                        Question Navigator
-                      </Typography>
-                      <Typography variant="body2" sx={{ mt: 0.5, color: 'text.secondary' }}>
-                        Jump to any question and track progress instantly.
-                      </Typography>
-                    </Box>
-
-                    <Grid container spacing={1.2}>
-                      {quizQuestions.map((question, index) => {
-                        const status = questionStatuses[index];
-                        const isCurrent = status === 'current';
-                        const isAnswered = status === 'answered';
-                        const isMarked = status === 'review';
-
-                        return (
-                          <Grid key={question.id} size={3}>
-                            <Box
-                              component="button"
-                              type="button"
-                              onClick={() => goToQuestion(index)}
-                              aria-label={`Go to question ${question.number}`}
-                              sx={{
-                                width: '100%',
-                                height: 42,
-                                borderRadius: 1.5,
-                                border: '1px solid',
-                                borderColor: isCurrent ? 'primary.main' : isMarked ? 'warning.main' : isAnswered ? 'primary.main' : 'divider',
-                                bgcolor: isCurrent ? 'background.default' : isMarked ? 'warning.light' : isAnswered ? 'primary.main' : 'background.paper',
-                                color: isCurrent ? 'primary.main' : isMarked ? 'warning.dark' : isAnswered ? '#FFFFFF' : 'text.primary',
-                                fontWeight: 800,
-                                cursor: 'pointer',
-                                transition: 'border-color 160ms ease',
-                              }}
-                            >
-                              {question.number}
-                            </Box>
-                          </Grid>
-                        );
-                      })}
-                    </Grid>
-
-                    <Stack spacing={1.25}>
-                      <LegendItem color={theme.palette.primary.main} label="Answered" />
-                      <LegendItem color="#FFFFFF" label="Current" border />
-                      <LegendItem color={theme.palette.warning.main} label="Marked for Review" />
-                      <LegendItem color={theme.palette.divider} label="Not Visited" />
-                    </Stack>
-                  </Stack>
-                </CardContent>
-              </Card>
-
-              <Card sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 2 }}>
-                <CardContent sx={{ p: { xs: 2.5, md: 3 } }}>
-                  <Stack spacing={2}>
-                    <Typography variant="h6" sx={{ fontWeight: 800 }}>
-                      Ready to finish?
-                    </Typography>
-                    <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                      Make sure you have answered all questions before submitting.
-                    </Typography>
-                    {latestAttempt ? (
-                      <Alert severity={latestAttempt.passed ? 'success' : 'warning'}>
-                        Last score: {latestAttempt.percentage}% ({latestAttempt.passed ? 'Passed' : 'Not passed'})
-                      </Alert>
-                    ) : null}
-                    <Button
-                      variant="contained"
-                      color="success"
-                      fullWidth
-                      size="large"
-                      sx={{ py: 1.4 }}
-                      onClick={() => {
-                        if (!activeQuiz?._id || !currentQuestion) {
-                          return;
-                        }
-
-                        const answers = buildQuizAttemptAnswers(selectedAnswers, quizQuestions);
-                        void submitAttempt(activeQuiz._id, answers);
-                      }}
-                      disabled={isSubmitting || isQuizLoading || !currentQuestion || !activeQuiz?._id}
-                    >
-                      Submit Quiz
-                    </Button>
-                  </Stack>
-                </CardContent>
-              </Card>
-            </Stack>
-          </Grid>
+            <Card sx={{ borderColor: 'divider' }}>
+              <CardContent sx={{ p: 2 }}>
+                <Stack spacing={1.25} sx={{ textAlign: 'center' }}>
+                  <Typography variant="h6" sx={{ fontWeight: 800 }}>
+                    Ready to finish?
+                  </Typography>
+                  <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                    Make sure you have answered all questions before submitting.
+                  </Typography>
+                  <Typography variant="body2" sx={{ color: 'text.secondary', fontWeight: 600 }}>
+                    {answeredCount} / {quizQuestions.length} answered
+                  </Typography>
+                  {latestAttempt ? (
+                    <Alert severity={latestAttempt.passed ? 'success' : 'warning'} sx={{ textAlign: 'left' }}>
+                      Last attempt: {latestAttempt.percentage}% ({latestAttempt.passed ? 'Passed' : 'Not passed'})
+                    </Alert>
+                  ) : null}
+                  <Button
+                    variant="contained"
+                    color="success"
+                    fullWidth
+                    onClick={() => void handleSubmitQuiz()}
+                    disabled={isSubmitting || isQuizLoading || !activeQuiz?._id}
+                    sx={{ py: 1.1 }}
+                  >
+                    Submit Quiz
+                  </Button>
+                </Stack>
+              </CardContent>
+            </Card>
+          </Stack>
         </Grid>
+      </Grid>
     </Box>
   );
 }
 
-function LegendItem({ color, label, border = false }: { color: string; label: string; border?: boolean }) {
+function LegendItem({ color, label }: { color: string; label: string }) {
   return (
     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
       <Box
         sx={{
-          width: 10,
-          height: 10,
+          width: 7,
+          height: 7,
           borderRadius: 999,
           bgcolor: color,
-          border: border ? '1px solid' : 'none',
-          borderColor: border ? 'divider' : 'transparent',
         }}
       />
-      <Typography variant="body2" sx={{ color: 'text.secondary', fontWeight: 600 }}>
+      <Typography variant="caption" sx={{ color: 'text.secondary' }}>
         {label}
       </Typography>
     </Box>

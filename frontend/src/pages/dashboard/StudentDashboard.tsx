@@ -253,10 +253,14 @@ export default function StudentDashboard() {
 
                 <Grid container spacing={SPACING.md}>
                   {isLoading && !data ? (
-                    <Grid size={{ xs: 12 }}>
-                      <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                        Loading active courses...
-                      </Typography>
+                    <Grid size={{ xs: 12, md: 4 }}>
+                      <Card sx={{ ...innerCard, height: '100%' }}>
+                        <CardContent sx={{ p: SPACING.cardPadding, height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+                          <Typography variant="body2" sx={{ color: 'text.secondary', textAlign: 'center' }}>
+                            Fetching your courses...
+                          </Typography>
+                        </CardContent>
+                      </Card>
                     </Grid>
                   ) : activeCourses.length > 0 ? (
                     activeCourses.map((course) => (
@@ -318,7 +322,7 @@ export default function StudentDashboard() {
                   ) : (
                     <Grid size={{ xs: 12 }}>
                       <Typography variant="body2" sx={{ color: 'text.secondary', textAlign: 'center', py: 3 }}>
-                        You are not enrolled in any courses yet. Browse our catalog to get started!
+                        You haven't started any courses yet. Explore our catalog to find your next learning adventure!
                       </Typography>
                     </Grid>
                   )}
@@ -368,7 +372,7 @@ export default function StudentDashboard() {
               </Box>
               <Button
                 component={RouterLink}
-                to="/courses/explore"
+                to="/courses/browse"
                 aria-label="See all recommended courses"
                 sx={{ color: 'primary.main', fontWeight: 800, textTransform: 'none' }}
               >
@@ -413,7 +417,7 @@ export default function StudentDashboard() {
                         fullWidth
                         variant="outlined"
                         component={RouterLink}
-                        to="/courses/explore"
+                        to="/courses/browse"
                         aria-label={`Enroll in ${course.title}`}
                         sx={{ mt: SPACING.md, borderRadius: 1.5, fontWeight: 800, textTransform: 'none' }}
                       >
