@@ -1,5 +1,5 @@
 import { type ReactNode } from 'react';
-import { Table, TableBody, TableCell, TableContainer, TableRow, Typography } from '@mui/material';
+import { Table, TableBody, TableCell, TableContainer, TableRow, Typography, Box } from '@mui/material';
 
 interface ResponsiveTableProps {
   children: ReactNode;
@@ -11,7 +11,7 @@ export function ResponsiveTable({
   minWidth = 560,
 }: ResponsiveTableProps) {
   return (
-    <TableContainer
+    <Box
       sx={{
         overflowX: 'auto',
         borderRadius: 1.5,
@@ -19,12 +19,12 @@ export function ResponsiveTable({
         borderColor: 'divider',
       }}
     >
-      <Table sx={{ minWidth }} aria-label="data table">
+      <Table sx={{ minWidth: { xs: 320, sm: minWidth } }} aria-label="data table">
         <TableBody>
           {children}
         </TableBody>
       </Table>
-    </TableContainer>
+    </Box>
   );
 }
 

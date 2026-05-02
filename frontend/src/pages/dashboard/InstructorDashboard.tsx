@@ -174,7 +174,7 @@ export default function InstructorDashboard() {
   }, [data]);
 
   return (
-    <Box sx={{ minHeight: '100%', bgcolor: 'background.default', p: { xs: 2, sm: 2.5, md: 3 } }}>
+    <Box sx={{ minHeight: '100%', bgcolor: 'background.default', p: SPACING.lg }}>
       <Stack spacing={SPACING.lg}>
 
         {/* Page header */}
