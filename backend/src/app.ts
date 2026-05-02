@@ -108,11 +108,14 @@ export const createApp = () => {
     const frontendUrl = process.env.FRONTEND_URL?.trim().replace(/\/$/, '');
 
     if (frontendUrl) {
-      const redirectUrl = token
-        ? `${frontendUrl}/auth/verify-email?token=${encodeURIComponent(token)}`
-        : `${frontendUrl}/auth/verify-email`;
-      res.redirect(302, redirectUrl);
-      return;
+      const normalizedUrl = frontendUrl.replace(/^https?:\/\//, '').split('/')[0];
+      if (!normalizedUrl || normalizedUrl.includes(':') === false && normalizedUrl !== 'localhost' && normalizedUrl !== '127.0.0.1') {
+        const redirectUrl = token
+          ? `${frontendUrl}/auth/verify-email?token=${encodeURIComponent(token)}`
+          : `${frontendUrl}/auth/verify-email`;
+        res.redirect(302, redirectUrl);
+        return;
+      }
     }
 
     const apiUrl = token

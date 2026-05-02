@@ -74,7 +74,7 @@ export class AuthService {
     const verifySecret = requireEnv('JWT_VERIFY_SECRET');
     let decoded: { userId: string };
     try {
-      decoded = jwt.verify(token, verifySecret) as { userId: string };
+      decoded = jwt.verify(token, verifySecret, { algorithms: ['HS256'] }) as { userId: string };
     } catch {
       throw new AppError('Invalid or expired email verification token', 400);
     }
@@ -126,13 +126,17 @@ export class AuthService {
 
   static async loginUser(email: string, password: string) {
     const user = await User.findOne({ email });
-    if (!user || !await bcrypt.compare(password, user.password)) {
-      logError('auth_login_failed', { email, reason: 'invalid_credentials' });
+    if (!user) {
+      await bcrypt.hash(password, 10);
+      throw new Error('Invalid credentials');
+    }
+    if (!await bcrypt.compare(password, user.password)) {
+      logError('auth_login_failed', { email, reason: 'invalid_password' });
       throw new Error('Invalid credentials');
     }
     if (!user.emailVerified) {
       logError('auth_login_failed', { email, reason: 'email_not_verified' });
-      throw new Error('Email not verified');
+      throw new Error('Invalid credentials');
     }
 
     user.lastLogin = new Date();
@@ -153,13 +157,13 @@ export class AuthService {
     const accessToken = jwt.sign(
       { userId, type: 'access', tokenVersion },
       accessSecret,
-      { expiresIn: '15m' }
+      { expiresIn: '15m', algorithm: 'HS256' }
     );
 
     const refreshToken = jwt.sign(
       { userId, type: 'refresh', tokenVersion },
       refreshSecret,
-      { expiresIn: '7d' }
+      { expiresIn: '7d', algorithm: 'HS256' }
     );
 
     return { accessToken, refreshToken };
@@ -167,7 +171,7 @@ export class AuthService {
 
   static async verifyToken(token: string, type: 'access' | 'refresh') {
     const secret = type === 'access' ? requireEnv('JWT_ACCESS_SECRET') : requireEnv('JWT_REFRESH_SECRET');
-    const decoded = jwt.verify(token, secret) as { userId: string; type: 'access' | 'refresh'; tokenVersion?: number };
+    const decoded = jwt.verify(token, secret, { algorithms: ['HS256'] }) as { userId: string; type: 'access' | 'refresh'; tokenVersion?: number };
     if (decoded.type !== type) {
       throw new Error('Invalid token type');
     }
@@ -210,7 +214,7 @@ export class AuthService {
     }
 
     const resetSecret = requireEnv('JWT_RESET_SECRET');
-    const token = jwt.sign({ userId: user._id.toString(), type: 'password-reset' }, resetSecret, { expiresIn: '1h' });
+    const token = jwt.sign({ userId: user._id.toString(), type: 'password-reset' }, resetSecret, { expiresIn: '1h', algorithm: 'HS256' });
 
     user.passwordResetToken = token;
     user.passwordResetTokenExpiry = new Date(Date.now() + 3600000);
@@ -221,7 +225,7 @@ export class AuthService {
 
   static async resetPassword(token: string, newPassword: string) {
     const resetSecret = requireEnv('JWT_RESET_SECRET');
-    const decoded = jwt.verify(token, resetSecret) as { userId: string; type?: string };
+    const decoded = jwt.verify(token, resetSecret, { algorithms: ['HS256'] }) as { userId: string; type?: string };
 
     if (decoded.type !== 'password-reset') {
       throw new Error('Invalid or expired reset token');

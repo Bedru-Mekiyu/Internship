@@ -120,6 +120,11 @@ export const lessonUpdateSchema = Joi.object({
   order: Joi.number().integer().min(0).optional(),
 }).min(1);
 
+export const discussionCreateSchema = Joi.object({
+  content: Joi.string().trim().min(1).max(10000).required(),
+  title: Joi.string().trim().min(1).max(200).allow('').optional(),
+});
+
 export const reorderModulesSchema = Joi.object({
   moduleIds: Joi.array().items(Joi.string().trim().required()).min(0).required(),
 });
