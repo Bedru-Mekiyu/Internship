@@ -1,5 +1,25 @@
 import { alpha, createTheme, type Theme } from '@mui/material/styles';
 
+export const spacing = {
+  xs: 0.25,
+  sm: 0.5,
+  md: 1,
+  lg: 1.5,
+  xl: 2,
+  xxl: 3,
+} as const;
+
+export const authLayout = {
+  pagePadding: { xs: 2.25, sm: 2.75, md: 3 },
+  cardPadding: { xs: 2.5, sm: 3, md: 3.5 },
+  maxWidth: 440,
+  borderRadius: 3,
+} as const;
+
+export const fieldSpacing = 1.45;
+export const sectionSpacing = 2;
+export const stackSpacing = 2.25;
+
 export const lightTheme = createTheme({
   palette: {
     mode: 'light',
@@ -61,7 +81,7 @@ export const lightTheme = createTheme({
     subtitle2: { fontWeight: 600 },
     button: { fontWeight: 600, textTransform: 'none' },
   },
-    shape: {
+  shape: {
     borderRadius: 12,
   },
   components: {
@@ -104,15 +124,20 @@ export const lightTheme = createTheme({
           boxShadow: 'none',
           textTransform: 'none',
           transition: 'background-color 160ms ease, border-color 160ms ease, color 160ms ease',
-        },
-        contained: {
-          backgroundColor: '#1E67F2',
+          minHeight: 40,
           '&:active': {
             transform: 'translateY(0)',
           },
+        },
+        contained: {
+          backgroundColor: '#1E67F2',
           '&:hover': {
             boxShadow: 'none',
             backgroundColor: '#1452CB',
+          },
+          '&:disabled': {
+            backgroundColor: alpha('#1E67F2', 0.5),
+            color: alpha('#FFFFFF', 0.7),
           },
         },
         outlined: {
@@ -120,6 +145,11 @@ export const lightTheme = createTheme({
           '&:hover': {
             borderColor: '#BFC9D9',
             backgroundColor: '#F8FAFD',
+          },
+        },
+        text: {
+          '&:hover': {
+            backgroundColor: alpha('#1E67F2', 0.08),
           },
         },
       },
@@ -198,10 +228,69 @@ export const lightTheme = createTheme({
               borderColor: '#1E67F2',
               borderWidth: 1,
             },
+            '&.Mui-error fieldset': {
+              borderColor: '#EF4444',
+            },
+            '&.Mui-disabled fieldset': {
+              borderColor: '#E5E7EB',
+              backgroundColor: '#F9FAFB',
+            },
           },
           '& .MuiInputLabel-root.Mui-focused': {
             color: '#1E67F2',
           },
+          '& .MuiInputLabel-root.Mui-error': {
+            color: '#EF4444',
+          },
+          '& .MuiFormHelperText-root': {
+            marginLeft: 0,
+            fontSize: '0.75rem',
+            fontWeight: 500,
+          },
+        },
+      },
+    },
+    MuiInputLabel: {
+      styleOverrides: {
+        root: {
+          fontWeight: 600,
+          fontSize: '0.875rem',
+          color: '#111827',
+          '&.Mui-focused': {
+            color: '#1E67F2',
+          },
+        },
+      },
+    },
+    MuiFormLabel: {
+      styleOverrides: {
+        root: {
+          fontWeight: 600,
+          fontSize: '0.875rem',
+          color: '#111827',
+          '&.Mui-focused': {
+            color: '#1E67F2',
+          },
+        },
+      },
+    },
+    MuiAlert: {
+      styleOverrides: {
+        root: {
+          borderRadius: 10,
+        },
+      },
+    },
+    MuiChip: {
+      styleOverrides: {
+        root: {
+          borderRadius: 999,
+          fontWeight: 600,
+          height: 26,
+        },
+        filled: {
+          backgroundColor: alpha('#1E67F2', 0.08),
+          color: '#1E67F2',
         },
       },
     },
@@ -242,23 +331,15 @@ export const lightTheme = createTheme({
         },
       },
     },
-    MuiAlert: {
+    MuiLink: {
       styleOverrides: {
         root: {
-          borderRadius: 10,
-        },
-      },
-    },
-    MuiChip: {
-      styleOverrides: {
-        root: {
-          borderRadius: 999,
           fontWeight: 600,
-          height: 26,
-        },
-        filled: {
-          backgroundColor: alpha('#1E67F2', 0.08),
           color: '#1E67F2',
+          textDecoration: 'none',
+          '&:hover': {
+            textDecoration: 'underline',
+          },
         },
       },
     },

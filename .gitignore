@@ -25,6 +25,11 @@ frontend/.env.*
 !frontend/.env.production.example
 cookies.txt
 opencode.json
+.opencode
+.claude 
+settings.local.json
+.env
+.env.production.example
 
 # Runtime uploads
 backend/uploads/*
