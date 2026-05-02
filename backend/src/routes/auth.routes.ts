@@ -54,11 +54,8 @@ router.post('/register', registerRateLimit, validationMiddleware(registerSchema)
 router.post('/login', loginRateLimit, validationMiddleware(loginSchema), login);
 router.post('/logout', authMiddleware, logout);
 router.post('/forgot-password', forgotPasswordRateLimit, validationMiddleware(forgotPasswordSchema), forgotPassword);
-router.post('/forgotpassword', forgotPasswordRateLimit, validationMiddleware(forgotPasswordSchema), forgotPassword);
 router.post('/reset-password', resetPasswordRateLimit, validationMiddleware(resetPasswordSchema), resetPassword);
-router.post('/resetpassword', resetPasswordRateLimit, validationMiddleware(resetPasswordSchema), resetPassword);
 router.post('/refresh-token', refreshRateLimit, validationMiddleware(refreshTokenSchema), refreshToken);
-router.post('/refreshtoken', refreshRateLimit, validationMiddleware(refreshTokenSchema), refreshToken);
 router.get('/verify-email/:token', verifyEmail);
 router.get('/verify-email', verifyEmail);
 router.post('/resend-verification', forgotPasswordRateLimit, validationMiddleware(forgotPasswordSchema), resendVerification);
