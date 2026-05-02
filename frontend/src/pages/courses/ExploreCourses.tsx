@@ -18,7 +18,9 @@ import {
   TextField,
   Typography,
 } from '@mui/material';
-import { BoltOutlined, FilterListOutlined, SearchOutlined, StarRounded } from '@mui/icons-material';
+import { BoltOutlined, FilterListOutlined, SearchOutlined, StarRounded, X as TwitterIcon } from '@mui/icons-material';
+import LinkedInIcon from '@mui/icons-material/LinkedIn';
+import { alpha } from '@mui/material/styles';
 import { useAuth } from '../../context/AuthContext';
 import { normalizeApiError } from '../../services/api';
 import { useEnrollInCourseMutation, useGetCoursesQuery } from '../../store/api/courseApi';
@@ -330,7 +332,7 @@ function Footer() {
         <Container maxWidth={false} sx={{ maxWidth: 1368, mx: 'auto', px: { xs: 2, md: 4 }, py: 2.2 }}>
           <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 1.5, flexWrap: 'wrap' }}>
             <Typography sx={{ color: '#94A3B8', fontSize: '0.64rem' }}>
-              (c) 2024 LearnSpace Inc. All rights reserved.
+              &copy; {new Date().getFullYear()} LearnSpace Inc. All rights reserved.
             </Typography>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2.2 }}>
               <Link component={RouterLink} to="/privacy" underline="none" sx={{ color: '#64748B', fontSize: '0.66rem' }}>
@@ -339,8 +341,12 @@ function Footer() {
               <Link component={RouterLink} to="/terms" underline="none" sx={{ color: '#64748B', fontSize: '0.66rem' }}>
                 Terms of Service
               </Link>
-              <Typography sx={{ color: '#64748B', fontSize: '0.66rem', fontWeight: 800 }}>X</Typography>
-              <Typography sx={{ color: '#64748B', fontSize: '0.66rem', fontWeight: 800 }}>in</Typography>
+              <Link href="https://twitter.com/learnspace" target="_blank" rel="noopener noreferrer" underline="none" aria-label="X (Twitter)">
+                <TwitterIcon sx={{ color: '#64748B', fontSize: '0.66rem' }} />
+              </Link>
+              <Link href="https://linkedin.com/company/learnspace" target="_blank" rel="noopener noreferrer" underline="none" aria-label="LinkedIn">
+                <LinkedInIcon sx={{ color: '#64748B', fontSize: '0.66rem' }} />
+              </Link>
             </Box>
           </Box>
         </Container>
@@ -537,7 +543,7 @@ function mapApiCourse(course: ApiCourse): Course {
     id: String(course._id),
     title: course.title,
     instructor: instructorName,
-    rating: Number(course.rating?.average ?? 4.8),
+    rating: course.rating?.average != null ? Number(course.rating.average) : null,
     reviews: Number(course.rating?.count ?? course.enrollmentCount ?? 0),
     price: isFree ? 'Free' : amount,
     category: normalizeCategory(course.category),
@@ -567,7 +573,7 @@ export default function ExploreCourses({ embedded = false }: ExploreCoursesProps
   const apiCatalogCourses = useMemo(() => apiCourses.map(mapApiCourse), [apiCourses]);
   const usingFallbackCatalog = apiCatalogCourses.length === 0;
   const courses = usingFallbackCatalog ? fallbackCourses : apiCatalogCourses;
-  const totalCourseCount = usingFallbackCatalog ? 124 : courses.length;
+  const totalCourseCount = courses.length;
 
   const toggleValue = <T extends string>(value: T, list: T[], setList: (next: T[]) => void) => {
     setList(list.includes(value) ? list.filter((entry) => entry !== value) : [...list, value]);
@@ -716,13 +722,15 @@ export default function ExploreCourses({ embedded = false }: ExploreCoursesProps
         </Box>
       ) : null}
 
-      {error && !usingFallbackCatalog ? (
+      {error && (
         <Box sx={{ mb: 2, border: '1px solid #FECACA', bgcolor: '#FEF2F2', borderRadius: 1, px: 1.5, py: 1 }}>
           <Typography sx={{ color: '#B91C1C', fontSize: '0.78rem', fontWeight: 700 }}>
-            {normalizeApiError(error).message || 'Unable to load courses.'}
+            {usingFallbackCatalog 
+              ? 'Showing sample courses—check back soon for our full catalog' 
+              : normalizeApiError(error).message || 'Unable to load courses.'}
           </Typography>
         </Box>
-      ) : null}
+      )}
 
       <Grid container spacing={{ xs: 3, lg: 5.2 }} sx={{ alignItems: 'flex-start' }}>
         <Grid size={{ xs: 12, lg: 2.55 }}>

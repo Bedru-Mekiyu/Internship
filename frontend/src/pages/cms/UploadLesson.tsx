@@ -380,7 +380,7 @@ export default function UploadLesson() {
         const endpoints = user.role === 'instructor'
           ? [
             `/api/courses?status=published&instructor=${encodeURIComponent(user._id)}`,
-            '/api/courses?status=draft',
+            `/api/courses?status=draft&instructor=${encodeURIComponent(user._id)}`,
           ]
           : [
             '/api/courses?status=published',

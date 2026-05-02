@@ -29,12 +29,36 @@ export default function DashboardPageFrame({
   actionLabel,
   actionTo,
   actions,
+  breadcrumbs,
   children,
 }: DashboardPageFrameProps) {
   const hasAction = actionLabel && actionTo;
 
   return (
     <Stack spacing={SPACING.lg}>
+      {breadcrumbs && breadcrumbs.length > 0 ? (
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+          {breadcrumbs.map((item, index) => (
+            <Box key={index} sx={{ display: 'flex', alignItems: 'center' }}>
+              {index > 0 && <Typography variant="body2" sx={{ mx: 0.5, color: 'text.secondary' }}>/</Typography>}
+              {item.to ? (
+                <Typography
+                  component={RouterLink}
+                  to={item.to}
+                  variant="body2"
+                  sx={{ color: 'primary.main', textDecoration: 'none', '&:hover': { textDecoration: 'underline' } }}
+                >
+                  {item.label}
+                </Typography>
+              ) : (
+                <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                  {item.label}
+                </Typography>
+              )}
+            </Box>
+          ))}
+        </Box>
+      ) : null}
       <Box
         sx={{
           display: 'flex',

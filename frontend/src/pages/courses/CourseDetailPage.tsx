@@ -169,10 +169,10 @@ const demoCourse: CourseDetailExtras = {
 
 const demoCourseIdentifiers = new Set([
   demoCourse._id,
-  demoCourse.slug || '',
+  demoCourse.slug,
   'bootcamp-2025',
   'web-design-bootcamp',
-]);
+].filter(Boolean));
 
 const formatCurrency = (amount: number, currency = 'USD') =>
   new Intl.NumberFormat('en-US', {
@@ -520,7 +520,13 @@ export default function CourseDetailPage({ embedded = false }: { embedded?: bool
     if (!course?._id) return;
 
     if (!isFreeCourse) {
-      goToCheckout();
+      try {
+        await api.post('/api/cart', { courseId: course._id });
+        setActionError(null);
+        navigate('/cart');
+      } catch (requestError) {
+        setActionError(normalizeApiError(requestError).message || 'Unable to add to cart.');
+      }
       return;
     }
 
@@ -543,8 +549,12 @@ export default function CourseDetailPage({ embedded = false }: { embedded?: bool
         await navigator.clipboard.writeText(shareUrl);
         setShareMessage('Course link copied.');
       }
-    } catch {
-      setShareMessage(null);
+    } catch (err) {
+      if (err instanceof Error && (err.name === 'AbortError' || err.message?.includes('cancel'))) {
+        return;
+      }
+      console.error('Share failed:', err);
+      setShareMessage('Unable to share: Please try copying the link manually.');
     }
   };
 
@@ -649,9 +659,11 @@ export default function CourseDetailPage({ embedded = false }: { embedded?: bool
                   </Typography>
 
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap', mt: 1.35 }}>
-                    <Box sx={{ bgcolor: '#FACC15', color: '#713F12', px: 0.7, py: 0.25, borderRadius: 0.35, fontSize: '0.49rem', fontWeight: 900 }}>
-                      BESTSELLER
-                    </Box>
+                    {course?.isBestseller && (
+                      <Box sx={{ bgcolor: '#FACC15', color: '#713F12', px: 0.7, py: 0.25, borderRadius: 0.35, fontSize: '0.49rem', fontWeight: 900 }}>
+                        BESTSELLER
+                      </Box>
+                    )}
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.4 }}>
                       <Typography sx={{ color: '#B45309', fontSize: '0.55rem', fontWeight: 900 }}>
                         {ratingAverage.toFixed(1)}
@@ -851,7 +863,7 @@ export default function CourseDetailPage({ embedded = false }: { embedded?: bool
                           {enrollmentCount.toLocaleString()} Students
                         </Typography>
                         <Typography sx={{ color: textMuted, fontSize: '0.52rem' }}>
-                          {sections.length || 1} Courses
+                          {sections.length} Sections
                         </Typography>
                       </Box>
                       {instructor?.bio ? (
@@ -939,7 +951,7 @@ export default function CourseDetailPage({ embedded = false }: { embedded?: bool
                         </>
                       ) : null}
                     </Box>
-                    {!isFreeCourse ? (
+                    {!isFreeCourse && (course.offerEndsIn || (course.listPrice > course.currentPrice && course.discountActive) ? (
                       <Typography sx={{ color: '#DC2626', fontSize: '0.52rem', fontWeight: 800, mt: 0.6 }}>
                         {course.offerEndsIn || 'Limited time offer'}
                       </Typography>
@@ -974,7 +986,7 @@ export default function CourseDetailPage({ embedded = false }: { embedded?: bool
                       </Typography>
                       <Stack spacing={0.7}>
                         <PriceFeature icon={<OndemandVideoOutlined sx={{ fontSize: 13 }} />} label={`${includedVideoHours} on-demand video`} />
-                        <PriceFeature icon={<ArticleOutlined sx={{ fontSize: 13 }} />} label="15 articles & 10 downloads" />
+                        <PriceFeature icon={<ArticleOutlined sx={{ fontSize: 13 }} />} label={`${course?.articleCount ?? 0} articles & ${course?.downloadCount ?? 0} downloads`} />
                         <PriceFeature icon={<CloudDownloadOutlined sx={{ fontSize: 13 }} />} label="Access on mobile and TV" />
                         <PriceFeature icon={<AllInclusiveOutlined sx={{ fontSize: 13 }} />} label="Full lifetime access" />
                         <PriceFeature icon={<WorkspacePremiumOutlined sx={{ fontSize: 13 }} />} label="Certificate of completion" />

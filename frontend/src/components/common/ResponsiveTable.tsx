@@ -52,10 +52,10 @@ export function ResponsiveTableRow({ children, hover = true }: ResponsiveTableRo
   );
 }
 
-export function TableEmptyState({ message = 'No data available' }: { message?: string }) {
+export function TableEmptyState({ message = 'No data available', colSpan = 1000 }: { message?: string; colSpan?: number }) {
   return (
     <TableRow>
-      <TableCell colSpan={10} align="center">
+      <TableCell colSpan={colSpan} align="center">
         <Typography variant="body2" sx={{ color: 'text.secondary', py: 3 }}>
           {message}
         </Typography>

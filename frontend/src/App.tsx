@@ -141,6 +141,12 @@ function RequireSession() {
   return <Outlet />;
 }
 
+function formatRoles(roles: string[]) {
+  if (!roles.length) return '';
+  const format = new Intl.ListFormat('en', { type: 'conjunction', style: 'long' });
+  return format.format(roles.map(r => r.endsWith('s') ? r : r + 's'));
+}
+
 function RequireRole({ allowedRoles }: { allowedRoles: LearnSpaceRole[] }) {
   const { user, isLoading } = useAuth();
   const location = useLocation();
@@ -202,7 +208,7 @@ function RequireRole({ allowedRoles }: { allowedRoles: LearnSpaceRole[] }) {
                 Access Restricted
               </Typography>
               <Typography variant="body1" sx={{ color: 'text.secondary', maxWidth: 300 }}>
-                This area is for {allowedRoles.join('s and ')} only. Your account doesn't have permission to view it.
+                This area is for {formatRoles(allowedRoles)} only. Your account doesn't have permission to view it.
               </Typography>
               <Button
                 component={RouterLink}
@@ -675,7 +681,7 @@ function PublicAuthPage() {
               bgcolor: 'primary.main',
               display: 'grid',
               placeItems: 'center',
-              boxShadow: alpha(theme.palette.primary.main, 0.25),
+              boxShadow: `0 4px 16px ${alpha(theme.palette.primary.main, 0.25)}`,
             }}
           >
             <Box
@@ -1136,9 +1142,10 @@ function MarketingHomepagePage() {
           setPublicSettings(response.data.settings);
           setSettingsError(null);
         }
-      } catch {
+      } catch (err) {
         if (isMounted) {
-          setSettingsError(null);
+          console.error('Failed to fetch public settings:', err);
+          setSettingsError(err instanceof Error ? err : new Error('Failed to load settings'));
           setPublicSettings(null);
         }
       }

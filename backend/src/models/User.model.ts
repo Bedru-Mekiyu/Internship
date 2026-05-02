@@ -28,7 +28,7 @@ const userSchema = new mongoose.Schema({
     notifications: {
       email: { type: Boolean, default: true },
       push: { type: Boolean, default: true },
-      marketingEmails: { type: Boolean, default: true },
+      marketingEmails: { type: Boolean, default: false },
     }
   },
   gamification: {

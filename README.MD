@@ -457,9 +457,8 @@ Create `.env` in `backend`:
 ```bash
 NODE_ENV=development
 PORT=5000
-MONGODB_URL=
-MONGO_URI=mongodb://127.0.0.1:27017/mit_lms
-AUTO_START_INMEMORY_MONGO=true
+MONGODB_URL=mongodb://127.0.0.1:27017/mit_lms
+AUTO_START_INMEMORY_MONGO=false
 CORS_ORIGIN=http://localhost:3000
 COOKIE_SECURE=false
 COOKIE_SAME_SITE=lax

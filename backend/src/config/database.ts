@@ -36,32 +36,45 @@ type InMemoryMongoServer = {
 };
 
 let inMemoryMongoServer: InMemoryMongoServer | null = null;
+let creatingInMemoryMongoPromise: Promise<boolean> | null = null;
 
 const connectInMemoryMongo = async (): Promise<boolean> => {
-  try {
-    const { MongoMemoryServer } = await import('mongodb-memory-server');
-    if (!inMemoryMongoServer) {
+  if (inMemoryMongoServer) {
+    return true;
+  }
+
+  if (creatingInMemoryMongoPromise) {
+    return creatingInMemoryMongoPromise;
+  }
+
+  creatingInMemoryMongoPromise = (async () => {
+    try {
+      const { MongoMemoryServer } = await import('mongodb-memory-server');
       inMemoryMongoServer = await MongoMemoryServer.create({
         instance: { dbName: 'mit_lms' },
       });
-    }
 
-    const server = inMemoryMongoServer;
-    if (!server) {
-      throw new Error('In-memory MongoDB server failed to initialize');
-    }
+      const server = inMemoryMongoServer;
+      if (!server) {
+        throw new Error('In-memory MongoDB server failed to initialize');
+      }
 
-    const inMemoryUri = server.getUri();
-    await mongoose.connect(inMemoryUri, {
-      serverSelectionTimeoutMS: 10000,
-      socketTimeoutMS: 45000,
-    });
-    logWarn('mongodb_inmemory_started', { mongoUri: redactMongoUri(inMemoryUri) });
-    return true;
-  } catch (error) {
-    logError('mongodb_inmemory_start_failed', { error: String(error) });
-    return false;
-  }
+      const inMemoryUri = server.getUri();
+      await mongoose.connect(inMemoryUri, {
+        serverSelectionTimeoutMS: 10000,
+        socketTimeoutMS: 45000,
+      });
+      logWarn('mongodb_inmemory_started', { mongoUri: redactMongoUri(inMemoryUri) });
+      return true;
+    } catch (error) {
+      logError('mongodb_inmemory_start_failed', { error: String(error) });
+      return false;
+    } finally {
+      creatingInMemoryMongoPromise = null;
+    }
+  })();
+
+  return creatingInMemoryMongoPromise;
 };
 
 export const connectDB = async (options: ConnectDBOptions = {}): Promise<boolean> => {
