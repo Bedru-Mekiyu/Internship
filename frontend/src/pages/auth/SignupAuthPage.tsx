@@ -365,8 +365,7 @@ if (signupStatus === 'success') {
                 sx={{
                   minHeight: 44,
                   p: 0.5,
-                  bgcolor: 'primary.main',
-                  opacity: 0.08,
+                  bgcolor: (theme) => alpha(theme.palette.primary.main, 0.08),
                   borderRadius: 2,
                   '& .MuiTabs-indicator': { display: 'none' },
                   '& .MuiTabs-flexContainer': { gap: 0.5 },

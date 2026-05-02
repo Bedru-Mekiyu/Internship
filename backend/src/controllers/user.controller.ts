@@ -3,7 +3,8 @@ import mongoose from 'mongoose';
 import bcrypt from 'bcrypt';
 import { randomUUID } from 'crypto';
 import path from 'path';
-import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
+import fs from 'fs';
+import { PutObjectCommand, DeleteObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { AuthService } from '../services/auth.service';
 import { User } from '../models/User.model';
 import { AppError } from '../utils/http-error';
@@ -100,7 +101,9 @@ export const uploadMeAvatar = asyncHandler(async (req: Request, res: Response) =
     throw new AppError('Avatar must be an image', 400);
   }
 
+  const oldAvatar = user.avatar;
   let avatarUrl = `/uploads/${file.filename}`;
+
   if (process.env.STORAGE_TYPE === 's3') {
     if (!file.buffer) {
       throw new AppError('Missing file buffer for S3 upload', 500);
@@ -115,9 +118,28 @@ export const uploadMeAvatar = asyncHandler(async (req: Request, res: Response) =
       Key: objectKey,
       Body: file.buffer,
       ContentType: file.mimetype,
+      ACL: 'public-read',
     }));
 
     avatarUrl = `https://${bucket}.s3.${requireEnv('AWS_REGION')}.amazonaws.com/${objectKey}`;
+  }
+
+  if (oldAvatar) {
+    try {
+      if (oldAvatar.startsWith('http') && oldAvatar.includes('.s3.')) {
+        const s3 = buildS3Client();
+        const bucket = requireEnv('AWS_S3_BUCKET');
+        const key = oldAvatar.split('.amazonaws.com/')[1];
+        if (key) {
+          await s3.send(new DeleteObjectCommand({ Bucket: bucket, Key: key }));
+        }
+      } else if (oldAvatar.startsWith('/uploads/')) {
+        const filePath = path.join(process.cwd(), oldAvatar);
+        await fs.promises.unlink(filePath);
+      }
+    } catch (deleteError) {
+      console.warn('Failed to delete old avatar:', deleteError);
+    }
   }
 
   user.avatar = avatarUrl;

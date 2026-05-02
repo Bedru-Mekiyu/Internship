@@ -126,7 +126,7 @@ export default function LearnSpaceShell() {
     }
   };
 
-  const roleLabel = user?.role ? user.role.replace('_', ' ') : 'member';
+  const roleLabel = user?.role ? user.role.replace(/_/g, ' ') : 'member';
   const avatarSrc = sanitizeHttpUrl(user?.avatar);
   const avatarInitials = [user?.firstName?.[0], user?.lastName?.[0]].filter(Boolean).join('').toUpperCase() || 'U';
   const searchPlaceholder = activeItem?.label === 'Profile' ? 'Search settings...' : 'Search LearnSpace...';
@@ -210,7 +210,7 @@ export default function LearnSpaceShell() {
                           fontWeight: 800,
                         }}
                       >
-                        {Math.min(unreadCount, 9)}
+                        {unreadCount > 9 ? '9+' : unreadCount}
                       </Box>
                     ) : null}
                   </ListItemButton>

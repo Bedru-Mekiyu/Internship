@@ -1,7 +1,8 @@
+import { Types } from 'mongoose';
 import { Request } from 'express';
 
 export interface AuthUser {
-  _id: unknown;
+  _id: Types.ObjectId;
   email: string;
   firstName?: string;
   lastName?: string;

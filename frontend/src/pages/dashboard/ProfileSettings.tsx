@@ -51,6 +51,7 @@ type LabeledFieldProps = {
   rows?: number;
   error?: boolean;
   helperText?: string;
+  id?: string;
 };
 
 const surface = {
@@ -75,6 +76,7 @@ const fieldInputSx = {
       WebkitTextFillColor: '#111827',
     },
   },
+
   '& .MuiOutlinedInput-input': {
     py: 1.15,
   },
@@ -95,13 +97,16 @@ function LabeledField({
   rows,
   error,
   helperText,
+  id,
 }: LabeledFieldProps) {
+  const labelId = id || `labeled-field-${label.toLowerCase().replace(/\s+/g, '-')}`;
   return (
     <Box>
-      <Typography sx={{ mb: 0.65, color: '#111827', fontWeight: 700, fontSize: '0.72rem' }}>
+      <Typography id={`${labelId}-label`} sx={{ mb: 0.65, color: '#111827', fontWeight: 700, fontSize: '0.72rem' }}>
         {label}
       </Typography>
       <TextField
+        id={labelId}
         hiddenLabel
         size="small"
         fullWidth
@@ -114,6 +119,7 @@ function LabeledField({
         rows={rows}
         error={error}
         helperText={helperText}
+        inputProps={{ 'aria-labelledby': `${labelId}-label` }}
         sx={fieldInputSx}
       />
     </Box>
@@ -142,7 +148,7 @@ function profileSubtitle(role?: AuthUser['role']) {
     case 'content_manager':
       return 'Content Manager';
     case 'student':
-      return 'UX Design Student';
+      return 'Student';
     default:
       return 'LearnSpace Member';
   }
@@ -152,6 +158,8 @@ export default function ProfileSettings() {
   const { user, refreshSession } = useAuth();
   const queryClient = useQueryClient();
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+
+  const [isEditInfoOpen, setIsEditInfoOpen] = useState(false);
 
   const [profileForm, setProfileForm] = useState<ProfileForm>({
     firstName: '',
@@ -261,9 +269,7 @@ export default function ProfileSettings() {
     mutationFn: async (file: File) => {
       const body = new FormData();
       body.append('file', file);
-      const response = await api.post<{ user: AuthUser; avatar: string }>('/api/users/me/avatar', body, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      });
+      const response = await api.post<{ user: AuthUser; avatar: string }>('/api/users/me/avatar', body);
       return response.data;
     },
     onSuccess: async () => {
@@ -365,9 +371,13 @@ export default function ProfileSettings() {
     avatarMutation.mutate(file);
   };
 
+  const handleEditInfo = () => {
+    setIsEditInfoOpen(true);
+  };
+
   const savePassword = () => {
     if (passwordForm.currentPassword.length < 8) {
-      setFeedback({ type: 'error', message: 'Enter your current password.' });
+      setFeedback({ type: 'error', message: 'Current password must be at least 8 characters.' });
       return;
     }
 
@@ -491,7 +501,7 @@ export default function ProfileSettings() {
                   <Typography sx={{ fontWeight: 900, fontSize: '0.96rem' }}>
                     Personal Information
                   </Typography>
-                  <Button variant="outlined" sx={{ px: 1.55, py: 0.45, color: '#111827', borderColor: '#D7DEEA', fontSize: '0.72rem' }}>
+                  <Button variant="outlined" onClick={handleEditInfo} sx={{ px: 1.55, py: 0.45, color: '#111827', borderColor: '#D7DEEA', fontSize: '0.72rem' }}>
                     Edit Info
                   </Button>
                 </Box>

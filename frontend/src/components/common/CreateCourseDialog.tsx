@@ -72,6 +72,10 @@ export default function CreateCourseDialog({ open, onClose }: CreateCourseDialog
   const getErrorMessage = () => {
     if (!error) return 'Failed to create course. Please try again.';
 
+    // Handle SerializedError (top-level message)
+    const serializedError = error as { message?: string };
+    if (serializedError?.message) return serializedError.message;
+
     // Handle RTK Query error format
     const rtkError = error as { status?: number | string; data?: unknown };
     if (rtkError?.data && typeof rtkError.data === 'object') {

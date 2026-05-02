@@ -16,7 +16,7 @@ const transporter = nodemailer.createTransport({
 export class EmailService {
   static async sendVerificationEmail(userId: string, email: string) {
     const verifySecret = requireEnv('JWT_VERIFY_SECRET');
-    const apiBase = requireEnv('BASE_URL').replace(/\/$/, '');
+    const apiBase = requireEnv('BASE_URL').trim().replace(/\/$/, '');
     const frontendBase = process.env.FRONTEND_URL?.trim().replace(/\/$/, '');
     const sender = requireEnv('EMAIL_USER');
 

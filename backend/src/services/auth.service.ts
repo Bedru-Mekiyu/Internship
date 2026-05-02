@@ -92,6 +92,10 @@ export class AuthService {
       throw new AppError('Invalid or expired email verification token', 400);
     }
 
+    if (user.verificationToken !== token) {
+      throw new AppError('Invalid or expired email verification token', 400);
+    }
+
     user.emailVerified = true;
     user.verificationToken = undefined;
     user.verificationTokenExpiry = undefined;
@@ -110,10 +114,14 @@ export class AuthService {
       return;
     }
 
-    const token = await EmailService.sendVerificationEmail(user._id.toString(), user.email);
-    user.verificationToken = token;
-    user.verificationTokenExpiry = new Date(Date.now() + 3600000);
-    await user.save();
+    try {
+      const token = await EmailService.sendVerificationEmail(user._id.toString(), user.email);
+      user.verificationToken = token;
+      user.verificationTokenExpiry = new Date(Date.now() + 3600000);
+      await user.save();
+    } catch (error) {
+      logError('resend_verification_email_failed', { email, error: String(error) });
+    }
   }
 
   static async loginUser(email: string, password: string) {

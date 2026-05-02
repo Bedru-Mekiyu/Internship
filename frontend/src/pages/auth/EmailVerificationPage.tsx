@@ -28,8 +28,10 @@ export default function EmailVerificationPage() {
   const [errorMessage, setErrorMessage] = useState('');
   const [resendEmail, setResendEmail] = useState('');
   const [resendMessage, setResendMessage] = useState('');
+  const [isResendLoading, setIsResendLoading] = useState(false);
 
   useEffect(() => {
+    const controller = new AbortController();
     const token = searchParams.get('token');
 
     if (!token) {
@@ -40,23 +42,32 @@ export default function EmailVerificationPage() {
 
     const verifyEmail = async () => {
       try {
-        await api.get('/api/auth/verify-email', { params: { token } });
-        setState('success');
+        await api.get('/api/auth/verify-email', { params: { token }, signal: controller.signal });
+        if (!controller.signal.aborted) {
+          setState('success');
+        }
       } catch (error) {
+        if (controller.signal.aborted) return;
         setState('error');
         setErrorMessage(normalizeApiError(error).message || 'Verification failed. The link may have expired.');
       }
     };
 
     verifyEmail();
+
+    return () => {
+      controller.abort();
+    };
   }, [searchParams]);
 
   const handleResendEmail = async () => {
+    if (isResendLoading) return;
     if (!resendEmail.trim()) {
       setErrorMessage('Please enter your email address.');
       return;
     }
 
+    setIsResendLoading(true);
     try {
       await api.post('/api/auth/resend-verification', { email: resendEmail.trim().toLowerCase() });
       setErrorMessage('');
@@ -64,6 +75,8 @@ export default function EmailVerificationPage() {
     } catch (error) {
       setResendMessage('');
       setErrorMessage(normalizeApiError(error).message || 'Failed to resend verification email.');
+    } finally {
+      setIsResendLoading(false);
     }
   };
 
@@ -163,6 +176,7 @@ export default function EmailVerificationPage() {
                   variant="contained"
                   fullWidth
                   onClick={handleResendEmail}
+                  disabled={isResendLoading}
                   sx={{ py: 1.5 }}
                 >
                   Resend Verification Email

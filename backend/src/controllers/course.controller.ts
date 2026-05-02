@@ -320,6 +320,10 @@ export const createCourse = asyncHandler(async (req: Request, res: Response) => 
     body.slug = body.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
   }
   
+  if (!body.slug) {
+    body.slug = `untitled-${Date.now().toString(36)}`;
+  }
+  
   if (!body.description && body.shortDescription) {
     body.description = body.shortDescription;
   }

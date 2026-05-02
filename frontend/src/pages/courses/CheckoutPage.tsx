@@ -88,12 +88,12 @@ export default function CheckoutPage() {
   const [summaryError, setSummaryError] = useState<string | null>(null);
   const [summaryLoading, setSummaryLoading] = useState(false);
 
-  const [submitted, setSubmitted] = useState(false);
+const [submitted, setSubmitted] = useState(false);
   const [statusMessage, setStatusMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const subtotal = courseSummary?.price ?? 0;
-  const total = Math.max(subtotal, 0);
+  const clampedSubtotal = Math.max(courseSummary?.price ?? 0, 0);
+  const total = clampedSubtotal;
   const tax = total > 0 ? Math.round(total * 0.08) : 0;
 
   useEffect(() => {
@@ -299,10 +299,10 @@ export default function CheckoutPage() {
                         </Alert>
                       ) : null}
 
-                    <Stack spacing={1.25}>
+<Stack spacing={1.25}>
                       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 2 }}>
                         <Typography variant="body2" sx={{ color: 'text.secondary', fontWeight: 700 }}>Subtotal</Typography>
-                        <Typography variant="body2" sx={{ fontWeight: 800 }}>${subtotal}</Typography>
+                        <Typography variant="body2" sx={{ fontWeight: 800 }}>${clampedSubtotal}</Typography>
                       </Box>
                       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 2 }}>
                         <Typography variant="body2" sx={{ color: 'text.secondary', fontWeight: 700 }}>Estimated tax</Typography>
