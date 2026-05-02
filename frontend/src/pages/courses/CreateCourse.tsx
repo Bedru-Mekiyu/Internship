@@ -21,6 +21,7 @@ import {
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { api, ensureCsrfToken, normalizeApiError } from '../../services/api';
+import { SPACING, card } from '../dashboard/dashboardTokens';
 
 type LessonType = 'Video' | 'Quiz' | 'Reading';
 
@@ -215,10 +216,9 @@ export default function CreateCourse() {
 
   return (
     <Box sx={{ minHeight: '100vh', bgcolor: 'background.default' }}>
-      {/* Header */}
-      <Box sx={{ bgcolor: 'background.paper', borderBottom: '1px solid', borderColor: 'divider', px: 3, py: 2 }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 2 }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+      <Box sx={{ bgcolor: 'background.paper', borderBottom: '1px solid', borderColor: 'divider', px: SPACING.lg, py: SPACING.md }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: SPACING.md }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: SPACING.md }}>
             <Button
               variant="text"
               onClick={() => navigate('/courses')}
@@ -230,7 +230,7 @@ export default function CreateCourse() {
               Create Course
             </Typography>
           </Box>
-          <Stack direction="row" spacing={1.5}>
+          <Stack direction="row" spacing={SPACING.md}>
             <Button variant="outlined" onClick={() => void handleSave()} disabled={isSaving}>
               Save
             </Button>
@@ -245,8 +245,6 @@ export default function CreateCourse() {
           </Stack>
         </Box>
       </Box>
-
-      {/* Main Content */}
       <Box sx={{ p: 3 }}>
         {statusMessage ? (
           <Alert severity={statusMessage.type} sx={{ mb: 2 }}>
