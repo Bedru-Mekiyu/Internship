@@ -356,6 +356,7 @@ export default function CareersPage() {
                 <TextField
                   fullWidth
                   select
+                  label="Department"
                   value={departmentFilter || ''}
                   onChange={(e) => setDepartmentFilter(e.target.value || null)}
                 >
