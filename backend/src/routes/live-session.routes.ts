@@ -1,5 +1,6 @@
 import express from 'express';
 import { authMiddleware, roleMiddleware } from '../middlewares/auth.middleware';
+import { createRateLimiter } from '../middlewares/rate-limit.middleware';
 import {
   createLiveSession,
   getLiveSessionsByCourse,
@@ -13,9 +14,16 @@ import {
 
 const router = express.Router();
 
+const liveSessionCreateRateLimit = createRateLimiter({
+  windowMs: 60 * 60 * 1000,
+  max: 10,
+  message: 'Too many live session creation requests. Please try again later.',
+});
+
 router.get('/course/:courseId', authMiddleware, getLiveSessionsByCourse);
 router.post(
   '/course/:courseId',
+  liveSessionCreateRateLimit,
   authMiddleware,
   roleMiddleware(['instructor', 'admin']),
   validationMiddleware(liveSessionCreateSchema),
