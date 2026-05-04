@@ -17,15 +17,16 @@ import {
   Stack,
   TextField,
   Typography,
+  useTheme,
 } from '@mui/material';
-import { BoltOutlined, FilterListOutlined, SearchOutlined, StarRounded, X as TwitterIcon } from '@mui/icons-material';
-import LinkedInIcon from '@mui/icons-material/LinkedIn';
+import { BoltOutlined, FilterListOutlined, SearchOutlined, StarRounded } from '@mui/icons-material';
 import { alpha } from '@mui/material/styles';
 import { useAuth } from '../../context/AuthContext';
 import { normalizeApiError } from '../../services/api';
 import { useEnrollInCourseMutation, useGetCoursesQuery } from '../../store/api/courseApi';
 import type { Course as ApiCourse } from '../../types';
 import { sanitizeHttpUrl } from '../../utils/safeUrl';
+import { card, innerCard, SPACING } from '../dashboard/dashboardTokens';
 
 type Category = 'Development' | 'Design' | 'Business' | 'Marketing' | 'Photography';
 type Level = 'Beginner' | 'Intermediate' | 'Advanced';
@@ -193,10 +194,10 @@ const fallbackCourses: Course[] = [
 
 const categoryChipColors: Record<Category, { bg: string; text: string }> = {
   Development: { bg: '#EEF2FF', text: '#4F46E5' },
-  Design: { bg: '#EEF2FF', text: '#4F46E5' },
-  Business: { bg: '#EEF2FF', text: '#4F46E5' },
-  Marketing: { bg: '#EEF2FF', text: '#4F46E5' },
-  Photography: { bg: '#EEF2FF', text: '#4F46E5' },
+  Design: { bg: '#F3E8FF', text: '#7C3AED' },
+  Business: { bg: '#DBEAFE', text: '#2563EB' },
+  Marketing: { bg: '#FEF3C7', text: '#D97706' },
+  Photography: { bg: '#DCFCE7', text: '#16A34A' },
 };
 
 function BrandMark() {
@@ -425,20 +426,12 @@ function ThumbnailFallback({ category }: { category: Category }) {
 }
 
 function CourseCard({ course, onEnroll }: { course: Course; onEnroll: (course: Course) => Promise<void> }) {
+  const theme = useTheme();
   const chip = categoryChipColors[course.category];
 
   return (
-    <Card
-      sx={{
-        height: '100%',
-        border: '1px solid #E4E9F2',
-        borderRadius: 1,
-        boxShadow: 'none',
-        bgcolor: '#FFFFFF',
-        overflow: 'hidden',
-      }}
-    >
-      <Box component={RouterLink} to={`/courses/${course.id}`} sx={{ height: 152, bgcolor: '#E8EEF6', overflow: 'hidden', display: 'block' }}>
+    <Card sx={innerCard}>
+      <Box component={RouterLink} to={`/courses/${course.id}`} sx={{ height: 152, bgcolor: 'action.hover', overflow: 'hidden', display: 'block' }}>
         {course.image ? (
           <Box
             component="img"
@@ -451,14 +444,14 @@ function CourseCard({ course, onEnroll }: { course: Course; onEnroll: (course: C
         )}
       </Box>
 
-      <CardContent sx={{ p: 1.45, '&:last-child': { pb: 1.45 } }}>
+      <CardContent sx={{ p: SPACING.cardPadding, '&:last-child': { pb: SPACING.cardPadding } }}>
         <Box sx={{ display: 'inline-flex', px: 0.65, py: 0.2, borderRadius: 0.5, bgcolor: chip.bg, mb: 0.85 }}>
           <Typography sx={{ color: chip.text, fontSize: '0.55rem', fontWeight: 900, letterSpacing: '0.05em' }}>
             {course.category.toUpperCase()}
           </Typography>
         </Box>
 
-        <Typography component={RouterLink} to={`/courses/${course.id}`} sx={{ color: '#0F172A', fontWeight: 800, lineHeight: 1.32, minHeight: 38, fontSize: '0.84rem', display: 'block', '&:hover': { color: '#4F46E5' } }}>
+        <Typography component={RouterLink} to={`/courses/${course.id}`} sx={{ color: 'text.primary', fontWeight: 800, lineHeight: 1.32, minHeight: 38, fontSize: '0.84rem', display: 'block', '&:hover': { color: 'primary.main' } }}>
           {course.title}
         </Typography>
 
@@ -468,8 +461,8 @@ function CourseCard({ course, onEnroll }: { course: Course; onEnroll: (course: C
               width: 17,
               height: 17,
               borderRadius: '50%',
-              bgcolor: '#E2E8F0',
-              color: '#334155',
+              bgcolor: 'action.selected',
+              color: 'text.secondary',
               display: 'grid',
               placeItems: 'center',
               fontSize: '0.55rem',
@@ -479,45 +472,36 @@ function CourseCard({ course, onEnroll }: { course: Course; onEnroll: (course: C
           >
             {course.instructor.charAt(0).toUpperCase() || 'L'}
           </Box>
-          <Typography sx={{ color: '#475569', fontSize: '0.66rem', fontWeight: 600 }} noWrap>
+          <Typography sx={{ color: 'text.secondary', fontSize: '0.66rem', fontWeight: 600 }} noWrap>
             {course.instructor || 'LearnSpace'}
           </Typography>
         </Box>
 
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.25, mt: 0.7 }}>
-          <StarRounded sx={{ color: '#F59E0B', fontSize: 14 }} />
+          <StarRounded sx={{ color: 'warning.main', fontSize: 14 }} />
           <Typography sx={{ color: '#B45309', fontSize: '0.63rem', fontWeight: 700 }}>
             {course.rating.toFixed(1)}
           </Typography>
-          <Typography sx={{ color: '#64748B', fontSize: '0.62rem' }}>
+          <Typography sx={{ color: 'text.secondary', fontSize: '0.62rem' }}>
             ({course.reviews.toLocaleString()} reviews)
           </Typography>
         </Box>
 
         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 1, mt: 2.25 }}>
-          <Typography sx={{ color: '#0F172A', fontWeight: 900, fontSize: '0.78rem' }}>
+          <Typography sx={{ color: 'text.primary', fontWeight: 900, fontSize: '0.78rem' }}>
             {course.price === 'Free' ? 'Free' : `$${course.price}`}
           </Typography>
           <Button
             variant="contained"
             onClick={() => void onEnroll(course)}
+            size="small"
             sx={{
-              minHeight: 30,
-              px: 1.4,
-              py: 0.55,
               borderRadius: 0.75,
-              bgcolor: '#4F46E5',
               fontSize: '0.64rem',
-              '&:hover': { bgcolor: '#4338CA' },
             }}
           >
-            Enroll Now
+            Enroll
           </Button>
-        </Box>
-      </CardContent>
-    </Card>
-  );
-}
 
 function normalizeCategory(value: string | undefined): Category {
   const normalized = (value || '').trim().toLowerCase();

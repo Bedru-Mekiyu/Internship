@@ -5,6 +5,11 @@ interface RateLimitOptions {
   windowMs: number;
   max: number;
   message: string;
+  /**
+   * Optional key generator. When provided, this value is used as the identity component of the rate-limit key.
+   * Useful for per-user rate limiting when `req.user` is available.
+   */
+  keyGenerator?: (req: Request) => string;
 }
 
 interface RateLimitBucket {
@@ -67,10 +72,24 @@ const tryMemoryLimit = (
 /**
  * Rate limiter: uses Redis when `REDIS_URL` is set (shared across replicas), otherwise in-memory per process.
  */
-export const createRateLimiter = ({ windowMs, max, message }: RateLimitOptions) => {
+export const createRateLimiter = ({ windowMs, max, message, keyGenerator }: RateLimitOptions) => {
   return async (req: Request, res: Response, next: NextFunction) => {
     const ip = req.ip || req.socket.remoteAddress || 'unknown';
-    const key = `${req.baseUrl}:${req.path}:${ip}`;
+    const routePath = (req.route && typeof req.route.path === 'string' ? req.route.path : req.path) as string;
+
+    let identity = ip;
+    if (keyGenerator) {
+      try {
+        const generated = keyGenerator(req);
+        if (generated) {
+          identity = generated;
+        }
+      } catch {
+        // fall back to IP identity
+      }
+    }
+
+    const key = `${req.baseUrl}:${routePath}:${identity}`;
     const redis = getSharedRedis();
 
     if (!redis) {
