@@ -1,0 +1,88 @@
+export const DS = {
+  colors: {
+    primary: '#4F46E5',
+    primaryHover: '#4338CA',
+    secondary: '#64748B',
+    success: '#16A34A',
+    warning: '#D97706',
+    error: '#DC2626',
+    info: '#2563EB',
+    text: {
+      primary: '#0F172A',
+      secondary: '#475569',
+      muted: '#64748B',
+      light: '#94A3B8',
+    },
+    background: {
+      default: '#F4F7FB',
+      paper: '#FFFFFF',
+      hover: '#F1F5F9',
+      active: '#EEF2FF',
+    },
+    border: {
+      default: '#E5EAF2',
+      light: '#EDF1F6',
+      input: '#E2E8F0',
+      card: '#DFE5F1',
+    },
+    brand: {
+      purple: '#4F46E5',
+      indigo: '#0066FF',
+      sky: '#38BDF8',
+      pink: '#F9A8D4',
+      amber: '#F59E0B',
+    },
+  },
+  radius: {
+    xs: 0.35,
+    sm: 0.55,
+    md: 0.75,
+    lg: 1,
+    xl: 1.5,
+    xxl: 2,
+    full: 9999,
+  },
+  spacing: {
+    xs: 0.25,
+    sm: 0.5,
+    md: 1,
+    lg: 1.5,
+    xl: 2,
+    xxl: 3,
+    xxxl: 4,
+  },
+  typography: {
+    sizes: {
+      xs: '0.49rem',
+      sm: '0.55rem',
+      base: '0.58rem',
+      md: '0.72rem',
+      lg: '0.86rem',
+      xl: '1rem',
+      '2xl': '1.45rem',
+      '3xl': '1.6rem',
+    },
+    weights: {
+      normal: 400,
+      medium: 500,
+      semibold: 600,
+      bold: 700,
+      extrabold: 800,
+      black: 900,
+    },
+  },
+  shadows: {
+    none: 'none',
+    sm: '0 1px 2px rgba(15,23,42,0.05)',
+    md: '0 1px 3px rgba(15,23,42,0.06), 0 4px 16px rgba(15,23,42,0.04)',
+    lg: '0 4px 16px rgba(0,102,255,0.15)',
+    xl: '0 8px 24px rgba(0,0,0,0.08)',
+  },
+  transitions: {
+    fast: '150ms ease',
+    normal: '200ms ease',
+    slow: '300ms ease',
+  },
+} as const;
+
+export type DesignSystem = typeof DS;

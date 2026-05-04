@@ -104,29 +104,30 @@ function RequireSession() {
 
   if (isLoading) {
     return (
-      <Box sx={{ minHeight: '100vh', display: 'grid', placeItems: 'center', bgcolor: '#F8FAFC' }}>
+      <Box sx={{ minHeight: '100vh', display: 'grid', placeItems: 'center', bgcolor: 'background.default' }}>
         <Stack spacing={2} sx={{ alignItems: 'center' }}>
           <Box
             sx={{
               width: 56,
               height: 56,
-              borderRadius: 3,
+              borderRadius: 2,
               bgcolor: 'primary.main',
               display: 'grid',
               placeItems: 'center',
-              boxShadow: '0 4px 16px rgba(0,102,255,0.25)',
+              boxShadow: 'primary.main',
+              opacity: 0.9,
             }}
           >
             <Box
               component="svg"
               viewBox="0 0 24 24"
-              sx={{ width: 28, height: 28, color: '#FFFFFF', animation: 'pulse 1.5s ease-in-out infinite' }}
+              sx={{ width: 28, height: 28, color: 'primary.contrastText', animation: 'pulse 1.5s ease-in-out infinite' }}
             >
               <style>{`@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }`}</style>
               <path fill="currentColor" d="M12 2.5 5 5.25v5.53c0 4.52 2.95 8.57 7 10.22 4.05-1.65 7-5.7 7-10.22V5.25L12 2.5Z" />
             </Box>
           </Box>
-          <Typography variant="body1" sx={{ color: 'text.secondary', fontWeight: 500 }}>
+          <Typography variant="body1" color="text.secondary" fontWeight={500}>
             Getting you in...
           </Typography>
         </Stack>
@@ -153,28 +154,29 @@ function RequireRole({ allowedRoles }: { allowedRoles: LearnSpaceRole[] }) {
 
   if (isLoading) {
     return (
-      <Box sx={{ minHeight: '100vh', display: 'grid', placeItems: 'center', bgcolor: '#F8FAFC' }}>
+      <Box sx={{ minHeight: '100vh', display: 'grid', placeItems: 'center', bgcolor: 'background.default' }}>
         <Stack spacing={2} sx={{ alignItems: 'center' }}>
           <Box
             sx={{
               width: 56,
               height: 56,
-              borderRadius: 3,
+              borderRadius: 2,
               bgcolor: 'primary.main',
               display: 'grid',
               placeItems: 'center',
-              boxShadow: '0 4px 16px rgba(0,102,255,0.25)',
+              boxShadow: 'primary.main',
+              opacity: 0.9,
             }}
           >
             <Box
               component="svg"
               viewBox="0 0 24 24"
-              sx={{ width: 28, height: 28, color: '#FFFFFF', animation: 'pulse 1.5s ease-in-out infinite' }}
+              sx={{ width: 28, height: 28, color: 'primary.contrastText', animation: 'pulse 1.5s ease-in-out infinite' }}
             >
               <path fill="currentColor" d="M12 2.5 5 5.25v5.53c0 4.52 2.95 8.57 7 10.22 4.05-1.65 7-5.7 7-10.22V5.25L12 2.5Z" />
             </Box>
           </Box>
-          <Typography variant="body1" sx={{ color: 'text.secondary', fontWeight: 500 }}>
+          <Typography variant="body1" color="text.secondary" fontWeight={500}>
             Verifying access...
           </Typography>
         </Stack>
@@ -188,8 +190,8 @@ function RequireRole({ allowedRoles }: { allowedRoles: LearnSpaceRole[] }) {
 
   if (!allowedRoles.includes(user.role)) {
     return (
-      <Box sx={{ minHeight: '100vh', display: 'grid', placeItems: 'center', bgcolor: '#F8FAFC' }}>
-        <Card sx={{ maxWidth: 420, borderRadius: 3, boxShadow: '0 1px 3px rgba(15,23,42,0.06), 0 8px 24px rgba(15,23,42,0.08)', border: '1px solid #E2E8F0' }}>
+      <Box sx={{ minHeight: '100vh', display: 'grid', placeItems: 'center', bgcolor: 'background.default' }}>
+        <Card sx={{ maxWidth: 420, borderRadius: 2, border: '1px solid', borderColor: 'divider' }}>
           <CardContent sx={{ p: 4 }}>
             <Stack spacing={2.5} sx={{ alignItems: 'center', textAlign: 'center' }}>
               <Box

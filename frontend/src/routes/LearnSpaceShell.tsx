@@ -39,6 +39,7 @@ import {
 } from './learnSpaceNavigation';
 
 function ShellLogo() {
+  const theme = useTheme();
   return (
     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.2 }}>
       <Box
@@ -48,7 +49,7 @@ function ShellLogo() {
           height: 24,
           display: 'grid',
           placeItems: 'center',
-          color: '#4F46E5',
+          color: 'primary.main',
           flexShrink: 0,
         }}
       >
@@ -59,7 +60,7 @@ function ShellLogo() {
           />
         </Box>
       </Box>
-      <Typography sx={{ color: '#111827', fontWeight: 900, fontSize: '1rem', letterSpacing: 0 }}>
+      <Typography sx={{ color: 'text.primary', fontWeight: 900, fontSize: '1rem', letterSpacing: 0 }}>
         LearnSpace
       </Typography>
     </Box>
@@ -132,7 +133,7 @@ export default function LearnSpaceShell() {
   const searchPlaceholder = activeItem?.label === 'Profile' ? 'Search settings...' : 'Search LearnSpace...';
 
   const drawerContent = (
-    <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column', bgcolor: '#EFF3FA' }}>
+    <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column', bgcolor: 'background.default' }}>
       <Box sx={{ px: 2.35, height: 66, display: 'flex', alignItems: 'center' }}>
         <ShellLogo />
       </Box>
@@ -143,7 +144,7 @@ export default function LearnSpaceShell() {
             <Typography
               variant="caption"
               sx={{
-                color: '#6B7280',
+                color: 'text.secondary',
                 fontWeight: 800,
                 px: 0.75,
                 mb: 0.65,
@@ -171,19 +172,19 @@ export default function LearnSpaceShell() {
                       minHeight: 36,
                       borderRadius: 1,
                       px: 0.75,
-                      color: active ? '#4F46E5' : '#111827',
-                      bgcolor: active ? '#EEF2FF' : 'transparent',
+                      color: active ? 'primary.main' : 'text.primary',
+                      bgcolor: active ? 'action.selected' : 'transparent',
                       '& .MuiListItemIcon-root': {
-                        color: active ? '#4F46E5' : '#111827',
+                        color: active ? 'primary.main' : 'text.primary',
                         minWidth: 30,
                       },
                       '&.Mui-selected': {
-                        bgcolor: '#EEF2FF',
-                        color: '#4F46E5',
-                        '&:hover': { bgcolor: '#E6EAFF' },
+                        bgcolor: 'action.selected',
+                        color: 'primary.main',
+                        '&:hover': { bgcolor: 'action.hover' },
                       },
                       '&:hover': {
-                        bgcolor: active ? '#E6EAFF' : alpha('#4F46E5', 0.05),
+                        bgcolor: active ? 'action.hover' : 'action.hover',
                       },
                     }}
                   >
@@ -202,8 +203,8 @@ export default function LearnSpaceShell() {
                           height: 17,
                           px: 0.5,
                           borderRadius: 999,
-                          bgcolor: '#5B4CF6',
-                          color: '#FFFFFF',
+                          bgcolor: 'primary.main',
+                          color: 'primary.contrastText',
                           display: 'grid',
                           placeItems: 'center',
                           fontSize: '0.62rem',
@@ -222,20 +223,20 @@ export default function LearnSpaceShell() {
       </Box>
 
       {user ? (
-        <Box sx={{ p: 1.4, borderTop: '1px solid #DDE4F0' }}>
+        <Box sx={{ p: 1.4, borderTop: 1, borderColor: 'divider' }}>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.05, borderRadius: 1.2, px: 0.45, py: 0.5 }}>
             <Avatar
               src={avatarSrc || undefined}
               alt={`${user.firstName} ${user.lastName}`}
-              sx={{ width: 32, height: 32, fontSize: '0.78rem', fontWeight: 800, bgcolor: '#DDE7F7', color: '#4F46E5' }}
+              sx={{ width: 32, height: 32, fontSize: '0.78rem', fontWeight: 800, bgcolor: 'primary.light', color: 'primary.main' }}
             >
               {avatarInitials}
             </Avatar>
             <Box sx={{ minWidth: 0, flex: 1 }}>
-              <Typography sx={{ color: '#111827', fontWeight: 800, lineHeight: 1.2, fontSize: '0.76rem' }} noWrap>
+              <Typography sx={{ color: 'text.primary', fontWeight: 800, lineHeight: 1.2, fontSize: '0.76rem' }} noWrap>
                 {user.firstName} {user.lastName}
               </Typography>
-              <Typography sx={{ color: '#6B7280', textTransform: 'capitalize', lineHeight: 1.2, fontSize: '0.66rem' }} noWrap>
+              <Typography sx={{ color: 'text.secondary', textTransform: 'capitalize', lineHeight: 1.2, fontSize: '0.66rem' }} noWrap>
                 {roleLabel}
               </Typography>
             </Box>
@@ -245,7 +246,7 @@ export default function LearnSpaceShell() {
                 onClick={() => {
                   void logout();
                 }}
-                sx={{ color: '#6B7280' }}
+                sx={{ color: 'text.secondary' }}
               >
                 <LogoutOutlined sx={{ fontSize: 17 }} />
               </IconButton>
@@ -257,7 +258,7 @@ export default function LearnSpaceShell() {
   );
 
   return (
-    <Box sx={{ minHeight: '100vh', bgcolor: '#F4F7FB' }}>
+    <Box sx={{ minHeight: '100vh', bgcolor: 'background.default' }}>
       <AppBar
         position="fixed"
         color="inherit"
@@ -265,8 +266,9 @@ export default function LearnSpaceShell() {
         sx={{
           width: { lg: `calc(100% - ${drawerWidth}px)` },
           ml: { lg: `${drawerWidth}px` },
-          borderBottom: '1px solid #DDE4F0',
-          bgcolor: '#FFFFFF',
+          borderBottom: 1,
+          borderColor: 'divider',
+          bgcolor: 'background.paper',
           zIndex: (theme) => theme.zIndex.drawer + 1,
         }}
       >
@@ -289,29 +291,29 @@ export default function LearnSpaceShell() {
               maxWidth: 360,
               height: 34,
               borderRadius: 1,
-              bgcolor: '#F1F4FC',
+              bgcolor: 'action.hover',
               display: 'flex',
               alignItems: 'center',
               px: 1.15,
               gap: 0.8,
             }}
           >
-            <SearchOutlined sx={{ color: '#7C8798', fontSize: 17 }} />
+            <SearchOutlined sx={{ color: 'text.secondary', fontSize: 17 }} />
             <InputBase
               placeholder={searchPlaceholder}
               inputProps={{ 'aria-label': searchPlaceholder }}
-              sx={{ flex: 1, color: '#111827', fontSize: '0.75rem' }}
+              sx={{ flex: 1, color: 'text.primary', fontSize: '0.75rem' }}
             />
           </Box>
 
           <Box sx={{ flex: 1 }} />
 
-          <IconButton component={RouterLink} to="/notifications" sx={{ color: '#4B5563', width: 36, height: 36 }}>
+          <IconButton component={RouterLink} to="/notifications" sx={{ color: 'text.secondary', width: 36, height: 36 }}>
             <Badge color="primary" badgeContent={unreadCount || undefined} max={9}>
               <NotificationsNoneOutlined sx={{ fontSize: 20 }} />
             </Badge>
           </IconButton>
-          <IconButton component={RouterLink} to="/messages" sx={{ color: '#4B5563', width: 36, height: 36 }}>
+          <IconButton component={RouterLink} to="/messages" sx={{ color: 'text.secondary', width: 36, height: 36 }}>
             <MailOutlineOutlined sx={{ fontSize: 19 }} />
           </IconButton>
 
@@ -334,8 +336,8 @@ export default function LearnSpaceShell() {
           '& .MuiDrawer-paper': {
             width: { xs: 'min(86vw, 320px)', lg: drawerWidth },
             boxSizing: 'border-box',
-            borderRightColor: '#DDE4F0',
-            bgcolor: '#EFF3FA',
+            borderRightColor: 'divider',
+            bgcolor: 'background.default',
             top: 0,
             height: '100%',
           },
@@ -349,7 +351,7 @@ export default function LearnSpaceShell() {
         sx={{
           ml: { lg: `${drawerWidth}px` },
           minHeight: '100vh',
-          bgcolor: '#F4F7FB',
+          bgcolor: 'background.default',
           maxWidth: '100%',
           overflowX: 'hidden',
           px: { xs: 1.8, sm: 2.4, lg: 3.2 },

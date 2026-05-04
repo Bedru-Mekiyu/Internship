@@ -1,4 +1,5 @@
 import { useMemo, useState, type ReactNode } from 'react';
+import { useTheme } from '@mui/material/styles';
 import {
   Accordion,
   AccordionDetails,
