@@ -20,6 +20,15 @@ export interface UserPreferences {
     push?: boolean;
     marketingEmails?: boolean;
   };
+  themeMode?: 'light' | 'dark' | 'system';
+}
+
+export interface UserAddress {
+  street?: string;
+  city?: string;
+  state?: string;
+  zipCode?: string;
+  country?: string;
 }
 
 export interface AuthUser {
@@ -31,6 +40,7 @@ export interface AuthUser {
   avatar?: string;
   bio?: string;
   phone?: string;
+  address?: UserAddress;
   isActive?: boolean;
   preferences?: UserPreferences;
   createdAt?: string;

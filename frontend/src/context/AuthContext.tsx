@@ -17,39 +17,7 @@ import {
 } from '../services/api';
 import { useAppDispatch } from '../hooks/redux';
 import { clearUser as clearAuthUser, setUser as setAuthUser } from '../store/slices/authSlice';
-
-export type LearnSpaceRole = 'student' | 'instructor' | 'admin' | 'content_manager';
-
-export interface AuthUser {
-  _id: string;
-  email: string;
-  firstName: string;
-  lastName: string;
-  role: LearnSpaceRole;
-  avatar?: string;
-  bio?: string;
-  phone?: string;
-  address?: {
-    street?: string;
-    city?: string;
-    state?: string;
-    zipCode?: string;
-    country?: string;
-  };
-  preferences?: {
-    language?: string;
-    timezone?: string;
-    notifications?: {
-      email?: boolean;
-      push?: boolean;
-      marketingEmails?: boolean;
-    };
-    themeMode?: 'light' | 'dark' | 'system';
-  };
-  isActive?: boolean;
-  createdAt?: string;
-  updatedAt?: string;
-}
+import type { AuthUser, LearnSpaceRole } from '../types';
 
 export interface LoginPayload {
   email: string;
