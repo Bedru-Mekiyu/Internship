@@ -175,7 +175,13 @@ export const getSettings = asyncHandler(async (req: Request, res: Response) => {
     throw new AppError('Unauthorized. Admin access required.', 403);
   }
 
-  return res.json({ settings: platformSettings });
+  const safeSettings = {
+    ...platformSettings,
+    stripeSecretKey: platformSettings.stripeSecretKey ? '••••••••' : '',
+    smtpPassword: platformSettings.smtpPassword ? '••••••••' : '',
+  };
+
+  return res.json({ settings: safeSettings });
 });
 
 export const updateSettings = asyncHandler(async (req: Request, res: Response) => {
