@@ -19,7 +19,14 @@ import {
   Typography,
   useTheme,
 } from '@mui/material';
-import { BoltOutlined, FilterListOutlined, SearchOutlined, StarRounded } from '@mui/icons-material';
+import {
+  BoltOutlined,
+  FilterListOutlined,
+  SearchOutlined,
+  StarRounded,
+  Twitter as TwitterIcon,
+  LinkedIn as LinkedInIcon,
+} from '@mui/icons-material';
 import { alpha } from '@mui/material/styles';
 import { useAuth } from '../../context/AuthContext';
 import { normalizeApiError } from '../../services/api';
@@ -502,6 +509,12 @@ function CourseCard({ course, onEnroll }: { course: Course; onEnroll: (course: C
           >
             Enroll
           </Button>
+
+        </Box>
+      </CardContent>
+    </Card>
+  );
+}
 
 function normalizeCategory(value: string | undefined): Category {
   const normalized = (value || '').trim().toLowerCase();
