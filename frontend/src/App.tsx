@@ -114,7 +114,7 @@ function RequireSession() {
               bgcolor: 'primary.main',
               display: 'grid',
               placeItems: 'center',
-              boxShadow: 'primary.main',
+              boxShadow: (theme) => `0 4px 16px ${alpha(theme.palette.primary.main, 0.25)}`,
               opacity: 0.9,
             }}
           >
@@ -164,7 +164,7 @@ function RequireRole({ allowedRoles }: { allowedRoles: LearnSpaceRole[] }) {
               bgcolor: 'primary.main',
               display: 'grid',
               placeItems: 'center',
-              boxShadow: 'primary.main',
+              boxShadow: (theme) => `0 4px 16px ${alpha(theme.palette.primary.main, 0.25)}`,
               opacity: 0.9,
             }}
           >
