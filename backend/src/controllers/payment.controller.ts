@@ -30,11 +30,6 @@ const buildHmacSignature = (secret: string, payload: unknown) => {
 const isValidWebhookSignature = (providedSignatureHeader: string, secret: string, payload: unknown) => {
   const normalizedProvided = providedSignatureHeader.trim();
 
-  // Backward compatibility for existing clients sending literal shared secret.
-  if (signaturesMatch(normalizedProvided, secret)) {
-    return true;
-  }
-
   const hmac = buildHmacSignature(secret, payload);
   const candidates = [
     hmac,

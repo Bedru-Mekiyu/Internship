@@ -153,7 +153,6 @@ function ProfileField({
         error={Boolean(error)}
         autoComplete={autoComplete}
         slotProps={{ input: { readOnly } }}
-        inputProps={{ 'aria-labelledby': `${labelId}-label` }}
         sx={inputSx}
       />
     </Box>

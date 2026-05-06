@@ -194,14 +194,6 @@ const startServer = async () => {
       transports: ['websocket', 'polling'],
     });
 
-    io.use((socket, next) => {
-      const userId = socket.handshake.auth?.userId || socket.handshake.query?.userId;
-      if (userId && typeof userId === 'string') {
-        socket.data.userId = userId;
-      }
-      next();
-    });
-
     const messageRates = new Map<string, { count: number; resetTime: number }>();
     const RATE_LIMIT_WINDOW_MS = 10000;
     const RATE_LIMIT_MAX_MESSAGES = 30;

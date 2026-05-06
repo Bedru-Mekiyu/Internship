@@ -1,6 +1,5 @@
 import { useMemo, useState } from 'react';
 import { Link as RouterLink, Outlet, useLocation } from 'react-router-dom';
-import { alpha, useTheme } from '@mui/material/styles';
 import {
   AppBar,
   Avatar,
@@ -39,7 +38,6 @@ import {
 } from './learnSpaceNavigation';
 
 function ShellLogo() {
-  const theme = useTheme();
   return (
     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.2 }}>
       <Box
@@ -77,8 +75,7 @@ export default function LearnSpaceShell() {
   const location = useLocation();
   const { user, logout } = useAuth();
   const currentRole = user?.role ?? null;
-  const muiTheme = useTheme();
-  const isDesktop = useMediaQuery(muiTheme.breakpoints.up('lg'));
+  const isDesktop = useMediaQuery((theme) => theme.breakpoints.up('lg'));
   const [mobileOpen, setMobileOpen] = useState(false);
 
   const { data: unreadData } = useQuery({
