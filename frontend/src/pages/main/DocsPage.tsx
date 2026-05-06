@@ -176,7 +176,7 @@ export default function DocsPage() {
                   onClick={() => setSelectedSection(null)}
                   sx={{ mb: 2 }}
                 >
-                  ΓåÉ Back to all sections
+                  ← Back to all sections
                 </Button>
                 <ArticleContent section={selectedSectionData} />
               </Grid>
