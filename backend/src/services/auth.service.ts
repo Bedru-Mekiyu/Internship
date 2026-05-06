@@ -18,7 +18,7 @@ export class AuthService {
   static async registerUser(userData: RegisterInput) {
     const existingUser = await User.findOne({ email: userData.email });
     if (existingUser?.emailVerified) {
-      return null;
+      throw new AppError('Email already exists', 409, { code: 'EMAIL_EXISTS' });
     }
 
     if (existingUser && !existingUser.emailVerified) {
@@ -28,10 +28,10 @@ export class AuthService {
         existingUser.verificationTokenExpiry = new Date(Date.now() + 3600000);
         await existingUser.save();
         return existingUser;
-      } catch {
-        throw new Error('Unable to send verification email. Please configure email credentials and try again.');
-      }
+    } catch {
+      throw new AppError('Unable to send verification email. Please configure email credentials and try again.', 503);
     }
+  }
 
     const hashedPassword = await bcrypt.hash(userData.password, 10);
 
@@ -66,7 +66,7 @@ export class AuthService {
 
       await User.deleteOne({ _id: user._id });
 
-      throw new Error('Unable to send verification email. Please configure email credentials and try again.');
+      throw new AppError('Unable to send verification email. Please configure email credentials and try again.', 503);
     }
   }
 
