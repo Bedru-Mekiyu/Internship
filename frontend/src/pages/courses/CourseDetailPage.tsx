@@ -952,7 +952,7 @@ export default function CourseDetailPage({ embedded = false }: { embedded?: bool
                         </>
                       ) : null}
                     </Box>
-                    {!isFreeCourse && (course.offerEndsIn || (course.listPrice > course.currentPrice && course.discountActive) ? (
+                    {!isFreeCourse && (course.offerEndsIn || (course.listPrice > course.currentPrice && course.discountActive)) ? (
                       <Typography sx={{ color: '#DC2626', fontSize: '0.52rem', fontWeight: 800, mt: 0.6 }}>
                         {course.offerEndsIn || 'Limited time offer'}
                       </Typography>

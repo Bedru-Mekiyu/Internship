@@ -127,7 +127,7 @@ function RequireSession() {
               <path fill="currentColor" d="M12 2.5 5 5.25v5.53c0 4.52 2.95 8.57 7 10.22 4.05-1.65 7-5.7 7-10.22V5.25L12 2.5Z" />
             </Box>
           </Box>
-          <Typography variant="body1" color="text.secondary" fontWeight={500}>
+          <Typography variant="body1" color="text.secondary" sx={{ fontWeight: 500 }}>
             Getting you in...
           </Typography>
         </Stack>
@@ -176,7 +176,7 @@ function RequireRole({ allowedRoles }: { allowedRoles: LearnSpaceRole[] }) {
               <path fill="currentColor" d="M12 2.5 5 5.25v5.53c0 4.52 2.95 8.57 7 10.22 4.05-1.65 7-5.7 7-10.22V5.25L12 2.5Z" />
             </Box>
           </Box>
-          <Typography variant="body1" color="text.secondary" fontWeight={500}>
+          <Typography variant="body1" color="text.secondary" sx={{ fontWeight: 500 }}>
             Verifying access...
           </Typography>
         </Stack>
@@ -1128,7 +1128,7 @@ function MarketingHomepagePage() {
       } catch (err) {
         if (isMounted) {
           console.error('Failed to fetch public settings:', err);
-          setSettingsError(err instanceof Error ? err : new Error('Failed to load settings'));
+          setSettingsError(err instanceof Error ? err.message : 'Failed to load settings');
           setPublicSettings(null);
         }
       }

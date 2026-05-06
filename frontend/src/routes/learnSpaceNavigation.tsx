@@ -17,7 +17,7 @@ import {
   HelpOutlined,
   TuneOutlined,
 } from '@mui/icons-material';
-import type { LearnSpaceRole } from '../context/AuthContext';
+import type { LearnSpaceRole } from '../types';
 
 export type { LearnSpaceRole };
 

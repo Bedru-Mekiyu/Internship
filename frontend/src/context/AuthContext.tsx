@@ -17,7 +17,7 @@ import {
 } from '../services/api';
 import { useAppDispatch } from '../hooks/redux';
 import { clearUser as clearAuthUser, setUser as setAuthUser } from '../store/slices/authSlice';
-import type { AuthUser, LearnSpaceRole } from '../types';
+import type { AuthUser } from '../types';
 
 export interface LoginPayload {
   email: string;
