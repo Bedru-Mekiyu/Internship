@@ -43,10 +43,13 @@ export const errorMiddleware = (err: unknown, req: Request, res: Response, _next
   const requestId = (req as any).requestId || null;
 
   if (err instanceof AppError) {
+    const details = err.details && typeof err.details === 'object' ? err.details as Record<string, unknown> : undefined;
+    const code = typeof details?.code === 'string' ? details.code : undefined;
     return res.status(err.statusCode).json({
       message: getUserFriendlyMessage(err, err.statusCode),
       requestId,
       ...(err.details ? { details: err.details } : {}),
+      ...(code ? { code } : {}),
     });
   }
 

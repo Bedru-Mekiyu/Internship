@@ -15,6 +15,7 @@ import {
   TextField,
   Typography,
 } from '@mui/material';
+import { alpha } from '@mui/material/styles';
 import {
   EmailOutlined,
   LockOutlined,
@@ -46,6 +47,7 @@ interface AuthInputFieldProps {
   onChange: (event: ChangeEvent<HTMLInputElement>) => void;
   icon: ReactNode;
   error?: string;
+  helperText?: string;
   showPasswordToggle?: boolean;
   autoComplete?: string;
 }
@@ -58,6 +60,7 @@ function AuthInputField({
   onChange,
   icon,
   error,
+  helperText,
   showPasswordToggle,
   autoComplete,
 }: AuthInputFieldProps) {
@@ -75,7 +78,7 @@ function AuthInputField({
         onChange={onChange}
         size="small"
         error={Boolean(error)}
-        helperText={error}
+        helperText={error || helperText}
         autoComplete={autoComplete}
         slotProps={{
           input: {
@@ -114,7 +117,44 @@ function AuthInputField({
   );
 }
 
-function validateForm(values: SignupFormValues, role: SignupRole) {
+const PASSWORD_POLICY_MESSAGE = 'Use 8+ characters with uppercase, lowercase, number, and special character.';
+const PASSWORD_POLICY_REGEX = /^(?=.{8,128}$)(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).*$/;
+
+type ApiDetail = {
+  field?: string;
+  message: string;
+};
+
+function getApiDetails(data: unknown): ApiDetail[] {
+  if (!data || typeof data !== 'object' || !('details' in data)) {
+    return [];
+  }
+
+  const details = (data as { details?: unknown }).details;
+  if (!Array.isArray(details)) {
+    return [];
+  }
+
+  return details.flatMap((detail) => {
+    if (typeof detail === 'string') {
+      return [{ message: detail }];
+    }
+
+    if (detail && typeof detail === 'object') {
+      const maybeDetail = detail as { field?: unknown; message?: unknown };
+      if (typeof maybeDetail.message === 'string') {
+        return [{
+          field: typeof maybeDetail.field === 'string' ? maybeDetail.field : undefined,
+          message: maybeDetail.message,
+        }];
+      }
+    }
+
+    return [];
+  });
+}
+
+function validateForm(values: SignupFormValues) {
   const errors: Partial<Record<keyof SignupFormValues, string>> = {};
 
   const normalizedName = values.fullName.trim();
@@ -138,12 +178,8 @@ function validateForm(values: SignupFormValues, role: SignupRole) {
 
   if (!values.password) {
     errors.password = 'Please create a password.';
-  } else if (values.password.length < 8) {
-    errors.password = 'Password must be at least 8 characters.';
-  } else if (values.password.length > 128) {
-    errors.password = 'Password is too long. Maximum 128 characters.';
-  } else if (role === 'instructor' && values.password.length < 12) {
-    errors.password = 'Instructors need a stronger password. Use at least 12 characters.';
+  } else if (!PASSWORD_POLICY_REGEX.test(values.password)) {
+    errors.password = PASSWORD_POLICY_MESSAGE;
   }
 
   return errors;
@@ -199,7 +235,7 @@ export default function SignupAuthPage() {
     event.preventDefault();
     setSubmitError('');
 
-    const errors = validateForm(formValues, role);
+    const errors = validateForm(formValues);
     setFieldErrors(errors);
     if (Object.keys(errors).length > 0) {
       return;
@@ -224,9 +260,37 @@ export default function SignupAuthPage() {
     } catch (error) {
       setSignupStatus('error');
       const apiError = normalizeApiError(error);
+      const detailMessages = getApiDetails(apiError.data);
+      const firstDetail = detailMessages[0];
+      const detailByField = detailMessages.reduce<Partial<Record<keyof SignupFormValues, string>>>((acc, detail) => {
+        const field = detail.field?.toLowerCase();
+        if (field === 'firstName'.toLowerCase() || field === 'lastName'.toLowerCase()) {
+          acc.fullName = detail.message;
+        } else if (field === 'email') {
+          acc.email = detail.message;
+        } else if (field === 'password') {
+          acc.password = detail.message;
+        }
+        return acc;
+      }, {});
       
-      if (apiError.code === 'EMAIL_EXISTS' || apiError.message?.toLowerCase().includes('email')) {
+      if (apiError.code === 'EMAIL_EXISTS' || apiError.status === 409 || apiError.message?.toLowerCase().includes('already exists')) {
         setFieldErrors({ email: apiError.message || 'This email is already registered.' });
+        setSubmitError('');
+      } else if (detailByField.email) {
+        setFieldErrors({ email: detailByField.email });
+        setSubmitError('');
+      } else if (detailByField.password) {
+        setFieldErrors({ password: detailByField.password });
+        setSubmitError('');
+      } else if (detailByField.fullName) {
+        setFieldErrors({ fullName: detailByField.fullName });
+        setSubmitError('');
+      } else if (detailMessages.some((detail) => detail.message.toLowerCase().includes('email'))) {
+        setFieldErrors({ email: firstDetail?.message || 'Please use a valid email address.' });
+        setSubmitError('');
+      } else if (detailMessages.some((detail) => detail.message.toLowerCase().includes('password'))) {
+        setFieldErrors({ password: firstDetail?.message || PASSWORD_POLICY_MESSAGE });
         setSubmitError('');
       } else if (apiError.code === 'RATE_LIMITED' || apiError.message?.toLowerCase().includes('too many')) {
         setSubmitError('Too many attempts. Please wait a moment and try again.');
@@ -434,6 +498,7 @@ if (signupStatus === 'success') {
                     onChange={updateField('password')}
                     icon={<LockOutlined fontSize="small" />}
                     error={fieldErrors.password}
+                    helperText={PASSWORD_POLICY_MESSAGE}
                     showPasswordToggle
                     autoComplete="new-password"
                   />

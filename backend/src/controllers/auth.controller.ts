@@ -76,14 +76,10 @@ const sanitizeUser = (user: any) => {
 };
 
 export const register = asyncHandler(async (req: Request, res: Response) => {
-  try {
-    await AuthService.registerUser(req.body);
-    return res.status(202).json({
-      message: 'If the email is eligible, a verification email has been sent.',
-    });
-  } catch (error) {
-    throw new AppError(error instanceof Error ? error.message : 'Registration failed', 400);
-  }
+  await AuthService.registerUser(req.body);
+  return res.status(202).json({
+    message: 'If the email is eligible, a verification email has been sent.',
+  });
 });
 
 export const login = asyncHandler(async (req: Request, res: Response) => {
