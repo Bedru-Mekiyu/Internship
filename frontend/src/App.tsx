@@ -61,17 +61,9 @@ const CourseDetailPage = lazy(() => import('./pages/courses/CourseDetailPage'));
 const ExploreCourses = lazy(() => import('./pages/courses/ExploreCourses'));
 const CreateCourse = lazy(() => import('./pages/courses/CreateCourse'));
 const AdminDashboard = lazy(() => import('./pages/dashboard/AdminDashboard'));
+const AdminCourseManager = lazy(() => import('./pages/admin/CourseManager'));
 const Messages = lazy(() => import('./pages/dashboard/Messages'));
-const CourseDiscussions = lazy(() => import('./pages/courses/CourseDiscussions'));
-const MediaLibrary = lazy(() => import('./pages/cms/MediaLibrary'));
-const QuizTaker = lazy(() => import('./pages/courses/QuizTaker'));
-const QuizBuilder = lazy(() => import('./pages/courses/QuizBuilder'));
-const MyCertificates = lazy(() => import('./pages/dashboard/MyCertificates'));
-const AdminNotifications = lazy(() => import('./pages/dashboard/AdminNotifications'));
-const BlogPostEditor = lazy(() => import('./pages/cms/BlogPostEditor'));
-const ContentManager = lazy(() => import('./pages/cms/ContentManager'));
-const UploadLesson = lazy(() => import('./pages/cms/UploadLesson'));
-const UserManagement = lazy(() => import('./pages/dashboard/UserManagement'));
+
 const AnalyticsDashboard = lazy(() => import('./pages/dashboard/AnalyticsDashboard'));
 const StudentDashboard = lazy(() => import('./pages/dashboard/StudentDashboard'));
 const ContactUs = lazy(() => import('./pages/main/ContactUs'));
@@ -98,6 +90,16 @@ const OrderSuccessPage = lazy(() => import('./pages/orders/OrderSuccessPage'));
 const NotificationPreferencesPage = lazy(() => import('./pages/settings/NotificationPreferencesPage'));
 const SearchResultsPage = lazy(() => import('./pages/search/SearchResultsPage'));
 const MyQuizResultsPage = lazy(() => import('./pages/quizzes/MyQuizResultsPage'));
+const UploadLesson = lazy(() => import('./pages/cms/UploadLesson'));
+const QuizTaker = lazy(() => import('./pages/courses/QuizTaker'));
+const CourseDiscussions = lazy(() => import('./pages/courses/CourseDiscussions'));
+const AdminNotifications = lazy(() => import('./pages/dashboard/AdminNotifications'));
+const MyCertificates = lazy(() => import('./pages/dashboard/MyCertificates'));
+const MediaLibrary = lazy(() => import('./pages/cms/MediaLibrary'));
+const ContentManager = lazy(() => import('./pages/cms/ContentManager'));
+const BlogPostEditor = lazy(() => import('./pages/cms/BlogPostEditor'));
+const QuizBuilder = lazy(() => import('./pages/courses/QuizBuilder'));
+const UserManagement = lazy(() => import('./pages/dashboard/UserManagement'));
 
 
 function RequireSession() {
@@ -350,8 +352,8 @@ function PasswordResetPage() {
   };
 
   const getCardStyle = (step: 'request' | 'new-password') => ({
-    border: activeStep === step ? '1px solid #BFDBFE' : '1px solid #E2E8F0',
-    boxShadow: activeStep === step ? '0 12px 30px rgba(0,102,255,0.08)' : '0 4px 20px rgba(0,0,0,0.06)',
+    border: activeStep === step ? `1px solid ${alpha(theme.palette.info.light, 0.5)}` : `1px solid ${theme.palette.divider}`,
+    boxShadow: activeStep === step ? `0 12px 30px ${alpha(theme.palette.primary.main, 0.08)}` : `0 4px 20px ${alpha(theme.palette.text.primary, 0.06)}`,
   });
 
   return (
@@ -440,7 +442,7 @@ function PasswordResetPage() {
                           disabled={requestSubmitting}
                           sx={{
                             bgcolor: 'primary.main',
-                            color: '#FFFFFF',
+                            color: 'primary.contrastText',
                             py: 1.6,
                             fontSize: 16,
                             '&:hover': { bgcolor: 'primary.dark' },
@@ -575,20 +577,20 @@ function PasswordResetPage() {
                         />
                       </Box>
 
-                      <Button
-                        type="submit"
-                        variant="contained"
-                        fullWidth
-                        size="large"
-                        disabled={resetSubmitting}
-                        sx={{
-                          bgcolor: 'primary.main',
-                          color: '#FFFFFF',
-                          py: 1.6,
-                          fontSize: 16,
-                          '&:hover': { bgcolor: 'primary.dark' },
-                        }}
-                      >
+                        <Button
+                          type="submit"
+                          variant="contained"
+                          fullWidth
+                          size="large"
+                          disabled={resetSubmitting}
+                          sx={{
+                            bgcolor: 'primary.main',
+                            color: 'primary.contrastText',
+                            py: 1.6,
+                            fontSize: 16,
+                            '&:hover': { bgcolor: 'primary.dark' },
+                          }}
+                        >
                         {resetSubmitting ? 'Updating…' : 'Set new password'}
                       </Button>
 
@@ -1247,29 +1249,29 @@ function MarketingHomepagePage() {
   const landingCourses = courses.length > 0 ? courses : fallbackCourses;
 
   return (
-    <Box id="top" sx={{ bgcolor: '#F6F8FE', color: '#111827', minHeight: '100vh' }}>
+    <Box id="top" sx={{ bgcolor: 'background.default', color: 'text.primary', minHeight: '100vh' }}>
       {settingsError ? (
         <Alert severity="error" sx={{ borderRadius: 0 }}>
           {settingsError}
         </Alert>
       ) : null}
-      <Box sx={{ py: { xs: 4.2, md: 5.2 }, bgcolor: '#F6F8FE' }}>
+      <Box sx={{ py: { xs: 4.2, md: 5.2 }, bgcolor: 'background.default' }}>
         <Container maxWidth="lg">
           <Grid container spacing={{ xs: 3, md: 5 }} sx={{ alignItems: 'center' }}>
             <Grid size={{ xs: 12, lg: 6 }}>
               <Stack spacing={1.5}>
-                <Typography variant="overline" sx={{ color: '#5B5CEB', fontWeight: 700, letterSpacing: 0, fontSize: '0.66rem', textTransform: 'none', width: 'fit-content', px: 1.05, py: 0.25, borderRadius: 1.1, bgcolor: alpha('#5B5CEB', 0.1) }}>
+                <Typography variant="overline" sx={{ color: 'primary.main', fontWeight: 700, letterSpacing: 0, fontSize: '0.66rem', textTransform: 'none', width: 'fit-content', px: 1.05, py: 0.25, borderRadius: 1.1, bgcolor: alpha(theme.palette.primary.main, 0.1) }}>
                   New: AI Course Generator
                 </Typography>
-                <Typography variant="h2" sx={{ fontWeight: 800, color: '#0F172A', letterSpacing: 0, fontSize: { xs: '2rem', md: '2.8rem' }, lineHeight: 1.05 }}>
+                <Typography variant="h2" sx={{ fontWeight: 800, color: 'text.primary', letterSpacing: 0, fontSize: { xs: '2rem', md: '2.8rem' }, lineHeight: 1.05 }}>
                   Unlock Potential with Modern Learning
                 </Typography>
-                <Typography variant="body2" sx={{ color: '#667085', maxWidth: 500, fontWeight: 500, lineHeight: 1.6, fontSize: { xs: '0.84rem', md: '0.82rem' } }}>
+                <Typography variant="body2" sx={{ color: 'text.secondary', maxWidth: 500, fontWeight: 500, lineHeight: 1.6, fontSize: { xs: '0.84rem', md: '0.82rem' } }}>
                   Create, manage, and scale your educational programs with the world's most intuitive LMS platform designed for growing teams.
                 </Typography>
 
                 <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1.4 }}>
-                  <Button component={RouterLink} to="/auth/signup" variant="contained" sx={{ px: 2, py: 0.7, borderRadius: 0.9, fontSize: '0.78rem', bgcolor: '#4F46E5', '&:hover': { bgcolor: '#4338CA' } }}>
+                  <Button component={RouterLink} to="/auth/signup" variant="contained" sx={{ px: 2, py: 0.7, borderRadius: 0.9, fontSize: '0.78rem', bgcolor: 'primary.main', '&:hover': { bgcolor: 'primary.dark' } }}>
                     Start Free Trial
                   </Button>
                   <Button
@@ -1277,7 +1279,7 @@ function MarketingHomepagePage() {
                     to="/courses/explore"
                     variant="outlined"
                     startIcon={<PlayCircleOutlined sx={{ fontSize: '0.95rem' }} />}
-                    sx={{ px: 2, py: 0.7, fontSize: '0.78rem', color: '#0F172A', borderColor: '#D9DFEA', bgcolor: '#F4F6FC', '&:hover': { borderColor: '#C8D0DE', bgcolor: '#EDF1F9' } }}
+                    sx={{ px: 2, py: 0.7, fontSize: '0.78rem', color: 'text.primary', borderColor: 'divider', bgcolor: 'background.paper', '&:hover': { borderColor: 'divider', bgcolor: 'action.hover' } }}
                   >
                     Watch Demo
                   </Button>
@@ -1338,14 +1340,14 @@ function MarketingHomepagePage() {
         </Container>
       </Box>
 
-      <Box sx={{ py: 2.05, bgcolor: '#F6F8FE' }}>
+      <Box sx={{ py: 2.05, bgcolor: 'background.default' }}>
         <Container maxWidth="lg">
-          <Typography sx={{ textAlign: 'center', fontSize: '0.58rem', color: '#8B94A6', letterSpacing: 0, fontWeight: 700 }}>
+          <Typography sx={{ textAlign: 'center', fontSize: '0.58rem', color: 'text.secondary', letterSpacing: 0, fontWeight: 700 }}>
             POWERING TOP EDUCATION TEAMS
           </Typography>
           <Box sx={{ mt: 1.1, display: 'grid', gridTemplateColumns: { xs: '1fr 1fr', md: 'repeat(5, 1fr)' }, gap: 1.5 }}>
             {trustPartners.map((partner) => (
-              <Typography key={partner} sx={{ textAlign: 'center', fontSize: '0.7rem', color: '#5A6373', fontWeight: 700 }}>
+              <Typography key={partner} sx={{ textAlign: 'center', fontSize: '0.7rem', color: 'text.secondary', fontWeight: 700 }}>
                 {partner}
               </Typography>
             ))}
@@ -1714,6 +1716,7 @@ function AppRoutes() {
 
             <Route element={<RequireRole allowedRoles={['admin']} />}>
               <Route path="/admin/dashboard" element={<AdminDashboard />} />
+              <Route path="/admin/courses" element={<AdminCourseManager />} />
               <Route path="/admin/settings" element={<SystemSettings />} />
               <Route path="/admin/users" element={<UserManagement />} />
             </Route>

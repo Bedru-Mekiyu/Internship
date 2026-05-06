@@ -221,7 +221,7 @@ export default function CreateCourse() {
           <Box sx={{ display: 'flex', alignItems: 'center', gap: SPACING.md }}>
             <Button
               variant="text"
-              onClick={() => navigate('/courses')}
+              onClick={() => navigate('/admin/courses')}
               sx={{ color: 'text.secondary' }}
             >
               Back

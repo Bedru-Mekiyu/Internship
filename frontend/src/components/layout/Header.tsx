@@ -70,7 +70,7 @@ export default function Header() {
             underline="none"
             sx={{
               color: active ? 'primary.main' : 'text.secondary',
-              fontSize: '0.68rem',
+              fontSize: '0.75rem',
               fontWeight: 700,
               '&:hover': { color: 'primary.main' },
             }}
