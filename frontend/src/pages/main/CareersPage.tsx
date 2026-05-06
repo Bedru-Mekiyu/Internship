@@ -1,20 +1,16 @@
 import { useState, type ChangeEvent } from 'react';
-import   {
+import {
   Box,
   Button,
   Card,
   CardContent,
   Container,
   Grid,
-  Link,
   Stack,
   TextField,
   Typography,
 } from '@mui/material';
 import {
-  BusinessCenterOutlined,
-  CalendarTodayOutlined,
-  LocationOnOutlined,
   SendOutlined,
 } from '@mui/icons-material';
 import { Link as RouterLink } from 'react-router-dom';
@@ -29,188 +25,55 @@ interface Job {
   requirements: string[];
 }
 
-function BrandMark() {
-  return (
-    <Box
-      sx={{
-        width: 40,
-        height: 40,
-        borderRadius: 1.5,
-        bgcolor: 'primary.main',
-        color: '#FFFFFF',
-        display: 'grid',
-        placeItems: 'center',
-        fontWeight: 900,
-        flexShrink: 0,
-      }}
-    >
-      LS
-    </Box>
-  );
-}
-
-function TopNav() {
-  const navItems = [
-    { label: 'Features', to: '/#features' },
-    { label: 'Courses', to: '/courses/explore' },
-    { label: 'Pricing', to: '/pricing' },
-    { label: 'Careers', to: '/careers' },
-  ];
-
-  return (
-    <Box
-      sx={{
-        position: 'sticky',
-        top: 0,
-        zIndex: 20,
-        bgcolor: 'background.paper',
-        borderBottom: '1px solid',
-        borderColor: 'divider',
-      }}
-    >
-      <Container maxWidth="xl">
-        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 3, py: 2 }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.25 }}>
-            <BrandMark />
-            <Typography variant="h6" sx={{ fontWeight: 900, letterSpacing: '-0.03em' }}>
-              LearnSpace
-            </Typography>
-          </Box>
-
-          <Box sx={{ display: { xs: 'none', md: 'flex' }, alignItems: 'center', gap: 3 }}>
-            {navItems.map((item) => (
-              <Link key={item.label} component={RouterLink} to={item.to} underline="none" sx={{ color: 'text.secondary', fontWeight: 600, '&:hover': { color: 'primary.main' } }}>
-                {item.label}
-              </Link>
-            ))}
-          </Box>
-
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-            <Link component={RouterLink} to="/auth/login" underline="none" sx={{ color: 'text.primary', fontWeight: 700 }}>
-              Log in
-            </Link>
-            <Button component={RouterLink} to="/auth/signup" variant="contained" sx={{ px: 3, py: 1.25, borderRadius: 1.5 }}>
-              Get Started
-            </Button>
-          </Box>
-        </Box>
-      </Container>
-    </Box>
-  );
-}
-
 function JobCard({
   job,
-  onApply,
   expanded,
+  onApply,
   onToggle,
 }: {
   job: Job;
-  onApply: (id: string) => void;
   expanded: boolean;
+  onApply: (jobId: string) => void;
   onToggle: () => void;
 }) {
   return (
-    <Card
-      sx={{
-        borderRadius: 2,
-        border: '1px solid',
-        borderColor: expanded ? 'primary.main' : 'divider',
-        transition: 'all 180ms ease',
-      }}
-    >
-      <CardContent sx={{ p: 0 }}>
-        <Box
-          component="button"
-          onClick={onToggle}
-          sx={{
-            width: '100%',
-            p: 2.5,
-            display: 'flex',
-            alignItems: 'flex-start',
-            justifyContent: 'space-between',
-            bgcolor: 'transparent',
-            border: 'none',
-            cursor: 'pointer',
-            textAlign: 'left',
-          }}
-        >
-          <Box sx={{ flex: 1 }}>
-            <Typography variant="h6" sx={{ fontWeight: 800, mb: 0.75 }}>
+    <Card sx={{ borderRadius: 2, border: '1px solid', borderColor: 'divider' }}>
+      <CardContent sx={{ p: 3 }}>
+        <Stack spacing={2}>
+          <Box>
+            <Typography variant="h6" sx={{ fontWeight: 800 }}>
               {job.title}
             </Typography>
-            <Stack direction="row" spacing={2} sx={{ flexWrap: 'wrap', gap: 1 }}>
-              <Stack direction="row" spacing={0.5} sx={{ alignItems: 'center' }}>
-                <BusinessCenterOutlined sx={{ fontSize: 16, color: 'text.secondary' }} />
-                <Typography variant="body2" sx={{ color: 'text.secondary', fontWeight: 600 }}>
-                  {job.department}
-                </Typography>
-              </Stack>
-              <Stack direction="row" spacing={0.5} sx={{ alignItems: 'center' }}>
-                <LocationOnOutlined sx={{ fontSize: 16, color: 'text.secondary' }} />
-                <Typography variant="body2" sx={{ color: 'text.secondary', fontWeight: 600 }}>
-                  {job.location}
-                </Typography>
-              </Stack>
-              <Stack direction="row" spacing={0.5} sx={{ alignItems: 'center' }}>
-                <CalendarTodayOutlined sx={{ fontSize: 16, color: 'text.secondary' }} />
-                <Typography variant="body2" sx={{ color: 'text.secondary', fontWeight: 600 }}>
-                  {job.type}
-                </Typography>
-              </Stack>
-            </Stack>
+            <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+              {job.department} • {job.location} • {job.type}
+            </Typography>
           </Box>
-        </Box>
-
-        {expanded && (
-          <Box sx={{ px: 2.5, pb: 2.5 }}>
-            <Typography variant="body1" sx={{ color: 'text.secondary', lineHeight: 1.8, mb: 2 }}>
-              {job.description}
-            </Typography>
-            <Typography variant="subtitle1" sx={{ fontWeight: 800, mb: 1 }}>
-              Requirements
-            </Typography>
-            <Stack spacing={0.75} sx={{ mb: 2.5 }}>
-              {job.requirements.map((req, idx) => (
-                <Typography key={idx} variant="body2" sx={{ color: 'text.secondary' }}>
-                  • {req}
+          <Typography variant="body2" sx={{ color: 'text.secondary', lineHeight: 1.7 }}>
+            {job.description}
+          </Typography>
+          {expanded ? (
+            <Stack spacing={1}>
+              <Typography variant="subtitle2" sx={{ fontWeight: 800 }}>
+                Requirements
+              </Typography>
+              {job.requirements.map((requirement) => (
+                <Typography key={requirement} variant="body2" sx={{ color: 'text.secondary' }}>
+                  • {requirement}
                 </Typography>
               ))}
             </Stack>
-            <Button variant="contained" onClick={() => onApply(job.id)}>
-              Apply Now
+          ) : null}
+          <Stack direction="row" spacing={1.5}>
+            <Button variant="outlined" onClick={onToggle}>
+              {expanded ? 'Hide details' : 'View details'}
             </Button>
-          </Box>
-        )}
+            <Button variant="contained" onClick={() => onApply(job.id)}>
+              Apply now
+            </Button>
+          </Stack>
+        </Stack>
       </CardContent>
     </Card>
-  );
-}
-
-function FooterColumn({ heading, items }: { heading: string; items: string[] }) {
-  const resolveLink = (item: string) => {
-    switch (item) {
-      case 'Features': return '/#features';
-      case 'Courses': return '/courses/explore';
-      case 'Pricing': return '/pricing';
-      case 'About': return '/about';
-      case 'Blog': return '/blog';
-      case 'Careers': return '/careers';
-      case 'Contact': return '/contact';
-      case 'Help Center': return '/help-center';
-      default: return '/home';
-    }
-  };
-
-  return (
-    <Stack spacing={1.25}>
-      <Typography variant="subtitle1" sx={{ fontWeight: 800 }}>{heading}</Typography>
-      {items.map((item) => (
-        <Link key={item} component={RouterLink} to={resolveLink(item)} underline="none" sx={{ color: 'text.secondary', fontWeight: 500, '&:hover': { color: 'primary.main' } }}>
-          {item}
-        </Link>
-      ))}
-    </Stack>
   );
 }
 
@@ -322,8 +185,6 @@ export default function CareersPage() {
 
   return (
     <Box sx={{ bgcolor: 'background.paper', color: 'text.primary' }}>
-      <TopNav />
-
       <Box sx={{ pt: { xs: 6, md: 9 }, pb: { xs: 4, md: 5 }, bgcolor: 'background.default', textAlign: 'center' }}>
         <Container maxWidth="md">
           <Stack spacing={2}>
@@ -424,41 +285,10 @@ export default function CareersPage() {
         </Container>
       </Box>
 
-      <Box sx={{ pt: { xs: 5, md: 6 }, pb: 4, bgcolor: 'background.paper', borderTop: '1px solid', borderColor: 'divider' }}>
-        <Container maxWidth="xl">
-          <Grid container spacing={4}>
-            <Grid size={{ xs: 12, md: 4 }}>
-              <Stack spacing={2}>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.25 }}>
-                  <BrandMark />
-                  <Typography variant="h6" sx={{ fontWeight: 900 }}>LearnSpace</Typography>
-                </Box>
-                <Typography variant="body2" sx={{ color: 'text.secondary', maxWidth: 330, lineHeight: 1.8 }}>
-                  A modern EdTech platform for teams, creators, and learners.
-                </Typography>
-              </Stack>
-            </Grid>
-            <Grid size={{ xs: 12, md: 8 }}>
-              <Grid container spacing={3}>
-                <Grid size={{ xs: 12, sm: 4 }}>
-                  <FooterColumn heading="Product" items={['Features', 'Courses', 'Pricing']} />
-                </Grid>
-                <Grid size={{ xs: 12, sm: 4 }}>
-                  <FooterColumn heading="Company" items={['About', 'Careers', 'Blog', 'Contact']} />
-                </Grid>
-                <Grid size={{ xs: 12, sm: 4 }}>
-                  <FooterColumn heading="Resources" items={['Help Center', 'Docs', 'Community', 'Status']} />
-                </Grid>
-              </Grid>
-            </Grid>
-          </Grid>
-          <Box sx={{ mt: 5, pt: 3, borderTop: '1px solid', borderColor: 'divider', textAlign: 'center' }}>
-            <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-              © 2026 LearnSpace. All rights reserved.
-            </Typography>
-          </Box>
-        </Container>
-      </Box>
     </Box>
   );
 }
+
+
+
+

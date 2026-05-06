@@ -21,7 +21,7 @@ import {
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { api, ensureCsrfToken, normalizeApiError } from '../../services/api';
-import { SPACING, card } from '../dashboard/dashboardTokens';
+import { SPACING } from '../dashboard/dashboardTokens';
 
 type LessonType = 'Video' | 'Quiz' | 'Reading';
 

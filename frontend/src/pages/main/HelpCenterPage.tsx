@@ -7,14 +7,12 @@ import {
   Container,
   Grid,
   InputAdornment,
-  Link,
   Stack,
   TextField,
   Typography,
 } from '@mui/material';
 import {
   BusinessCenterOutlined,
-  ExpandMoreOutlined,
   HelpOutlineOutlined,
   SchoolOutlined,
   SearchOutlined,
@@ -35,127 +33,6 @@ interface HelpCategory {
   faqs: FaqItem[];
 }
 
-function BrandMark() {
-  return (
-    <Box
-      sx={{
-        width: 40,
-        height: 40,
-        borderRadius: 1.5,
-        bgcolor: 'primary.main',
-        color: '#FFFFFF',
-        display: 'grid',
-        placeItems: 'center',
-        fontWeight: 900,
-        flexShrink: 0,
-      }}
-    >
-      LS
-    </Box>
-  );
-}
-
-function TopNav() {
-  const navItems = [
-    { label: 'Features', to: '/#features' },
-    { label: 'Courses', to: '/courses/explore' },
-    { label: 'Pricing', to: '/pricing' },
-    { label: 'Help Center', to: '/help-center' },
-  ];
-
-  return (
-    <Box
-      sx={{
-        position: 'sticky',
-        top: 0,
-        zIndex: 20,
-        bgcolor: 'background.paper',
-        borderBottom: '1px solid',
-        borderColor: 'divider',
-      }}
-    >
-      <Container maxWidth="xl">
-        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 3, py: 2 }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.25 }}>
-            <BrandMark />
-            <Typography variant="h6" sx={{ fontWeight: 900, letterSpacing: '-0.03em' }}>
-              LearnSpace
-            </Typography>
-          </Box>
-
-          <Box sx={{ display: { xs: 'none', md: 'flex' }, alignItems: 'center', gap: 3 }}>
-            {navItems.map((item) => (
-              <Link key={item.label} component={RouterLink} to={item.to} underline="none" sx={{ color: 'text.secondary', fontWeight: 600, '&:hover': { color: 'primary.main' } }}>
-                {item.label}
-              </Link>
-            ))}
-          </Box>
-
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-            <Link component={RouterLink} to="/auth/login" underline="none" sx={{ color: 'text.primary', fontWeight: 700 }}>
-              Log in
-            </Link>
-            <Button component={RouterLink} to="/auth/signup" variant="contained" sx={{ px: 3, py: 1.25, borderRadius: 1.5 }}>
-              Get Started
-            </Button>
-          </Box>
-        </Box>
-      </Container>
-    </Box>
-  );
-}
-
-function FaqAccordion({ question, answer }: FaqItem) {
-  const [expanded, setExpanded] = useState(false);
-
-  return (
-    <Card
-      sx={{
-        borderRadius: 1.5,
-        border: '1px solid',
-        borderColor: expanded ? 'primary.main' : 'divider',
-        transition: 'border-color 180ms ease',
-      }}
-    >
-      <CardContent sx={{ p: 0 }}>
-        <Box
-          component="button"
-          onClick={() => setExpanded(!expanded)}
-          sx={{
-            width: '100%',
-            p: 2,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            bgcolor: 'transparent',
-            border: 'none',
-            cursor: 'pointer',
-            textAlign: 'left',
-          }}
-        >
-          <Typography variant="body1" sx={{ fontWeight: 700, pr: 2 }}>
-            {question}
-          </Typography>
-          <ExpandMoreOutlined
-            sx={{
-              transform: expanded ? 'rotate(180deg)' : 'rotate(0deg)',
-              transition: 'transform 180ms ease',
-              color: 'text.secondary',
-            }}
-          />
-        </Box>
-        {expanded && (
-          <Box sx={{ px: 2, pb: 2 }}>
-            <Typography variant="body2" sx={{ color: 'text.secondary', lineHeight: 1.8 }}>
-              {answer}
-            </Typography>
-          </Box>
-        )}
-      </CardContent>
-    </Card>
-  );
-}
-
 function HelpCategoryCard({
   category,
   onSelect,
@@ -164,60 +41,39 @@ function HelpCategoryCard({
   onSelect: (id: string) => void;
 }) {
   return (
-    <Card
-      sx={{
-        borderRadius: 2,
-        border: '1px solid',
-        borderColor: 'divider',
-        cursor: 'pointer',
-        transition: 'all 180ms ease',
-        '&:hover': {
-          borderColor: 'primary.main',
-          transform: 'translateY(-2px)',
-        },
-      }}
-      onClick={() => onSelect(category.id)}
-    >
-      <CardContent sx={{ p: 2.5 }}>
-        <Box sx={{ mb: 1.5, color: 'primary.main' }}>{category.icon}</Box>
-        <Typography variant="h6" sx={{ fontWeight: 800, mb: 0.75 }}>
-          {category.title}
-        </Typography>
-        <Typography variant="body2" sx={{ color: 'text.secondary', lineHeight: 1.7, mb: 1.5 }}>
-          {category.description}
-        </Typography>
-        <Typography variant="body2" sx={{ color: 'primary.main', fontWeight: 700 }}>
-          {category.faqs.length} articles
-        </Typography>
+    <Card sx={{ borderRadius: 2, border: '1px solid', borderColor: 'divider', height: '100%' }}>
+      <CardContent sx={{ p: 2.5, textAlign: 'center' }}>
+        <Stack spacing={1.2} sx={{ alignItems: 'center' }}>
+          {category.icon}
+          <Typography variant="h6" sx={{ fontWeight: 800 }}>
+            {category.title}
+          </Typography>
+          <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+            {category.description}
+          </Typography>
+          <Button variant="outlined" onClick={() => onSelect(category.id)}>
+            View FAQs
+          </Button>
+        </Stack>
       </CardContent>
     </Card>
   );
 }
 
-function FooterColumn({ heading, items }: { heading: string; items: string[] }) {
-  const resolveLink = (item: string) => {
-    switch (item) {
-      case 'Features': return '/#features';
-      case 'Courses': return '/courses/explore';
-      case 'Pricing': return '/pricing';
-      case 'Help Center': return '/help-center';
-      case 'About': return '/about';
-      case 'Blog': return '/blog';
-      case 'Careers': return '/careers';
-      case 'Contact': return '/contact';
-      default: return '/home';
-    }
-  };
-
+function FaqAccordion({ question, answer }: FaqItem) {
   return (
-    <Stack spacing={1.25}>
-      <Typography variant="subtitle1" sx={{ fontWeight: 800 }}>{heading}</Typography>
-      {items.map((item) => (
-        <Link key={item} component={RouterLink} to={resolveLink(item)} underline="none" sx={{ color: 'text.secondary', fontWeight: 500, '&:hover': { color: 'primary.main' } }}>
-          {item}
-        </Link>
-      ))}
-    </Stack>
+    <Card sx={{ borderRadius: 1.5, border: '1px solid', borderColor: 'divider' }}>
+      <CardContent sx={{ p: 2.25 }}>
+        <Stack spacing={1}>
+          <Typography variant="subtitle1" sx={{ fontWeight: 800 }}>
+            {question}
+          </Typography>
+          <Typography variant="body2" sx={{ color: 'text.secondary', lineHeight: 1.7 }}>
+            {answer}
+          </Typography>
+        </Stack>
+      </CardContent>
+    </Card>
   );
 }
 
@@ -294,8 +150,6 @@ export default function HelpCenterPage() {
 
   return (
     <Box sx={{ bgcolor: 'background.paper', color: 'text.primary' }}>
-      <TopNav />
-
       <Box sx={{ pt: { xs: 6, md: 8 }, pb: { xs: 6, md: 8 }, bgcolor: 'background.default' }}>
         <Container maxWidth="md">
           <Stack spacing={2.5} sx={{ textAlign: 'center' }}>
@@ -432,41 +286,8 @@ export default function HelpCenterPage() {
         </Container>
       </Box>
 
-      <Box sx={{ pt: { xs: 5, md: 6 }, pb: 4, bgcolor: 'background.paper', borderTop: '1px solid', borderColor: 'divider' }}>
-        <Container maxWidth="xl">
-          <Grid container spacing={4}>
-            <Grid size={{ xs: 12, md: 4 }}>
-              <Stack spacing={2}>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.25 }}>
-                  <BrandMark />
-                  <Typography variant="h6" sx={{ fontWeight: 900 }}>LearnSpace</Typography>
-                </Box>
-                <Typography variant="body2" sx={{ color: 'text.secondary', maxWidth: 330, lineHeight: 1.8 }}>
-                  A modern EdTech platform for teams, creators, and learners.
-                </Typography>
-              </Stack>
-            </Grid>
-            <Grid size={{ xs: 12, md: 8 }}>
-              <Grid container spacing={3}>
-                <Grid size={{ xs: 12, sm: 4 }}>
-                  <FooterColumn heading="Product" items={['Features', 'Courses', 'Pricing']} />
-                </Grid>
-                <Grid size={{ xs: 12, sm: 4 }}>
-                  <FooterColumn heading="Company" items={['About', 'Careers', 'Blog', 'Contact']} />
-                </Grid>
-                <Grid size={{ xs: 12, sm: 4 }}>
-                  <FooterColumn heading="Resources" items={['Help Center', 'Docs', 'Community', 'Status']} />
-                </Grid>
-              </Grid>
-            </Grid>
-          </Grid>
-          <Box sx={{ mt: 5, pt: 3, borderTop: '1px solid', borderColor: 'divider', textAlign: 'center' }}>
-            <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-              © 2026 LearnSpace. All rights reserved.
-            </Typography>
-          </Box>
-        </Container>
-      </Box>
     </Box>
   );
 }
+
+

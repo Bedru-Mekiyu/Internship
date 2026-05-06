@@ -55,7 +55,7 @@ export const baseNavigationItems: NavigationItem[] = [
   { label: 'Achievements', to: '/certificates', icon: <EmojiEventsOutlined />, roles: ['student'], section: 'overview' },
   { label: 'Profile', to: '/profile-settings', icon: <PersonOutlined />, roles: ['student'], section: 'settings' },
   { label: 'Preferences', to: '/settings/notifications', icon: <TuneOutlined />, roles: ['student'], section: 'settings' },
-  { label: 'Help Center', to: '/help-center', icon: <HelpOutlined />, roles: ['student'], section: 'settings' },
+  { label: 'Help Center', to: '/help', icon: <HelpOutlined />, roles: ['student'], section: 'settings' },
 
   // Instructor navigation items
   { label: 'Instructor Dashboard', to: '/instructor/dashboard', icon: <DashboardOutlined />, roles: ['instructor'], section: 'overview' },
@@ -67,7 +67,7 @@ export const baseNavigationItems: NavigationItem[] = [
   { label: 'Analytics', to: '/admin/analytics', icon: <AnalyticsOutlined />, roles: ['instructor'], section: 'overview' },
   { label: 'Media Library', to: '/cms/media', icon: <FolderOutlined />, roles: ['instructor'], section: 'content' },
   { label: 'Profile', to: '/profile-settings', icon: <PersonOutlined />, roles: ['instructor'], section: 'settings' },
-  { label: 'Help Center', to: '/help-center', icon: <HelpOutlined />, roles: ['instructor'], section: 'settings' },
+  { label: 'Help Center', to: '/help', icon: <HelpOutlined />, roles: ['instructor'], section: 'settings' },
 
   // Admin navigation items
   { label: 'Admin Dashboard', to: '/admin/dashboard', icon: <DashboardOutlined />, roles: ['admin'], section: 'overview' },

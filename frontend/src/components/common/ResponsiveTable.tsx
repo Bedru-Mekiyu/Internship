@@ -1,5 +1,5 @@
 import { type ReactNode } from 'react';
-import { Table, TableBody, TableCell, TableContainer, TableRow, Typography, Box } from '@mui/material';
+import { Table, TableBody, TableCell, TableRow, Typography, Box } from '@mui/material';
 
 interface ResponsiveTableProps {
   children: ReactNode;

@@ -1,5 +1,4 @@
 import { useMemo, useState, type ReactNode } from 'react';
-import { useTheme } from '@mui/material/styles';
 import {
   Accordion,
   AccordionDetails,
@@ -19,7 +18,6 @@ import {
 import {
   AllInclusiveOutlined,
   ArticleOutlined,
-  BoltOutlined,
   CalendarMonthOutlined,
   CardGiftcardOutlined,
   CheckOutlined,
@@ -34,6 +32,7 @@ import {
 } from '@mui/icons-material';
 import { Link as RouterLink, useNavigate, useParams } from 'react-router-dom';
 import heroLaptop from '../../assets/hero-laptop-open.png';
+import { api } from '../../services/api';
 import { normalizeApiError } from '../../services/api';
 import { useEnrollInCourseMutation, useGetCourseByIdQuery } from '../../store/api/courseApi';
 import type { AuthUser, Course, CourseModule, CourseModuleLesson } from '../../types';
@@ -45,8 +44,14 @@ type CourseModuleWithSummary = CourseModule & {
 };
 
 type CourseDetailExtras = Course & {
+  articleCount?: number;
+  currentPrice?: number;
+  discountActive?: boolean;
+  downloadCount?: number;
   includedVideoHours?: string;
   instructorHeadline?: string;
+  isBestseller?: boolean;
+  listPrice?: number;
   offerEndsIn?: string;
   originalPrice?: number;
   subcategory?: string;
@@ -252,131 +257,6 @@ const sortLessons = (lessons: CourseModuleLesson[]) =>
     return left.title.localeCompare(right.title);
   });
 
-function BrandMark() {
-  return (
-    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.6 }}>
-      <BoltOutlined sx={{ color: purple, fontSize: 14 }} />
-      <Typography sx={{ color: purple, fontWeight: 800, fontSize: '0.72rem', letterSpacing: 0 }}>
-        LearnSpace
-      </Typography>
-    </Box>
-  );
-}
-
-function TopNav() {
-  const links = [
-    { label: 'Features', to: '/#features' },
-    { label: 'Courses', to: '/courses/explore' },
-    { label: 'Pricing', to: '/pricing' },
-    { label: 'About Us', to: '/about' },
-  ];
-
-  return (
-    <Box component="header" sx={{ bgcolor: '#FFFFFF', borderBottom: `1px solid ${borderColor}` }}>
-      <Container maxWidth={false} sx={{ maxWidth: pageMaxWidth, mx: 'auto', px: { xs: 2, sm: 3 }, py: 0.8 }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 1.5 }}>
-          <BrandMark />
-          <Box sx={{ display: { xs: 'none', md: 'flex' }, alignItems: 'center', gap: 3.1 }}>
-            {links.map((link) => (
-              <Link
-                key={link.label}
-                component={RouterLink}
-                to={link.to}
-                underline="none"
-                sx={{ color: '#475569', fontSize: '0.58rem', fontWeight: 600, '&:hover': { color: purple } }}
-              >
-                {link.label}
-              </Link>
-            ))}
-          </Box>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <Link component={RouterLink} to="/auth/login" underline="none" sx={{ color: '#334155', fontSize: '0.58rem', fontWeight: 600 }}>
-              Log in
-            </Link>
-            <Button
-              component={RouterLink}
-              to="/auth/signup"
-              variant="contained"
-              sx={{
-                minHeight: 24,
-                borderRadius: 0.55,
-                bgcolor: purple,
-                px: 1.2,
-                py: 0.35,
-                fontSize: '0.55rem',
-                '&:hover': { bgcolor: '#4338CA' },
-              }}
-            >
-              Get Started
-            </Button>
-          </Box>
-        </Box>
-      </Container>
-    </Box>
-  );
-}
-
-function Footer() {
-  const columns = [
-    { title: 'Product', links: [{ label: 'Features', to: '/#features' }, { label: 'Pricing', to: '/pricing' }, { label: 'Integrations', to: '/docs' }] },
-    { title: 'Resources', links: [{ label: 'Help Center', to: '/help-center' }, { label: 'Community', to: '/community' }, { label: 'Webinars', to: '/blog' }] },
-  ];
-
-  return (
-    <Box component="footer" sx={{ mt: { xs: 6, md: 8 }, bgcolor: '#FFFFFF', borderTop: `1px solid ${borderColor}` }}>
-      <Container maxWidth={false} sx={{ maxWidth: pageMaxWidth, mx: 'auto', px: { xs: 2, sm: 3 }, py: { xs: 4.2, md: 5.2 } }}>
-        <Grid container spacing={{ xs: 3.5, md: 7 }}>
-          <Grid size={{ xs: 12, md: 5 }}>
-            <BrandMark />
-            <Typography sx={{ color: textMuted, mt: 1.7, maxWidth: 230, lineHeight: 1.65, fontSize: '0.58rem' }}>
-              Empowering educators to share knowledge and build sustainable businesses online.
-            </Typography>
-          </Grid>
-          {columns.map((column) => (
-            <Grid key={column.title} size={{ xs: 6, md: 3 }}>
-              <Typography sx={{ color: textPrimary, fontWeight: 800, mb: 1.5, fontSize: '0.6rem' }}>
-                {column.title}
-              </Typography>
-              <Stack spacing={0.9}>
-                {column.links.map((link) => (
-                  <Link
-                    key={link.label}
-                    component={RouterLink}
-                    to={link.to}
-                    underline="none"
-                    sx={{ color: textMuted, fontSize: '0.58rem', '&:hover': { color: purple } }}
-                  >
-                    {link.label}
-                  </Link>
-                ))}
-              </Stack>
-            </Grid>
-          ))}
-        </Grid>
-      </Container>
-      <Box sx={{ borderTop: '1px solid #EDF1F6' }}>
-        <Container maxWidth={false} sx={{ maxWidth: pageMaxWidth, mx: 'auto', px: { xs: 2, sm: 3 }, py: 1.8 }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 1, flexWrap: 'wrap' }}>
-            <Typography sx={{ color: '#94A3B8', fontSize: '0.52rem' }}>
-              (c) 2024 LearnSpace Inc. All rights reserved.
-            </Typography>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-              <Link component={RouterLink} to="/privacy" underline="none" sx={{ color: textMuted, fontSize: '0.52rem' }}>
-                Privacy
-              </Link>
-              <Link component={RouterLink} to="/terms" underline="none" sx={{ color: textMuted, fontSize: '0.52rem' }}>
-                Terms
-              </Link>
-              <Typography sx={{ color: textMuted, fontSize: '0.52rem', fontWeight: 800 }}>X</Typography>
-              <Typography sx={{ color: textMuted, fontSize: '0.52rem', fontWeight: 800 }}>in</Typography>
-            </Box>
-          </Box>
-        </Container>
-      </Box>
-    </Box>
-  );
-}
-
 function SectionTitle({ children }: { children: ReactNode }) {
   return (
     <Typography component="h2" sx={{ color: textPrimary, fontWeight: 900, fontSize: '0.82rem', lineHeight: 1.25, mb: 1.25 }}>
@@ -577,8 +457,6 @@ export default function CourseDetailPage({ embedded = false }: { embedded?: bool
 
   return (
     <Box sx={{ minHeight: embedded ? 'auto' : '100vh', bgcolor: embedded ? 'transparent' : '#F5F7FB' }}>
-      {embedded ? null : <TopNav />}
-
       <Container
         maxWidth={false}
         sx={{
@@ -952,7 +830,7 @@ export default function CourseDetailPage({ embedded = false }: { embedded?: bool
                         </>
                       ) : null}
                     </Box>
-                    {!isFreeCourse && (course.offerEndsIn || (course.listPrice > course.currentPrice && course.discountActive)) ? (
+                    {!isFreeCourse && (course.offerEndsIn || ((course.listPrice ?? 0) > (course.currentPrice ?? 0) && course.discountActive)) ? (
                       <Typography sx={{ color: '#DC2626', fontSize: '0.52rem', fontWeight: 800, mt: 0.6 }}>
                         {course.offerEndsIn || 'Limited time offer'}
                       </Typography>
@@ -1039,8 +917,9 @@ export default function CourseDetailPage({ embedded = false }: { embedded?: bool
           </Grid>
         ) : null}
       </Container>
-
-      {embedded ? null : <Footer />}
     </Box>
   );
 }
+
+
+

@@ -11,29 +11,23 @@ import {
   FormControlLabel,
   Grid,
   InputAdornment,
-  Link,
   MenuItem,
   Select,
   Stack,
   TextField,
   Typography,
-  useTheme,
 } from '@mui/material';
 import {
-  BoltOutlined,
   FilterListOutlined,
   SearchOutlined,
   StarRounded,
-  Twitter as TwitterIcon,
-  LinkedIn as LinkedInIcon,
 } from '@mui/icons-material';
-import { alpha } from '@mui/material/styles';
 import { useAuth } from '../../context/AuthContext';
 import { normalizeApiError } from '../../services/api';
 import { useEnrollInCourseMutation, useGetCoursesQuery } from '../../store/api/courseApi';
 import type { Course as ApiCourse } from '../../types';
 import { sanitizeHttpUrl } from '../../utils/safeUrl';
-import { card, innerCard, SPACING } from '../dashboard/dashboardTokens';
+import { innerCard, SPACING } from '../dashboard/dashboardTokens';
 
 type Category = 'Development' | 'Design' | 'Business' | 'Marketing' | 'Photography';
 type Level = 'Beginner' | 'Intermediate' | 'Advanced';
@@ -44,7 +38,7 @@ type Course = {
   id: string;
   title: string;
   instructor: string;
-  rating: number;
+  rating: number | null;
   reviews: number;
   price: number | 'Free';
   category: Category;
@@ -207,162 +201,6 @@ const categoryChipColors: Record<Category, { bg: string; text: string }> = {
   Photography: { bg: '#DCFCE7', text: '#16A34A' },
 };
 
-function BrandMark() {
-  return (
-    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}>
-      <BoltOutlined sx={{ color: '#4F46E5', fontSize: 17 }} />
-      <Typography sx={{ color: '#4F46E5', fontWeight: 800, fontSize: '0.86rem', letterSpacing: 0 }}>
-        LearnSpace
-      </Typography>
-    </Box>
-  );
-}
-
-function TopNav() {
-  const links = [
-    { label: 'Features', to: '/#features' },
-    { label: 'Courses', to: '/courses/explore' },
-    { label: 'Pricing', to: '/pricing' },
-    { label: 'Enterprise', to: '/pricing' },
-  ];
-
-  return (
-    <Box component="header" sx={{ bgcolor: '#FFFFFF', borderBottom: '1px solid #E5EAF2' }}>
-      <Container maxWidth={false} sx={{ maxWidth: 1368, mx: 'auto', px: { xs: 2, md: 4 }, py: 1.15 }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 2 }}>
-          <BrandMark />
-
-          <Box sx={{ display: { xs: 'none', md: 'flex' }, alignItems: 'center', gap: 3.4 }}>
-            {links.map((link) => (
-              <Link
-                key={link.label}
-                component={RouterLink}
-                to={link.to}
-                underline="none"
-                sx={{ color: '#475569', fontSize: '0.69rem', fontWeight: 600, '&:hover': { color: '#4F46E5' } }}
-              >
-                {link.label}
-              </Link>
-            ))}
-          </Box>
-
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.2 }}>
-            <Link component={RouterLink} to="/auth/login" underline="none" sx={{ color: '#475569', fontSize: '0.7rem', fontWeight: 600 }}>
-              Log in
-            </Link>
-            <Button
-              component={RouterLink}
-              to="/auth/signup"
-              variant="contained"
-              sx={{
-                minHeight: 28,
-                px: 1.6,
-                py: 0.45,
-                borderRadius: 0.75,
-                bgcolor: '#4F46E5',
-                fontSize: '0.65rem',
-                '&:hover': { bgcolor: '#4338CA' },
-              }}
-            >
-              Get Started
-            </Button>
-          </Box>
-        </Box>
-      </Container>
-    </Box>
-  );
-}
-
-function Footer() {
-  const columns = [
-    { title: 'Product', links: ['Features', 'Pricing', 'Integrations', 'Changelog'] },
-    { title: 'Company', links: ['About Us', 'Careers', 'Blog', 'Contact'] },
-    { title: 'Resources', links: ['Help Center', 'Community', 'Creator Academy', 'Webinars'] },
-  ];
-
-  const resolveLink = (item: string) => {
-    switch (item) {
-      case 'Features':
-        return '/#features';
-      case 'Pricing':
-        return '/pricing';
-      case 'About Us':
-        return '/about';
-      case 'Careers':
-        return '/careers';
-      case 'Blog':
-        return '/blog';
-      case 'Contact':
-        return '/contact';
-      case 'Help Center':
-        return '/help-center';
-      case 'Community':
-        return '/community';
-      default:
-        return '/';
-    }
-  };
-
-  return (
-    <Box component="footer" sx={{ mt: { xs: 8, md: 11 }, bgcolor: '#FFFFFF', borderTop: '1px solid #E5EAF2' }}>
-      <Container maxWidth={false} sx={{ maxWidth: 1368, mx: 'auto', px: { xs: 2, md: 4 }, py: { xs: 5, md: 6.5 } }}>
-        <Grid container spacing={{ xs: 4, md: 8 }}>
-          <Grid size={{ xs: 12, md: 5 }}>
-            <BrandMark />
-            <Typography sx={{ color: '#64748B', mt: 2, maxWidth: 250, lineHeight: 1.6, fontSize: '0.72rem' }}>
-              Empowering educators to share knowledge and build sustainable businesses online.
-            </Typography>
-          </Grid>
-          {columns.map((column) => (
-            <Grid key={column.title} size={{ xs: 12, sm: 4, md: 2 }}>
-              <Typography sx={{ color: '#0F172A', fontWeight: 800, mb: 1.8, fontSize: '0.74rem' }}>
-                {column.title}
-              </Typography>
-              <Stack spacing={1.15}>
-                {column.links.map((link) => (
-                  <Link
-                    key={link}
-                    component={RouterLink}
-                    to={resolveLink(link)}
-                    underline="none"
-                    sx={{ color: '#64748B', fontSize: '0.7rem', '&:hover': { color: '#4F46E5' } }}
-                  >
-                    {link}
-                  </Link>
-                ))}
-              </Stack>
-            </Grid>
-          ))}
-        </Grid>
-      </Container>
-
-      <Box sx={{ borderTop: '1px solid #EDF1F6' }}>
-        <Container maxWidth={false} sx={{ maxWidth: 1368, mx: 'auto', px: { xs: 2, md: 4 }, py: 2.2 }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 1.5, flexWrap: 'wrap' }}>
-            <Typography sx={{ color: '#94A3B8', fontSize: '0.64rem' }}>
-              &copy; {new Date().getFullYear()} LearnSpace Inc. All rights reserved.
-            </Typography>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2.2 }}>
-              <Link component={RouterLink} to="/privacy" underline="none" sx={{ color: '#64748B', fontSize: '0.66rem' }}>
-                Privacy Policy
-              </Link>
-              <Link component={RouterLink} to="/terms" underline="none" sx={{ color: '#64748B', fontSize: '0.66rem' }}>
-                Terms of Service
-              </Link>
-              <Link href="https://twitter.com/learnspace" target="_blank" rel="noopener noreferrer" underline="none" aria-label="X (Twitter)">
-                <TwitterIcon sx={{ color: '#64748B', fontSize: '0.66rem' }} />
-              </Link>
-              <Link href="https://linkedin.com/company/learnspace" target="_blank" rel="noopener noreferrer" underline="none" aria-label="LinkedIn">
-                <LinkedInIcon sx={{ color: '#64748B', fontSize: '0.66rem' }} />
-              </Link>
-            </Box>
-          </Box>
-        </Container>
-      </Box>
-    </Box>
-  );
-}
-
 function FilterSection({ title, children, last = false }: { title: string; children: ReactNode; last?: boolean }) {
   return (
     <Box sx={{ pb: last ? 0 : 2.8, mb: last ? 0 : 2.6, borderBottom: last ? 'none' : '1px solid #E5EAF2' }}>
@@ -433,7 +271,6 @@ function ThumbnailFallback({ category }: { category: Category }) {
 }
 
 function CourseCard({ course, onEnroll }: { course: Course; onEnroll: (course: Course) => Promise<void> }) {
-  const theme = useTheme();
   const chip = categoryChipColors[course.category];
 
   return (
@@ -487,7 +324,7 @@ function CourseCard({ course, onEnroll }: { course: Course; onEnroll: (course: C
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.25, mt: 0.7 }}>
           <StarRounded sx={{ color: 'warning.main', fontSize: 14 }} />
           <Typography sx={{ color: '#B45309', fontSize: '0.63rem', fontWeight: 700 }}>
-            {course.rating.toFixed(1)}
+            {(course.rating ?? 0).toFixed(1)}
           </Typography>
           <Typography sx={{ color: 'text.secondary', fontSize: '0.62rem' }}>
             ({course.reviews.toLocaleString()} reviews)
@@ -640,7 +477,7 @@ export default function ExploreCourses({ embedded = false }: ExploreCoursesProps
     });
 
     nextCourses = [...nextCourses].sort((left, right) => {
-      if (sortBy === 'Highest Rated') return right.rating - left.rating;
+      if (sortBy === 'Highest Rated') return (right.rating ?? 0) - (left.rating ?? 0);
       if (sortBy === 'Price: Low to High') {
         const leftPrice = left.price === 'Free' ? 0 : left.price;
         const rightPrice = right.price === 'Free' ? 0 : right.price;
@@ -890,9 +727,10 @@ export default function ExploreCourses({ embedded = false }: ExploreCoursesProps
 
   return (
     <Box sx={{ minHeight: embedded ? 'auto' : '100vh', bgcolor: embedded ? 'transparent' : '#F4F7FB' }}>
-      {embedded ? null : <TopNav />}
       {content}
-      {embedded ? null : <Footer />}
     </Box>
   );
 }
+
+
+
