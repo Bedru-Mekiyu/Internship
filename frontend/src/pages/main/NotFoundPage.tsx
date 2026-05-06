@@ -91,7 +91,7 @@ export default function NotFoundPage() {
                 )}
                 <Button
                   component={RouterLink}
-                  to="/help-center"
+                  to="/help"
                   variant="outlined"
                   startIcon={<SearchOutlined />}
                   sx={{ px: 2.5, py: 1.2 }}

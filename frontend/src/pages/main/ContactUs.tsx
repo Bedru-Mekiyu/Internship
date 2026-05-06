@@ -13,12 +13,10 @@ import {
   Typography,
 } from '@mui/material';
 import {
-  BoltOutlined,
   EmailOutlined,
   LocationOnOutlined,
   PhoneOutlined,
 } from '@mui/icons-material';
-import { Link as RouterLink } from 'react-router-dom';
 import { api, normalizeApiError } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 import { sanitizeHttpUrl, sanitizeUrl } from '../../utils/safeUrl';
@@ -57,51 +55,6 @@ const emptySettings: ContactPublicSettings = {
   contactResponseTime: '',
 };
 
-function BrandMark() {
-  return <BoltOutlined sx={{ fontSize: 16, color: 'primary.main', flexShrink: 0 }} />;
-}
-
-function TopNav() {
-  const navItems = [
-    { label: 'Features', to: '/#features' },
-    { label: 'Courses', to: '/#courses' },
-    { label: 'Pricing', to: '/pricing' },
-    { label: 'Enterprise', to: '/pricing' },
-  ];
-
-  return (
-    <Box sx={{ bgcolor: '#FFFFFF', borderBottom: '1px solid', borderColor: '#E3E8F1' }}>
-      <Container maxWidth="xl">
-        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 2, py: 1 }}>
-          <Link component={RouterLink} to="/" underline="none" sx={{ display: 'flex', alignItems: 'center', gap: 1.1, color: 'inherit' }}>
-            <BrandMark />
-            <Typography variant="subtitle1" sx={{ fontWeight: 800, letterSpacing: '-0.025em', color: 'primary.main', fontSize: '0.92rem' }}>
-              LearnSpace
-            </Typography>
-          </Link>
-
-          <Box sx={{ display: { xs: 'none', md: 'flex' }, alignItems: 'center', gap: 2.5 }}>
-            {navItems.map((item) => (
-              <Link key={item.label} component={RouterLink} to={item.to} underline="none" sx={{ color: 'text.secondary', fontSize: '0.75rem', '&:hover': { color: 'primary.main' } }}>
-                {item.label}
-              </Link>
-            ))}
-          </Box>
-
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <Link component={RouterLink} to="/auth/login" underline="none" sx={{ color: 'text.secondary', fontSize: '0.72rem' }}>
-              Log in
-            </Link>
-            <Button component={RouterLink} to="/auth/signup" variant="contained" color="secondary" sx={{ px: 1.15, py: 0.48, borderRadius: 0.8, fontSize: '0.66rem', minWidth: 0 }}>
-              Get Started
-            </Button>
-          </Box>
-        </Box>
-      </Container>
-    </Box>
-  );
-}
-
 function ContactCard({
   title,
   description,
@@ -137,43 +90,6 @@ function ContactCard({
 
   if (!safeHref) return content;
   return <Link href={safeHref} underline="none" sx={{ color: 'inherit' }}>{content}</Link>;
-}
-
-function FooterColumn({ heading, items }: { heading: string; items: string[] }) {
-  const resolveLink = (item: string) => {
-    switch (item) {
-      case 'Features':
-        return '/#features';
-      case 'Pricing':
-        return '/pricing';
-      case 'About':
-      case 'About Us':
-        return '/about';
-      case 'Blog':
-        return '/blog';
-      case 'Careers':
-        return '/careers';
-      case 'Contact':
-        return '/contact';
-      case 'Help Center':
-        return '/help-center';
-      case 'Community':
-        return '/community';
-      default:
-        return '/';
-    }
-  };
-
-  return (
-    <Stack spacing={1.1}>
-      <Typography variant="subtitle2" sx={{ fontWeight: 800 }}>{heading}</Typography>
-      {items.map((item) => (
-        <Link key={item} component={RouterLink} to={resolveLink(item)} underline="none" sx={{ color: 'text.secondary', fontSize: '0.78rem', '&:hover': { color: 'primary.main' } }}>
-          {item}
-        </Link>
-      ))}
-    </Stack>
-  );
 }
 
 export default function ContactUs() {
@@ -271,8 +187,6 @@ export default function ContactUs() {
 
   return (
     <Box sx={{ bgcolor: '#F5F7FD', color: 'text.primary' }}>
-      <TopNav />
-
       <Box sx={{ pt: { xs: 4.5, md: 5.5 }, pb: { xs: 6.5, md: 7.5 } }}>
         <Container maxWidth="xl">
           <Stack spacing={4.25}>
@@ -352,52 +266,9 @@ export default function ContactUs() {
         </Container>
       </Box>
 
-      <Box sx={{ pt: { xs: 5, md: 6 }, pb: 3, bgcolor: '#FFFFFF', borderTop: '1px solid', borderColor: '#E3E8F1' }}>
-        <Container maxWidth="xl">
-          <Grid container spacing={3}>
-            <Grid size={{ xs: 12, md: 4 }}>
-              <Stack spacing={2}>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.1 }}>
-                  <BrandMark />
-                  <Typography variant="subtitle1" sx={{ fontWeight: 800, color: 'primary.main', fontSize: '0.92rem' }}>
-                    {settings.platformName || 'LearnSpace'}
-                  </Typography>
-                </Box>
-                <Typography variant="body2" sx={{ color: 'text.secondary', maxWidth: 330, lineHeight: 1.8 }}>
-                  Empowering educators to share knowledge and build sustainable businesses online.
-                </Typography>
-              </Stack>
-            </Grid>
-            <Grid size={{ xs: 12, md: 8 }}>
-              <Grid container spacing={2.5}>
-                <Grid size={{ xs: 12, sm: 4 }}>
-                  <FooterColumn heading="Product" items={['Features', 'Pricing', 'Integrations', 'Changelog']} />
-                </Grid>
-                <Grid size={{ xs: 12, sm: 4 }}>
-                  <FooterColumn heading="Company" items={['About', 'Careers', 'Blog', 'Contact']} />
-                </Grid>
-                <Grid size={{ xs: 12, sm: 4 }}>
-                  <FooterColumn heading="Resources" items={['Help Center', 'Community', 'Creator Academy', 'Webinars']} />
-                </Grid>
-              </Grid>
-            </Grid>
-          </Grid>
-
-          <Box sx={{ mt: 4, pt: 2.5, borderTop: '1px solid', borderColor: '#E3E8F1', display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: 1.5 }}>
-            <Typography variant="caption" sx={{ color: 'text.secondary' }}>
-              © 2024 {settings.platformName || 'LearnSpace'} Inc. All rights reserved.
-            </Typography>
-            <Stack direction="row" spacing={1.5} sx={{ flexWrap: 'wrap' }}>
-              <Link component={RouterLink} to="/privacy" underline="none" sx={{ color: 'text.secondary', fontSize: '0.75rem', '&:hover': { color: 'primary.main' } }}>
-                Privacy Policy
-              </Link>
-              <Link component={RouterLink} to="/terms" underline="none" sx={{ color: 'text.secondary', fontSize: '0.75rem', '&:hover': { color: 'primary.main' } }}>
-                Terms of Service
-              </Link>
-            </Stack>
-          </Box>
-        </Container>
-      </Box>
     </Box>
   );
 }
+
+
+

@@ -264,7 +264,7 @@ function EduAdminSidebar() {
 
         <SidebarSection title="System">
           <SidebarItem icon={<SettingsOutlined />} label="Settings" to={user?.role === 'admin' ? '/admin/settings' : '/profile-settings'} />
-          <SidebarItem icon={<HelpOutlineOutlined />} label="Support" to="/help-center" />
+          <SidebarItem icon={<HelpOutlineOutlined />} label="Support" to="/help" />
         </SidebarSection>
       </Stack>
 

@@ -7,7 +7,6 @@ import {
   CardContent,
   Container,
   Grid,
-  Link,
   Stack,
   Typography,
 } from '@mui/material';
@@ -31,49 +30,6 @@ const isTrustedCheckoutUrl = (value: string) => {
     return false;
   }
 };
-
-function TopNav() {
-  const navLinks = [
-    { label: 'Features', to: '/#features' },
-    { label: 'Courses', to: '/courses/explore' },
-    { label: 'Pricing', to: '/pricing' },
-    { label: 'Enterprise', to: '/#about' },
-  ];
-
-  return (
-    <Box sx={{ position: 'sticky', top: 0, zIndex: 20, bgcolor: 'background.paper', borderBottom: '1px solid', borderColor: 'divider' }}>
-      <Container maxWidth="xl">
-        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 3, py: 2 }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.25 }}>
-            <Box sx={{ width: 40, height: 40, borderRadius: 1.5, bgcolor: 'primary.main', color: '#FFFFFF', display: 'grid', placeItems: 'center', fontWeight: 900 }}>
-              LS
-            </Box>
-            <Typography variant="h6" sx={{ fontWeight: 900, letterSpacing: '-0.03em' }}>
-              LearnSpace
-            </Typography>
-          </Box>
-
-          <Box sx={{ display: { xs: 'none', md: 'flex' }, alignItems: 'center', gap: 3 }}>
-            {navLinks.map((item) => (
-              <Link key={item.label} component={RouterLink} to={item.to} underline="none" sx={{ color: 'text.secondary', fontWeight: 700, '&:hover': { color: 'primary.main' } }}>
-                {item.label}
-              </Link>
-            ))}
-          </Box>
-
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-            <Link component={RouterLink} to="/auth/login" underline="none" sx={{ color: 'text.primary', fontWeight: 700 }}>
-              Log in
-            </Link>
-            <Button component={RouterLink} to="/auth/signup" variant="contained" sx={{ px: 3, py: 1.25, borderRadius: 1.5 }}>
-              Get Started
-            </Button>
-          </Box>
-        </Box>
-      </Container>
-    </Box>
-  );
-}
 
 export default function CheckoutPage() {
   const location = useLocation();
@@ -195,7 +151,6 @@ const [submitted, setSubmitted] = useState(false);
 
   return (
     <Box sx={{ minHeight: '100vh', bgcolor: 'background.default', color: 'text.primary' }}>
-      <TopNav />
 
       <Box sx={{ pt: { xs: 5, md: 8 }, pb: { xs: 7, md: 10 } }}>
         <Container maxWidth="xl">
@@ -350,3 +305,4 @@ const [submitted, setSubmitted] = useState(false);
     </Box>
   );
 }
+

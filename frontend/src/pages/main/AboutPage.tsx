@@ -5,7 +5,6 @@ import {
   CardContent,
   Container,
   Grid,
-  Link,
   Stack,
   Typography,
 } from '@mui/material';
@@ -27,111 +26,9 @@ const teamMembers = [
   { name: 'Tom Baker', role: 'Content Manager', avatar: 'https://i.pravatar.cc/120?img=61' },
 ];
 
-function BrandMark() {
-  return (
-    <Box
-      sx={{
-        width: 40,
-        height: 40,
-        borderRadius: 1.5,
-        bgcolor: 'primary.main',
-        color: '#FFFFFF',
-        display: 'grid',
-        placeItems: 'center',
-        fontWeight: 900,
-        flexShrink: 0,
-      }}
-    >
-      LS
-    </Box>
-  );
-}
-
-function TopNav() {
-  const navItems = [
-    { label: 'Features', to: '/#features' },
-    { label: 'Courses', to: '/courses/explore' },
-    { label: 'Pricing', to: '/pricing' },
-    { label: 'News & Us', to: '/blog' },
-  ];
-
-  return (
-    <Box
-      sx={{
-        position: 'sticky',
-        top: 0,
-        zIndex: 20,
-        bgcolor: 'background.paper',
-        borderBottom: '1px solid',
-        borderColor: 'divider',
-      }}
-    >
-      <Container maxWidth="xl">
-        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 3, py: 2 }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.25 }}>
-            <BrandMark />
-            <Typography variant="h6" sx={{ fontWeight: 900, letterSpacing: '-0.03em' }}>
-              LearnSpace
-            </Typography>
-          </Box>
-
-          <Box sx={{ display: { xs: 'none', md: 'flex' }, alignItems: 'center', gap: 3 }}>
-            {navItems.map((item) => (
-              <Link key={item.label} component={RouterLink} to={item.to} underline="none" sx={{ color: 'text.secondary', fontWeight: 600, '&:hover': { color: 'primary.main' } }}>
-                {item.label}
-              </Link>
-            ))}
-          </Box>
-
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-            <Link component={RouterLink} to="/auth/login" underline="none" sx={{ color: 'text.primary', fontWeight: 700 }}>
-              Log in
-            </Link>
-            <Button component={RouterLink} to="/auth/signup" variant="contained" sx={{ px: 2.5, py: 1 }}>
-              Get Started
-            </Button>
-          </Box>
-        </Box>
-      </Container>
-    </Box>
-  );
-}
-
-function FooterColumn({ heading, items }: { heading: string; items: string[] }) {
-  const resolveLink = (item: string) => {
-    switch (item) {
-      case 'Features': return '/#features';
-      case 'Courses': return '/courses/explore';
-      case 'Pricing': return '/pricing';
-      case 'About': return '/about';
-      case 'Blog': return '/blog';
-      case 'Careers': return '/careers';
-      case 'Contact': return '/contact';
-      case 'Help Center': return '/help-center';
-      case 'Docs': return '/docs';
-      case 'Community': return '/community';
-      case 'Status': return '/status';
-      default: return '/';
-    }
-  };
-
-  return (
-    <Stack spacing={1.25}>
-      <Typography variant="subtitle1" sx={{ fontWeight: 800 }}>{heading}</Typography>
-      {items.map((item) => (
-        <Link key={item} component={RouterLink} to={resolveLink(item)} underline="none" sx={{ color: 'text.secondary', fontWeight: 500, '&:hover': { color: 'primary.main' } }}>
-          {item}
-        </Link>
-      ))}
-    </Stack>
-  );
-}
-
 export default function AboutPage() {
   return (
     <Box sx={{ bgcolor: '#F5F7FD', color: 'text.primary' }}>
-      <TopNav />
-
       <Box sx={{ py: { xs: 7, md: 9 } }}>
         <Container maxWidth="md">
           <Stack spacing={2} sx={{ textAlign: 'center' }}>
@@ -326,53 +223,9 @@ export default function AboutPage() {
         </Container>
       </Box>
 
-      <Box sx={{ pt: { xs: 6, md: 7 }, pb: 4, bgcolor: '#FFFFFF', borderTop: '1px solid', borderColor: 'divider' }}>
-        <Container maxWidth="xl">
-          <Grid container spacing={4}>
-            <Grid size={{ xs: 12, md: 4 }}>
-              <Stack spacing={2}>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.25 }}>
-                  <BrandMark />
-                  <Typography variant="h6" sx={{ fontWeight: 900 }}>LearnSpace</Typography>
-                </Box>
-                <Typography variant="body2" sx={{ color: 'text.secondary', maxWidth: 330, lineHeight: 1.8 }}>
-                  Empowering education for creators, teams, and lifelong learners around the world.
-                </Typography>
-              </Stack>
-            </Grid>
-            <Grid size={{ xs: 12, md: 8 }}>
-              <Grid container spacing={3}>
-                <Grid size={{ xs: 12, sm: 4 }}>
-                  <FooterColumn heading="Product" items={['Features', 'Courses', 'Pricing']} />
-                </Grid>
-                <Grid size={{ xs: 12, sm: 4 }}>
-                  <FooterColumn heading="Company" items={['About', 'Careers', 'Blog', 'Contact']} />
-                </Grid>
-                <Grid size={{ xs: 12, sm: 4 }}>
-                  <FooterColumn heading="Resources" items={['Help Center', 'Docs', 'Community', 'Status']} />
-                </Grid>
-              </Grid>
-            </Grid>
-          </Grid>
-
-          <Box sx={{ mt: 5, pt: 3, borderTop: '1px solid', borderColor: 'divider', display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: 1.5 }}>
-            <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-              © 2026 LearnSpace. All rights reserved.
-            </Typography>
-            <Stack direction="row" spacing={2}>
-              <Link component={RouterLink} to="/privacy" underline="none" sx={{ color: 'text.secondary', '&:hover': { color: 'primary.main' } }}>
-                Privacy
-              </Link>
-              <Link component={RouterLink} to="/terms" underline="none" sx={{ color: 'text.secondary', '&:hover': { color: 'primary.main' } }}>
-                Terms
-              </Link>
-              <Link component={RouterLink} to="/cookies" underline="none" sx={{ color: 'text.secondary', '&:hover': { color: 'primary.main' } }}>
-                Cookies
-              </Link>
-            </Stack>
-          </Box>
-        </Container>
-      </Box>
     </Box>
   );
 }
+
+
+

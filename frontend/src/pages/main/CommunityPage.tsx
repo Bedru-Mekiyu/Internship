@@ -7,14 +7,12 @@ import {
   CardContent,
   Container,
   Grid,
-  Link,
   Stack,
   TextField,
   Typography,
 } from '@mui/material';
 import {
   CampaignOutlined,
-  CommentOutlined,
   PeopleOutlined,
   SendOutlined,
 } from '@mui/icons-material';
@@ -28,147 +26,23 @@ interface ForumPost {
   category: string;
 }
 
-function BrandMark() {
-  return (
-    <Box
-      sx={{
-        width: 40,
-        height: 40,
-        borderRadius: 1.5,
-        bgcolor: 'primary.main',
-        color: '#FFFFFF',
-        display: 'grid',
-        placeItems: 'center',
-        fontWeight: 900,
-        flexShrink: 0,
-      }}
-    >
-      LS
-    </Box>
-  );
-}
-
-function TopNav() {
-  const navItems = [
-    { label: 'Features', to: '/#features' },
-    { label: 'Courses', to: '/courses/explore' },
-    { label: 'Pricing', to: '/pricing' },
-    { label: 'Community', to: '/community' },
-  ];
-
-  return (
-    <Box
-      sx={{
-        position: 'sticky',
-        top: 0,
-        zIndex: 20,
-        bgcolor: 'background.paper',
-        borderBottom: '1px solid',
-        borderColor: 'divider',
-      }}
-    >
-      <Container maxWidth="xl">
-        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 3, py: 2 }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.25 }}>
-            <BrandMark />
-            <Typography variant="h6" sx={{ fontWeight: 900, letterSpacing: '-0.03em' }}>
-              LearnSpace
-            </Typography>
-          </Box>
-
-          <Box sx={{ display: { xs: 'none', md: 'flex' }, alignItems: 'center', gap: 3 }}>
-            {navItems.map((item) => (
-              <Link key={item.label} component={RouterLink} to={item.to} underline="none" sx={{ color: 'text.secondary', fontWeight: 600, '&:hover': { color: 'primary.main' } }}>
-                {item.label}
-              </Link>
-            ))}
-          </Box>
-
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-            <Link component={RouterLink} to="/auth/login" underline="none" sx={{ color: 'text.primary', fontWeight: 700 }}>
-              Log in
-            </Link>
-            <Button component={RouterLink} to="/auth/signup" variant="contained" sx={{ px: 3, py: 1.25, borderRadius: 1.5 }}>
-              Get Started
-            </Button>
-          </Box>
-        </Box>
-      </Container>
-    </Box>
-  );
-}
-
 function ForumPostCard({ post }: { post: ForumPost }) {
   return (
-    <Card
-      sx={{
-        borderRadius: 2,
-        border: '1px solid',
-        borderColor: 'divider',
-        transition: 'all 180ms ease',
-        '&:hover': {
-          borderColor: 'primary.main',
-          transform: 'translateY(-2px)',
-        },
-      }}
-    >
-      <CardContent sx={{ p: 2.5 }}>
-        <Stack spacing={1.5}>
-          <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
-            <Box sx={{ flex: 1 }}>
-              <Typography variant="caption" sx={{ color: 'primary.main', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                {post.category}
-              </Typography>
-              <Typography variant="h6" sx={{ fontWeight: 800, mt: 0.5 }}>
-                {post.title}
-              </Typography>
-            </Box>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, color: 'text.secondary' }}>
-              <CommentOutlined sx={{ fontSize: 18 }} />
-              <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                {post.replies}
-              </Typography>
-            </Box>
-          </Box>
-
-          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', pt: 1, borderTop: '1px solid', borderColor: 'divider' }}>
-            <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-              by <Typography component="span" sx={{ fontWeight: 700 }}>{post.author}</Typography>
-            </Typography>
-            <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-              {post.lastActivity}
-            </Typography>
-          </Box>
+    <Card sx={{ borderRadius: 2, border: '1px solid', borderColor: 'divider', height: '100%' }}>
+      <CardContent sx={{ p: 3 }}>
+        <Stack spacing={1.2}>
+          <Typography variant="caption" sx={{ color: 'primary.main', fontWeight: 800 }}>
+            {post.category}
+          </Typography>
+          <Typography variant="h6" sx={{ fontWeight: 800 }}>
+            {post.title}
+          </Typography>
+          <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+            By {post.author} • {post.replies} replies • {post.lastActivity}
+          </Typography>
         </Stack>
       </CardContent>
     </Card>
-  );
-}
-
-function FooterColumn({ heading, items }: { heading: string; items: string[] }) {
-  const resolveLink = (item: string) => {
-    switch (item) {
-      case 'Features': return '/#features';
-      case 'Courses': return '/courses/explore';
-      case 'Pricing': return '/pricing';
-      case 'About': return '/about';
-      case 'Blog': return '/blog';
-      case 'Careers': return '/careers';
-      case 'Contact': return '/contact';
-      case 'Help Center': return '/help-center';
-      default: return '/home';
-    }
-  };
-
-  return (
-    <Stack spacing={1.25}>
-      <Typography variant="subtitle1" sx={{ fontWeight: 800 }}>{heading}</Typography>
-      {items.map((item) => (
-        <Link key={item} component={RouterLink} to={resolveLink(item)} underline="none" sx={{ color: 'text.secondary', fontWeight: 500, '&:hover': { color: 'primary.main' } }}>
-          {item}
-        </Link>
-      ))}
-    </Stack>
   );
 }
 
@@ -230,8 +104,6 @@ export default function CommunityPage() {
 
   return (
     <Box sx={{ bgcolor: 'background.paper', color: 'text.primary' }}>
-      <TopNav />
-
       <Box sx={{ pt: { xs: 6, md: 9 }, pb: { xs: 4, md: 5 }, bgcolor: 'background.default', textAlign: 'center' }}>
         <Container maxWidth="md">
           <Stack spacing={2}>
@@ -348,41 +220,8 @@ export default function CommunityPage() {
         </Container>
       </Box>
 
-      <Box sx={{ pt: { xs: 5, md: 6 }, pb: 4, bgcolor: 'background.paper', borderTop: '1px solid', borderColor: 'divider' }}>
-        <Container maxWidth="xl">
-          <Grid container spacing={4}>
-            <Grid size={{ xs: 12, md: 4 }}>
-              <Stack spacing={2}>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.25 }}>
-                  <BrandMark />
-                  <Typography variant="h6" sx={{ fontWeight: 900 }}>LearnSpace</Typography>
-                </Box>
-                <Typography variant="body2" sx={{ color: 'text.secondary', maxWidth: 330, lineHeight: 1.8 }}>
-                  A modern EdTech platform for teams, creators, and learners.
-                </Typography>
-              </Stack>
-            </Grid>
-            <Grid size={{ xs: 12, md: 8 }}>
-              <Grid container spacing={3}>
-                <Grid size={{ xs: 12, sm: 4 }}>
-                  <FooterColumn heading="Product" items={['Features', 'Courses', 'Pricing']} />
-                </Grid>
-                <Grid size={{ xs: 12, sm: 4 }}>
-                  <FooterColumn heading="Company" items={['About', 'Careers', 'Blog', 'Contact']} />
-                </Grid>
-                <Grid size={{ xs: 12, sm: 4 }}>
-                  <FooterColumn heading="Resources" items={['Help Center', 'Community', 'Status']} />
-                </Grid>
-              </Grid>
-            </Grid>
-          </Grid>
-          <Box sx={{ mt: 5, pt: 3, borderTop: '1px solid', borderColor: 'divider', textAlign: 'center' }}>
-            <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-              © 2026 LearnSpace. All rights reserved.
-            </Typography>
-          </Box>
-        </Container>
-      </Box>
     </Box>
   );
 }
+
+

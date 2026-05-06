@@ -51,6 +51,7 @@ import { api, ensureCsrfToken, normalizeApiError } from './services/api';
 import { useGetCoursesQuery } from './store/api/courseApi';
 import { createAuthenticatedSocket } from './services/realtimeSocket';
 import { theme } from './theme';
+import MainLayout from './components/layout/MainLayout';
 import LearnSpaceShell from './routes/LearnSpaceShell';
 import type { LearnSpaceRole } from './routes/learnSpaceNavigation';
 import { getLandingRouteForRole } from './routes/learnSpaceNavigation';
@@ -967,34 +968,6 @@ function PublicAuthPage() {
   );
 }
 
-function LandingBrandLogo({ compact = false }: { compact?: boolean }) {
-  return (
-    <Box sx={{ display: 'flex', alignItems: 'center', gap: compact ? 0.8 : 1.05 }}>
-      <Box
-        component="span"
-        sx={{
-          width: compact ? 14 : 16,
-          height: compact ? 14 : 16,
-          display: 'grid',
-          placeItems: 'center',
-          color: '#4F46E5',
-          flexShrink: 0,
-        }}
-      >
-        <Box component="svg" viewBox="0 0 24 24" aria-hidden="true" sx={{ width: '100%', height: '100%' }}>
-          <path
-            fill="currentColor"
-            d="M12 2.75 14.35 9 21 11.35l-6.65 2.3L12 21.25l-2.35-7.6L3 11.35 9.65 9 12 2.75Z"
-          />
-        </Box>
-      </Box>
-      <Typography sx={{ fontWeight: 800, fontSize: compact ? '0.68rem' : '0.78rem', color: '#4F46E5', letterSpacing: 0 }}>
-        LearnSpace
-      </Typography>
-    </Box>
-  );
-}
-
 function CoursePreviewArtwork({ variant }: { variant: number }) {
   const normalizedVariant = variant % 3;
 
@@ -1139,13 +1112,6 @@ function MarketingHomepagePage() {
     };
   }, []);
 
-  const navLinks = [
-    { label: 'Features', to: '#features' },
-    { label: 'Courses', to: '#courses' },
-    { label: 'Pricing', to: '#pricing' },
-    { label: 'Enterprise', to: '/about' },
-  ];
-
   const trustPartners = publicSettings?.trustPartners && publicSettings.trustPartners.length > 0
     ? publicSettings.trustPartners.slice(0, 5)
     : ['ACME Corp', 'GlobalEdu', 'Technicum', 'FutureLearn', 'UniScale'];
@@ -1287,36 +1253,6 @@ function MarketingHomepagePage() {
           {settingsError}
         </Alert>
       ) : null}
-      <Box sx={{ bgcolor: '#F6F8FE' }}>
-        <Container maxWidth="lg">
-          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 2, py: 1 }}>
-            <LandingBrandLogo />
-            <Box sx={{ display: { xs: 'none', md: 'flex' }, alignItems: 'center', gap: 3.25 }}>
-              {navLinks.map((item) => (
-                item.to.startsWith('#') ? (
-                  <Link key={item.label} href={item.to} underline="none" sx={{ color: '#667085', fontSize: '0.68rem', fontWeight: 600, '&:hover': { color: '#4F46E5' } }}>
-                    {item.label}
-                  </Link>
-                ) : (
-                  <Link key={item.label} component={RouterLink} to={item.to} underline="none" sx={{ color: '#667085', fontSize: '0.68rem', fontWeight: 600, '&:hover': { color: '#4F46E5' } }}>
-                    {item.label}
-                  </Link>
-                )
-              ))}
-            </Box>
-
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.25 }}>
-              <Link component={RouterLink} to="/auth/login" underline="none" sx={{ color: '#667085', fontSize: '0.72rem', fontWeight: 600 }}>
-                Log in
-              </Link>
-              <Button component={RouterLink} to="/auth/signup" variant="contained" sx={{ px: 1.45, py: 0.42, borderRadius: 0.8, fontSize: '0.66rem', bgcolor: '#4F46E5', '&:hover': { bgcolor: '#4338CA' } }}>
-                Get Started
-              </Button>
-            </Box>
-          </Box>
-        </Container>
-      </Box>
-
       <Box sx={{ py: { xs: 4.2, md: 5.2 }, bgcolor: '#F6F8FE' }}>
         <Container maxWidth="lg">
           <Grid container spacing={{ xs: 3, md: 5 }} sx={{ alignItems: 'center' }}>
@@ -1657,104 +1593,6 @@ function MarketingHomepagePage() {
         </Container>
       </Box>
 
-      <Box sx={{ py: { xs: 3.2, md: 4 }, bgcolor: '#4F46E5', color: '#FFFFFF' }}>
-        <Container maxWidth="lg">
-          <Box sx={{ display: 'grid', justifyItems: 'center', textAlign: 'center', gap: 0.8 }}>
-            <Box sx={{ maxWidth: 660 }}>
-              <Typography variant="h4" sx={{ fontWeight: 700, fontSize: { xs: '1.1rem', md: '1.35rem' }, letterSpacing: 0 }}>
-                Ready to launch your online academy?
-              </Typography>
-              <Typography variant="body1" sx={{ mt: 0.55, fontWeight: 500, color: 'rgba(255,255,255,0.92)', lineHeight: 1.6, fontSize: { xs: '0.66rem', md: '0.72rem' } }}>
-                Join over 50,000 creators building their knowledge with this trusted LMS.
-              </Typography>
-            </Box>
-            <Button component={RouterLink} to="/auth/signup" variant="contained" sx={{ bgcolor: '#FFFFFF', color: '#4F46E5', px: 1.7, py: 0.52, fontSize: '0.58rem', '&:hover': { bgcolor: '#EEF2FF' } }}>
-              Start Free Trial
-            </Button>
-          </Box>
-        </Container>
-      </Box>
-
-      <Box id="about" sx={{ py: { xs: 3, md: 3.8 }, bgcolor: '#F7F8FC' }}>
-        <Container maxWidth="lg">
-          <Grid container spacing={2}>
-            <Grid size={{ xs: 12, md: 4 }}>
-              <Stack spacing={1.5}>
-                <LandingBrandLogo compact />
-                <Typography variant="body2" sx={{ color: 'text.secondary', maxWidth: 320, lineHeight: 1.65, fontSize: '0.58rem' }}>
-                  A modern EdTech LMS for creators, instructors, and teams who need a polished learning experience.
-                </Typography>
-              </Stack>
-            </Grid>
-            <Grid size={{ xs: 12, md: 8 }}>
-              <Grid container spacing={2}>
-                <Grid size={{ xs: 12, sm: 4 }}>
-                  <Stack spacing={1}>
-                    <Typography variant="subtitle1" sx={{ fontWeight: 800, fontSize: '0.66rem' }}>
-                      Product
-                    </Typography>
-                    {[
-                      { label: 'Features', to: '#features' },
-                      { label: 'Courses', to: '#courses' },
-                      { label: 'Pricing', to: '#pricing' },
-                      { label: 'Testimonials', to: '#testimonials' },
-                    ].map((item) => (
-                      <Link key={item.label} href={item.to} underline="none" sx={{ color: 'text.secondary', fontSize: '0.58rem', '&:hover': { color: 'primary.main' } }}>
-                        {item.label}
-                      </Link>
-                    ))}
-                  </Stack>
-                </Grid>
-                <Grid size={{ xs: 12, sm: 4 }}>
-                  <Stack spacing={1}>
-                    <Typography variant="subtitle1" sx={{ fontWeight: 800, fontSize: '0.66rem' }}>
-                      Company
-                    </Typography>
-                    {[
-                      { label: 'About Us', to: '/about' },
-                      { label: 'Blog', to: '/blog' },
-                      { label: 'Careers', to: '/careers' },
-                    ].map((item) => (
-                      <Link key={item.label} component={RouterLink} to={item.to} underline="none" sx={{ color: 'text.secondary', fontSize: '0.58rem', '&:hover': { color: 'primary.main' } }}>
-                        {item.label}
-                      </Link>
-                    ))}
-                    <Link component={RouterLink} to="/contact" underline="none" sx={{ color: 'text.secondary', fontSize: '0.58rem', '&:hover': { color: 'primary.main' } }}>
-                      Contact
-                    </Link>
-                  </Stack>
-                </Grid>
-                <Grid size={{ xs: 12, sm: 4 }}>
-                  <Stack spacing={1}>
-                    <Typography variant="subtitle1" sx={{ fontWeight: 800, fontSize: '0.66rem' }}>
-                      Resources
-                    </Typography>
-                    {[
-                      { label: 'Help Center', to: '/help-center' },
-                      { label: 'Docs', to: '/docs' },
-                      { label: 'Community', to: '/community' },
-                      { label: 'Status', to: '/status' },
-                    ].map((item) => (
-                      <Link key={item.label} component={RouterLink} to={item.to} underline="none" sx={{ color: 'text.secondary', fontSize: '0.58rem', '&:hover': { color: 'primary.main' } }}>
-                        {item.label}
-                      </Link>
-                    ))}
-                  </Stack>
-                </Grid>
-              </Grid>
-            </Grid>
-          </Grid>
-
-          <Box sx={{ mt: 1.4, pt: 0.8, borderTop: '1px solid', borderColor: 'divider', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 1, flexWrap: 'wrap' }}>
-            <Typography variant="body2" sx={{ color: 'text.secondary', fontSize: '0.54rem' }}>
-              &copy; 2026 LearnSpace. All rights reserved.
-            </Typography>
-            <Typography variant="body2" sx={{ color: '#94A3B8', fontSize: '0.54rem' }}>
-              Privacy &middot; Terms &middot; Cookies
-            </Typography>
-          </Box>
-        </Container>
-      </Box>
     </Box>
   );
 }
@@ -1804,33 +1642,41 @@ function AppRoutes() {
       }
     >
       <Routes>
-        <Route path="/" element={<MarketingHomepagePage />} />
-        <Route path="/home" element={<MarketingHomepagePage />} />
+        <Route element={<MainLayout />}>
+          <Route path="/" element={<MarketingHomepagePage />} />
+          <Route path="/home" element={<MarketingHomepagePage />} />
+          <Route path="/about" element={<AboutPage />} />
+          <Route path="/blog" element={<BlogLandingPage />} />
+          <Route path="/blog/:slug" element={<CmsContentPage eyebrow="Blog" />} />
+          <Route path="/careers" element={<CareersPage />} />
+          <Route path="/help" element={<HelpCenterPage />} />
+          <Route path="/help-center" element={<Navigate to="/help" replace />} />
+          <Route path="/docs" element={<DocsPage />} />
+          <Route path="/community" element={<CommunityPage />} />
+          <Route path="/status" element={<StatusPage />} />
+          <Route path="/terms" element={<CmsContentPage slug="terms" eyebrow="Legal" />} />
+          <Route path="/privacy" element={<CmsContentPage slug="privacy" eyebrow="Legal" />} />
+          <Route path="/cookies" element={<CmsContentPage slug="cookies" eyebrow="Legal" />} />
+          <Route path="/courses/explore" element={<ExploreCourses />} />
+          <Route path="/courses/:courseSlug" element={<CourseDetailPage />} />
+          <Route path="/contact" element={<ContactUs />} />
+          <Route path="/pricing" element={<PricingPage />} />
+
+          <Route element={<RequireSession />}>
+            <Route path="/checkout" element={<CheckoutPage />} />
+            <Route path="/checkout/success" element={<OrderSuccessPage />} />
+          </Route>
+
+          <Route path="*" element={<NotFoundPage />} />
+        </Route>
+
         <Route path="/auth/login" element={<PublicAuthPage />} />
         <Route path="/auth/signup" element={<SignupAuthPage />} />
         <Route path="/auth/verify-email" element={<EmailVerificationPage />} />
         <Route path="/auth/reset-password" element={<PasswordResetPage />} />
         <Route path="/reset-password" element={<LegacyResetPasswordRedirect />} />
-        <Route path="/about" element={<AboutPage />} />
-        <Route path="/blog" element={<BlogLandingPage />} />
-        <Route path="/blog/:slug" element={<CmsContentPage eyebrow="Blog" />} />
-        <Route path="/careers" element={<CareersPage />} />
-        <Route path="/help-center" element={<HelpCenterPage />} />
-        <Route path="/docs" element={<DocsPage />} />
-        <Route path="/community" element={<CommunityPage />} />
-        <Route path="/status" element={<StatusPage />} />
-        <Route path="/terms" element={<CmsContentPage slug="terms" eyebrow="Legal" />} />
-        <Route path="/privacy" element={<CmsContentPage slug="privacy" eyebrow="Legal" />} />
-        <Route path="/cookies" element={<CmsContentPage slug="cookies" eyebrow="Legal" />} />
-        <Route path="/courses/explore" element={<ExploreCourses />} />
-        <Route path="/courses/:courseSlug" element={<CourseDetailPage />} />
-        <Route path="/contact" element={<ContactUs />} />
-        <Route path="/pricing" element={<PricingPage />} />
 
         <Route element={<RequireSession />}>
-            <Route path="/checkout" element={<CheckoutPage />} />
-            <Route path="/checkout/success" element={<OrderSuccessPage />} />
-
           <Route element={<RequireRole allowedRoles={['admin', 'instructor']} />}>
             <Route path="/lessons/upload" element={<UploadLesson />} />
           </Route>
@@ -1838,8 +1684,8 @@ function AppRoutes() {
           <Route element={<LearnSpaceShell />}>
             <Route path="/courses/:courseId/lessons/:lessonId/quiz" element={<QuizTaker />} />
             <Route path="/courses/:courseId/learn" element={<CoursePlayer />} />
-            <Route path="/courses/browse" element={<ExploreCourses embedded />} />
-            <Route path="/courses/:courseSlug/details" element={<CourseDetailPage embedded />} />
+            <Route path="/courses/browse" element={<ExploreCourses />} />
+            <Route path="/courses/:courseSlug/details" element={<CourseDetailPage />} />
             <Route path="/messages" element={<Messages />} />
             <Route path="/discussions" element={<CourseDiscussions />} />
             <Route path="/discussions/:threadId" element={<CourseDiscussions />} />
@@ -1847,11 +1693,11 @@ function AppRoutes() {
             <Route path="/courses/:courseSlug/lessons/:lessonSlug/discussions/:threadId" element={<CourseDiscussions />} />
             <Route path="/notifications" element={<AdminNotifications />} />
             <Route path="/certificates" element={<MyCertificates />} />
-<Route path="/activity" element={<ActivityPage />} />
-              <Route path="/profile-settings" element={<ProfileSettings />} />
-              <Route path="/search" element={<SearchResultsPage />} />
-              <Route path="/quizzes" element={<MyQuizResultsPage />} />
-              <Route path="/settings/notifications" element={<NotificationPreferencesPage />} />
+            <Route path="/activity" element={<ActivityPage />} />
+            <Route path="/profile-settings" element={<ProfileSettings />} />
+            <Route path="/search" element={<SearchResultsPage />} />
+            <Route path="/quizzes" element={<MyQuizResultsPage />} />
+            <Route path="/settings/notifications" element={<NotificationPreferencesPage />} />
 
             <Route element={<RequireRole allowedRoles={['admin', 'instructor', 'content_manager']} />}>
               <Route path="/cms/media" element={<MediaLibrary />} />
@@ -1874,13 +1720,9 @@ function AppRoutes() {
 
             <Route path="/dashboard" element={<DashboardPage />} />
             <Route path="/courses" element={<MyCourses />} />
-            <Route
-              path="*"
-              element={<NotFoundPage />}
-            />
+            <Route path="*" element={<NotFoundPage />} />
           </Route>
         </Route>
-        <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </Suspense>
     </>
