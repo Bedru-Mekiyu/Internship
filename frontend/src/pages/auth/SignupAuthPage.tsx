@@ -335,22 +335,21 @@ if (signupStatus === 'success') {
           bgcolor: 'background.default',
         }}
       >
-        <Card sx={{ width: '100%', maxWidth: 460, borderRadius: 3, boxShadow: '0 2px 16px rgba(0,0,0,0.06)' }}>
+        <Card sx={{ width: '100%', maxWidth: 460, borderRadius: 3, border: '1px solid', borderColor: 'divider' }}>
           <CardContent sx={{ p: { xs: 3, sm: 3.5 } }}>
             <Stack spacing={2.5} sx={{ alignItems: 'center', textAlign: 'center' }}>
               <Box
                 sx={{
-                  width: 72,
-                  height: 72,
+                  width: 56,
+                  height: 56,
                   borderRadius: '50%',
                   bgcolor: 'success.main',
                   color: 'success.contrastText',
                   display: 'grid',
                   placeItems: 'center',
-                  boxShadow: '0 4px 16px rgba(16,185,129,0.25)',
                 }}
               >
-                <CheckCircleOutlined sx={{ fontSize: 36 }} />
+                <CheckCircleOutlined sx={{ fontSize: 28 }} />
               </Box>
               <Typography variant="h5" sx={{ fontWeight: 800 }}>
                 Check your email
@@ -370,7 +369,6 @@ if (signupStatus === 'success') {
                   borderRadius: 2,
                   fontWeight: 700,
                   fontSize: 15,
-                  boxShadow: '0 2px 8px rgba(30,103,242,0.25)',
                 }}
               >
                 Go to Login
@@ -403,13 +401,12 @@ if (signupStatus === 'success') {
             color: 'primary.contrastText',
             display: 'grid',
             placeItems: 'center',
-            boxShadow: '0 4px 16px rgba(30,103,242,0.25)',
           }}
         >
           <SchoolOutlined sx={{ fontSize: 24 }} />
         </Box>
 
-        <Card sx={{ width: '100%', maxWidth: 460, borderRadius: 3, boxShadow: '0 2px 16px rgba(0,0,0,0.06)' }}>
+        <Card sx={{ width: '100%', maxWidth: 460, borderRadius: 3, border: '1px solid', borderColor: 'divider' }}>
           <CardContent sx={{ p: { xs: 2.8, sm: 3.2 } }}>
             <Stack spacing={2.2}>
               <Box sx={{ textAlign: 'center' }}>
@@ -440,12 +437,10 @@ if (signupStatus === 'success') {
                     color: 'text.secondary',
                     fontWeight: 600,
                     fontSize: 13,
-                    transition: 'all 180ms ease',
                   },
                   '& .MuiTab-root.Mui-selected': {
                     bgcolor: 'background.paper',
                     color: 'text.primary',
-                    boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
                   },
                 }}
               >
@@ -520,13 +515,6 @@ if (signupStatus === 'success') {
                       borderRadius: 2,
                       fontWeight: 700,
                       fontSize: 15,
-                      boxShadow: '0 2px 8px rgba(30,103,242,0.25)',
-                      '&:hover': {
-                        boxShadow: '0 4px 12px rgba(30,103,242,0.35)',
-                      },
-                      '&:disabled': {
-                        boxShadow: 'none',
-                      },
                     }}
                   >
                     {isSubmitting ? (
