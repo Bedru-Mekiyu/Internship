@@ -23,7 +23,7 @@ const teamMembers = [
 
 export default function AboutPage() {
   return (
-    <Box sx={{ bgcolor: '#F5F7FD', color: 'text.primary' }}>
+    <Box sx={{ bgcolor: 'background.default', color: 'text.primary' }}>
       <Box sx={{ py: { xs: 7, md: 9 } }}>
         <Container maxWidth="md">
           <Stack spacing={2} sx={{ textAlign: 'center' }}>
@@ -73,7 +73,7 @@ export default function AboutPage() {
         </Container>
       </Box>
 
-      <Box sx={{ py: { xs: 6, md: 8 }, bgcolor: '#FFFFFF' }}>
+      <Box sx={{ py: { xs: 6, md: 8 }, bgcolor: 'background.paper' }}>
         <Container maxWidth="lg">
           <Grid container spacing={3} sx={{ alignItems: 'center' }}>
             <Grid size={{ xs: 12, md: 7 }}>
@@ -159,7 +159,7 @@ export default function AboutPage() {
         </Container>
       </Box>
 
-      <Box sx={{ py: { xs: 6, md: 8 }, bgcolor: '#FFFFFF' }}>
+      <Box sx={{ py: { xs: 6, md: 8 }, bgcolor: 'background.paper' }}>
         <Container maxWidth="lg">
           <Stack spacing={1.5} sx={{ textAlign: 'center', mb: 4 }}>
             <Typography variant="h4" sx={{ fontWeight: 900, letterSpacing: '-0.02em' }}>
