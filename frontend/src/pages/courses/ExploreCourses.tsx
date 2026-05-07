@@ -1,11 +1,13 @@
 import { useMemo, useState, type ReactNode } from 'react';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import {
+  Alert,
   Box,
   Button,
   Card,
   CardContent,
   Checkbox,
+  Chip,
   Container,
   FormControl,
   FormControlLabel,
@@ -194,17 +196,17 @@ const fallbackCourses: Course[] = [
 ];
 
 const categoryChipColors: Record<Category, { bg: string; text: string }> = {
-  Development: { bg: '#EEF2FF', text: '#4F46E5' },
-  Design: { bg: '#F3E8FF', text: '#7C3AED' },
-  Business: { bg: '#DBEAFE', text: '#2563EB' },
-  Marketing: { bg: '#FEF3C7', text: '#D97706' },
-  Photography: { bg: '#DCFCE7', text: '#16A34A' },
+  Development: { bg: 'primary.light', text: 'primary.main' },
+  Design: { bg: 'secondary.light', text: 'secondary.main' },
+  Business: { bg: 'info.light', text: 'info.main' },
+  Marketing: { bg: 'warning.light', text: 'warning.main' },
+  Photography: { bg: 'success.light', text: 'success.main' },
 };
 
 function FilterSection({ title, children, last = false }: { title: string; children: ReactNode; last?: boolean }) {
   return (
-    <Box sx={{ pb: last ? 0 : 2.8, mb: last ? 0 : 2.6, borderBottom: last ? 'none' : '1px solid #E5EAF2' }}>
-      <Typography sx={{ color: '#0F172A', fontSize: '0.72rem', fontWeight: 800, mb: 1.2 }}>
+    <Box sx={{ pb: last ? 0 : 2.8, mb: last ? 0 : 2.6, borderBottom: last ? 'none' : '1px solid', borderColor: 'divider' }}>
+      <Typography sx={{ color: 'text.primary', fontSize: '0.72rem', fontWeight: 800, mb: 1.2 }}>
         {title}
       </Typography>
       {children}
@@ -221,8 +223,8 @@ function StyledCheckbox({ checked, onChange }: { checked: boolean; onChange: () 
       sx={{
         p: 0.25,
         mr: 0.75,
-        color: '#CBD5E1',
-        '&.Mui-checked': { color: '#4F46E5' },
+        color: 'action.disabled',
+        '&.Mui-checked': { color: 'primary.main' },
         '& .MuiSvgIcon-root': { fontSize: 14 },
       }}
     />
@@ -240,7 +242,7 @@ function FilterOption({ label, checked, onChange }: { label: string; checked: bo
         m: 0,
         minHeight: 22,
         '& .MuiFormControlLabel-label': {
-          color: '#475569',
+          color: 'text.secondary',
           fontSize: '0.7rem',
           fontWeight: 500,
         },
@@ -250,11 +252,10 @@ function FilterOption({ label, checked, onChange }: { label: string; checked: bo
 }
 
 function ThumbnailFallback({ category }: { category: Category }) {
-  const base = category === 'Design' ? '#E0E7FF' : category === 'Business' ? '#DBEAFE' : category === 'Marketing' ? '#FDE68A' : category === 'Photography' ? '#DCFCE7' : '#1E293B';
-  const lineColor = category === 'Development' ? 'rgba(255,255,255,0.72)' : 'rgba(15,23,42,0.22)';
-
+  const chip = categoryChipColors[category];
+  
   return (
-    <Box sx={{ height: '100%', bgcolor: base, p: 1.5, display: 'grid', gap: 0.6, alignContent: 'center' }}>
+    <Box sx={{ height: '100%', bgcolor: chip.bg, p: 1.5, display: 'grid', gap: 0.6, alignContent: 'center' }}>
       {Array.from({ length: 5 }).map((_, index) => (
         <Box
           key={index}
@@ -262,7 +263,7 @@ function ThumbnailFallback({ category }: { category: Category }) {
             height: 6,
             width: `${74 - index * 8}%`,
             borderRadius: 999,
-            bgcolor: lineColor,
+            bgcolor: 'rgba(0,0,0,0.1)',
           }}
         />
       ))}
@@ -271,8 +272,6 @@ function ThumbnailFallback({ category }: { category: Category }) {
 }
 
 function CourseCard({ course, onEnroll }: { course: Course; onEnroll: (course: Course) => Promise<void> }) {
-  const chip = categoryChipColors[course.category];
-
   return (
     <Card sx={innerCard}>
       <Box component={RouterLink} to={`/courses/${course.id}`} sx={{ height: 152, bgcolor: 'action.hover', overflow: 'hidden', display: 'block' }}>
@@ -289,11 +288,7 @@ function CourseCard({ course, onEnroll }: { course: Course; onEnroll: (course: C
       </Box>
 
       <CardContent sx={{ p: SPACING.cardPadding, '&:last-child': { pb: SPACING.cardPadding } }}>
-        <Box sx={{ display: 'inline-flex', px: 0.65, py: 0.2, borderRadius: 0.5, bgcolor: chip.bg, mb: 0.85 }}>
-          <Typography sx={{ color: chip.text, fontSize: '0.55rem', fontWeight: 900, letterSpacing: '0.05em' }}>
-            {course.category.toUpperCase()}
-          </Typography>
-        </Box>
+        <Chip label={course.category.toUpperCase()} size="small" sx={{ fontWeight: 900, fontSize: '0.55rem', letterSpacing: '0.05em', mb: 0.85 }} />
 
         <Typography component={RouterLink} to={`/courses/${course.id}`} sx={{ color: 'text.primary', fontWeight: 800, lineHeight: 1.32, minHeight: 38, fontSize: '0.84rem', display: 'block', '&:hover': { color: 'primary.main' } }}>
           {course.title}
@@ -323,7 +318,7 @@ function CourseCard({ course, onEnroll }: { course: Course; onEnroll: (course: C
 
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.25, mt: 0.7 }}>
           <StarRounded sx={{ color: 'warning.main', fontSize: 14 }} />
-          <Typography sx={{ color: '#B45309', fontSize: '0.63rem', fontWeight: 700 }}>
+          <Typography sx={{ color: 'warning.dark', fontSize: '0.63rem', fontWeight: 700 }}>
             {(course.rating ?? 0).toFixed(1)}
           </Typography>
           <Typography sx={{ color: 'text.secondary', fontSize: '0.62rem' }}>
@@ -339,10 +334,6 @@ function CourseCard({ course, onEnroll }: { course: Course; onEnroll: (course: C
             variant="contained"
             onClick={() => void onEnroll(course)}
             size="small"
-            sx={{
-              borderRadius: 0.75,
-              fontSize: '0.64rem',
-            }}
           >
             Enroll
           </Button>
@@ -509,10 +500,10 @@ export default function ExploreCourses({ embedded = false }: ExploreCoursesProps
     >
       <Box sx={{ mb: { xs: 3, md: 4.2 }, display: 'flex', alignItems: { xs: 'stretch', md: 'flex-end' }, justifyContent: 'space-between', gap: 2, flexDirection: { xs: 'column', md: 'row' } }}>
         <Box>
-          <Typography component="h1" sx={{ color: '#0F172A', fontWeight: 900, letterSpacing: 0, fontSize: { xs: '1.45rem', md: '1.6rem' }, lineHeight: 1.2 }}>
+          <Typography component="h1" sx={{ color: 'text.primary', fontWeight: 900, letterSpacing: 0, fontSize: { xs: '1.45rem', md: '1.6rem' }, lineHeight: 1.2 }}>
             Explore Courses
           </Typography>
-          <Typography sx={{ color: '#64748B', mt: 1.15, fontSize: '0.76rem', lineHeight: 1.6 }}>
+          <Typography sx={{ color: 'text.secondary', mt: 1.15, fontSize: '0.76rem', lineHeight: 1.6 }}>
             Discover new skills with our expert-led video tutorials.
           </Typography>
         </Box>
@@ -527,14 +518,11 @@ export default function ExploreCourses({ embedded = false }: ExploreCoursesProps
           size="small"
           sx={{
             width: { xs: '100%', md: 318 },
-            bgcolor: '#FFFFFF',
+            bgcolor: 'background.paper',
             '& .MuiOutlinedInput-root': {
               minHeight: 34,
-              borderRadius: 0.75,
+              borderRadius: 1,
               fontSize: '0.72rem',
-              '& fieldset': { borderColor: '#E2E8F0' },
-              '&:hover fieldset': { borderColor: '#CBD5E1' },
-              '&.Mui-focused fieldset': { borderColor: '#4F46E5', borderWidth: 1 },
             },
             '& .MuiOutlinedInput-input': { py: 0.8 },
           }}
@@ -542,7 +530,7 @@ export default function ExploreCourses({ embedded = false }: ExploreCoursesProps
             input: {
               startAdornment: (
                 <InputAdornment position="start">
-                  <SearchOutlined sx={{ color: '#94A3B8', fontSize: 16 }} />
+                  <SearchOutlined sx={{ color: 'text.secondary', fontSize: 16 }} />
                 </InputAdornment>
               ),
             },
@@ -551,19 +539,15 @@ export default function ExploreCourses({ embedded = false }: ExploreCoursesProps
       </Box>
 
       {actionError ? (
-        <Box sx={{ mb: 2, border: '1px solid #FECACA', bgcolor: '#FEF2F2', borderRadius: 1, px: 1.5, py: 1 }}>
-          <Typography sx={{ color: '#B91C1C', fontSize: '0.78rem', fontWeight: 700 }}>{actionError}</Typography>
-        </Box>
+        <Alert severity="error" sx={{ mb: 2 }}>{actionError}</Alert>
       ) : null}
 
       {error && (
-        <Box sx={{ mb: 2, border: '1px solid #FECACA', bgcolor: '#FEF2F2', borderRadius: 1, px: 1.5, py: 1 }}>
-          <Typography sx={{ color: '#B91C1C', fontSize: '0.78rem', fontWeight: 700 }}>
-            {usingFallbackCatalog 
-              ? 'Showing sample courses—check back soon for our full catalog' 
-              : normalizeApiError(error).message || 'Unable to load courses.'}
-          </Typography>
-        </Box>
+        <Alert severity="error" sx={{ mb: 2 }}>
+          {usingFallbackCatalog 
+            ? 'Showing sample courses—check back soon for our full catalog' 
+            : normalizeApiError(error).message || 'Unable to load courses.'}
+        </Alert>
       )}
 
       <Grid container spacing={{ xs: 3, lg: 5.2 }} sx={{ alignItems: 'flex-start' }}>
@@ -571,7 +555,7 @@ export default function ExploreCourses({ embedded = false }: ExploreCoursesProps
           <Box sx={{ position: { lg: 'sticky' }, top: embedded ? 96 : 24 }}>
             <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1.45 }}>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.8 }}>
-                <Typography sx={{ color: '#0F172A', fontSize: '0.72rem', fontWeight: 900 }}>
+                <Typography sx={{ color: 'text.primary', fontSize: '0.72rem', fontWeight: 900 }}>
                   Filters
                 </Typography>
                 <Button
@@ -581,7 +565,7 @@ export default function ExploreCourses({ embedded = false }: ExploreCoursesProps
                     display: { xs: 'inline-flex', lg: 'none' },
                     minWidth: 0,
                     p: 0.25,
-                    color: '#64748B',
+                    color: 'text.secondary',
                   }}
                 >
                   <FilterListOutlined sx={{ fontSize: 16 }} />
@@ -590,7 +574,7 @@ export default function ExploreCourses({ embedded = false }: ExploreCoursesProps
               <Button
                 variant="text"
                 onClick={resetAllFilters}
-                sx={{ minWidth: 0, px: 0, py: 0, color: '#4F46E5', fontSize: '0.62rem', fontWeight: 700 }}
+                sx={{ minWidth: 0, px: 0, py: 0, color: 'primary.main', fontSize: '0.62rem', fontWeight: 700 }}
               >
                 Reset all
               </Button>
@@ -642,24 +626,22 @@ export default function ExploreCourses({ embedded = false }: ExploreCoursesProps
 
         <Grid size={{ xs: 12, lg: 9.45 }}>
           <Box sx={{ mb: 2.35, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 2, flexWrap: 'wrap' }}>
-            <Typography sx={{ color: '#475569', fontWeight: 600, fontSize: '0.7rem' }}>
+            <Typography sx={{ color: 'text.secondary', fontWeight: 600, fontSize: '0.7rem' }}>
               Showing {visibleCourses.length} of {Math.max(filteredCourses.length, totalCourseCount)} courses
             </Typography>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}>
-              <Typography sx={{ color: '#0F172A', fontWeight: 800, fontSize: '0.68rem' }}>
+              <Typography sx={{ color: 'text.primary', fontWeight: 800, fontSize: '0.68rem' }}>
                 Sort by:
               </Typography>
               <FormControl
                 size="small"
                 sx={{
                   minWidth: 126,
-                  bgcolor: '#FFFFFF',
+                  bgcolor: 'background.paper',
                   '& .MuiOutlinedInput-root': {
                     minHeight: 30,
-                    borderRadius: 0.75,
+                    borderRadius: 1,
                     fontSize: '0.68rem',
-                    '& fieldset': { borderColor: '#E2E8F0' },
-                    '&.Mui-focused fieldset': { borderColor: '#4F46E5', borderWidth: 1 },
                   },
                   '& .MuiSelect-select': { py: 0.65, px: 1 },
                 }}
@@ -684,18 +666,20 @@ export default function ExploreCourses({ embedded = false }: ExploreCoursesProps
           </Grid>
 
           {isLoading ? (
-            <Typography sx={{ color: '#64748B', mt: 2, fontSize: '0.76rem' }}>Loading courses...</Typography>
+            <Typography sx={{ color: 'text.secondary', mt: 2, fontSize: '0.76rem' }}>Loading courses...</Typography>
           ) : null}
 
           {!isLoading && visibleCourses.length === 0 ? (
-            <Box sx={{ mt: 3, border: '1px solid #E2E8F0', bgcolor: '#FFFFFF', borderRadius: 1, px: 2, py: 2.5 }}>
-              <Typography sx={{ color: '#0F172A', fontWeight: 800, fontSize: '0.9rem' }}>
-                No courses match these filters.
-              </Typography>
-              <Typography sx={{ color: '#64748B', mt: 0.5, fontSize: '0.76rem' }}>
-                Reset the filters or try a different search term.
-              </Typography>
-            </Box>
+            <Card sx={{ mt: 3, borderRadius: 1 }}>
+              <CardContent sx={{ px: 2, py: 2.5 }}>
+                <Typography sx={{ color: 'text.primary', fontWeight: 800, fontSize: '0.9rem' }}>
+                  No courses match these filters.
+                </Typography>
+                <Typography sx={{ color: 'text.secondary', mt: 0.5, fontSize: '0.76rem' }}>
+                  Reset the filters or try a different search term.
+                </Typography>
+              </CardContent>
+            </Card>
           ) : null}
 
           {visibleCount < filteredCourses.length ? (
@@ -704,16 +688,11 @@ export default function ExploreCourses({ embedded = false }: ExploreCoursesProps
                 variant="outlined"
                 onClick={() => setVisibleCount((current) => current + 3)}
                 sx={{
-                  color: '#0F172A',
-                  borderColor: '#DCE3EE',
-                  bgcolor: '#FFFFFF',
-                  borderRadius: 0.75,
                   fontWeight: 600,
                   textTransform: 'none',
                   fontSize: '0.68rem',
                   px: 1.4,
                   py: 0.7,
-                  '&:hover': { borderColor: '#CBD5E1', bgcolor: '#F8FAFC' },
                 }}
               >
                 Load More Courses
@@ -726,7 +705,7 @@ export default function ExploreCourses({ embedded = false }: ExploreCoursesProps
   );
 
   return (
-    <Box sx={{ minHeight: embedded ? 'auto' : '100vh', bgcolor: embedded ? 'transparent' : '#F4F7FB' }}>
+    <Box sx={{ minHeight: embedded ? 'auto' : '100vh', bgcolor: embedded ? 'transparent' : 'background.default' }}>
       {content}
     </Box>
   );
