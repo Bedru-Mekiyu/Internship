@@ -131,7 +131,6 @@ export default function EmailVerificationPage() {
             width: '100%',
             maxWidth: 420,
             borderRadius: 3,
-            boxShadow: '0 1px 3px rgba(15,23,42,0.06), 0 4px 16px rgba(15,23,42,0.04)',
             border: '1px solid #E2E8F0',
           }}
         >

@@ -5,23 +5,6 @@ import { publicFooterColumns, publicFooterLegalLinks } from './publicNavigation'
 function BrandMark() {
   return (
     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-      <Box
-        sx={{
-          width: 16,
-          height: 16,
-          display: 'grid',
-          placeItems: 'center',
-          color: 'primary.main',
-          flexShrink: 0,
-        }}
-      >
-        <Box component="svg" viewBox="0 0 24 24" aria-hidden="true" sx={{ width: '100%', height: '100%' }}>
-          <path
-            fill="currentColor"
-            d="M12 2.75 14.35 9 21 11.35l-6.65 2.3L12 21.25l-2.35-7.6L3 11.35 9.65 9 12 2.75Z"
-          />
-        </Box>
-      </Box>
       <Typography sx={{ fontWeight: 800, fontSize: '0.78rem', color: 'primary.main' }}>
         LearnSpace
       </Typography>

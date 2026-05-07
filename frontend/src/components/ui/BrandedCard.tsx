@@ -18,12 +18,7 @@ export default function BrandedCard({
         width: '100%',
         maxWidth,
         borderRadius: 3,
-        boxShadow: '0 1px 3px rgba(15,23,42,0.06), 0 4px 16px rgba(15,23,42,0.04)',
         border: '1px solid #E2E8F0',
-        transition: 'all 180ms ease',
-        '&:hover': {
-          boxShadow: '0 4px 12px rgba(15,23,42,0.1), 0 8px 24px rgba(15,23,42,0.08)',
-        },
         ...sx,
       }}
       {...cardProps}
