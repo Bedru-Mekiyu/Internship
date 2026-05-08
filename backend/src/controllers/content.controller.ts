@@ -12,6 +12,8 @@ import { requireEnv } from '../utils/env';
 import { routeParam } from '../utils/route-params';
 import { safeRegexFragment } from '../utils/safe-regex';
 
+const contentSlugPattern = /^[a-z0-9][a-z0-9-]{0,180}$/i;
+
 const buildS3Client = () => new S3Client({
   region: requireEnv('AWS_REGION'),
   credentials: {
@@ -52,7 +54,12 @@ export const getManagedContents = asyncHandler(async (req: Request, res: Respons
 });
 
 export const getContentBySlug = asyncHandler(async (req: Request, res: Response) => {
-  const content = await Content.findOne({ slug: req.params.slug, status: 'published' });
+  const slug = routeParam(req.params.slug).trim().toLowerCase();
+  if (!contentSlugPattern.test(slug)) {
+    throw new AppError('Not found', 404);
+  }
+
+  const content = await Content.findOne({ slug, status: 'published' });
   if (!content) {
     throw new AppError('Not found', 404);
   }

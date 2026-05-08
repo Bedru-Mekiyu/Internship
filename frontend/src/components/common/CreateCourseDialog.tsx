@@ -42,12 +42,8 @@ export default function CreateCourseDialog({ open, onClose }: CreateCourseDialog
         subtitle: subtitle.trim(),
         visibility,
       };
-      
-      console.log('[CreateCourse] Submitting payload:', payload);
-      
-      const result = await createCourse(payload).unwrap();
 
-      console.log('[CreateCourse] Success:', result);
+      const result = await createCourse(payload).unwrap();
 
       setSnackbarOpen(true);
       handleClose();
@@ -57,8 +53,8 @@ export default function CreateCourseDialog({ open, onClose }: CreateCourseDialog
       } else {
         navigate('/courses/new');
       }
-    } catch (err) {
-      console.error('[CreateCourse] Error:', err);
+    } catch {
+      // The RTK Query error state renders the message in the dialog.
     }
   };
 

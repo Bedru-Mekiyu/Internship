@@ -12,6 +12,7 @@ import { asyncHandler } from '../utils/async-handler';
 import { requireEnv } from '../utils/env';
 import { routeParam } from '../utils/route-params';
 import { safeRegexFragment } from '../utils/safe-regex';
+import { logWarn } from '../utils/logger';
 
 const buildS3Client = () => new S3Client({
   region: requireEnv('AWS_REGION'),
@@ -30,6 +31,27 @@ const sanitizeUser = (user: any) => {
   delete userObject.passwordResetTokenExpiry;
   delete userObject.__v;
   return userObject;
+};
+
+const resolveLocalUploadPath = (storedPath: string) => {
+  if (!storedPath.startsWith('/uploads/')) {
+    return null;
+  }
+
+  const uploadRoot = path.resolve(process.cwd(), 'uploads');
+  const rawFilename = storedPath.slice('/uploads/'.length);
+  const safeFilename = path.basename(rawFilename);
+
+  if (!safeFilename || safeFilename !== rawFilename) {
+    return null;
+  }
+
+  const uploadPath = path.resolve(uploadRoot, safeFilename);
+  if (!uploadPath.startsWith(`${uploadRoot}${path.sep}`)) {
+    return null;
+  }
+
+  return uploadPath;
 };
 
 export const getUsers = asyncHandler(async (req: Request, res: Response) => {
@@ -134,11 +156,13 @@ export const uploadMeAvatar = asyncHandler(async (req: Request, res: Response) =
           await s3.send(new DeleteObjectCommand({ Bucket: bucket, Key: key }));
         }
       } else if (oldAvatar.startsWith('/uploads/')) {
-        const filePath = path.join(process.cwd(), oldAvatar);
-        await fs.promises.unlink(filePath);
+        const filePath = resolveLocalUploadPath(oldAvatar);
+        if (filePath) {
+          await fs.promises.unlink(filePath);
+        }
       }
     } catch (deleteError) {
-      console.warn('Failed to delete old avatar:', deleteError);
+      logWarn('avatar_old_file_delete_failed', { error: String(deleteError) });
     }
   }
 

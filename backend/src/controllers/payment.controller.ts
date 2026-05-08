@@ -7,6 +7,7 @@ import { Payment } from '../models/Payment.model';
 import { asyncHandler } from '../utils/async-handler';
 import { AppError } from '../utils/http-error';
 import { routeParam } from '../utils/route-params';
+import { requireEnv } from '../utils/env';
 import { confirmGatewayPayment, createCheckoutSession, normalizeWebhookState, PaymentProvider } from '../services/payment-gateway.service';
 
 const monthKey = (date: Date) => `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
@@ -198,8 +199,10 @@ export const handlePaymentWebhook = asyncHandler(async (req: Request, res: Respo
     throw new AppError('Missing webhook signature', 401);
   }
 
-  const configuredSecret = process.env.PAYMENT_WEBHOOK_SECRET;
-  if (!configuredSecret) {
+  let configuredSecret: string;
+  try {
+    configuredSecret = requireEnv('PAYMENT_WEBHOOK_SECRET');
+  } catch {
     throw new AppError('Webhook is not configured', 503);
   }
 

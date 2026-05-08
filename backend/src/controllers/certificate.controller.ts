@@ -44,6 +44,26 @@ const getOwnerId = (value: unknown) => {
   return String(value || '');
 };
 
+const getTrustedBaseUrl = (req: Request) => {
+  const configuredBaseUrl = process.env.BASE_URL?.trim().replace(/\/$/, '');
+  if (configuredBaseUrl) {
+    try {
+      const parsed = new URL(configuredBaseUrl);
+      if (parsed.protocol === 'http:' || parsed.protocol === 'https:') {
+        return parsed.toString().replace(/\/$/, '');
+      }
+    } catch {
+      /* fall through */
+    }
+  }
+
+  if (process.env.NODE_ENV === 'production') {
+    throw new AppError('Public base URL is not configured', 500);
+  }
+
+  return `${req.protocol}://${req.get('host')}`;
+};
+
 const buildCertificateHtml = (options: {
   studentName: string;
   courseTitle: string;
@@ -341,7 +361,7 @@ export const renderCertificatePage = asyncHandler(async (req: Request, res: Resp
     courseTitle: getCourseTitle(certificate.courseId),
     certificateNumber: certificate.certificateNumber,
     issuedAt: certificate.issuedAt ? new Date(certificate.issuedAt).toLocaleDateString() : 'Recently',
-    verifyUrl: `${req.protocol}://${req.get('host')}/api/certificates/verify/${certificate._id}`,
+    verifyUrl: `${getTrustedBaseUrl(req)}/api/certificates/verify/${certificate._id}`,
   });
 
   return res.status(200).type('html').send(html);
@@ -355,7 +375,7 @@ export const downloadCertificatePage = asyncHandler(async (req: Request, res: Re
     courseTitle: getCourseTitle(certificate.courseId),
     certificateNumber: certificate.certificateNumber,
     issuedAt: certificate.issuedAt ? new Date(certificate.issuedAt).toLocaleDateString() : 'Recently',
-    verifyUrl: `${req.protocol}://${req.get('host')}/api/certificates/verify/${certificate._id}`,
+    verifyUrl: `${getTrustedBaseUrl(req)}/api/certificates/verify/${certificate._id}`,
   });
 
   return res.status(200).attachment(`certificate-${certificate.certificateNumber}.html`).type('html').send(html);
@@ -368,7 +388,7 @@ export const downloadCertificatePdf = asyncHandler(async (req: Request, res: Res
   const studentName = getDisplayName(certificate.userId);
   const courseTitle = getCourseTitle(certificate.courseId);
   const issuedAt = certificate.issuedAt ? new Date(certificate.issuedAt).toLocaleDateString() : 'Recently';
-  const verifyUrl = `${req.protocol}://${req.get('host')}/api/certificates/verify/${certificate._id}`;
+  const verifyUrl = `${getTrustedBaseUrl(req)}/api/certificates/verify/${certificate._id}`;
 
   res.setHeader('Content-Type', 'application/pdf');
   res.setHeader(

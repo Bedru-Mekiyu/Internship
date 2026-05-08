@@ -31,10 +31,14 @@ createRoot(document.getElementById('root')!).render(
 )
 
 window.addEventListener('unhandledrejection', (event) => {
-  console.error('Unhandled promise rejection:', event.reason);
+  if (import.meta.env.DEV) {
+    console.error('Unhandled promise rejection:', event.reason);
+  }
   event.preventDefault();
 });
 
 window.addEventListener('error', (event) => {
-  console.error('Global error:', event.error);
+  if (import.meta.env.DEV) {
+    console.error('Global error:', event.error);
+  }
 });
