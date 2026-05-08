@@ -19,6 +19,7 @@ import {
 } from '@mui/material';
 import { Link as RouterLink } from 'react-router-dom';
 import CreateCourseDialog from '../../components/common/CreateCourseDialog';
+import DashboardPageFrame from '../../components/common/DashboardPageFrame';
 import { api, normalizeApiError } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 import { useGetInstructorDashboardQuery } from '../../store/api/dashboardApi';
@@ -175,24 +176,31 @@ export default function InstructorDashboard() {
 
   return (
     <Box sx={{ minHeight: '100%', bgcolor: 'background.default', p: SPACING.lg }}>
-      <Stack spacing={SPACING.lg}>
+      <DashboardPageFrame
+        eyebrow="Instructor workspace"
+        title={welcomeGreeting}
+        description="Track course performance, student activity, and revenue from one focused workspace."
+        actions={
+          <Button
+            variant="contained"
+            onClick={() => setCreateCourseOpen(true)}
+            aria-label="Create a new course"
+            sx={{
+              borderRadius: 1.5,
+              fontWeight: 800,
+              textTransform: 'none',
+            }}
+          >
+            New Course
+          </Button>
+        }
+      >
+        {isError && (
+          <Alert severity="error" sx={{ mb: SPACING.md, borderRadius: 1.5 }}>
+            {normalizeApiError(error).message || 'Failed to load instructor dashboard.'}
+          </Alert>
+        )}
 
-        {/* Page header */}
-        <Box>
-          {isError && (
-            <Alert severity="error" sx={{ mb: SPACING.md, borderRadius: 1.5 }}>
-              {normalizeApiError(error).message || 'Failed to load instructor dashboard.'}
-            </Alert>
-          )}
-          <Typography variant="h4" sx={{ fontWeight: 900, letterSpacing: '-0.04em' }}>
-            {welcomeGreeting}
-          </Typography>
-          <Typography variant="body1" sx={{ mt: 1, color: 'text.secondary', maxWidth: 680 }}>
-            Track course performance, student activity, and revenue from one focused workspace.
-          </Typography>
-        </Box>
-
-{/* Metric cards */}
         <Grid container spacing={SPACING.lg}>
           {isLoading && !data ? (
             <Grid size={{ xs: 12 }}>
@@ -215,7 +223,6 @@ export default function InstructorDashboard() {
           ))}
         </Grid>
 
-        {/* Revenue chart + Top courses */}
         <Grid container spacing={SPACING.lg}>
           <Grid size={{ xs: 12, lg: 7 }}>
             <Card sx={card}>
@@ -235,7 +242,7 @@ export default function InstructorDashboard() {
                         Loading revenue chart...
                       </Typography>
                     </Box>
-}
+                  }
                 >
                   <InstructorRevenueChart data={revenueChartData} />
                 </Suspense>
@@ -282,7 +289,6 @@ export default function InstructorDashboard() {
           </Grid>
         </Grid>
 
-        {/* My Courses */}
         <Card sx={card}>
           <CardContent sx={{ p: SPACING.cardPadding }}>
             <Box sx={sectionHeader}>
@@ -292,25 +298,12 @@ export default function InstructorDashboard() {
                   Quickly edit, view, and inspect performance.
                 </Typography>
               </Box>
-              <Button
-                variant="contained"
-                onClick={() => setCreateCourseOpen(true)}
-                aria-label="Create a new course"
-                sx={{
-                  borderRadius: 1.5,
-                  fontWeight: 800,
-                  textTransform: 'none',
-                }}
-              >
-                New Course
-              </Button>
             </Box>
 
             <Grid container spacing={SPACING.md}>
               {dashboardCourses.length > 0 ? (
                 dashboardCourses.map((course) => (
                   <Grid key={course.title} size={{ xs: 12, md: 6 }}>
-                    {/* insetCard: inside an already-elevated card, no shadow */}
                     <Box sx={{ ...insetCard, p: SPACING.cardPadding }}>
                       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 2 }}>
                         <Box sx={{ minWidth: 0 }}>
@@ -354,18 +347,17 @@ export default function InstructorDashboard() {
                     </Box>
                   </Grid>
                 ))
-) : (
-                    <Grid size={{ xs: 12 }}>
-                      <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                        No courses yet. Create your first course to start your teaching journey!
-                      </Typography>
-                    </Grid>
-                  )}
+              ) : (
+                <Grid size={{ xs: 12 }}>
+                  <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                    No courses yet. Create your first course to start your teaching journey!
+                  </Typography>
+                </Grid>
+              )}
             </Grid>
           </CardContent>
         </Card>
 
-        {/* Enrollments + Student Growth */}
         <Grid container spacing={SPACING.lg}>
           <Grid size={{ xs: 12, lg: 7 }}>
             <Card sx={card}>
@@ -407,13 +399,13 @@ export default function InstructorDashboard() {
                         recentEnrollments.map((row) => (
                           <TableRow
                             key={`${row.student}-${row.course}`}
-                              hover
-                              sx={{
-                                '& .MuiTableCell-root': { py: SPACING.md, borderBottom: '1px solid', borderColor: 'divider' },
-                                '&:hover': { bgcolor: 'background.default' },
-                                '&:last-child .MuiTableCell-root': { borderBottom: 'none' },
-                              }}
-                            >
+                            hover
+                            sx={{
+                              '& .MuiTableCell-root': { py: SPACING.md, borderBottom: '1px solid', borderColor: 'divider' },
+                              '&:hover': { bgcolor: 'background.default' },
+                              '&:last-child .MuiTableCell-root': { borderBottom: 'none' },
+                            }}
+                          >
                             <TableCell>
                               <Box sx={{ display: 'flex', alignItems: 'center', gap: SPACING.md }}>
                                 <Box sx={{ width: { xs: 30, md: 36 }, height: { xs: 30, md: 36 }, bgcolor: row.color, color: 'common.white', fontWeight: 800, fontSize: { xs: '0.72rem', md: '0.8rem' }, borderRadius: 1.25, display: 'grid', placeItems: 'center' }}>
@@ -505,7 +497,7 @@ export default function InstructorDashboard() {
           </Grid>
         </Grid>
 
-      </Stack>
+      </DashboardPageFrame>
 
       <CreateCourseDialog open={createCourseOpen} onClose={() => setCreateCourseOpen(false)} />
     </Box>
