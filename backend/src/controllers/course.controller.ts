@@ -133,6 +133,44 @@ const ensureCourseDetailAccess = async (course: InstanceType<typeof Course>, use
   throw new AppError('Course not found', 404);
 };
 
+const canViewUnpublishedNestedContent = (course: { status?: string; instructor?: unknown }, user: Request['user'] | undefined) => {
+  if (user?.role === 'admin') {
+    return true;
+  }
+
+  if (user?.role === 'instructor' && course.instructor && user._id && course.instructor.toString() === user._id.toString()) {
+    return true;
+  }
+
+  return course.status !== 'published';
+};
+
+const sortLessonsForResponse = (lessons: unknown[]) => {
+  return [...lessons].sort((left: any, right: any) => {
+    const leftOrder = Number(left.order || 0);
+    const rightOrder = Number(right.order || 0);
+    if (leftOrder !== rightOrder) {
+      return leftOrder - rightOrder;
+    }
+    return new Date(left.createdAt).getTime() - new Date(right.createdAt).getTime();
+  });
+};
+
+const serializeVisibleModules = (modules: unknown[], allowUnpublishedNestedContent: boolean) => {
+  return modules
+    .filter((moduleItem: any) => allowUnpublishedNestedContent || moduleItem.status === 'published')
+    .map((moduleItem: any) => {
+      const lessonDocs = Array.isArray(moduleItem.lessons) ? [...moduleItem.lessons] : [];
+      const visibleLessons = allowUnpublishedNestedContent
+        ? lessonDocs
+        : lessonDocs.filter((lesson: any) => lesson.status === 'published');
+
+      const moduleObject = typeof moduleItem.toObject === 'function' ? moduleItem.toObject() : { ...moduleItem };
+      moduleObject.lessons = sortLessonsForResponse(visibleLessons);
+      return moduleObject;
+    });
+};
+
 const ensureSameMembers = (expectedIds: string[], receivedIds: string[], label: string) => {
   if (expectedIds.length !== receivedIds.length) {
     throw new AppError(`${label} list must include every existing item exactly once`, 400);
@@ -310,7 +348,11 @@ export const getCourseById = asyncHandler(async (req: Request, res: Response) =>
     { path: 'reviews.user', select: publicInstructorSelect },
   ]);
 
-  return res.json(course);
+  const courseObject = course.toObject();
+  const allowUnpublishedNestedContent = canViewUnpublishedNestedContent(course, req.user);
+  courseObject.modules = serializeVisibleModules(courseObject.modules || [], allowUnpublishedNestedContent);
+
+  return res.json(courseObject);
 });
 
 export const createCourse = asyncHandler(async (req: Request, res: Response) => {
@@ -522,21 +564,10 @@ export const getCourseModules = asyncHandler(async (req: Request, res: Response)
     .sort({ order: 1, createdAt: 1 })
     .populate('lessons');
 
-  const normalizedModules = modules.map((moduleItem: any) => {
-    const lessonDocs = Array.isArray(moduleItem.lessons) ? [...moduleItem.lessons] : [];
-    lessonDocs.sort((left: any, right: any) => {
-      const leftOrder = Number(left.order || 0);
-      const rightOrder = Number(right.order || 0);
-      if (leftOrder !== rightOrder) {
-        return leftOrder - rightOrder;
-      }
-      return new Date(left.createdAt).getTime() - new Date(right.createdAt).getTime();
-    });
-
-    const moduleObject = moduleItem.toObject();
-    moduleObject.lessons = lessonDocs;
-    return moduleObject;
-  });
+  const normalizedModules = serializeVisibleModules(
+    modules,
+    canViewUnpublishedNestedContent(course, req.user),
+  );
 
   return res.json(normalizedModules);
 });
