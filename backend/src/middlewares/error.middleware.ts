@@ -90,6 +90,25 @@ export const errorMiddleware = (err: unknown, req: Request, res: Response, _next
   }
 
   if (err instanceof Error) {
+    if (err.name === 'MulterError') {
+      const statusCode = (err as { code?: string }).code === 'LIMIT_FILE_SIZE' ? 413 : 400;
+      return res.status(statusCode).json({
+        message: statusCode === 413 ? 'Uploaded file is too large.' : 'Invalid file upload.',
+        requestId,
+      });
+    }
+
+    if (
+      err.message === 'Unsupported file type'
+      || err.message === 'Invalid file name'
+      || err.message === 'Unsupported file extension for mime type'
+    ) {
+      return res.status(400).json({
+        message: err.message,
+        requestId,
+      });
+    }
+
     if (err.name === 'JsonWebTokenError' || err.name === 'TokenExpiredError') {
       return res.status(401).json({
         message: getUserFriendlyMessage(err, 401),

@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
+import crypto from 'crypto';
 import client from 'prom-client';
 
 let bootstrapped = false;
@@ -52,11 +53,21 @@ export const metricsHandler = async (_req: Request, res: Response) => {
 export const metricsBearerGuard = (req: Request, res: Response, next: NextFunction) => {
   const token = process.env.METRICS_BEARER_TOKEN?.trim();
   if (!token) {
+    if (process.env.NODE_ENV === 'production') {
+      return res.status(404).json({ message: 'Not found' });
+    }
     return next();
   }
   const auth = req.headers.authorization;
   const expected = `Bearer ${token}`;
-  if (auth !== expected) {
+  const provided = typeof auth === 'string' ? auth : '';
+  const providedBuffer = Buffer.from(provided);
+  const expectedBuffer = Buffer.from(expected);
+  const matches =
+    providedBuffer.length === expectedBuffer.length
+    && crypto.timingSafeEqual(providedBuffer, expectedBuffer);
+
+  if (!matches) {
     return res.status(401).json({ message: 'Unauthorized' });
   }
   return next();

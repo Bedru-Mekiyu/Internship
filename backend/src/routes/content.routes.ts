@@ -12,7 +12,7 @@ import {
   renameMedia,
 } from '../controllers/content.controller';
 import { authMiddleware, roleMiddleware } from '../middlewares/auth.middleware';
-import { validationMiddleware, contentSchema, mediaRenameSchema } from '../utils/validators';
+import { validationMiddleware, contentSchema, contentUpdateSchema, mediaRenameSchema } from '../utils/validators';
 import { getUploadMiddleware } from '../middlewares/upload.middleware';
 
 const router = express.Router();
@@ -24,7 +24,7 @@ router.delete('/media/:id', authMiddleware, roleMiddleware(['content_manager', '
 router.patch('/media/:id', authMiddleware, roleMiddleware(['content_manager', 'admin', 'instructor']), validationMiddleware(mediaRenameSchema), renameMedia);
 router.get('/:slug', getContentBySlug);
 router.post('/', authMiddleware, roleMiddleware(['content_manager', 'admin']), validationMiddleware(contentSchema), createContent);
-router.put('/:id', authMiddleware, roleMiddleware(['content_manager', 'admin']), validationMiddleware(contentSchema), updateContent);
+router.put('/:id', authMiddleware, roleMiddleware(['content_manager', 'admin']), validationMiddleware(contentUpdateSchema), updateContent);
 router.delete('/:id', authMiddleware, roleMiddleware(['content_manager', 'admin']), deleteContent);
 router.post('/upload', authMiddleware, roleMiddleware(['content_manager', 'admin', 'instructor']), getUploadMiddleware().single('file'), uploadMedia);
 

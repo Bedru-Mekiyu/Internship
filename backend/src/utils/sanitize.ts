@@ -22,6 +22,7 @@ const DANGEROUS_PROTOCOLS = ['javascript:', 'data:', 'vbscript:'];
 const dangerousProtocolsPattern = /(javascript|data|vbscript):/gi;
 const htmlCommentPattern = /<!--[\s\S]*?-->/g;
 const nestedTagPattern = /<([a-zA-Z][a-zA-Z0-9]*)[^>]*>[\s\S]*?<\/\1>/gi;
+const RAW_VALUE_KEYS = new Set(['password', 'currentPassword', 'newPassword', 'refreshToken', 'token']);
 
 export const sanitizeHtml = (html: string | undefined): string => {
   if (!html || typeof html !== 'string') {
@@ -35,8 +36,7 @@ export const sanitizeHtml = (html: string | undefined): string => {
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#x27;')
-    .replace(/\//g, '&#x2F;');
+    .replace(/'/g, '&#x27;');
 
   DANGEROUS_TAGS.forEach((tag) => {
     const tagRegex = new RegExp(`<(${tag})[\\s\\S]*?</\\1>`, 'gi');
@@ -78,7 +78,7 @@ export const sanitizeInput = (input: unknown): unknown => {
   if (input && typeof input === 'object') {
     const sanitized: Record<string, unknown> = {};
     for (const [key, value] of Object.entries(input)) {
-      sanitized[key] = sanitizeInput(value);
+      sanitized[key] = RAW_VALUE_KEYS.has(key) ? value : sanitizeInput(value);
     }
     return sanitized;
   }

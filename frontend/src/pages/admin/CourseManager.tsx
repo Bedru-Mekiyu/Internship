@@ -31,10 +31,18 @@ import { useQueryClient } from '@tanstack/react-query';
 import { alpha } from '@mui/material/styles';
 import { theme } from '../../theme';
 
+interface AdminCourseListItem {
+  _id: string;
+  title: string;
+  status?: 'draft' | 'published' | 'archived';
+  category?: string;
+  enrollmentCount?: number;
+}
+
 export default function AdminCourseManager() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const [courses, setCourses] = useState<any[]>([]);
+  const [courses, setCourses] = useState<AdminCourseListItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -46,7 +54,7 @@ export default function AdminCourseManager() {
   const fetchCourses = async () => {
     try {
       setIsLoading(true);
-      const response = await api.get('/api/courses');
+      const response = await api.get<AdminCourseListItem[]>('/api/courses');
       setCourses(response.data);
     } catch (err) {
       setError(normalizeApiError(err).message);

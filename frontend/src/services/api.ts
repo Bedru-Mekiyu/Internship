@@ -65,6 +65,14 @@ const refreshClient = axios.create({
   timeout: 15000,
 });
 
+refreshClient.interceptors.request.use((config) => {
+  const csrfToken = getCsrfToken();
+  if (csrfToken) {
+    config.headers['x-csrf-token'] = csrfToken;
+  }
+  return config;
+});
+
 export const ensureCsrfToken = async () => {
   const existingToken = getCsrfToken();
   if (existingToken) {

@@ -150,6 +150,12 @@ const defaultSettings: PlatformSettings = {
 
 let platformSettings: PlatformSettings = { ...defaultSettings };
 
+const maskSensitiveSettings = (settings: PlatformSettings): PlatformSettings => ({
+  ...settings,
+  stripeSecretKey: settings.stripeSecretKey ? '********' : '',
+  smtpPassword: settings.smtpPassword ? '********' : '',
+});
+
 export const getPublicSettings = asyncHandler(async (_req: Request, res: Response) => {
   return res.json({
     settings: {
@@ -175,13 +181,7 @@ export const getSettings = asyncHandler(async (req: Request, res: Response) => {
     throw new AppError('Unauthorized. Admin access required.', 403);
   }
 
-  const safeSettings = {
-    ...platformSettings,
-    stripeSecretKey: platformSettings.stripeSecretKey ? '••••••••' : '',
-    smtpPassword: platformSettings.smtpPassword ? '••••••••' : '',
-  };
-
-  return res.json({ settings: safeSettings });
+  return res.json({ settings: maskSensitiveSettings(platformSettings) });
 });
 
 export const updateSettings = asyncHandler(async (req: Request, res: Response) => {
@@ -234,7 +234,7 @@ export const updateSettings = asyncHandler(async (req: Request, res: Response) =
     }
   }
 
-  return res.json({ settings: platformSettings, message: 'Settings updated successfully' });
+  return res.json({ settings: maskSensitiveSettings(platformSettings), message: 'Settings updated successfully' });
 });
 
 export const resetSettings = asyncHandler(async (req: Request, res: Response) => {
@@ -245,5 +245,5 @@ export const resetSettings = asyncHandler(async (req: Request, res: Response) =>
   }
 
   platformSettings = { ...defaultSettings };
-  return res.json({ settings: platformSettings, message: 'Settings reset to defaults' });
+  return res.json({ settings: maskSensitiveSettings(platformSettings), message: 'Settings reset to defaults' });
 });

@@ -44,6 +44,11 @@ import { userHasCourseDiscussionAccess } from './utils/course-membership';
 dotenv.config({ quiet: true });
 
 const getAllowedOrigins = () => {
+  const envOrigins = process.env.CORS_ORIGIN?.split(',').map(o => o.trim()).filter(Boolean) || [];
+  if (process.env.NODE_ENV === 'production') {
+    return [...new Set(envOrigins)];
+  }
+
   const defaults = [
     'http://localhost:3000',
     'http://127.0.0.1:3000',
@@ -55,7 +60,6 @@ const getAllowedOrigins = () => {
     'http://localhost:5000',
     'http://127.0.0.1:5000',
   ];
-  const envOrigins = process.env.CORS_ORIGIN?.split(',').map(o => o.trim()).filter(Boolean) || [];
   return [...new Set([...defaults, ...envOrigins])];
 };
 
@@ -186,7 +190,7 @@ const startServer = async () => {
       path: '/socket.io',
       connectionStateRecovery: {
         maxDisconnectionDuration: 2 * 60 * 1000,
-        skipMiddlewares: true,
+        skipMiddlewares: false,
       },
       maxHttpBufferSize: 1e6,
       pingTimeout: 20000,
@@ -265,7 +269,7 @@ const startServer = async () => {
         if (!token) return next(new Error('Authentication error: No token provided'));
 
         const accessSecret = requireEnv('JWT_ACCESS_SECRET');
-        const decoded = jwt.verify(token, accessSecret) as any;
+        const decoded = jwt.verify(token, accessSecret, { algorithms: ['HS256'] }) as any;
         if (decoded.type !== 'access') return next(new Error('Authentication error: Invalid token type'));
 
         const user = await User.findById(decoded.userId);
@@ -315,7 +319,7 @@ const startServer = async () => {
     const isProduction = process.env.NODE_ENV === 'production';
     const startListening = () => {
       app.set('io', io);
-      httpServer.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+      httpServer.listen(PORT, () => logInfo('server_started', { port: PORT }));
     };
 
     if (isProduction) {
@@ -353,7 +357,7 @@ const startServer = async () => {
     process.once('SIGTERM', () => void shutdown('SIGTERM'));
     process.once('SIGINT', () => void shutdown('SIGINT'));
   } catch (error) {
-    console.error('Failed to start server', error);
+    logError('server_start_failed', { error: String(error) });
     process.exit(1);
   }
 };

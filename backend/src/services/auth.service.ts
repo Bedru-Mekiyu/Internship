@@ -18,7 +18,7 @@ export class AuthService {
   static async registerUser(userData: RegisterInput) {
     const existingUser = await User.findOne({ email: userData.email });
     if (existingUser?.emailVerified) {
-      throw new AppError('Email already exists', 409, { code: 'EMAIL_EXISTS' });
+      return existingUser;
     }
 
     if (existingUser && !existingUser.emailVerified) {

@@ -21,22 +21,25 @@ const parseSameSite = (value: string | undefined, fallback: SameSitePolicy): Sam
   return fallback;
 };
 
-const isProduction = process.env.NODE_ENV === 'production';
 const csrfCookieName = 'csrfToken';
-const csrfCookieSameSite = parseSameSite(
-  process.env.CSRF_COOKIE_SAME_SITE || process.env.COOKIE_SAME_SITE,
-  'lax',
-);
-const csrfCookieSecure = csrfCookieSameSite === 'none'
-  ? true
-  : parseBoolean(process.env.CSRF_COOKIE_SECURE, isProduction);
 
-const csrfCookieOptions = {
-  httpOnly: false,
-  secure: csrfCookieSecure,
-  sameSite: csrfCookieSameSite,
-  path: '/',
-  maxAge: 24 * 60 * 60 * 1000,
+const getCsrfCookieOptions = () => {
+  const isProduction = process.env.NODE_ENV === 'production';
+  const csrfCookieSameSite = parseSameSite(
+    process.env.CSRF_COOKIE_SAME_SITE || process.env.COOKIE_SAME_SITE,
+    'lax',
+  );
+  const csrfCookieSecure = csrfCookieSameSite === 'none'
+    ? true
+    : parseBoolean(process.env.CSRF_COOKIE_SECURE, isProduction);
+
+  return {
+    httpOnly: false,
+    secure: csrfCookieSecure,
+    sameSite: csrfCookieSameSite,
+    path: '/',
+    maxAge: 24 * 60 * 60 * 1000,
+  };
 };
 
 const createToken = () => crypto.randomBytes(32).toString('hex');
@@ -75,10 +78,16 @@ export const getOrCreateCsrfToken = (req: Request, res: Response) => {
   const token = existing || createToken();
 
   if (!existing) {
-    res.cookie(csrfCookieName, token, csrfCookieOptions);
+    res.cookie(csrfCookieName, token, getCsrfCookieOptions());
   }
 
   return token;
+};
+
+const tokensMatch = (left: string, right: string) => {
+  const leftBuffer = Buffer.from(left);
+  const rightBuffer = Buffer.from(right);
+  return leftBuffer.length === rightBuffer.length && crypto.timingSafeEqual(leftBuffer, rightBuffer);
 };
 
 export const csrfProtection = (req: Request, res: Response, next: NextFunction) => {
@@ -94,7 +103,7 @@ export const csrfProtection = (req: Request, res: Response, next: NextFunction) 
     || typeof csrfHeaderToken !== 'string'
     || !csrfCookieToken
     || !csrfHeaderToken
-    || csrfCookieToken !== csrfHeaderToken
+    || !tokensMatch(csrfCookieToken, csrfHeaderToken)
   ) {
     return res.status(403).json({ message: 'Invalid CSRF token' });
   }

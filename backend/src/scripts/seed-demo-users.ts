@@ -45,6 +45,10 @@ const demoUsers: DemoUserSeed[] = [
 ];
 
 const seedDemoUsers = async () => {
+	if (process.env.NODE_ENV === 'production') {
+		throw new Error('Refusing to seed demo users in production.');
+	}
+
 	await connectDB();
 
 	const results: Array<{ email: string; role: string; action: string }> = [];
@@ -86,10 +90,7 @@ const seedDemoUsers = async () => {
 
 	console.log('Demo users seeded successfully.');
 	console.table(results);
-	console.log('Admin login: admin@mit.com / Admin123!');
-	console.log('Instructor login: instructor@mit.com / Instructor123!');
-	console.log('Content manager login: content.manager@mit.com / Content123!');
-	console.log('Student login: student@mit.com / Student123!');
+	console.log('Demo user passwords are defined only in the seed script for local development.');
 };
 
 seedDemoUsers()

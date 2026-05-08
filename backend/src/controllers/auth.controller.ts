@@ -27,36 +27,41 @@ const parseSameSite = (value: string | undefined, fallback: SameSitePolicy): Sam
   return fallback;
 };
 
-const isProduction = process.env.NODE_ENV === 'production';
-const cookieSameSite = parseSameSite(process.env.COOKIE_SAME_SITE, 'lax');
-const cookieSecure = cookieSameSite === 'none'
-  ? true
-  : parseBoolean(process.env.COOKIE_SECURE, isProduction);
+const getAuthCookieOptions = () => {
+  const isProduction = process.env.NODE_ENV === 'production';
+  const cookieSameSite = parseSameSite(process.env.COOKIE_SAME_SITE, 'lax');
+  const cookieSecure = cookieSameSite === 'none'
+    ? true
+    : parseBoolean(process.env.COOKIE_SECURE, isProduction);
 
-const accessCookieOptions = {
-  httpOnly: true,
-  secure: cookieSecure,
-  sameSite: cookieSameSite,
-  maxAge: 15 * 60 * 1000,
-  path: '/',
-};
-
-const refreshCookieOptions = {
-  httpOnly: true,
-  secure: cookieSecure,
-  sameSite: cookieSameSite,
-  maxAge: 7 * 24 * 60 * 60 * 1000,
-  path: '/',
+  return {
+    access: {
+      httpOnly: true,
+      secure: cookieSecure,
+      sameSite: cookieSameSite,
+      maxAge: 15 * 60 * 1000,
+      path: '/',
+    },
+    refresh: {
+      httpOnly: true,
+      secure: cookieSecure,
+      sameSite: cookieSameSite,
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+      path: '/',
+    },
+  };
 };
 
 const setAuthCookies = (res: Response, accessToken: string, refreshToken: string) => {
-  res.cookie('accessToken', accessToken, accessCookieOptions);
-  res.cookie('refreshToken', refreshToken, refreshCookieOptions);
+  const cookieOptions = getAuthCookieOptions();
+  res.cookie('accessToken', accessToken, cookieOptions.access);
+  res.cookie('refreshToken', refreshToken, cookieOptions.refresh);
 };
 
 const clearAuthCookies = (res: Response) => {
-  res.clearCookie('accessToken', { ...accessCookieOptions, maxAge: undefined });
-  res.clearCookie('refreshToken', { ...refreshCookieOptions, maxAge: undefined });
+  const cookieOptions = getAuthCookieOptions();
+  res.clearCookie('accessToken', { ...cookieOptions.access, maxAge: undefined });
+  res.clearCookie('refreshToken', { ...cookieOptions.refresh, maxAge: undefined });
 };
 
 const sanitizeUser = (user: any) => {

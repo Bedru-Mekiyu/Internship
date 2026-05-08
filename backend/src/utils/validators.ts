@@ -1,6 +1,10 @@
 import { Request, Response, NextFunction } from 'express';
 import Joi from 'joi';
 
+const objectIdPattern = /^[a-f0-9]{24}$/i;
+const slugPattern = /^[a-z0-9][a-z0-9-]{0,180}$/;
+const blockIdPattern = /^[a-zA-Z0-9_-]{1,120}$/;
+
 export const registerSchema = Joi.object({
   email: Joi.string().trim().lowercase().email().max(254).required(),
   password: Joi.string().min(8).max(128).pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])./).required()
@@ -50,21 +54,21 @@ export const contactStatusSchema = Joi.object({
 });
 
 export const courseSchema = Joi.object({
-  title: Joi.string().required(),
-  slug: Joi.string().optional(),
-  description: Joi.string().allow('').optional(),
-  shortDescription: Joi.string().allow('').optional(),
-  thumbnail: Joi.string().uri().allow('').optional(),
-  instructor: Joi.string().optional(),
-  category: Joi.string().allow('').optional(),
+  title: Joi.string().trim().min(2).max(160).required(),
+  slug: Joi.string().trim().lowercase().pattern(slugPattern).optional(),
+  description: Joi.string().trim().allow('').max(10000).optional(),
+  shortDescription: Joi.string().trim().allow('').max(500).optional(),
+  subtitle: Joi.string().trim().allow('').max(500).optional(),
+  thumbnail: Joi.string().trim().uri({ scheme: [/https?/] }).allow('').max(2048).optional(),
+  category: Joi.string().trim().allow('').max(80).optional(),
   level: Joi.string().valid('beginner', 'intermediate', 'advanced').optional(),
   status: Joi.string().valid('draft', 'published', 'archived').optional(),
   visibility: Joi.string().valid('Draft', 'Published').optional(),
   featured: Joi.boolean().optional(),
   pricing: Joi.object({
     type: Joi.string().valid('free', 'paid', 'subscription').optional(),
-    amount: Joi.number().default(0),
-    currency: Joi.string().max(8).optional(),
+    amount: Joi.number().min(0).max(100000).default(0),
+    currency: Joi.string().trim().uppercase().pattern(/^[A-Z]{3,8}$/).optional(),
   }).optional(),
 });
 
@@ -126,11 +130,11 @@ export const discussionCreateSchema = Joi.object({
 });
 
 export const reorderModulesSchema = Joi.object({
-  moduleIds: Joi.array().items(Joi.string().trim().required()).min(0).required(),
+  moduleIds: Joi.array().items(Joi.string().trim().pattern(objectIdPattern).required()).min(0).required(),
 });
 
 export const reorderLessonsSchema = Joi.object({
-  lessonIds: Joi.array().items(Joi.string().trim().required()).min(0).required(),
+  lessonIds: Joi.array().items(Joi.string().trim().pattern(objectIdPattern).required()).min(0).required(),
 });
 
 export const progressUpdateSchema = Joi.object({
@@ -138,7 +142,7 @@ export const progressUpdateSchema = Joi.object({
 });
 
 export const assignmentCreateSchema = Joi.object({
-  moduleId: Joi.string().trim().optional(),
+  moduleId: Joi.string().trim().pattern(objectIdPattern).optional(),
   title: Joi.string().trim().min(2).max(160).required(),
   description: Joi.string().trim().min(2).max(5000).required(),
   dueDate: Joi.date().optional(),
@@ -195,7 +199,7 @@ export const liveSessionStatusSchema = Joi.object({
 });
 
 export const paymentCreateSchema = Joi.object({
-  courseId: Joi.string().trim().required(),
+  courseId: Joi.string().trim().pattern(objectIdPattern).required(),
   method: Joi.string().valid('card', 'paypal', 'bank_transfer').default('card'),
 });
 
@@ -240,7 +244,10 @@ export const adminCreateUserSchema = Joi.object({
   firstName: Joi.string().trim().min(2).max(50).required(),
   lastName: Joi.string().trim().min(2).max(50).required(),
   email: Joi.string().trim().lowercase().email().max(254).required(),
-  password: Joi.string().min(8).max(128).required(),
+  password: Joi.string().min(8).max(128).pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])./).required()
+    .messages({
+      'string.pattern.base': 'Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character (@$!%*?&).',
+    }),
   role: Joi.string().valid('student', 'instructor', 'admin', 'content_manager').optional(),
   isActive: Joi.boolean().optional(),
 });
@@ -306,25 +313,56 @@ export const settingsUpdateSchema = Joi.object({
   ).optional(),
 }).min(1);
 
+const contentBlockSchema = Joi.object({
+  id: Joi.string().trim().pattern(blockIdPattern).required(),
+  type: Joi.string().valid('text', 'image', 'video', 'form', 'testimonial', 'hero', 'features', 'cta').required(),
+  title: Joi.string().trim().allow('').max(200).optional(),
+  content: Joi.string().allow('').max(20000).required(),
+  order: Joi.number().integer().min(0).max(1000).required(),
+});
+
 export const contentSchema = Joi.object({
   type: Joi.string().valid('page', 'post', 'block').optional(),
-  title: Joi.string().required(),
-  content: Joi.string().optional(),
-  blocks: Joi.array().items(
-    Joi.object({
-      id: Joi.string().trim().required(),
-      type: Joi.string().trim().required(),
-      content: Joi.any().required(),
-      styles: Joi.object().pattern(Joi.string(), Joi.any()).optional(),
-      order: Joi.number().integer().min(0).required(),
-    })
-  ).optional(),
-  slug: Joi.string().optional(),
+  title: Joi.string().trim().min(1).max(200).required(),
+  content: Joi.string().allow('').max(100000).optional(),
+  blocks: Joi.array().items(contentBlockSchema).max(100).optional(),
+  slug: Joi.string().trim().lowercase().pattern(slugPattern).optional(),
   status: Joi.string().valid('draft', 'published', 'archived').default('draft'),
 }).or('content', 'blocks');
 
+export const contentUpdateSchema = Joi.object({
+  type: Joi.string().valid('page', 'post', 'block').optional(),
+  title: Joi.string().trim().min(1).max(200).optional(),
+  content: Joi.string().allow('').max(100000).optional(),
+  blocks: Joi.array().items(contentBlockSchema).max(100).optional(),
+  slug: Joi.string().trim().lowercase().pattern(slugPattern).optional(),
+  status: Joi.string().valid('draft', 'published', 'archived').optional(),
+}).min(1);
+
 export const mediaRenameSchema = Joi.object({
   originalName: Joi.string().trim().min(1).max(255).required(),
+});
+
+export const notificationCreateSchema = Joi.object({
+  userId: Joi.string().trim().pattern(objectIdPattern).required(),
+  title: Joi.string().trim().min(1).max(200).required(),
+  message: Joi.string().trim().min(1).max(2000).required(),
+  type: Joi.string().valid('enrollment', 'assignment', 'discussion', 'system').default('system'),
+});
+
+export const notificationBulkCreateSchema = Joi.object({
+  userIds: Joi.array().items(Joi.string().trim().pattern(objectIdPattern)).max(1000).optional(),
+  role: Joi.string().valid('student', 'instructor', 'admin', 'content_manager').optional(),
+  title: Joi.string().trim().min(1).max(200).required(),
+  message: Joi.string().trim().min(1).max(2000).required(),
+  type: Joi.string().valid('enrollment', 'assignment', 'discussion', 'system').default('system'),
+}).or('userIds', 'role');
+
+export const notificationCleanupSchema = Joi.object({
+  olderThanDays: Joi.number().integer().min(1).max(3650).required(),
+  onlyRead: Joi.boolean().optional(),
+  userId: Joi.string().trim().pattern(objectIdPattern).optional(),
+  type: Joi.string().valid('enrollment', 'assignment', 'discussion', 'system').optional(),
 });
 
 export const validationMiddleware = (schema: Joi.ObjectSchema) => {
