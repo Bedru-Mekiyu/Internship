@@ -43,8 +43,24 @@ import { userHasCourseDiscussionAccess } from './utils/course-membership';
 
 dotenv.config({ quiet: true });
 
+const normalizeOrigin = (value: string) => {
+  const trimmed = value.trim().replace(/\/$/, '');
+  try {
+    return new URL(trimmed).origin;
+  } catch {
+    return trimmed;
+  }
+};
+
 const getAllowedOrigins = () => {
-  const envOrigins = process.env.CORS_ORIGIN?.split(',').map(o => o.trim()).filter(Boolean) || [];
+  const envOrigins = [
+    ...(process.env.CORS_ORIGIN?.split(',') || []),
+    ...(process.env.FRONTEND_URL?.split(',') || []),
+  ]
+    .map((origin) => origin.trim())
+    .filter(Boolean)
+    .map(normalizeOrigin);
+
   if (process.env.NODE_ENV === 'production') {
     return [...new Set(envOrigins)];
   }
@@ -60,7 +76,7 @@ const getAllowedOrigins = () => {
     'http://localhost:5000',
     'http://127.0.0.1:5000',
   ];
-  return [...new Set([...defaults, ...envOrigins])];
+  return [...new Set([...defaults.map(normalizeOrigin), ...envOrigins])];
 };
 
 export const createApp = () => {
@@ -75,11 +91,12 @@ export const createApp = () => {
         callback(null, true);
         return;
       }
-      if (!origin || allowedOrigins.includes(origin)) {
+      const normalizedOrigin = origin ? normalizeOrigin(origin) : null;
+      if (!normalizedOrigin || allowedOrigins.includes(normalizedOrigin)) {
         callback(null, true);
         return;
       }
-      callback(new Error('Not allowed by CORS'));
+      callback(null, false);
     },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],

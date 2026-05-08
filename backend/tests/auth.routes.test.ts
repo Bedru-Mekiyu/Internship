@@ -70,3 +70,45 @@ describe('Auth routes', () => {
     expect(response.body.message).toBe('refreshToken is required');
   });
 });
+
+describe('Auth CORS', () => {
+  const envKeys = ['NODE_ENV', 'CORS_ORIGIN', 'FRONTEND_URL'] as const;
+  const originalEnv = Object.fromEntries(envKeys.map((key) => [key, process.env[key]]));
+
+  afterEach(() => {
+    envKeys.forEach((key) => {
+      const value = originalEnv[key];
+      if (value === undefined) {
+        delete process.env[key];
+      } else {
+        process.env[key] = value;
+      }
+    });
+  });
+
+  it('allows the configured frontend origin in production', async () => {
+    process.env.NODE_ENV = 'production';
+    process.env.CORS_ORIGIN = 'http://localhost:3000';
+    process.env.FRONTEND_URL = 'http://localhost:5173';
+
+    const response = await request(createApp())
+      .get('/api/auth/me')
+      .set('Origin', 'http://localhost:5173');
+
+    expect(response.status).toBe(401);
+    expect(response.headers['access-control-allow-origin']).toBe('http://localhost:5173');
+  });
+
+  it('does not turn blocked origins into server errors', async () => {
+    process.env.NODE_ENV = 'production';
+    process.env.CORS_ORIGIN = 'http://localhost:3000';
+    process.env.FRONTEND_URL = 'http://localhost:5173';
+
+    const response = await request(createApp())
+      .get('/api/auth/me')
+      .set('Origin', 'https://evil.example');
+
+    expect(response.status).toBe(401);
+    expect(response.headers['access-control-allow-origin']).toBeUndefined();
+  });
+});
