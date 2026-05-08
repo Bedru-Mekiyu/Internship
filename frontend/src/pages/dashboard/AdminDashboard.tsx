@@ -32,6 +32,7 @@ import {
 } from 'recharts';
 import { Link as RouterLink } from 'react-router-dom';
 import CreateCourseDialog from '../../components/common/CreateCourseDialog';
+import DashboardPageFrame from '../../components/common/DashboardPageFrame';
 import AdminApprovals from './AdminApprovals';
 import { api, normalizeApiError } from '../../services/api';
 import { theme } from '../../theme';
@@ -126,25 +127,12 @@ export default function AdminDashboard() {
 
   return (
     <Box sx={{ minHeight: '100%', bgcolor: 'background.default' }}>
-      {/* ── Page header ── */}
-      <Box sx={{ px: { xs: 2, sm: 2.5, lg: 3 }, pt: { xs: 2.5, lg: 3 }, pb: 2 }}>
-        {isError && (
-          <Alert severity="error" sx={{ mb: SPACING.md, borderRadius: '12px' }}>
-            {normalizeApiError(error).message || 'Failed to load admin dashboard.'}
-          </Alert>
-        )}
-
-        <Box sx={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: SPACING.md }}>
-          <Box>
-            <Typography variant="h4" sx={{ fontWeight: 900, letterSpacing: '-0.03em' }}>
-              Dashboard
-            </Typography>
-            <Typography variant="body1" sx={{ color: 'text.secondary', mt: 0.5 }}>
-              Overview of your learning platform performance.
-            </Typography>
-          </Box>
-
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: SPACING.md, flexWrap: 'wrap' }}>
+      <DashboardPageFrame
+        eyebrow="Admin workspace"
+        title="Dashboard"
+        description="Overview of your learning platform performance."
+        actions={
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: SPACING.md, flexWrap: 'wrap', justifyContent: 'flex-end' }}>
             <TextField
               placeholder="Search…"
               size="small"
@@ -165,7 +153,13 @@ export default function AdminDashboard() {
               + Add New Course
             </Button>
           </Box>
-        </Box>
+        }
+      >
+        {isError && (
+          <Alert severity="error" sx={{ mb: SPACING.md, borderRadius: '12px' }}>
+            {normalizeApiError(error).message || 'Failed to load admin dashboard.'}
+          </Alert>
+        )}
 
         <Tabs
           value={activeTab}
@@ -173,7 +167,6 @@ export default function AdminDashboard() {
           variant="scrollable"
           allowScrollButtonsMobile
           sx={{
-            mt: SPACING.lg,
             borderBottom: 1,
             borderColor: 'divider',
             '& .MuiTab-root': { textTransform: 'none', fontWeight: 700, minHeight: 42, px: 1.5 },
@@ -182,15 +175,11 @@ export default function AdminDashboard() {
           <Tab value="overview" label="Overview" />
           <Tab value="approvals" label="Pending approvals" />
         </Tabs>
-      </Box>
 
-      {/* ── Content ── */}
-      <Box sx={{ px: { xs: 2, sm: 2.5, lg: 3 }, pb: 3 }}>
         {activeTab === 'approvals' ? (
           <AdminApprovals />
         ) : (
           <Grid container spacing={SPACING.lg}>
-            {/* Stat cards */}
             {isLoading && !data ? (
               <Grid size={{ xs: 12 }}>
                 <Typography variant="body2" sx={{ color: 'text.secondary' }}>
@@ -204,7 +193,6 @@ export default function AdminDashboard() {
               </Grid>
             ))}
 
-            {/* Revenue analytics */}
             <Grid size={{ xs: 12, lg: 8 }}>
               <Card sx={{ ...card, height: '100%' }}>
                 <CardContent sx={{ p: SPACING.cardPadding, height: '100%' }}>
@@ -253,7 +241,6 @@ export default function AdminDashboard() {
               </Card>
             </Grid>
 
-            {/* Course Distribution */}
             <Grid size={{ xs: 12, lg: 4 }}>
               <Card sx={{ ...card, height: '100%' }}>
                 <CardContent sx={{ p: SPACING.cardPadding, height: '100%' }}>
@@ -267,7 +254,6 @@ export default function AdminDashboard() {
                       </Typography>
                     </Box>
 
-                    {/* Total courses — uses real API value */}
                     <Box
                       sx={{
                         height: 140,
@@ -298,7 +284,6 @@ export default function AdminDashboard() {
                       )}
                     </Box>
 
-                    {/* Distribution bars — more informative than dots */}
                     <Stack spacing={SPACING.md} sx={{ flex: 1, justifyContent: 'center' }}>
                       {displayCourseDistribution.length > 0 ? (
                         displayCourseDistribution.map((item) => (
@@ -338,7 +323,6 @@ export default function AdminDashboard() {
               </Card>
             </Grid>
 
-            {/* Recent Enrollments */}
             <Grid size={{ xs: 12 }}>
               <Card sx={card}>
                 <CardContent sx={{ p: SPACING.cardPadding }}>
@@ -462,7 +446,7 @@ export default function AdminDashboard() {
             </Grid>
           </Grid>
         )}
-      </Box>
+      </DashboardPageFrame>
 
       <CreateCourseDialog open={createCourseOpen} onClose={() => setCreateCourseOpen(false)} />
     </Box>
