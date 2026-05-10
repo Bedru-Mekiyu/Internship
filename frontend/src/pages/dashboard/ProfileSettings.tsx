@@ -20,6 +20,7 @@ import { useAuth } from '../../context/AuthContext';
 import { useGetStudentDashboardQuery } from '../../store/api/dashboardApi';
 import { sanitizeHttpUrl } from '../../utils/safeUrl';
 import type { AuthUser } from '../../types';
+import DashboardPageFrame from '../../components/common/DashboardPageFrame';
 
 type ProfileForm = {
   firstName: string;
@@ -59,13 +60,6 @@ type FieldProps = {
   helperText?: string;
   error?: string;
   autoComplete?: string;
-};
-
-const pageSx = {
-  maxWidth: 1112,
-  mx: 'auto',
-  py: { xs: 1, md: 1.5 },
-  color: '#111827',
 };
 
 const surfaceSx = {
@@ -479,305 +473,307 @@ export default function ProfileSettings() {
   }
 
   return (
-    <Box sx={pageSx}>
-      <Box sx={{ mb: 2.4 }}>
-        <Typography variant="h4" sx={{ fontWeight: 900, fontSize: { xs: '1.35rem', md: '1.72rem' }, letterSpacing: 0 }}>
-          Profile &amp; Settings
-        </Typography>
-        <Typography sx={{ mt: 0.55, color: '#6B7280', fontSize: '0.78rem' }}>
-          Manage your account settings and preferences.
-        </Typography>
-      </Box>
+    <Box sx={{ minHeight: '100%', bgcolor: 'background.default' }}>
+      <DashboardPageFrame
+        eyebrow="Account"
+        title="Profile &amp; Settings"
+        description="Manage your account settings, security, and preferences."
+        breadcrumbs={[
+          { label: 'Dashboard', to: '/dashboard' },
+          { label: 'Settings' },
+          { label: 'Profile' },
+        ]}
+      >
+        {feedback ? (
+          <Alert severity={feedback.type} onClose={() => setFeedback(null)} sx={{ borderRadius: 1.5 }}>
+            {feedback.message}
+          </Alert>
+        ) : null}
 
-      {feedback ? (
-        <Alert severity={feedback.type} onClose={() => setFeedback(null)} sx={{ mb: 2, borderRadius: 1.5 }}>
-          {feedback.message}
-        </Alert>
-      ) : null}
-
-      <Grid container spacing={2.5} sx={{ alignItems: 'flex-start' }}>
-        <Grid size={{ xs: 12, md: 3.7 }}>
-          <Card sx={surfaceSx}>
-            <CardContent sx={{ p: 2.5 }}>
-              <Box sx={{ display: 'grid', justifyItems: 'center', textAlign: 'center', pt: 1 }}>
-                <Avatar
-                  src={avatarSrc || undefined}
-                  alt={displayName}
-                  sx={{
-                    width: 82,
-                    height: 82,
-                    fontSize: 28,
-                    fontWeight: 800,
-                    bgcolor: '#DDE7F7',
-                    color: '#4F46E5',
-                    border: '4px solid #EEF2FF',
-                    boxShadow: '0 8px 18px rgba(79,70,229,0.12)',
-                  }}
-                >
-                  {initials}
-                </Avatar>
-
-                <Typography sx={{ mt: 1.4, fontSize: '1.02rem', lineHeight: 1.2, fontWeight: 900 }}>
-                  {displayName}
-                </Typography>
-                <Typography sx={{ mt: 0.35, color: '#6B7280', fontSize: '0.76rem' }}>
-                  {profileSubtitle(user.role)}
-                </Typography>
-
-                <input ref={fileInputRef} type="file" accept="image/*" hidden onChange={updateAvatar} />
-                <Button
-                  variant="contained"
-                  fullWidth
-                  disabled={avatarMutation.isPending}
-                  onClick={() => fileInputRef.current?.click()}
-                  startIcon={avatarMutation.isPending ? <CircularProgress size={13} color="inherit" /> : <CameraAltOutlined sx={{ fontSize: 15 }} />}
-                  sx={{
-                    mt: 2.25,
-                    py: 0.55,
-                    bgcolor: '#EEF2FF',
-                    color: '#4F46E5',
-                    fontSize: '0.72rem',
-                    boxShadow: 'none',
-                    '&:hover': { bgcolor: '#E0E7FF', boxShadow: 'none' },
-                  }}
-                >
-                  Change Avatar
-                </Button>
-              </Box>
-
-              <Box sx={{ mt: 3 }}>
-                {stats.map((item, index) => (
-                  <Box
-                    key={item.label}
+        <Grid container spacing={2.5} sx={{ alignItems: 'flex-start' }}>
+          <Grid size={{ xs: 12, md: 3.7 }}>
+            <Card sx={surfaceSx}>
+              <CardContent sx={{ p: 2.5 }}>
+                <Box sx={{ display: 'grid', justifyItems: 'center', textAlign: 'center', pt: 1 }}>
+                  <Avatar
+                    src={avatarSrc || undefined}
+                    alt={displayName}
                     sx={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'space-between',
-                      gap: 2,
-                      py: 1.15,
-                      borderTop: index === 0 ? '1px solid #E6EBF3' : 0,
-                      borderBottom: '1px solid #E6EBF3',
+                      width: 82,
+                      height: 82,
+                      fontSize: 28,
+                      fontWeight: 800,
+                      bgcolor: '#DDE7F7',
+                      color: '#4F46E5',
+                      border: '4px solid #EEF2FF',
+                      boxShadow: '0 8px 18px rgba(79,70,229,0.12)',
                     }}
                   >
-                    <Typography sx={{ color: '#6B7280', fontSize: '0.74rem' }}>{item.label}</Typography>
-                    <Typography sx={{ color: '#111827', fontSize: '0.76rem', fontWeight: 800, textAlign: 'right' }}>
-                      {item.value}
-                    </Typography>
-                  </Box>
-                ))}
-              </Box>
-            </CardContent>
-          </Card>
-        </Grid>
+                    {initials}
+                  </Avatar>
 
-        <Grid size={{ xs: 12, md: 8.3 }}>
-          <Box sx={{ display: 'grid', gap: 2.3 }}>
-            <SectionCard
-              title="Personal Information"
-              action={
-                <Button
-                  variant="outlined"
-                  onClick={() => setFeedback(null)}
-                  startIcon={<EditOutlined sx={{ fontSize: 15 }} />}
-                  sx={{
-                    px: 1.4,
-                    py: 0.45,
-                    color: '#111827',
-                    borderColor: '#D7DEEA',
-                    bgcolor: '#FFFFFF',
-                    fontSize: '0.72rem',
-                    boxShadow: 'none',
-                    '&:hover': { borderColor: '#C9D3E8', bgcolor: '#F8FAFF', boxShadow: 'none' },
-                  }}
-                >
-                  Edit Info
-                </Button>
-              }
-            >
-              <Grid container spacing={2}>
-                <Grid size={{ xs: 12, sm: 6 }}>
-                  <ProfileField
-                    label="First Name"
-                    value={profileForm.firstName}
-                    onChange={updateProfileField('firstName')}
-                    disabled={profileMutation.isPending}
-                    error={profileErrors.firstName}
-                    autoComplete="given-name"
-                  />
-                </Grid>
-                <Grid size={{ xs: 12, sm: 6 }}>
-                  <ProfileField
-                    label="Last Name"
-                    value={profileForm.lastName}
-                    onChange={updateProfileField('lastName')}
-                    disabled={profileMutation.isPending}
-                    error={profileErrors.lastName}
-                    autoComplete="family-name"
-                  />
-                </Grid>
-                <Grid size={{ xs: 12, sm: 6 }}>
-                  <ProfileField
-                    label="Email Address"
-                    value={profileForm.email}
-                    readOnly
-                    autoComplete="email"
-                  />
-                </Grid>
-                <Grid size={{ xs: 12, sm: 6 }}>
-                  <ProfileField
-                    label="Phone Number"
-                    value={profileForm.phone}
-                    onChange={updateProfileField('phone')}
-                    disabled={profileMutation.isPending}
-                    placeholder="+234 801 234 5678"
-                    error={profileErrors.phone}
-                    autoComplete="tel"
-                  />
-                </Grid>
-                <Grid size={12}>
-                  <ProfileField
-                    label="Bio"
-                    value={profileForm.bio}
-                    onChange={updateProfileField('bio')}
-                    disabled={profileMutation.isPending}
-                    multiline
-                    rows={4}
-                    placeholder="Tell learners a little about yourself."
-                    error={profileErrors.bio}
-                  />
-                </Grid>
-              </Grid>
+                  <Typography sx={{ mt: 1.4, fontSize: '1.02rem', lineHeight: 1.2, fontWeight: 900 }}>
+                    {displayName}
+                  </Typography>
+                  <Typography sx={{ mt: 0.35, color: '#6B7280', fontSize: '0.76rem' }}>
+                    {profileSubtitle(user.role)}
+                  </Typography>
 
-              <Box sx={{ mt: 2.35, display: 'flex', justifyContent: 'flex-end', gap: 1.2 }}>
-                <Button
-                  variant="outlined"
-                  onClick={resetProfileForm}
-                  disabled={profileMutation.isPending}
-                  sx={{
-                    px: 2,
-                    py: 0.75,
-                    color: '#111827',
-                    borderColor: '#D7DEEA',
-                    fontSize: '0.76rem',
-                    bgcolor: '#FFFFFF',
-                    '&:hover': { borderColor: '#C9D3E8', bgcolor: '#F8FAFF' },
-                  }}
-                >
-                  Cancel
-                </Button>
-                <Button
-                  variant="contained"
-                  onClick={saveProfile}
-                  disabled={profileMutation.isPending}
-                  sx={{
-                    px: 2.1,
-                    py: 0.78,
-                    bgcolor: '#5B4CF6',
-                    fontSize: '0.76rem',
-                    boxShadow: 'none',
-                    '&:hover': { bgcolor: '#4F46E5', boxShadow: 'none' },
-                  }}
-                >
-                  {profileMutation.isPending ? 'Saving...' : 'Save Changes'}
-                </Button>
-              </Box>
-            </SectionCard>
-
-            <SectionCard title="Password &amp; Security">
-              <Grid container spacing={2}>
-                <Grid size={12}>
-                  <ProfileField
-                    label="Current Password"
-                    type="password"
-                    value={passwordForm.currentPassword}
-                    onChange={updatePasswordField('currentPassword')}
-                    disabled={passwordMutation.isPending}
-                    placeholder="************"
-                    error={passwordErrors.currentPassword}
-                  />
-                </Grid>
-                <Grid size={{ xs: 12, sm: 6 }}>
-                  <ProfileField
-                    label="New Password"
-                    type="password"
-                    value={passwordForm.newPassword}
-                    onChange={updatePasswordField('newPassword')}
-                    disabled={passwordMutation.isPending}
-                    placeholder="Enter new password"
-                    helperText="Use 8+ characters with uppercase, lowercase, number, and special character."
-                    error={passwordErrors.newPassword}
-                  />
-                </Grid>
-                <Grid size={{ xs: 12, sm: 6 }}>
-                  <ProfileField
-                    label="Confirm Password"
-                    type="password"
-                    value={passwordForm.confirmPassword}
-                    onChange={updatePasswordField('confirmPassword')}
-                    disabled={passwordMutation.isPending}
-                    placeholder="Confirm new password"
-                    error={passwordErrors.confirmPassword}
-                  />
-                </Grid>
-              </Grid>
-
-              <Box sx={{ mt: 2.35, display: 'flex', justifyContent: 'flex-end' }}>
-                <Button
-                  variant="contained"
-                  onClick={savePassword}
-                  disabled={passwordMutation.isPending}
-                  sx={{
-                    px: 2.1,
-                    py: 0.78,
-                    bgcolor: '#5B4CF6',
-                    fontSize: '0.76rem',
-                    boxShadow: 'none',
-                    '&:hover': { bgcolor: '#4F46E5', boxShadow: 'none' },
-                  }}
-                >
-                  {passwordMutation.isPending ? 'Updating...' : 'Update Password'}
-                </Button>
-              </Box>
-            </SectionCard>
-
-            <SectionCard title="Notifications">
-              <Box>
-                {notificationRows.map((item, index) => (
-                  <Box
-                    key={item.key}
+                  <input ref={fileInputRef} type="file" accept="image/*" hidden onChange={updateAvatar} />
+                  <Button
+                    variant="contained"
+                    fullWidth
+                    disabled={avatarMutation.isPending}
+                    onClick={() => fileInputRef.current?.click()}
+                    startIcon={avatarMutation.isPending ? <CircularProgress size={13} color="inherit" /> : <CameraAltOutlined sx={{ fontSize: 15 }} />}
                     sx={{
-                      py: 1.45,
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'space-between',
-                      gap: 2,
-                      borderBottom: index === notificationRows.length - 1 ? 0 : '1px solid #EDF1F7',
+                      mt: 2.25,
+                      py: 0.55,
+                      bgcolor: '#EEF2FF',
+                      color: '#4F46E5',
+                      fontSize: '0.72rem',
+                      boxShadow: 'none',
+                      '&:hover': { bgcolor: '#E0E7FF', boxShadow: 'none' },
                     }}
                   >
-                    <Box>
-                      <Typography sx={{ color: '#111827', fontWeight: 800, fontSize: '0.78rem' }}>
-                        {item.title}
-                      </Typography>
-                      <Typography sx={{ mt: 0.25, color: '#6B7280', fontSize: '0.72rem' }}>
-                        {item.description}
+                    Change Avatar
+                  </Button>
+                </Box>
+
+                <Box sx={{ mt: 3 }}>
+                  {stats.map((item, index) => (
+                    <Box
+                      key={item.label}
+                      sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        gap: 2,
+                        py: 1.15,
+                        borderTop: index === 0 ? '1px solid #E6EBF3' : 0,
+                        borderBottom: '1px solid #E6EBF3',
+                      }}
+                    >
+                      <Typography sx={{ color: '#6B7280', fontSize: '0.74rem' }}>{item.label}</Typography>
+                      <Typography sx={{ color: '#111827', fontSize: '0.76rem', fontWeight: 800, textAlign: 'right' }}>
+                        {item.value}
                       </Typography>
                     </Box>
-                    <Switch
-                      checked={notificationPrefs[item.key]}
-                      disabled={notificationsMutation.isPending}
-                      onChange={toggleNotification(item.key)}
-                      sx={{
-                        '& .MuiSwitch-switchBase.Mui-checked': { color: '#5B4CF6' },
-                        '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': { bgcolor: '#5B4CF6', opacity: 1 },
-                      }}
+                  ))}
+                </Box>
+              </CardContent>
+            </Card>
+          </Grid>
+
+          <Grid size={{ xs: 12, md: 8.3 }}>
+            <Box sx={{ display: 'grid', gap: 2.3 }}>
+              <SectionCard
+                title="Personal Information"
+                action={
+                  <Button
+                    variant="outlined"
+                    onClick={() => setFeedback(null)}
+                    startIcon={<EditOutlined sx={{ fontSize: 15 }} />}
+                    sx={{
+                      px: 1.4,
+                      py: 0.45,
+                      color: '#111827',
+                      borderColor: '#D7DEEA',
+                      bgcolor: '#FFFFFF',
+                      fontSize: '0.72rem',
+                      boxShadow: 'none',
+                      '&:hover': { borderColor: '#C9D3E8', bgcolor: '#F8FAFF', boxShadow: 'none' },
+                    }}
+                  >
+                    Edit Info
+                  </Button>
+                }
+              >
+                <Grid container spacing={2}>
+                  <Grid size={{ xs: 12, sm: 6 }}>
+                    <ProfileField
+                      label="First Name"
+                      value={profileForm.firstName}
+                      onChange={updateProfileField('firstName')}
+                      disabled={profileMutation.isPending}
+                      error={profileErrors.firstName}
+                      autoComplete="given-name"
                     />
-                  </Box>
-                ))}
-              </Box>
-            </SectionCard>
-          </Box>
+                  </Grid>
+                  <Grid size={{ xs: 12, sm: 6 }}>
+                    <ProfileField
+                      label="Last Name"
+                      value={profileForm.lastName}
+                      onChange={updateProfileField('lastName')}
+                      disabled={profileMutation.isPending}
+                      error={profileErrors.lastName}
+                      autoComplete="family-name"
+                    />
+                  </Grid>
+                  <Grid size={{ xs: 12, sm: 6 }}>
+                    <ProfileField
+                      label="Email Address"
+                      value={profileForm.email}
+                      readOnly
+                      autoComplete="email"
+                    />
+                  </Grid>
+                  <Grid size={{ xs: 12, sm: 6 }}>
+                    <ProfileField
+                      label="Phone Number"
+                      value={profileForm.phone}
+                      onChange={updateProfileField('phone')}
+                      disabled={profileMutation.isPending}
+                      placeholder="+234 801 234 5678"
+                      error={profileErrors.phone}
+                      autoComplete="tel"
+                    />
+                  </Grid>
+                  <Grid size={12}>
+                    <ProfileField
+                      label="Bio"
+                      value={profileForm.bio}
+                      onChange={updateProfileField('bio')}
+                      disabled={profileMutation.isPending}
+                      multiline
+                      rows={4}
+                      placeholder="Tell learners a little about yourself."
+                      error={profileErrors.bio}
+                    />
+                  </Grid>
+                </Grid>
+
+                <Box sx={{ mt: 2.35, display: 'flex', justifyContent: 'flex-end', gap: 1.2 }}>
+                  <Button
+                    variant="outlined"
+                    onClick={resetProfileForm}
+                    disabled={profileMutation.isPending}
+                    sx={{
+                      px: 2,
+                      py: 0.75,
+                      color: '#111827',
+                      borderColor: '#D7DEEA',
+                      fontSize: '0.76rem',
+                      bgcolor: '#FFFFFF',
+                      '&:hover': { borderColor: '#C9D3E8', bgcolor: '#F8FAFF' },
+                    }}
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    variant="contained"
+                    onClick={saveProfile}
+                    disabled={profileMutation.isPending}
+                    sx={{
+                      px: 2.1,
+                      py: 0.78,
+                      bgcolor: '#5B4CF6',
+                      fontSize: '0.76rem',
+                      boxShadow: 'none',
+                      '&:hover': { bgcolor: '#4F46E5', boxShadow: 'none' },
+                    }}
+                  >
+                    {profileMutation.isPending ? 'Saving...' : 'Save Changes'}
+                  </Button>
+                </Box>
+              </SectionCard>
+
+              <SectionCard title="Password &amp; Security">
+                <Grid container spacing={2}>
+                  <Grid size={12}>
+                    <ProfileField
+                      label="Current Password"
+                      type="password"
+                      value={passwordForm.currentPassword}
+                      onChange={updatePasswordField('currentPassword')}
+                      disabled={passwordMutation.isPending}
+                      placeholder="************"
+                      error={passwordErrors.currentPassword}
+                    />
+                  </Grid>
+                  <Grid size={{ xs: 12, sm: 6 }}>
+                    <ProfileField
+                      label="New Password"
+                      type="password"
+                      value={passwordForm.newPassword}
+                      onChange={updatePasswordField('newPassword')}
+                      disabled={passwordMutation.isPending}
+                      placeholder="Enter new password"
+                      helperText="Use 8+ characters with uppercase, lowercase, number, and special character."
+                      error={passwordErrors.newPassword}
+                    />
+                  </Grid>
+                  <Grid size={{ xs: 12, sm: 6 }}>
+                    <ProfileField
+                      label="Confirm Password"
+                      type="password"
+                      value={passwordForm.confirmPassword}
+                      onChange={updatePasswordField('confirmPassword')}
+                      disabled={passwordMutation.isPending}
+                      placeholder="Confirm new password"
+                      error={passwordErrors.confirmPassword}
+                    />
+                  </Grid>
+                </Grid>
+
+                <Box sx={{ mt: 2.35, display: 'flex', justifyContent: 'flex-end' }}>
+                  <Button
+                    variant="contained"
+                    onClick={savePassword}
+                    disabled={passwordMutation.isPending}
+                    sx={{
+                      px: 2.1,
+                      py: 0.78,
+                      bgcolor: '#5B4CF6',
+                      fontSize: '0.76rem',
+                      boxShadow: 'none',
+                      '&:hover': { bgcolor: '#4F46E5', boxShadow: 'none' },
+                    }}
+                  >
+                    {passwordMutation.isPending ? 'Updating...' : 'Update Password'}
+                  </Button>
+                </Box>
+              </SectionCard>
+
+              <SectionCard title="Notifications">
+                <Box>
+                  {notificationRows.map((item, index) => (
+                    <Box
+                      key={item.key}
+                      sx={{
+                        py: 1.45,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        gap: 2,
+                        borderBottom: index === notificationRows.length - 1 ? 0 : '1px solid #EDF1F7',
+                      }}
+                    >
+                      <Box>
+                        <Typography sx={{ color: '#111827', fontWeight: 800, fontSize: '0.78rem' }}>
+                          {item.title}
+                        </Typography>
+                        <Typography sx={{ mt: 0.25, color: '#6B7280', fontSize: '0.72rem' }}>
+                          {item.description}
+                        </Typography>
+                      </Box>
+                      <Switch
+                        checked={notificationPrefs[item.key]}
+                        disabled={notificationsMutation.isPending}
+                        onChange={toggleNotification(item.key)}
+                        sx={{
+                          '& .MuiSwitch-switchBase.Mui-checked': { color: '#5B4CF6' },
+                          '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': { bgcolor: '#5B4CF6', opacity: 1 },
+                        }}
+                      />
+                    </Box>
+                  ))}
+                </Box>
+              </SectionCard>
+            </Box>
+          </Grid>
         </Grid>
-      </Grid>
+      </DashboardPageFrame>
     </Box>
   );
 }

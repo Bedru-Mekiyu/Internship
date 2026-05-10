@@ -1,10 +1,8 @@
 import { useState, useEffect } from 'react';
 import {
+  Alert,
   Box,
   Button,
-  Card,
-  CardContent,
-  Container,
   Stack,
   TextField,
   Typography,
@@ -19,7 +17,6 @@ import {
   InputAdornment,
 } from '@mui/material';
 import {
-  AddOutlined,
   EditOutlined,
   DeleteOutlined,
   SearchOutlined,
@@ -28,8 +25,7 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { api, normalizeApiError } from '../../services/api';
 import { useQueryClient } from '@tanstack/react-query';
-import { alpha } from '@mui/material/styles';
-import { theme } from '../../theme';
+import DashboardPageFrame, { DashboardSection } from '../../components/common/DashboardPageFrame';
 
 interface AdminCourseListItem {
   _id: string;
@@ -92,73 +88,50 @@ export default function AdminCourseManager() {
   };
 
   return (
-    <Box sx={{ p: { xs: 3, md: 4 }, bgcolor: 'background.default', minHeight: '100vh' }}>
-      <Container maxWidth="lg">
-        <Stack spacing={4}>
-          {/* Header Section */}
-          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 2, flexWrap: 'wrap' }}>
-            <Box>
-              <Typography variant="h4" sx={{ fontWeight: 800, color: 'text.primary', letterSpacing: '-0.02em' }}>
-                Course Management
-              </Typography>
-              <Typography variant="body2" sx={{ color: 'text.secondary', mt: 0.5 }}>
-                Create, organize, and manage all educational content across the platform.
-              </Typography>
-            </Box>
-            <Button
-              variant="contained"
-              startIcon={<AddOutlined />}
-              onClick={handleCreateNew}
-              sx={{
-                px: 3,
-                py: 1,
-                borderRadius: 2,
-                fontWeight: 700,
-                textTransform: 'none',
-                boxShadow: `0 4px 12px ${alpha(theme.palette.primary.main, 0.3)}`,
-              }}
-            >
-              Create New Course
-            </Button>
-          </Box>
+    <Box sx={{ minHeight: '100%', bgcolor: 'background.default' }}>
+      <DashboardPageFrame
+        eyebrow="Administration"
+        title="Course Management"
+        description="Create, organize, and manage the course catalog from one workspace."
+        breadcrumbs={[
+          { label: 'Dashboard', to: '/admin/dashboard' },
+          { label: 'Administration' },
+          { label: 'Courses' },
+        ]}
+        actionLabel="Create New Course"
+        actionTo="/courses/new"
+      >
+        {error ? (
+          <Alert severity="error">{error}</Alert>
+        ) : null}
 
-          {error && (
-            <Card sx={{ bgcolor: alpha(theme.palette.error.main, 0.1), border: `1px solid ${theme.palette.error.main}`, borderRadius: 2 }}>
-              <CardContent sx={{ p: 2 }}>
-                <Typography color="error.main" variant="body2" sx={{ fontWeight: 600 }}>
-                  {error}
-                </Typography>
-              </CardContent>
-            </Card>
-          )}
+        <DashboardSection title="Find courses" description="Search by title or course ID.">
+          <TextField
+            fullWidth
+            placeholder="Search courses by title or ID..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            size="small"
+            slotProps={{
+              input: {
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <SearchOutlined sx={{ color: 'text.secondary', fontSize: '1.2rem' }} />
+                  </InputAdornment>
+                ),
+              },
+            }}
+            sx={{ maxWidth: { xs: '100%', md: 420 } }}
+          />
+        </DashboardSection>
 
-          {/* Filters and Search */}
-          <Card sx={{ borderRadius: 3, border: '1px solid', borderColor: 'divider', boxShadow: 'none' }}>
-            <CardContent sx={{ p: 2, display: 'flex', alignItems: 'center', gap: 2 }}>
-              <TextField
-                fullWidth
-                placeholder="Search courses by title or ID..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                size="small"
-                slotProps={{
-                  input: {
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <SearchOutlined sx={{ color: 'text.secondary', fontSize: '1.2rem' }} />
-                      </InputAdornment>
-                    ),
-                  },
-                }}
-                sx={{ maxWidth: 400 }}
-              />
-            </CardContent>
-          </Card>
-
-          {/* Course Table */}
-          <TableContainer component={Card} sx={{ borderRadius: 3, border: '1px solid', borderColor: 'divider', boxShadow: 'none' }}>
-            <Table>
-              <TableHead sx={{ bgcolor: alpha(theme.palette.background.paper, 0.5) }}>
+        <DashboardSection
+          title="Courses"
+          description={`${filteredCourses.length} course${filteredCourses.length === 1 ? '' : 's'} in the catalog.`}
+        >
+          <TableContainer sx={{ borderRadius: 2, border: '1px solid', borderColor: 'divider', overflowX: 'auto' }}>
+            <Table sx={{ minWidth: 760 }}>
+              <TableHead sx={{ bgcolor: 'background.default' }}>
                 <TableRow>
                   <TableCell sx={{ fontWeight: 700, color: 'text.primary' }}>Course Details</TableCell>
                   <TableCell sx={{ fontWeight: 700, color: 'text.primary' }}>Status</TableCell>
@@ -179,15 +152,7 @@ export default function AdminCourseManager() {
                     <TableRow key={course._id} hover>
                       <TableCell>
                         <Stack direction="row" spacing={2} sx={{ alignItems: 'center' }}>
-                          <Box sx={{
-                            width: 32,
-                            height: 32,
-                            borderRadius: 1,
-                            bgcolor: alpha(theme.palette.primary.main, 0.1),
-                            display: 'grid',
-                            placeItems: 'center',
-                            color: 'primary.main'
-                          }}>
+                          <Box sx={{ width: 32, height: 32, borderRadius: 1, bgcolor: 'action.hover', display: 'grid', placeItems: 'center', color: 'primary.main' }}>
                             <BookOutlined sx={{ fontSize: '1.1rem' }} />
                           </Box>
                           <Box>
@@ -202,9 +167,9 @@ export default function AdminCourseManager() {
                       </TableCell>
                       <TableCell>
                         <Chip
-                          label={course.status === 'published' ? 'Published' : 'Draft'}
+                          label={course.status === 'published' ? 'Published' : course.status === 'archived' ? 'Archived' : 'Draft'}
                           size="small"
-                          color={course.status === 'published' ? 'success' : 'default'}
+                          color={course.status === 'published' ? 'success' : course.status === 'archived' ? 'warning' : 'default'}
                           sx={{ fontWeight: 600, fontSize: '0.65rem', borderRadius: 1 }}
                         />
                       </TableCell>
@@ -247,8 +212,8 @@ export default function AdminCourseManager() {
               </TableBody>
             </Table>
           </TableContainer>
-        </Stack>
-      </Container>
+        </DashboardSection>
+      </DashboardPageFrame>
     </Box>
   );
 }

@@ -1679,11 +1679,10 @@ function AppRoutes() {
         <Route path="/reset-password" element={<LegacyResetPasswordRedirect />} />
 
         <Route element={<RequireSession />}>
-          <Route element={<RequireRole allowedRoles={['admin', 'instructor']} />}>
-            <Route path="/lessons/upload" element={<UploadLesson />} />
-          </Route>
-
           <Route element={<LearnSpaceShell />}>
+            <Route path="/dashboard" element={<DashboardPage />} />
+            <Route path="/courses" element={<MyCourses />} />
+            <Route path="/my-courses" element={<Navigate to="/courses" replace />} />
             <Route path="/courses/:courseId/lessons/:lessonId/quiz" element={<QuizTaker />} />
             <Route path="/courses/:courseId/learn" element={<CoursePlayer />} />
             <Route path="/courses/browse" element={<ExploreCourses />} />
@@ -1701,17 +1700,18 @@ function AppRoutes() {
             <Route path="/quizzes" element={<MyQuizResultsPage />} />
             <Route path="/settings/notifications" element={<NotificationPreferencesPage />} />
 
-            <Route element={<RequireRole allowedRoles={['admin', 'instructor', 'content_manager']} />}>
-              <Route path="/cms/media" element={<MediaLibrary />} />
-              <Route path="/cms/content" element={<ContentManager />} />
-              <Route path="/cms/pages" element={<BlogPostEditor />} />
-            </Route>
-
             <Route element={<RequireRole allowedRoles={['admin', 'instructor']} />}>
+              <Route path="/lessons/upload" element={<UploadLesson />} />
               <Route path="/admin/analytics" element={<AnalyticsDashboard />} />
               <Route path="/instructor/dashboard" element={<InstructorDashboard />} />
               <Route path="/courses/new" element={<CreateCourse />} />
               <Route path="/courses/:courseId/lessons/:lessonId/quiz/new" element={<QuizBuilder />} />
+            </Route>
+
+            <Route element={<RequireRole allowedRoles={['admin', 'instructor', 'content_manager']} />}>
+              <Route path="/cms/media" element={<MediaLibrary />} />
+              <Route path="/cms/content" element={<ContentManager />} />
+              <Route path="/cms/pages" element={<BlogPostEditor />} />
             </Route>
 
             <Route element={<RequireRole allowedRoles={['admin']} />}>
@@ -1720,9 +1720,6 @@ function AppRoutes() {
               <Route path="/admin/settings" element={<SystemSettings />} />
               <Route path="/admin/users" element={<UserManagement />} />
             </Route>
-
-            <Route path="/dashboard" element={<DashboardPage />} />
-            <Route path="/courses" element={<MyCourses />} />
             <Route path="*" element={<NotFoundPage />} />
           </Route>
         </Route>
