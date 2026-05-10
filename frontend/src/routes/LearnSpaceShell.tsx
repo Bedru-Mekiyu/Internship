@@ -104,12 +104,15 @@ export default function LearnSpaceShell() {
         item,
         targetPath: item.to === '/dashboard' ? getLandingRouteForRole(currentRole) : item.to,
       }))
-      .filter(({ targetPath }) => (targetPath === '/courses' ? location.pathname === targetPath : isActiveRoute(location.pathname, targetPath)))
+      .filter(({ targetPath }) => isActiveRoute(location.pathname, targetPath))
       .sort((left, right) => right.targetPath.length - left.targetPath.length)[0]?.item;
   }, [currentRole, location.pathname, navigationItems]);
 
   const topAction = useMemo(() => {
-    if (currentRole === 'instructor' && location.pathname.startsWith('/courses')) {
+    if (currentRole === 'admin' && location.pathname.startsWith('/admin/courses')) {
+      return { label: 'Add Course', to: '/courses/new' };
+    }
+    if (currentRole === 'instructor' && location.pathname.startsWith('/courses') && location.pathname !== '/courses/new') {
       return { label: 'Create Course', to: '/courses/new' };
     }
     if (currentRole === 'student' && location.pathname.startsWith('/courses') && location.pathname !== '/courses/browse') {
@@ -128,6 +131,15 @@ export default function LearnSpaceShell() {
   const avatarSrc = sanitizeHttpUrl(user?.avatar);
   const avatarInitials = [user?.firstName?.[0], user?.lastName?.[0]].filter(Boolean).join('').toUpperCase() || 'U';
   const searchPlaceholder = activeItem?.label === 'Profile' ? 'Search settings...' : 'Search LearnSpace...';
+  const immersiveWorkspace = location.pathname === '/lessons/upload' || location.pathname.includes('/learn');
+
+  if (immersiveWorkspace) {
+    return (
+      <Box sx={{ minHeight: '100vh', bgcolor: 'background.default' }}>
+        <Outlet />
+      </Box>
+    );
+  }
 
   const drawerContent = (
     <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column', bgcolor: 'background.default' }}>
@@ -155,7 +167,7 @@ export default function LearnSpaceShell() {
             <List disablePadding sx={{ display: 'grid', gap: 0.35 }}>
               {section.items.map((item) => {
                 const targetPath = item.to === '/dashboard' ? getLandingRouteForRole(currentRole) : item.to;
-                const active = targetPath === '/courses' ? location.pathname === targetPath : isActiveRoute(location.pathname, targetPath);
+                const active = isActiveRoute(location.pathname, targetPath);
                 const showBadge = item.label === 'Messages' && unreadCount > 0;
 
                 return (

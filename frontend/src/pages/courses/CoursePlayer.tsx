@@ -444,7 +444,7 @@ export default function CoursePlayer() {
         <Alert severity="warning" sx={{ mb: 2 }}>
           Select a course from your dashboard before opening the course player.
         </Alert>
-        <Button variant="outlined" onClick={() => navigate('/my-courses')}>
+        <Button variant="outlined" onClick={() => navigate('/courses')}>
           Back to my courses
         </Button>
       </Box>

@@ -164,25 +164,42 @@ export default function ContentManager() {
 
   if (view === 'create' || view === 'edit') {
     return (
-      <Stack spacing={2}>
-        <Button
-          onClick={() => {
-            setView('list');
-            setSelectedPage(null);
-          }}
-          sx={{ alignSelf: 'flex-start' }}
+      <Box sx={{ minHeight: '100%', bgcolor: 'background.default' }}>
+        <DashboardPageFrame
+          title={view === 'edit' ? 'Edit Page' : 'Create Page'}
+          description="Build structured CMS content with reusable blocks and a consistent publishing flow."
+          breadcrumbs={[
+            { label: 'Dashboard', to: '/admin/dashboard' },
+            { label: 'Content Manager', to: '/cms/content' },
+            { label: view === 'edit' ? selectedPage?.title || 'Edit page' : 'New page' },
+          ]}
+          actions={(
+            <Button
+              onClick={() => {
+                setView('list');
+                setSelectedPage(null);
+              }}
+              variant="outlined"
+            >
+              Back to pages
+            </Button>
+          )}
         >
-          Back to pages
-        </Button>
-        <PageBuilder
-          initialPageId={selectedPage?._id}
-          initialTitle={selectedPage?.title || ''}
-          initialSlug={selectedPage?.slug || ''}
-          initialBlocks={selectedPage ? parseBlocks(selectedPage) : []}
-          initialStatus={(selectedPage?.status as 'draft' | 'published' | 'archived') || 'draft'}
-          onSave={handleSave}
-        />
-      </Stack>
+          <DashboardSection
+            title="Page builder"
+            description="Compose the page content and keep the CMS state in one workspace."
+          >
+            <PageBuilder
+              initialPageId={selectedPage?._id}
+              initialTitle={selectedPage?.title || ''}
+              initialSlug={selectedPage?.slug || ''}
+              initialBlocks={selectedPage ? parseBlocks(selectedPage) : []}
+              initialStatus={(selectedPage?.status as 'draft' | 'published' | 'archived') || 'draft'}
+              onSave={handleSave}
+            />
+          </DashboardSection>
+        </DashboardPageFrame>
+      </Box>
     );
   }
 

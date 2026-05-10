@@ -13,6 +13,7 @@ import {
 import { api, normalizeApiError } from '../../services/api';
 import { resolvePublicApiOrigin } from '../../utils/apiBaseUrl';
 import { useAuth } from '../../context/AuthContext';
+import DashboardPageFrame from '../../components/common/DashboardPageFrame';
 interface Certificate {
   id: string;
   courseId: string;
@@ -172,11 +173,21 @@ export default function MyCertificates() {
   };
 
   return (
-    <Box sx={{ minHeight: '100%', bgcolor: 'background.default', p: { xs: 2, sm: 2.5, md: 3 } }}>
-        <Typography variant="h5" sx={{ fontWeight: 800, mb: 2.5 }}>
-          My certificates
-        </Typography>
-
+    <Box sx={{ minHeight: '100%', bgcolor: 'background.default' }}>
+      <DashboardPageFrame
+        eyebrow="Learning record"
+        title="My Certificates"
+        description="Verify and download the credentials you have earned."
+        breadcrumbs={[
+          { label: 'Dashboard', to: '/dashboard' },
+          { label: 'Certificates' },
+        ]}
+        actions={(
+          <Button variant="contained" sx={{ minWidth: 160 }} onClick={handleShareProfile}>
+            Share Profile
+          </Button>
+        )}
+      >
         {statusMessage ? (
           <Alert severity="success" sx={{ mb: 2.25, borderRadius: 1.5 }} onClose={() => setStatusMessage(null)}>
             {statusMessage}
@@ -196,19 +207,15 @@ export default function MyCertificates() {
                 {welcomeGreeting}
               </Typography>
 
-              <Box sx={{ display: 'flex', alignItems: { xs: 'flex-start', md: 'center' }, justifyContent: 'space-between', gap: 2, flexWrap: 'wrap' }}>
-                <Box>
-                  <Typography variant="h4" sx={{ fontWeight: 800, letterSpacing: '-0.03em' }}>
-                    My Certificates
-                  </Typography>
-                  <Typography variant="body1" sx={{ mt: 0.75, color: 'text.secondary' }}>
-                    Verify and download your earned credentials.
-                  </Typography>
-                </Box>
-
-                <Button variant="contained" sx={{ minWidth: 160 }} onClick={handleShareProfile}>
-                  Share Profile
-                </Button>
+                <Box sx={{ display: 'flex', alignItems: { xs: 'flex-start', md: 'center' }, justifyContent: 'space-between', gap: 2, flexWrap: 'wrap' }}>
+                  <Box>
+                    <Typography variant="h4" sx={{ fontWeight: 800, letterSpacing: '-0.03em' }}>
+                      Certificate overview
+                    </Typography>
+                    <Typography variant="body1" sx={{ mt: 0.75, color: 'text.secondary' }}>
+                      Verify and download your earned credentials.
+                    </Typography>
+                  </Box>
               </Box>
             </Stack>
           </CardContent>
@@ -283,10 +290,10 @@ export default function MyCertificates() {
                 }}
               >
                 <CardContent sx={{ p: 2.5 }}>
-                    <Stack spacing={2}>
-                      <Box>
-                        <Typography variant="h6" sx={{ fontWeight: 800, lineHeight: 1.35 }}>
-                          {certificate.title}
+                  <Stack spacing={2}>
+                    <Box>
+                      <Typography variant="h6" sx={{ fontWeight: 800, lineHeight: 1.35 }}>
+                        {certificate.title}
                       </Typography>
                       <Typography variant="body2" sx={{ mt: 0.75, color: 'text.secondary' }}>
                         {certificate.issued} • ID: {certificate.certificateId}
@@ -327,6 +334,7 @@ export default function MyCertificates() {
         <Box sx={{ mt: 2.5, color: 'text.secondary', fontSize: 14 }}>
           {totalCertificates} certificates available
         </Box>
+      </DashboardPageFrame>
     </Box>
   );
 }
