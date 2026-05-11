@@ -119,15 +119,10 @@ function RequireSession() {
   return <Outlet />;
 }
 
-function formatRoles(roles: string[]) {
-  if (!roles.length) return '';
-  const format = new Intl.ListFormat('en', { type: 'conjunction', style: 'long' });
-  return format.format(roles.map(r => r.endsWith('s') ? r : r + 's'));
-}
-
 function RequireRole({ allowedRoles }: { allowedRoles: LearnSpaceRole[] }) {
   const { user, isLoading } = useAuth();
   const location = useLocation();
+  const navigate = useNavigate();
 
   if (isLoading) {
     return <LoadingSpinner message="Verifying access..." />;
@@ -138,42 +133,8 @@ function RequireRole({ allowedRoles }: { allowedRoles: LearnSpaceRole[] }) {
   }
 
   if (!allowedRoles.includes(user.role)) {
-    return (
-      <Box sx={{ minHeight: '100vh', display: 'grid', placeItems: 'center', bgcolor: 'background.default' }}>
-        <Card sx={{ maxWidth: 420, borderRadius: 2, border: '1px solid', borderColor: 'divider' }}>
-          <CardContent sx={{ p: 4 }}>
-            <Stack spacing={2.5} sx={{ alignItems: 'center', textAlign: 'center' }}>
-              <Box
-                sx={{
-                  width: 72,
-                  height: 72,
-                  borderRadius: '50%',
-                  bgcolor: alpha('#EF4444', 0.1),
-                  display: 'grid',
-                  placeItems: 'center',
-                }}
-              >
-                <LockOutlined sx={{ fontSize: 36, color: 'error.main' }} />
-              </Box>
-              <Typography variant="h5" sx={{ fontWeight: 800, color: 'text.primary', letterSpacing: '-0.02em' }}>
-                Access Restricted
-              </Typography>
-              <Typography variant="body1" sx={{ color: 'text.secondary', maxWidth: 300 }}>
-                This area is for {formatRoles(allowedRoles)} only. Your account doesn't have permission to view it.
-              </Typography>
-              <Button
-                component={RouterLink}
-                to={getLandingRouteForRole(user.role)}
-                variant="contained"
-                sx={{ mt: 1, px: 3, py: 1.2, borderRadius: 3 }}
-              >
-                Go to Dashboard
-              </Button>
-            </Stack>
-          </CardContent>
-        </Card>
-      </Box>
-    );
+    navigate(getLandingRouteForRole(user.role), { replace: true, state: { from: location.pathname, accessDenied: true } });
+    return null;
   }
 
   return <Outlet />;
@@ -181,20 +142,22 @@ function RequireRole({ allowedRoles }: { allowedRoles: LearnSpaceRole[] }) {
 
 function DashboardPage() {
   const { user } = useAuth();
+  const location = useLocation();
+  const accessDenied = (location.state as { accessDenied?: boolean })?.accessDenied;
 
   if (user?.role === 'admin') {
-    return <Navigate to="/admin/dashboard" replace />;
+    return <AdminDashboard showAccessDenied={accessDenied} />;
   }
 
   if (user?.role === 'instructor') {
-    return <Navigate to="/instructor/dashboard" replace />;
+    return <InstructorDashboard showAccessDenied={accessDenied} />;
   }
 
   if (user?.role === 'content_manager') {
     return <Navigate to="/cms/content" replace />;
   }
 
-  return <StudentDashboard />;
+  return <StudentDashboard showAccessDenied={accessDenied} />;
 }
 
 function LearnSpaceBrandMark() {
@@ -536,6 +499,7 @@ function PasswordResetPage() {
 function PublicAuthPage() {
   const navigate = useNavigate();
   const { login, isAuthenticated, isLoading, user } = useAuth();
+  const [searchParams] = useSearchParams();
   const [view, setView] = useState<'login' | 'forgot-password'>('login');
   const [formValues, setFormValues] = useState({
     email: '',
@@ -544,6 +508,13 @@ function PublicAuthPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+
+  useEffect(() => {
+    if (searchParams.get('expired') === 'true') {
+      setErrorMessage('Your session has expired. Please sign in again.');
+      window.history.replaceState(null, '', '/auth/login');
+    }
+  }, [searchParams]);
 
   useEffect(() => {
     if (isAuthenticated && user) {
@@ -555,13 +526,16 @@ function PublicAuthPage() {
     event.preventDefault();
     setErrorMessage('');
 
-    // Client-side validation
     if (!formValues.email || !formValues.email.trim()) {
-      setErrorMessage('Please enter your email address.');
+      setErrorMessage('Email is required');
       return;
     }
     if (!formValues.password) {
-      setErrorMessage('Please enter your password.');
+      setErrorMessage('Password is required');
+      return;
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formValues.email)) {
+      setErrorMessage('Invalid credentials');
       return;
     }
 

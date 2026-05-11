@@ -324,7 +324,7 @@ export default function MediaLibrary() {
             <Stack spacing={2.25}>
               {error ? (
                 <Typography sx={{ color: 'error.main', fontWeight: 700 }}>
-                  {normalizeApiError(error).message || 'Failed to load media files.'}
+                  Media service is temporarily unavailable. Please try again.
                 </Typography>
               ) : null}
               {deleteError ? (

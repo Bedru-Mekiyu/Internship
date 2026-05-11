@@ -104,7 +104,11 @@ function ActivityItem({ title, time, type }: { title: string; time: string; type
 
 // ─── Main component ───────────────────────────────────────────────────────────
 
-export default function StudentDashboard() {
+interface StudentDashboardProps {
+  showAccessDenied?: boolean;
+}
+
+export default function StudentDashboard({ showAccessDenied }: StudentDashboardProps) {
   const { user } = useAuth();
   const firstName = user?.firstName?.trim();
   const welcomeGreeting = firstName ? `Welcome back, ${firstName}!` : 'Welcome back';
@@ -205,6 +209,13 @@ export default function StudentDashboard() {
   return (
     <Box sx={{ minHeight: '100%' }}>
       <Stack spacing={SPACING.lg}>
+        {/* Access denied error */}
+        {showAccessDenied && (
+          <Alert severity="error" sx={{ borderRadius: 1.5 }}>
+            You do not have permission to access this page
+          </Alert>
+        )}
+
         {/* Error state */}
         {isError && (
           <Alert severity="error" sx={{ borderRadius: 1.5 }}>

@@ -77,7 +77,11 @@ function MetricCard({
 
 // ─── Main component ───────────────────────────────────────────────────────────
 
-export default function InstructorDashboard() {
+interface InstructorDashboardProps {
+  showAccessDenied?: boolean;
+}
+
+export default function InstructorDashboard({ showAccessDenied }: InstructorDashboardProps) {
   const { user } = useAuth();
   const [createCourseOpen, setCreateCourseOpen] = useState(false);
 
@@ -176,6 +180,11 @@ export default function InstructorDashboard() {
 
   return (
     <Box sx={{ minHeight: '100%', bgcolor: 'background.default', p: SPACING.lg }}>
+      {showAccessDenied && (
+        <Alert severity="error" sx={{ mb: 2, borderRadius: 1.5 }}>
+          You do not have permission to access this page
+        </Alert>
+      )}
       <DashboardPageFrame
         eyebrow="Instructor workspace"
         title={welcomeGreeting}
