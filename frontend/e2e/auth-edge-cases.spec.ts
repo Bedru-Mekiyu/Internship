@@ -307,10 +307,8 @@ test.describe('auth edge cases', () => {
 
     test('automatically refreshes token on 401', async ({ page }) => {
       await setupAuthEdgeMocks(page);
-      let refreshCallCount = 0;
 
       await page.route('**/api/auth/refresh-token', async (route) => {
-        refreshCallCount++;
         await json(route, 200, { accessToken: 'refreshed-token' });
       });
 

@@ -14,17 +14,16 @@ import {
 } from '@mui/material';
 import { alpha } from '@mui/material/styles';
 import {
-  MailOutlined,
   VisibilityOutlined,
   VisibilityOffOutlined,
 } from '@mui/icons-material';
 import { Link as RouterLink, Navigate, useNavigate, useSearchParams } from 'react-router-dom';
-import { AuthProvider, useAuth } from '../../context/AuthContext';
+import { useAuth } from '../../context/AuthContext';
 import { normalizeApiError } from '../../services/api';
 import { getLandingRouteForRole } from '../../routes/learnSpaceNavigation';
 import { theme } from '../../theme';
 import { BrandMark } from '../../components/common/LoadingSpinner';
-import ForgotPasswordForm from '../../components/common/ForgotPasswordForm';
+import { ForgotPasswordForm } from '../../components/common/ForgotPasswordForm';
 
 function LearnSpaceBrandMark() {
   return <BrandMark />;
