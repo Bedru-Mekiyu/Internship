@@ -12,10 +12,15 @@ import { clearUser } from '../slices/authSlice';
 const rawBaseQuery = fetchBaseQuery({
   baseUrl: resolveApiBaseUrl(),
   credentials: 'include',
-  prepareHeaders: (headers, { endpoint }) => {
+  prepareHeaders: (headers, { endpoint, arg }) => {
     const csrfToken = getCsrfToken();
     if (csrfToken) {
       headers.set('x-csrf-token', csrfToken);
+    }
+
+    const body = typeof arg === 'object' && arg !== null && 'body' in arg ? arg.body : undefined;
+    if (body instanceof FormData) {
+      return headers;
     }
 
     if (!headers.has('Content-Type') && endpoint !== 'uploadMedia') {
