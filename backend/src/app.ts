@@ -86,17 +86,16 @@ export const createApp = () => {
 
   const corsOptions: CorsOptions = {
     origin: (origin, callback) => {
-      const isDev = process.env.NODE_ENV !== 'production';
-      if (isDev) {
-        callback(null, true);
-        return;
-      }
       const normalizedOrigin = origin ? normalizeOrigin(origin) : null;
-      if (!normalizedOrigin || allowedOrigins.includes(normalizedOrigin)) {
+      if (normalizedOrigin && allowedOrigins.includes(normalizedOrigin)) {
         callback(null, true);
         return;
       }
-      callback(null, false);
+      if (!normalizedOrigin) {
+        callback(null, true);
+        return;
+      }
+      callback(new Error(`Origin ${origin} not allowed by CORS policy`));
     },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],

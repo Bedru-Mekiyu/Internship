@@ -77,104 +77,7 @@ type DisplayReview = {
 
 const pageMaxWidth = 820;
 
-const demoModules: CourseModuleWithSummary[] = [
-  {
-    _id: 'demo-intro',
-    title: 'Introduction to Web Design',
-    lectureCount: 3,
-    durationMinutes: 15,
-    lessons: [
-      { _id: 'demo-welcome', title: 'Welcome to the Course', duration: 5, type: 'video', order: 0 },
-      { _id: 'demo-community', title: 'Join our Resources & Community', duration: 5, type: 'text', order: 1 },
-      { _id: 'demo-most', title: 'How to Get the Most Out of This Course', duration: 5, type: 'video', order: 2 },
-    ],
-    order: 0,
-  },
-  { _id: 'demo-figma', title: 'Figma Fundamentals', lectureCount: 8, durationMinutes: 275, lessons: [], order: 1 },
-  { _id: 'demo-visual', title: 'Visual Design Basics', lectureCount: 12, durationMinutes: 390, lessons: [], order: 2 },
-  { _id: 'demo-typography', title: 'Typography Masterclass', lectureCount: 5, durationMinutes: 240, lessons: [], order: 3 },
-  { _id: 'demo-color', title: 'Color, Layout, and Components', lectureCount: 22, durationMinutes: 315, lessons: [], order: 4 },
-  { _id: 'demo-responsive', title: 'Responsive Web Design Systems', lectureCount: 31, durationMinutes: 420, lessons: [], order: 5 },
-  { _id: 'demo-prototype', title: 'Prototyping and Portfolio Project', lectureCount: 36, durationMinutes: 540, lessons: [], order: 6 },
-  { _id: 'demo-career', title: 'Career Launch and Freelance Workflow', lectureCount: 25, durationMinutes: 250, lessons: [], order: 7 },
-];
 
-const demoCourse: CourseDetailExtras = {
-  _id: '507f191e810c19729de860ea',
-  slug: 'complete-web-design-bootcamp-2025',
-  title: 'Complete Web Design Bootcamp 2025: From Zero to Mastery',
-  shortDescription: 'Learn UI/UX design, Figma, HTML, CSS, and modern web design principles. Build real-world projects and start your career.',
-  description:
-    'Are you ready to start your career as a Web Designer? This course is your one-stop-shop to learning everything you need to know to design and build professional websites.\n\nWe start from the very basics, understanding how the web works and the fundamental principles of design. Then, we dive deep into Figma, the industry-standard tool for UI/UX design.\n\nBy the end of this course, you will have a complete portfolio project that you can show to potential employers or clients.',
-  thumbnail: '',
-  category: 'Design',
-  subcategory: 'User Experience',
-  level: 'beginner',
-  language: 'English',
-  status: 'published',
-  pricing: {
-    type: 'paid',
-    amount: 14.99,
-    currency: 'USD',
-    discount: { percentage: 83 },
-  },
-  originalPrice: 80,
-  offerEndsIn: 'Offer ends in 5 hours',
-  includedVideoHours: '23.5 hours',
-  instructor: {
-    _id: 'demo-marcus-johnson',
-    email: 'marcus@learnspace.dev',
-    firstName: 'Marcus',
-    lastName: 'Johnson',
-    role: 'instructor',
-    bio:
-      'With 10+ years as a product designer and more than 10 years of experience working with startups and Fortune 500 companies, Marcus is passionate about teaching and making design education accessible to everyone.',
-  },
-  instructorHeadline: 'Senior Product Designer @ TechFlow',
-  modules: demoModules,
-  prerequisites: [
-    'No prior design or coding experience needed.',
-    'A computer, Mac or PC, with internet access.',
-    'Free Figma account, we will set this up together.',
-    'Motivation to learn and build cool things.',
-  ],
-  learningOutcomes: [
-    'Master Figma for UI/UX design from scratch',
-    'Create professional design systems and style guides',
-    'Learn to design for mobile, tablet, and desktop',
-    'Build responsive websites with HTML5 & CSS3',
-    'Understand color theory, typography, and layout',
-    'Get hired as a junior web designer',
-  ],
-  reviews: [
-    {
-      user: 'Sarah M.',
-      rating: 5,
-      comment:
-        'This course is amazing! Marcus explains everything so clearly. I went from knowing nothing about design to building my first portfolio site in just a few weeks.',
-      createdAt: '2025-01-22T00:00:00.000Z',
-    },
-    {
-      user: 'Raj P.',
-      rating: 5,
-      comment:
-        'Great content on Figma. I wish there was a bit more on advanced prototyping, but overall a fantastic value for the price.',
-      createdAt: '2025-01-16T00:00:00.000Z',
-    },
-  ],
-  duration: 1445,
-  enrollmentCount: 12390,
-  rating: { average: 4.8, count: 2456 },
-  createdAt: '2024-09-08T00:00:00.000Z',
-  updatedAt: '2025-01-12T00:00:00.000Z',
-};
-
-const demoCourseIdentifiers = new Set([
-  demoCourse._id,
-  demoCourse.slug,
-  'bootcamp-2025',
-  'web-design-bootcamp',
-].filter(Boolean));
 
 const formatCurrency = (amount: number, currency = 'USD') =>
   new Intl.NumberFormat('en-US', {
@@ -304,15 +207,14 @@ function StarRow({ value, size = 13 }: { value: number; size?: number }) {
 export default function CourseDetailPage({ embedded = false }: { embedded?: boolean }) {
   const navigate = useNavigate();
   const { courseSlug } = useParams();
-  const courseIdentifier = courseSlug || demoCourse.slug || demoCourse._id;
-  const isDemoCourseRoute = demoCourseIdentifiers.has(courseIdentifier);
+  const courseIdentifier = courseSlug || '';
   const { data: fetchedCourse, isLoading, error } = useGetCourseByIdQuery(courseIdentifier, { skip: !courseIdentifier });
   const [enrollInCourse] = useEnrollInCourseMutation();
   const [actionError, setActionError] = useState<string | null>(null);
   const [shareMessage, setShareMessage] = useState<string | null>(null);
   const [expandedSections, setExpandedSections] = useState<string[] | null>(null);
 
-  const course = (fetchedCourse || (isDemoCourseRoute ? demoCourse : undefined)) as CourseDetailExtras | undefined;
+  const course = (fetchedCourse) as CourseDetailExtras | undefined;
   const instructorName = course ? getInstructorName(course) : 'LearnSpace Instructor';
   const instructor = course?.instructor && typeof course.instructor !== 'string' ? course.instructor : undefined;
   const thumbnail = sanitizeHttpUrl(course?.thumbnail) || heroLaptop;
@@ -398,11 +300,11 @@ export default function CourseDetailPage({ embedded = false }: { embedded?: bool
 
     if (!isFreeCourse) {
       try {
-        await api.post('/api/cart', { courseId: course._id });
+        await api.post('/api/payments', { courseId: course._id });
         setActionError(null);
-        navigate('/cart');
+        navigate('/checkout');
       } catch (requestError) {
-        setActionError(normalizeApiError(requestError).message || 'Unable to add to cart.');
+        setActionError(normalizeApiError(requestError).message || 'Unable to initialize checkout.');
       }
       return;
     }

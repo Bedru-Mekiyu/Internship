@@ -118,7 +118,7 @@ function AuthInputField({
 }
 
 const PASSWORD_POLICY_MESSAGE = 'Use 8+ characters with uppercase, lowercase, number, and special character.';
-const PASSWORD_POLICY_REGEX = /^(?=.{8,128}$)(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).*$/;
+const PASSWORD_POLICY_REGEX = /^(?=.{8,128}$)(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])/;
 
 type ApiDetail = {
   field?: string;

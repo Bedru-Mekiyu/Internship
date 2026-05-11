@@ -95,19 +95,19 @@ export const dashboardApi = baseApi.injectEndpoints({
       query: () => ({
         url: '/api/dashboard/student',
       }),
-      providesTags: ['Course'],
+      providesTags: ['StudentDashboard'],
     }),
     getInstructorDashboard: builder.query<InstructorDashboardResponse, void>({
       query: () => ({
         url: '/api/dashboard/instructor',
       }),
-      providesTags: ['Course'],
+      providesTags: ['InstructorDashboard'],
     }),
     getAdminDashboard: builder.query<AdminDashboardResponse, void>({
       query: () => ({
         url: '/api/dashboard/admin',
       }),
-      providesTags: ['Course'],
+      providesTags: ['AdminDashboard'],
     }),
   }),
 });

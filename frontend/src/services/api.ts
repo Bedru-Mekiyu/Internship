@@ -95,21 +95,20 @@ const isUnsafeMethod = (method?: string) => {
   return normalizedMethod ? !['GET', 'HEAD', 'OPTIONS'].includes(normalizedMethod) : false;
 };
 
-const isAuthPath = (url?: string) => {
-  if (!url) {
-    return false;
-  }
+const authPathSet = new Set([
+  '/api/auth/login',
+  '/api/auth/register',
+  '/api/auth/logout',
+  '/api/auth/me',
+  '/api/auth/refresh-token',
+  '/api/auth/csrf-token',
+  '/api/auth/forgot-password',
+  '/api/auth/reset-password',
+]);
 
-  return [
-    '/api/auth/login',
-    '/api/auth/register',
-    '/api/auth/logout',
-    '/api/auth/me',
-    '/api/auth/refresh-token',
-    '/api/auth/csrf-token',
-    '/api/auth/forgot-password',
-    '/api/auth/reset-password',
-  ].some((path) => url.includes(path));
+const isAuthPath = (url?: string) => {
+  if (!url) return false;
+  return authPathSet.has(url);
 };
 
 const applyRequestInterceptors = (config: AuthenticatedRequestConfig) => {

@@ -131,7 +131,16 @@ export default function LearnSpaceShell() {
   const avatarSrc = sanitizeHttpUrl(user?.avatar);
   const avatarInitials = [user?.firstName?.[0], user?.lastName?.[0]].filter(Boolean).join('').toUpperCase() || 'U';
   const searchPlaceholder = activeItem?.label === 'Profile' ? 'Search settings...' : 'Search LearnSpace...';
-  const immersiveWorkspace = location.pathname === '/lessons/upload' || location.pathname.includes('/learn');
+  const immersiveRoutePatterns = [
+    '/lessons/upload',
+    '/courses/',
+  ];
+  const immersiveWorkspace = immersiveRoutePatterns.some((pattern) => {
+    if (pattern === '/courses/') {
+      return location.pathname.includes('/courses/') && location.pathname.endsWith('/learn');
+    }
+    return location.pathname === pattern;
+  });
 
   if (immersiveWorkspace) {
     return (

@@ -64,6 +64,7 @@ const baseQueryWithRefresh: BaseQueryFn<string | FetchArgs, unknown, FetchBaseQu
       url: '/api/auth/refresh-token',
       method: 'POST',
       body: {},
+      headers: { 'x-csrf-token': getCsrfToken() ?? '' },
     },
     api,
     extraOptions,
