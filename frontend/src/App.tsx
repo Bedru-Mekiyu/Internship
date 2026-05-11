@@ -659,10 +659,9 @@ function PublicAuthPage() {
 
                 <Box component="form" onSubmit={handleSubmit} noValidate>
                   <Stack spacing={1.45}>
-                    <Typography variant="body2" sx={{ color: 'text.primary', fontWeight: 600 }}>
-                      Email
-                    </Typography>
                     <TextField
+                      id="email"
+                      label="Email"
                       value={formValues.email}
                       onChange={updateField('email')}
                       type="email"
@@ -671,9 +670,6 @@ function PublicAuthPage() {
                       fullWidth
                     />
                     <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                      <Typography component="label" htmlFor="password" variant="body2" sx={{ color: 'text.primary', fontWeight: 600 }}>
-                        Password
-                      </Typography>
                       <Link
                         component="button"
                         type="button"
@@ -682,12 +678,13 @@ function PublicAuthPage() {
                           setErrorMessage('');
                         }}
                         underline="none"
-                        sx={{ color: 'primary.main', fontWeight: 600, fontSize: 14, cursor: 'pointer', border: 'none', background: 'none' }}
+                        sx={{ color: 'primary.main', fontWeight: 600, fontSize: 14, cursor: 'pointer', border: 'none', background: 'none', ml: 'auto' }}
                       >
                         Forgot password?
                       </Link>
                     </Box>
                     <TextField
+                      label="Password"
                       value={formValues.password}
                       onChange={updateField('password')}
                       id="password"
