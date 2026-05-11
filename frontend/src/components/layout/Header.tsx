@@ -17,31 +17,7 @@ import {
 } from '@mui/material';
 import { CloseOutlined, MenuOutlined } from '@mui/icons-material';
 import { publicHeaderLinks, isPublicNavActive } from './publicNavigation';
-
-function BrandMark() {
-  return (
-    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-      <Box
-        sx={{
-          width: 40,
-          height: 40,
-          borderRadius: 1.5,
-          bgcolor: 'primary.main',
-          color: '#FFFFFF',
-          display: 'grid',
-          placeItems: 'center',
-          fontWeight: 900,
-          flexShrink: 0,
-        }}
-      >
-        LS
-      </Box>
-      <Typography variant="h6" sx={{ fontWeight: 900, letterSpacing: '-0.03em' }}>
-        LearnSpace
-      </Typography>
-    </Box>
-  );
-}
+import { BrandMark } from '../common/LoadingSpinner';
 
 export default function Header() {
   const theme = useTheme();
@@ -102,8 +78,11 @@ export default function Header() {
           </IconButton>
         ) : null}
 
-        <Box component={RouterLink} to="/" sx={{ textDecoration: 'none', color: 'inherit' }}>
+        <Box component={RouterLink} to="/" sx={{ textDecoration: 'none', color: 'inherit', display: 'flex', alignItems: 'center', gap: 1 }}>
           <BrandMark />
+          <Typography variant="h6" sx={{ fontWeight: 900, letterSpacing: '-0.03em', color: 'text.primary' }}>
+            LearnSpace
+          </Typography>
         </Box>
 
         {isDesktop ? <Box sx={{ display: 'flex', alignItems: 'center', gap: 3, ml: 2 }}>{navLinks}</Box> : <Box sx={{ flex: 1 }} />}
@@ -134,7 +113,12 @@ export default function Header() {
         }}
       >
         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
-          <BrandMark />
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <BrandMark />
+            <Typography variant="h6" sx={{ fontWeight: 900, letterSpacing: '-0.03em', color: 'text.primary' }}>
+              LearnSpace
+            </Typography>
+          </Box>
           <IconButton aria-label="close navigation" onClick={closeMobileMenu}>
             <CloseOutlined />
           </IconButton>
