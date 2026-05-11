@@ -56,6 +56,9 @@ import LearnSpaceShell from './routes/LearnSpaceShell';
 import type { LearnSpaceRole } from './routes/learnSpaceNavigation';
 import { getLandingRouteForRole } from './routes/learnSpaceNavigation';
 import heroImage from './assets/hero-laptop-open.png';
+import { LoadingSpinner, BrandMark } from './components/common/LoadingSpinner';
+import { ForgotPasswordForm } from './components/common/ForgotPasswordForm';
+import { CoursePreviewArtwork } from './components/ui/CoursePreviewArtwork';
 
 const CourseDetailPage = lazy(() => import('./pages/courses/CourseDetailPage'));
 const ExploreCourses = lazy(() => import('./pages/courses/ExploreCourses'));
@@ -106,36 +109,7 @@ function RequireSession() {
   const { user, isLoading } = useAuth();
 
   if (isLoading) {
-    return (
-      <Box sx={{ minHeight: '100vh', display: 'grid', placeItems: 'center', bgcolor: 'background.default' }}>
-        <Stack spacing={2} sx={{ alignItems: 'center' }}>
-          <Box
-            sx={{
-              width: 56,
-              height: 56,
-              borderRadius: 2,
-              bgcolor: 'primary.main',
-              display: 'grid',
-              placeItems: 'center',
-              boxShadow: (theme) => `0 4px 16px ${alpha(theme.palette.primary.main, 0.25)}`,
-              opacity: 0.9,
-            }}
-          >
-            <Box
-              component="svg"
-              viewBox="0 0 24 24"
-              sx={{ width: 28, height: 28, color: 'primary.contrastText', animation: 'pulse 1.5s ease-in-out infinite' }}
-            >
-              <style>{`@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }`}</style>
-              <path fill="currentColor" d="M12 2.5 5 5.25v5.53c0 4.52 2.95 8.57 7 10.22 4.05-1.65 7-5.7 7-10.22V5.25L12 2.5Z" />
-            </Box>
-          </Box>
-          <Typography variant="body1" color="text.secondary" sx={{ fontWeight: 500 }}>
-            Getting you in...
-          </Typography>
-        </Stack>
-      </Box>
-    );
+    return <LoadingSpinner message="Getting you in..." />;
   }
 
   if (!user) {
@@ -156,35 +130,7 @@ function RequireRole({ allowedRoles }: { allowedRoles: LearnSpaceRole[] }) {
   const location = useLocation();
 
   if (isLoading) {
-    return (
-      <Box sx={{ minHeight: '100vh', display: 'grid', placeItems: 'center', bgcolor: 'background.default' }}>
-        <Stack spacing={2} sx={{ alignItems: 'center' }}>
-          <Box
-            sx={{
-              width: 56,
-              height: 56,
-              borderRadius: 2,
-              bgcolor: 'primary.main',
-              display: 'grid',
-              placeItems: 'center',
-              boxShadow: (theme) => `0 4px 16px ${alpha(theme.palette.primary.main, 0.25)}`,
-              opacity: 0.9,
-            }}
-          >
-            <Box
-              component="svg"
-              viewBox="0 0 24 24"
-              sx={{ width: 28, height: 28, color: 'primary.contrastText', animation: 'pulse 1.5s ease-in-out infinite' }}
-            >
-              <path fill="currentColor" d="M12 2.5 5 5.25v5.53c0 4.52 2.95 8.57 7 10.22 4.05-1.65 7-5.7 7-10.22V5.25L12 2.5Z" />
-            </Box>
-          </Box>
-          <Typography variant="body1" color="text.secondary" sx={{ fontWeight: 500 }}>
-            Verifying access...
-          </Typography>
-        </Stack>
-      </Box>
-    );
+    return <LoadingSpinner message="Verifying access..." />;
   }
 
   if (!user) {
@@ -252,29 +198,7 @@ function DashboardPage() {
 }
 
 function LearnSpaceBrandMark() {
-  return (
-    <Box
-      sx={{
-        width: 36,
-        height: 36,
-        borderRadius: 1.1,
-        bgcolor: 'primary.main',
-        display: 'grid',
-        placeItems: 'center',
-        flexShrink: 0,
-        boxShadow: '0 3px 10px rgba(0, 102, 255, 0.2)',
-      }}
-    >
-      <Box
-        component="svg"
-        viewBox="0 0 24 24"
-        aria-hidden="true"
-        sx={{ width: 18, height: 18, color: '#FFFFFF' }}
-      >
-        <path fill="currentColor" d="M8.75 6.75a1 1 0 0 0-1 1v.75H7a1 1 0 0 0-1 1v7a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1v-7a1 1 0 0 0-1-1h-.75v-.75a1 1 0 0 0-1-1h-6.5Zm.5 1.75v-.5h5.5v.5h-5.5Zm7.25 3.25h-3v-1h-1v1h-3v1h3v1h1v-1h3v-1Z" />
-      </Box>
-    </Box>
-  );
+  return <BrandMark />;
 }
 
 function LegacyResetPasswordRedirect() {
@@ -621,12 +545,6 @@ function PublicAuthPage() {
   const [errorMessage, setErrorMessage] = useState('');
   const [showPassword, setShowPassword] = useState(false);
 
-  // Forgot password states
-  const [requestEmail, setRequestEmail] = useState('');
-  const [showSuccessBanner, setShowSuccessBanner] = useState(false);
-  const [forgotError, setForgotError] = useState('');
-  const [requestSubmitting, setRequestSubmitting] = useState(false);
-
   useEffect(() => {
     if (isAuthenticated && user) {
       navigate(getLandingRouteForRole(user.role), { replace: true });
@@ -656,21 +574,6 @@ function PublicAuthPage() {
       setErrorMessage(normalizeApiError(error).message);
     } finally {
       setIsSubmitting(false);
-    }
-  };
-
-  const handleResetRequest = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    setForgotError('');
-    setRequestSubmitting(true);
-    try {
-      await ensureCsrfToken();
-      await api.post('/api/auth/forgot-password', { email: requestEmail.trim().toLowerCase() });
-      setShowSuccessBanner(true);
-    } catch (error) {
-      setForgotError(normalizeApiError(error).message);
-    } finally {
-      setRequestSubmitting(false);
     }
   };
 
@@ -893,74 +796,22 @@ function PublicAuthPage() {
                   </Typography>
                 </Box>
 
-                {showSuccessBanner ? (
-                  <Stack spacing={2.5}>
-                    <Alert
-                      severity="success"
-                      icon={<CheckCircleOutlined sx={{ mt: 0.25 }} />}
-                      sx={{ borderRadius: 3, '.MuiAlert-message': { width: '100%' } }}
-                    >
-                      <Typography variant="subtitle2" sx={{ fontWeight: 800 }}>
-                        Check your inbox
-                      </Typography>
-                      <Typography variant="body2" sx={{ mt: 0.5, color: 'success.dark', opacity: 0.9 }}>
-                        If an account exists for {requestEmail}, you'll receive a secure link shortly.
-                      </Typography>
-                    </Alert>
-                    <Button
-                      variant="outlined"
-                      fullWidth
-                      onClick={() => {
-                        setView('login');
-                        setShowSuccessBanner(false);
-                      }}
-                      sx={{ p: 1.5, borderRadius: 3, fontWeight: 700 }}
-                    >
-                      Return to login
-                    </Button>
-                  </Stack>
-                ) : (
-                  <Box component="form" onSubmit={handleResetRequest}>
-                    <Stack spacing={1.75}>
-                      <TextField
-                        value={requestEmail}
-                        onChange={(e) => setRequestEmail(e.target.value)}
-                        label="Account Email"
-                        type="email"
-                        fullWidth
-                        autoFocus
-                      />
+                <ForgotPasswordForm
+                  onSuccess={() => {
+                    setView('login');
+                  }}
+                />
 
-                      {forgotError ? (
-                        <Alert severity="error" sx={{ borderRadius: 3 }}>
-                          {forgotError}
-                        </Alert>
-                      ) : null}
-
-                      <Button
-                        type="submit"
-                        variant="contained"
-                        fullWidth
-                        size="large"
-                        disabled={requestSubmitting}
-                      >
-                        {requestSubmitting ? 'Sending link...' : 'Send reset link'}
-                      </Button>
-
-                      <Button
-                        variant="text"
-                        fullWidth
-                        onClick={() => {
-                          setView('login');
-                          setForgotError('');
-                        }}
-                        sx={{ textTransform: 'none', fontWeight: 600, color: 'text.secondary' }}
-                      >
-                        Cancel and return to login
-                      </Button>
-                    </Stack>
-                  </Box>
-                )}
+                <Button
+                  variant="text"
+                  fullWidth
+                  onClick={() => {
+                    setView('login');
+                  }}
+                  sx={{ textTransform: 'none', fontWeight: 600, color: 'text.secondary' }}
+                >
+                  Cancel and return to login
+                </Button>
               </>
             )}
           </Stack>
@@ -970,101 +821,7 @@ function PublicAuthPage() {
   );
 }
 
-function CoursePreviewArtwork({ variant }: { variant: number }) {
-  const normalizedVariant = variant % 3;
-
-  if (normalizedVariant === 0) {
-    const codeRows = [
-      { width: '72%', color: '#60A5FA' },
-      { width: '44%', color: '#A78BFA' },
-      { width: '64%', color: '#34D399' },
-      { width: '52%', color: '#FBBF24' },
-      { width: '78%', color: '#60A5FA' },
-      { width: '38%', color: '#F472B6' },
-    ];
-
-    return (
-      <Box sx={{ height: 120, bgcolor: '#101827', p: 1.15, display: 'flex', flexDirection: 'column', gap: 0.9 }}>
-        <Box sx={{ display: 'flex', gap: 0.45 }}>
-          {['#EF4444', '#F59E0B', '#22C55E'].map((color) => (
-            <Box key={color} sx={{ width: 5, height: 5, borderRadius: '50%', bgcolor: color }} />
-          ))}
-        </Box>
-        <Box sx={{ display: 'grid', gridTemplateColumns: '22px 1fr', gap: 0.9, alignItems: 'start' }}>
-          <Stack spacing={0.58}>
-            {[1, 2, 3, 4, 5, 6].map((line) => (
-              <Typography key={line} sx={{ color: '#64748B', fontSize: '0.46rem', lineHeight: 1 }}>
-                {line}
-              </Typography>
-            ))}
-          </Stack>
-          <Stack spacing={0.62}>
-            {codeRows.map((row, index) => (
-              <Box key={`${row.width}-${index}`} sx={{ display: 'flex', gap: 0.55, alignItems: 'center' }}>
-                <Box sx={{ width: index % 2 === 0 ? 18 : 10, height: 5, borderRadius: 0.7, bgcolor: alpha(row.color, 0.75) }} />
-                <Box sx={{ width: row.width, height: 5, borderRadius: 0.7, bgcolor: alpha('#CBD5E1', 0.18) }} />
-              </Box>
-            ))}
-          </Stack>
-        </Box>
-      </Box>
-    );
-  }
-
-  if (normalizedVariant === 1) {
-    const bars = [26, 40, 55, 68, 82];
-
-    return (
-      <Box sx={{ height: 120, bgcolor: '#F8FBFF', p: 1.25, position: 'relative', overflow: 'hidden' }}>
-        <Box sx={{ position: 'absolute', inset: 12, borderLeft: '1px solid #D8E2F1', borderBottom: '1px solid #D8E2F1' }} />
-        <Box
-          component="svg"
-          viewBox="0 0 180 82"
-          preserveAspectRatio="none"
-          sx={{ position: 'absolute', left: 22, right: 14, bottom: 24, width: 'calc(100% - 36px)', height: 70 }}
-        >
-          <polyline fill="none" stroke="#F59E0B" strokeWidth="3" points="0,70 36,56 72,43 108,25 144,15 180,6" />
-        </Box>
-        <Box sx={{ position: 'absolute', left: 28, right: 22, bottom: 17, display: 'flex', alignItems: 'end', justifyContent: 'space-between' }}>
-          {bars.map((height, index) => (
-            <Box
-              key={height}
-              sx={{
-                width: 14,
-                height,
-                borderRadius: '4px 4px 0 0',
-                bgcolor: index % 2 === 0 ? '#38BDF8' : '#6366F1',
-                boxShadow: `0 0 0 4px ${alpha(index % 2 === 0 ? '#38BDF8' : '#6366F1', 0.12)}`,
-              }}
-            />
-          ))}
-        </Box>
-        <Typography sx={{ position: 'absolute', top: 11, left: 14, color: '#334155', fontWeight: 800, fontSize: '0.5rem' }}>
-          Growth Analytics
-        </Typography>
-      </Box>
-    );
-  }
-
-  return (
-    <Box sx={{ height: 120, bgcolor: '#F8FBFF', position: 'relative', overflow: 'hidden' }}>
-      <Box sx={{ position: 'absolute', inset: '14px 18px 18px', bgcolor: '#FFFFFF', border: '1px solid #DCE6F4', borderRadius: 1 }} />
-      <Box sx={{ position: 'absolute', top: 26, left: 34, width: 66, height: 42, borderRadius: 0.8, bgcolor: '#EEF2FF', border: '1px solid #C7D2FE' }}>
-        <Box sx={{ position: 'absolute', left: 8, right: 8, top: 9, height: 4, borderRadius: 1, bgcolor: '#6366F1' }} />
-        <Box sx={{ position: 'absolute', left: 8, width: 34, top: 20, height: 4, borderRadius: 1, bgcolor: '#93C5FD' }} />
-        <Box sx={{ position: 'absolute', left: 8, width: 44, top: 31, height: 4, borderRadius: 1, bgcolor: '#F9A8D4' }} />
-      </Box>
-      <Box sx={{ position: 'absolute', top: 29, right: 34, width: 42, height: 42, borderRadius: '50%', bgcolor: '#FDE68A' }} />
-      {[38, 62, 88, 118].map((left, index) => (
-        <Box key={left} sx={{ position: 'absolute', left, bottom: 25, width: 16, height: 27 }}>
-          <Box sx={{ width: 10, height: 10, mx: 'auto', borderRadius: '50%', bgcolor: index % 2 === 0 ? '#F59E0B' : '#64748B' }} />
-          <Box sx={{ mt: 0.35, height: 16, borderRadius: '8px 8px 3px 3px', bgcolor: index % 2 === 0 ? '#6366F1' : '#38BDF8' }} />
-        </Box>
-      ))}
-      <Box sx={{ position: 'absolute', left: 28, right: 28, bottom: 17, height: 5, borderRadius: 999, bgcolor: '#CBD5E1' }} />
-    </Box>
-  );
-}
+// CoursePreviewArtwork is now imported from components/ui/CoursePreviewArtwork
 
 function MarketingHomepagePage() {
   const { data: apiCourses = [], isLoading: coursesLoading } = useGetCoursesQuery();
