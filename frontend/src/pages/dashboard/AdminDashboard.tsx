@@ -77,7 +77,11 @@ type RevenueResponse = {
   monthlyRevenue?: Array<{ month: string; revenue: number }>;
 };
 
-export default function AdminDashboard() {
+interface AdminDashboardProps {
+  showAccessDenied?: boolean;
+}
+
+export default function AdminDashboard({ showAccessDenied }: AdminDashboardProps) {
   const [activeTab, setActiveTab] = useState<'overview' | 'approvals'>('overview');
   const [createCourseOpen, setCreateCourseOpen] = useState(false);
 
@@ -127,6 +131,11 @@ export default function AdminDashboard() {
 
   return (
     <Box sx={{ minHeight: '100%', bgcolor: 'background.default' }}>
+      {showAccessDenied && (
+        <Alert severity="error" sx={{ m: 2, borderRadius: 1.5 }}>
+          You do not have permission to access this page
+        </Alert>
+      )}
       <DashboardPageFrame
         eyebrow="Admin workspace"
         title="Dashboard"

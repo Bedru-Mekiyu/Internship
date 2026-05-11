@@ -75,6 +75,7 @@ const baseQueryWithRefresh: BaseQueryFn<string | FetchArgs, unknown, FetchBaseQu
   }
 
   api.dispatch(clearUser());
+  window.location.href = '/auth/login?expired=true';
   return result;
 };
 
