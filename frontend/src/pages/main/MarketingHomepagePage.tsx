@@ -7,7 +7,6 @@ import {
   CardContent,
   Container,
   Grid,
-  Link,
   Stack,
   Typography,
 } from '@mui/material';
@@ -83,22 +82,18 @@ function formatCurrency(amount: number): string {
 }
 
 function CourseCard({
-  id,
   title,
   instructor,
   rating,
   students,
-  price,
   category,
   image,
   variant,
 }: {
-  id: string;
   title: string;
   instructor: string;
   rating: string;
   students: number;
-  price: string;
   category: string;
   image: string;
   variant: number;

@@ -123,7 +123,6 @@ export default function QuizTaker() {
     }, 1000);
 
     return () => window.clearInterval(timer);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
