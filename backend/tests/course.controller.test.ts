@@ -49,7 +49,7 @@ const { Module } = jest.requireMock('../src/models/Module.model') as {
 const mockCourseFind = Course.find as jest.Mock;
 const mockCountDocuments = Course.countDocuments;
 const mockCourseFindById = Course.findById as jest.Mock;
-const mockCourseFindOne = Course.findOne as jest.Mock;
+const _mockCourseFindOne = Course.findOne as jest.Mock;
 const mockEnrollmentExists = Enrollment.exists as unknown as jest.Mock;
 const mockModuleFind = Module.find as unknown as jest.Mock;
 
