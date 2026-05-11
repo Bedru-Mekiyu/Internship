@@ -183,7 +183,7 @@ export default function CoursePlayer() {
         return parsed.lessonId;
       }
     } catch {
-      return storedResumeValue;
+      return '';
     }
 
     return '';

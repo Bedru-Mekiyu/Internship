@@ -1,7 +1,6 @@
 import { lazy, Suspense, useEffect } from 'react';
 import {
   BrowserRouter,
-  Link as RouterLink,
   Navigate,
   Outlet,
   Route,
