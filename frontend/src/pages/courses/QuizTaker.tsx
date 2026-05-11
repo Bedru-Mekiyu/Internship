@@ -49,9 +49,9 @@ export default function QuizTaker() {
   const [selectedAnswers, setSelectedAnswers] = useState<Record<number, number | null>>({});
   const [reviewFlags, setReviewFlags] = useState<Record<number, boolean>>({});
   const [visitedQuestions, setVisitedQuestions] = useState<Record<number, boolean>>({ 0: true });
-  const [remainingSeconds, setRemainingSeconds] = useState(24 * 60 + 15);
   const [submitStatus, setSubmitStatus] = useState<{ type: 'success' | 'warning'; message: string } | null>(null);
   const autoSubmitTriggeredRef = useRef(false);
+  const prevQuizIdRef = useRef<string | undefined>(undefined);
 
   const { data: course } = useGetCourseByIdQuery(courseId ?? '', { skip: !courseId });
   const {
@@ -91,17 +91,24 @@ export default function QuizTaker() {
     return (activeQuiz.questions || []).reduce((sum, item) => sum + Number(item.points || 1), 0);
   }, [activeQuiz]);
 
-  useEffect(() => {
-    if (!activeQuiz) {
-      setRemainingSeconds(24 * 60 + 15);
-      return;
-    }
-
+  const initialTimeRemaining = useMemo(() => {
+    if (!activeQuiz) return 24 * 60 + 15;
     const configuredMinutes = Number(activeQuiz.timeLimit || 25);
-    setRemainingSeconds(Math.max(60, configuredMinutes * 60));
+    return Math.max(60, configuredMinutes * 60);
   }, [activeQuiz]);
 
+  const [remainingSeconds, setRemainingSeconds] = useState(initialTimeRemaining);
+
   useEffect(() => {
+    setRemainingSeconds(initialTimeRemaining);
+  }, [initialTimeRemaining, setRemainingSeconds]);
+
+  useEffect(() => {
+    if (prevQuizIdRef.current === activeQuiz?._id) {
+      return;
+    }
+    prevQuizIdRef.current = activeQuiz?._id;
+
     setCurrentQuestionIndex(0);
     setSelectedAnswers({});
     setReviewFlags({});
@@ -116,6 +123,7 @@ export default function QuizTaker() {
     }, 1000);
 
     return () => window.clearInterval(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -145,16 +153,12 @@ export default function QuizTaker() {
       });
   }, [activeQuiz?._id, quizQuestions, remainingSeconds, selectedAnswers, submitAttempt]);
 
-  useEffect(() => {
-    if (quizQuestions.length === 0) {
-      setCurrentQuestionIndex(0);
-      return;
-    }
+  const safeQuestionIndex = useMemo(() => {
+    if (quizQuestions.length === 0) return 0;
+    return Math.min(currentQuestionIndex, quizQuestions.length - 1);
+  }, [currentQuestionIndex, quizQuestions.length]);
 
-    setCurrentQuestionIndex((currentIndex) => Math.min(currentIndex, quizQuestions.length - 1));
-  }, [quizQuestions.length]);
-
-  const currentQuestion = quizQuestions[currentQuestionIndex];
+  const currentQuestion = quizQuestions[safeQuestionIndex];
   const latestAttempt = attempts[0];
   const answeredCount = useMemo(
     () => Object.values(selectedAnswers).filter((value) => typeof value === 'number').length,
@@ -163,7 +167,7 @@ export default function QuizTaker() {
 
   const questionStatuses = useMemo(() => {
     return quizQuestions.map((_, index) => {
-      if (index === currentQuestionIndex) {
+      if (index === safeQuestionIndex) {
         return 'current' as QuestionStatus;
       }
       if (reviewFlags[index]) {
@@ -177,7 +181,7 @@ export default function QuizTaker() {
       }
       return 'not-visited' as QuestionStatus;
     });
-  }, [currentQuestionIndex, quizQuestions, reviewFlags, selectedAnswers, visitedQuestions]);
+  }, [safeQuestionIndex, quizQuestions, reviewFlags, selectedAnswers, visitedQuestions]);
 
   const goToQuestion = (index: number) => {
     setCurrentQuestionIndex(index);
@@ -342,10 +346,10 @@ export default function QuizTaker() {
                     startIcon={<BookmarkBorderOutlined />}
                     disabled={!currentQuestion}
                     onClick={() => {
-                      if (typeof currentQuestionIndex !== 'number') return;
+                      if (typeof safeQuestionIndex !== 'number') return;
                       setReviewFlags((current) => ({
                         ...current,
-                        [currentQuestionIndex]: !current[currentQuestionIndex],
+                        [safeQuestionIndex]: !current[safeQuestionIndex],
                       }));
                     }}
                     sx={{ borderColor: '#D5DBE7' }}
@@ -362,7 +366,7 @@ export default function QuizTaker() {
 
                     <Stack spacing={1.15}>
                       {currentQuestion.options.map((option, optionIndex) => {
-                        const selected = selectedAnswers[currentQuestionIndex] === optionIndex;
+                        const selected = selectedAnswers[safeQuestionIndex] === optionIndex;
 
                         return (
                           <Box
@@ -372,9 +376,9 @@ export default function QuizTaker() {
                             onClick={() => {
                               setSelectedAnswers((currentAnswers) => ({
                                 ...currentAnswers,
-                                [currentQuestionIndex]: optionIndex,
+                                [safeQuestionIndex]: optionIndex,
                               }));
-                              setVisitedQuestions((current) => ({ ...current, [currentQuestionIndex]: true }));
+                              setVisitedQuestions((current) => ({ ...current, [safeQuestionIndex]: true }));
                             }}
                             aria-pressed={selected}
                             sx={{
@@ -414,7 +418,7 @@ export default function QuizTaker() {
                   <Button
                     variant="outlined"
                     onClick={handlePrevious}
-                    disabled={currentQuestionIndex === 0}
+                    disabled={safeQuestionIndex === 0}
                     startIcon={<ArrowBackOutlined />}
                     sx={{ borderColor: '#D5DBE7', color: 'text.primary' }}
                   >
@@ -424,7 +428,7 @@ export default function QuizTaker() {
                     variant="contained"
                     onClick={handleNext}
                     endIcon={<ArrowForwardOutlined />}
-                    disabled={currentQuestionIndex >= quizQuestions.length - 1}
+                    disabled={safeQuestionIndex >= quizQuestions.length - 1}
                   >
                     Next Question
                   </Button>
