@@ -224,6 +224,11 @@ export class AuthService {
   }
 
   static async resetPassword(token: string, newPassword: string) {
+    const PASSWORD_POLICY_REGEX = /^(?=.{8,128}$)(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])/;
+    if (typeof newPassword !== 'string' || !PASSWORD_POLICY_REGEX.test(newPassword)) {
+      throw new AppError('Password must be 8+ characters with uppercase, lowercase, number, and special character.', 400);
+    }
+
     const resetSecret = requireEnv('JWT_RESET_SECRET');
     const decoded = jwt.verify(token, resetSecret, { algorithms: ['HS256'] }) as { userId: string; type?: string };
 
