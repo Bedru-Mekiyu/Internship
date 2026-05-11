@@ -217,6 +217,17 @@ const startServer = async () => {
     const messageRates = new Map<string, { count: number; resetTime: number }>();
     const RATE_LIMIT_WINDOW_MS = 10000;
     const RATE_LIMIT_MAX_MESSAGES = 30;
+    const RATE_LIMIT_CLEANUP_MS = 60000;
+
+    const cleanupRateLimits = () => {
+      const now = Date.now();
+      for (const [socketId, data] of messageRates) {
+        if (now > data.resetTime) {
+          messageRates.delete(socketId);
+        }
+      }
+    };
+    setInterval(cleanupRateLimits, RATE_LIMIT_CLEANUP_MS);
 
     io.on('connection', (socket) => {
       const socketId = socket.id;

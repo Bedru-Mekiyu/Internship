@@ -226,6 +226,16 @@ export const getInstructorDashboard = asyncHandler(async (req: Request, res: Res
     ? Number((courses.reduce((sum, course: any) => sum + (course.rating?.average || 0), 0) / courses.length).toFixed(2))
     : 0;
 
+  const Payment = (await import('../models/Payment.model')).Payment;
+  const payments = await Payment.find({ courseId: { $in: courseIds }, status: 'completed' }).lean();
+  const courseRevenueMap: Record<string, number> = {};
+  payments.forEach((p: any) => {
+    const cid = p.courseId?.toString();
+    if (cid) {
+      courseRevenueMap[cid] = (courseRevenueMap[cid] || 0) + Number(p.amount || 0);
+    }
+  });
+
   const courseIdsStrings = courseIds.map(id => id.toString());
 
   const [recentEnrollments, engagementMetrics] = await Promise.all([
@@ -243,6 +253,7 @@ export const getInstructorDashboard = asyncHandler(async (req: Request, res: Res
       title: c.title,
       enrollmentCount: c.enrollmentCount || 0,
       rating: c.rating,
+      revenue: courseRevenueMap[c._id.toString()] || 0,
     })),
     recentEnrollments,
     engagementMetrics,

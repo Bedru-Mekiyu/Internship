@@ -141,7 +141,7 @@ export default function InstructorDashboard({ showAccessDenied }: InstructorDash
       .map((course, index) => ({
         title: course.title,
         rating: course.rating?.average || 0,
-        revenue: `$${Math.round((course.enrollmentCount || 0) * 29.99).toLocaleString()}`,
+        revenue: `$${Math.round((course.revenue || 0)).toLocaleString()}`,
         students: course.enrollmentCount || 0,
         accent: [ACCENT_COLORS.blue, ACCENT_COLORS.indigo, ACCENT_COLORS.green, ACCENT_COLORS.amber][index % 4],
       }));

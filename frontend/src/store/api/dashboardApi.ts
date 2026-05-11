@@ -45,6 +45,7 @@ export interface InstructorDashboardResponse {
     title: string;
     enrollmentCount: number;
     rating?: { average: number };
+    revenue?: number;
   }>;
   recentEnrollments: Array<{
     enrollmentId: string;
