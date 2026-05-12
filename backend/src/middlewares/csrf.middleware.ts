@@ -25,9 +25,10 @@ const csrfCookieName = 'csrfToken';
 
 const getCsrfCookieOptions = () => {
   const isProduction = process.env.NODE_ENV === 'production';
+  const defaultSameSite = isProduction ? 'strict' : 'lax';
   const csrfCookieSameSite = parseSameSite(
     process.env.CSRF_COOKIE_SAME_SITE || process.env.COOKIE_SAME_SITE,
-    'lax',
+    defaultSameSite,
   );
   const csrfCookieSecure = csrfCookieSameSite === 'none'
     ? true

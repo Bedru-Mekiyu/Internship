@@ -336,19 +336,23 @@ export const getMyCertificates = asyncHandler(async (req: Request, res: Response
 export const verifyCertificate = asyncHandler(async (req: Request, res: Response) => {
   const certificateId = routeParam(req.params.certificateId);
   const certificate = await Certificate.findById(certificateId)
-    .populate('courseId', 'title slug category')
-    .populate('userId', 'firstName lastName');
+    .populate('courseId', 'title slug category');
 
   if (!certificate) {
     throw new AppError('Certificate not found', 404);
   }
 
+  const populatedCourse = certificate.courseId as { title?: string; slug?: string; category?: string } | null;
+
   return res.json({
     _id: certificate._id,
     certificateNumber: certificate.certificateNumber,
     issuedAt: certificate.issuedAt,
-    course: certificate.courseId,
-    learner: certificate.userId,
+    course: populatedCourse ? {
+      title: populatedCourse.title,
+      slug: populatedCourse.slug,
+      category: populatedCourse.category,
+    } : null,
   });
 });
 

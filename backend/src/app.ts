@@ -43,6 +43,49 @@ import { userHasCourseDiscussionAccess } from './utils/course-membership';
 
 dotenv.config({ quiet: true });
 
+const validateProductionSecrets = () => {
+  if (process.env.NODE_ENV !== 'production') {
+    return;
+  }
+
+  const weakPatterns = [
+    /^dev-/i,
+    /change.*before.*production/i,
+    /-00[0-9]$/,
+    /replace_with_/i,
+    /^change_me/i,
+    /^your_secret$/i,
+  ];
+
+  const criticalSecrets = [
+    'JWT_ACCESS_SECRET',
+    'JWT_REFRESH_SECRET',
+    'JWT_VERIFY_SECRET',
+    'JWT_RESET_SECRET',
+    'PAYMENT_WEBHOOK_SECRET',
+  ];
+
+  for (const name of criticalSecrets) {
+    const value = process.env[name] || '';
+
+    if (value.trim().length < 32) {
+      throw new Error(
+        `FATAL: Environment variable ${name} must be at least 32 characters long in production.`
+      );
+    }
+
+    for (const pattern of weakPatterns) {
+      if (pattern.test(value)) {
+        throw new Error(
+          `FATAL: Environment variable ${name} appears to be a weak or placeholder secret. Production requires strong, unique secrets (32+ characters with no predictable patterns).`
+        );
+      }
+    }
+  }
+};
+
+validateProductionSecrets();
+
 const normalizeOrigin = (value: string) => {
   const trimmed = value.trim().replace(/\/$/, '');
   try {

@@ -13,6 +13,7 @@ import { requireEnv } from '../utils/env';
 import { routeParam } from '../utils/route-params';
 import { safeRegexFragment } from '../utils/safe-regex';
 import { logWarn } from '../utils/logger';
+import { validateMagicBytes } from '../middlewares/upload.middleware';
 
 const buildS3Client = () => new S3Client({
   region: requireEnv('AWS_REGION'),
@@ -144,6 +145,16 @@ export const uploadMeAvatar = asyncHandler(async (req: Request, res: Response) =
     }));
 
     avatarUrl = `https://${bucket}.s3.${requireEnv('AWS_REGION')}.amazonaws.com/${objectKey}`;
+  } else {
+    const filePath = path.resolve(process.cwd(), 'uploads', file.filename);
+    if (!validateMagicBytes(filePath, file.mimetype)) {
+      try {
+        await fs.promises.unlink(filePath);
+      } catch {
+        // ignore cleanup errors
+      }
+      throw new AppError('Avatar content does not match declared image type', 400);
+    }
   }
 
   if (oldAvatar) {

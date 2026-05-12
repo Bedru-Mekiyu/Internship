@@ -266,9 +266,11 @@ export const settingsUpdateSchema = Joi.object({
   contactPhone: Joi.string().trim().allow('').max(64).optional(),
   contactAddress: Joi.string().trim().allow('').max(200).optional(),
   contactHours: Joi.string().trim().allow('').max(120).optional(),
-  contactMapUrl: Joi.string().uri().allow('').optional(),
+  contactMapUrl: Joi.string().uri({ scheme: ['http', 'https'] }).pattern(/^https?:\/\/(maps\.google\.com|google\.com\/maps|bing\.com\/maps|www\.openstreetmap\.org)/).allow('').optional().messages({
+    'string.pattern.base': 'Map URL must be from maps.google.com, google.com/maps, bing.com/maps, or openstreetmap.org',
+  }),
   contactResponseTime: Joi.string().trim().allow('').max(120).optional(),
-  logoUrl: Joi.string().uri().allow('').optional(),
+  logoUrl: Joi.string().uri({ scheme: ['http', 'https'] }).allow('').optional(),
   language: Joi.string().trim().max(24).optional(),
   timezone: Joi.string().trim().max(64).optional(),
   themeMode: Joi.string().valid('light', 'dark', 'system').optional(),
