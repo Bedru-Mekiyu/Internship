@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 import { Box, Button, Card, CardContent, Stack, Typography } from '@mui/material';
 import { Link as RouterLink } from 'react-router-dom';
-import { card, SPACING } from '../../pages/dashboard/dashboardTokens';
+import { card, SPACING } from '../../theme/tokens';
 
 type DashboardPageFrameProps = {
   title: string;

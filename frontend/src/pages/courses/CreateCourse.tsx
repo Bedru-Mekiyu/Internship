@@ -21,7 +21,7 @@ import {
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { api, ensureCsrfToken, normalizeApiError } from '../../services/api';
-import { SPACING } from '../dashboard/dashboardTokens';
+import { SPACING } from '../../theme/tokens';
 import DashboardPageFrame, { DashboardSection } from '../../components/common/DashboardPageFrame';
 import { useAuth } from '../../context/AuthContext';
 
