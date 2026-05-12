@@ -42,7 +42,7 @@ import {
   sectionHeader,
   SPACING,
   statCard,
-} from './dashboardTokens';
+} from '../../theme/tokens';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 

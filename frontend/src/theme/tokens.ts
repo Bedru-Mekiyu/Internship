@@ -1,16 +1,41 @@
-/**
- * tokens.ts — Single source of truth for visual design tokens
- * ─────────────────────────────────────────────────────────────────────────────
- * Merges DS (designSystem.ts) and dashboardTokens into one coherent contract.
- * All frontend components should import from here. No more hardcoded hex values.
- *
- * COLOR MAPPING:
- *   DS.colors.*  → base palette
- *   theme.ts     → MUI palette (primary.main = #4F46E5, etc.)
- *
- * RULE: When in doubt, use theme tokens (theme.palette.*) in components.
- *        Use tokens.ts for spacing, radius, typography, and brand colors.
- */
+export const RADIUS = {
+  xs: 0.35,
+  sm: 0.55,
+  md: 0.75,
+  lg: 1,
+  xl: 1.5,
+  xxl: 2,
+  full: 9999,
+} as const;
+
+export const SPACING = {
+  xs: 0.5,
+  sm: 1,
+  md: 1.5,
+  lg: 2,
+  xl: 3,
+} as const;
+
+export const TYPOGRAPHY = {
+  sizes: {
+    xs: '0.75rem',
+    sm: '0.875rem',
+    base: '1rem',
+    md: '1.125rem',
+    lg: '1.25rem',
+    xl: '1.5rem',
+    '2xl': '1.875rem',
+    '3xl': '2.25rem',
+  },
+  weights: {
+    normal: 400,
+    medium: 500,
+    semibold: 600,
+    bold: 700,
+    extrabold: 800,
+    black: 900,
+  },
+} as const;
 
 export const COLORS = {
   primary: '#4F46E5',

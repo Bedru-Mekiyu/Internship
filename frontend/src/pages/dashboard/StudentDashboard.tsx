@@ -35,7 +35,7 @@ import {
   statCard,
   ACCENT_COLORS,
   sectionHeader,
-} from './dashboardTokens';
+} from '../../theme/tokens';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
