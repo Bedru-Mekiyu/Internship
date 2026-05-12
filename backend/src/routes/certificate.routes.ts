@@ -25,7 +25,13 @@ const certificateGenerateRateLimit = createRateLimiter({
   },
 });
 
-router.get('/verify/:certificateId', verifyCertificate);
+const verifyRateLimit = createRateLimiter({
+  windowMs: 15 * 60 * 1000,
+  max: 30,
+  message: 'Too many verification attempts. Please try again later.',
+});
+
+router.get('/verify/:certificateId', verifyRateLimit, verifyCertificate);
 router.get('/me', authMiddleware, roleMiddleware(['student']), getMyCertificates);
 router.post(
   '/course/:courseId/generate',

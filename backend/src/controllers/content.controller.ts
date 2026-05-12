@@ -11,6 +11,7 @@ import { AppError } from '../utils/http-error';
 import { requireEnv } from '../utils/env';
 import { routeParam } from '../utils/route-params';
 import { safeRegexFragment } from '../utils/safe-regex';
+import { validateMagicBytes } from '../middlewares/upload.middleware';
 
 const contentSlugPattern = /^[a-z0-9][a-z0-9-]{0,180}$/i;
 
@@ -136,6 +137,16 @@ export const uploadMedia = asyncHandler(async (req: Request, res: Response) => {
     }));
 
     fileUrl = `https://${bucket}.s3.${requireEnv('AWS_REGION')}.amazonaws.com/${fileName}`;
+  } else {
+    const filePath = path.resolve(process.cwd(), 'uploads', file.filename);
+    if (!validateMagicBytes(filePath, file.mimetype)) {
+      try {
+        await rm(filePath, { force: true });
+      } catch {
+        // ignore cleanup errors
+      }
+      throw new AppError('File content does not match declared type', 400);
+    }
   }
 
   const media = new Media({

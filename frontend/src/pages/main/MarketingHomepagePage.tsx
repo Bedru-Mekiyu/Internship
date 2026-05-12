@@ -224,9 +224,7 @@ export default function MarketingHomepagePage() {
           <Grid container spacing={{ xs: 3, md: 5 }} sx={{ alignItems: 'center' }}>
             <Grid size={{ xs: 12, lg: 6 }}>
               <Stack spacing={1.5}>
-                <Typography variant="overline" sx={{ color: 'primary.main', fontWeight: 700, letterSpacing: 0, fontSize: '0.66rem', textTransform: 'none', width: 'fit-content', px: 1.05, py: 0.25, borderRadius: 1.1, bgcolor: alpha(theme.palette.primary.main, 0.1) }}>
-                  New: AI Course Generator
-                </Typography>
+              
                 <Typography variant="h2" sx={{ fontWeight: 800, color: 'text.primary', letterSpacing: 0, fontSize: { xs: '2rem', md: '2.8rem' }, lineHeight: 1.05 }}>
                   Unlock Potential with Modern Learning
                 </Typography>
