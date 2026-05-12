@@ -86,7 +86,9 @@ describe('userHasCourseDiscussionAccess', () => {
 
   it('rejects when course lookup fails', async () => {
     (Course.findById as jest.Mock).mockReturnValue({
-      select: jest.fn().mockRejectedValue(new Error('db error')),
+      select: jest.fn().mockImplementation(async () => {
+        throw new Error('db error');
+      }),
     });
 
     await expect(userHasCourseDiscussionAccess(learner, 'course-1')).rejects.toThrow('db error');
@@ -97,7 +99,9 @@ describe('userHasCourseDiscussionAccess', () => {
     (Course.findById as jest.Mock).mockReturnValue({
       select: jest.fn().mockImplementation(async () => ({ instructor: { toString: () => 'teacher-1' } })),
     });
-    (Enrollment.findOne as jest.Mock).mockRejectedValue(new Error('enrollment error'));
+    (Enrollment.findOne as jest.Mock).mockImplementation(async () => {
+      throw new Error('enrollment error');
+    });
 
     await expect(userHasCourseDiscussionAccess(learner, 'course-1')).rejects.toThrow('enrollment error');
   });
