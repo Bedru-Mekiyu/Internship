@@ -10,7 +10,9 @@ import {
 } from 'react-router-dom';
 import {
   Box,
+  createTheme,
   Stack,
+  ThemeProvider,
   Typography,
 } from '@mui/material';
 import { useQueryClient } from '@tanstack/react-query';
@@ -262,12 +264,15 @@ function ResetPasswordRedirect() {
 }
 
 function App() {
+  const theme = createTheme({});
   return (
-    <BrowserRouter>
-      <AuthProvider>
-        <AppRoutes />
-      </AuthProvider>
-    </BrowserRouter>
+    <ThemeProvider theme={theme}>
+      <BrowserRouter>
+        <AuthProvider>
+          <AppRoutes />
+        </AuthProvider>
+      </BrowserRouter>
+    </ThemeProvider>
   );
 }
 
