@@ -185,10 +185,10 @@ export default function AdminCourseManager() {
                       </TableCell>
                       <TableCell align="right">
                         <Stack direction="row" spacing={1} sx={{ justifyContent: 'flex-end' }}>
-                          <IconButton size="small" onClick={() => handleEdit(course._id)} sx={{ color: 'text.secondary' }}>
+                          <IconButton size="small" onClick={() => handleEdit(course._id)} sx={{ color: 'text.secondary' }} aria-label={`Edit ${course.title}`}>
                             <EditOutlined fontSize="small" />
                           </IconButton>
-                          <IconButton size="small" onClick={() => handleDelete(course._id)} sx={{ color: 'error.main' }}>
+                          <IconButton size="small" onClick={() => handleDelete(course._id)} sx={{ color: 'error.main' }} aria-label={`Delete ${course.title}`}>
                             <DeleteOutlined fontSize="small" />
                           </IconButton>
                         </Stack>

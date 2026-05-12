@@ -25,7 +25,6 @@ import {
 import { Link as RouterLink } from 'react-router-dom';
 import { api } from '../../services/api';
 import { useGetCoursesQuery } from '../../store/api/courseApi';
-import { theme } from '../../theme';
 import heroImage from '../../assets/hero-laptop-open.png';
 import { CoursePreviewArtwork } from '../../components/ui/CoursePreviewArtwork';
 
@@ -99,14 +98,15 @@ function CourseCard({
   variant: number;
 }) {
   return (
-    <Card sx={{ height: '100%', overflow: 'hidden', bgcolor: '#FFFFFF', borderColor: '#DCE3EE' }}>
+    <Card sx={{ height: '100%', overflow: 'hidden', bgcolor: 'background.paper', borderColor: 'divider' }}>
       {image ? (
         <Box
           sx={{
             height: 120,
-            backgroundImage: `linear-gradient(180deg, rgba(15,23,42,0.05), rgba(15,23,42,0.16)), url(${image})`,
             backgroundSize: 'cover',
             backgroundPosition: 'center',
+            backgroundColor: 'action.hover',
+            backgroundImage: image ? `url(${image})` : 'none',
           }}
         />
       ) : (
@@ -114,24 +114,24 @@ function CourseCard({
       )}
       <CardContent sx={{ p: 1.05 }}>
         <Stack spacing={0.75}>
-          <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 700, fontSize: '0.58rem' }}>
+          <Typography variant="caption" sx={{ color: 'text.secondary', fontWeight: 700, fontSize: '0.58rem' }}>
             {category}
           </Typography>
           <Typography variant="subtitle1" sx={{ fontWeight: 700, lineHeight: 1.3, fontSize: '0.72rem', minHeight: 34 }}>
             {title}
           </Typography>
-          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', pt: 0.45, borderTop: '1px solid #EEF2F7' }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', pt: 0.45, borderTop: '1px solid', borderColor: 'divider' }}>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.6 }}>
-              <Box sx={{ width: 12, height: 12, borderRadius: '50%', bgcolor: '#C7D2FE', display: 'grid', placeItems: 'center', fontSize: '0.45rem', color: '#3730A3', fontWeight: 700 }}>
+              <Box sx={{ width: 12, height: 12, borderRadius: '50%', bgcolor: 'primary.light', display: 'grid', placeItems: 'center', fontSize: '0.45rem', color: 'primary.dark', fontWeight: 700 }}>
                 {instructor.charAt(0).toUpperCase()}
               </Box>
-              <Typography variant="body2" sx={{ color: '#64748B', fontSize: '0.56rem' }}>
+              <Typography variant="body2" sx={{ color: 'text.secondary', fontSize: '0.56rem' }}>
                 {instructor}
               </Typography>
             </Box>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.25, color: '#64748B' }}>
-              <StarRounded sx={{ fontSize: '0.68rem', color: '#F59E0B' }} />
-              <Typography variant="body2" sx={{ color: '#64748B', fontWeight: 700, fontSize: '0.54rem' }}>
+              <StarRounded sx={{ fontSize: '0.68rem', color: 'warning.main' }} />
+              <Typography variant="body2" sx={{ color: 'text.secondary', fontWeight: 700, fontSize: '0.54rem' }}>
                 {rating} / {Math.max(students, 120)}+
               </Typography>
             </Box>
@@ -224,7 +224,7 @@ export default function MarketingHomepagePage() {
           <Grid container spacing={{ xs: 3, md: 5 }} sx={{ alignItems: 'center' }}>
             <Grid size={{ xs: 12, lg: 6 }}>
               <Stack spacing={1.5}>
-              
+
                 <Typography variant="h2" sx={{ fontWeight: 800, color: 'text.primary', letterSpacing: 0, fontSize: { xs: '2rem', md: '2.8rem' }, lineHeight: 1.05 }}>
                   Unlock Potential with Modern Learning
                 </Typography>
@@ -240,30 +240,30 @@ export default function MarketingHomepagePage() {
                     to="/courses/explore"
                     variant="outlined"
                     startIcon={<PlayCircleOutlined sx={{ fontSize: '0.95rem' }} />}
-                    sx={{ px: 2, py: 0.7, fontSize: '0.78rem', color: 'text.primary', borderColor: 'divider', bgcolor: 'background.paper', '&:hover': { borderColor: 'divider', bgcolor: 'action.hover' } }}
+                    sx={{ px: 2, py: 0.7, fontSize: '0.78rem', color: 'text.primary', borderColor: 'divider', bgcolor: 'background.paper', '&:hover': { borderColor: 'primary.main', bgcolor: 'action.hover' } }}
                   >
                     Watch Demo
                   </Button>
                 </Box>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.2, pt: 0.3 }}>
                   <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                    {[{ color: '#A16207', text: 'A' }, { color: '#92400E', text: 'B' }, { color: '#64748B', text: 'C' }].map((item, index) => (
+                    {[{ color: 'warning.dark', text: 'A' }, { color: 'warning.main', text: 'B' }, { color: 'text.secondary', text: 'C' }].map((item, index) => (
                       <Box
                         key={item.text}
                         sx={{
-                          width: 23, height: 23, borderRadius: '50%', bgcolor: item.color, border: '2px solid #F2F4FA',
-                          color: '#FFFFFF', display: 'grid', placeItems: 'center', fontSize: '0.55rem', fontWeight: 700,
+                          width: 23, height: 23, borderRadius: '50%', bgcolor: item.color, border: '2px solid', borderColor: 'background.paper',
+                          color: 'warning.contrastText', display: 'grid', placeItems: 'center', fontSize: '0.55rem', fontWeight: 700,
                           ml: index === 0 ? 0 : -0.85,
                         }}
                       >
                         {item.text}
                       </Box>
                     ))}
-                    <Box sx={{ width: 23, height: 23, borderRadius: '50%', bgcolor: '#E2E8F0', border: '2px solid #F2F4FA', color: '#64748B', display: 'grid', placeItems: 'center', fontSize: '0.5rem', fontWeight: 700, ml: -0.85 }}>
+                    <Box sx={{ width: 23, height: 23, borderRadius: '50%', bgcolor: 'secondary.light', border: '2px solid', borderColor: 'background.paper', color: 'text.secondary', display: 'grid', placeItems: 'center', fontSize: '0.5rem', fontWeight: 700, ml: -0.85 }}>
                       +2k
                     </Box>
                   </Box>
-                  <Typography sx={{ fontSize: '0.74rem', color: '#6B7280', fontWeight: 500 }}>
+                  <Typography sx={{ fontSize: '0.74rem', color: 'text.secondary', fontWeight: 500 }}>
                     Trusted by 2,000+ organizations
                   </Typography>
                 </Box>
@@ -274,7 +274,7 @@ export default function MarketingHomepagePage() {
                 component="img"
                 src={heroImage}
                 alt="LearnSpace dashboard preview"
-                sx={{ width: { xs: '100%', md: '94%' }, height: 'auto', display: 'block', ml: 'auto', bgcolor: 'transparent' }}
+                sx={{ width: { xs: '100%', md: '100%' }, height: 'auto', display: 'block', ml: 'auto', bgcolor: 'transparent' }}
               />
             </Grid>
           </Grid>
@@ -298,14 +298,14 @@ export default function MarketingHomepagePage() {
       </Box>
 
       {/* Features */}
-      <Box id="features" sx={{ py: { xs: 3.8, md: 4.8 }, bgcolor: '#F6F8FE' }}>
+      <Box id="features" sx={{ py: { xs: 3.8, md: 4.8 }, bgcolor: 'background.paper' }}>
         <Container maxWidth="lg">
           <Stack spacing={2.1}>
             <Box sx={{ textAlign: 'center' }}>
               <Typography variant="h4" sx={{ mt: 0, fontWeight: 700, letterSpacing: 0, fontSize: { xs: '1.35rem', md: '1.7rem' } }}>
                 Everything you need to teach online
               </Typography>
-              <Typography sx={{ mt: 0.7, color: '#64748B', fontSize: '0.68rem' }}>
+              <Typography sx={{ mt: 0.7, color: 'text.secondary', fontSize: '0.68rem' }}>
                 From content creation to learner engagement and analytics, all in one place.
               </Typography>
             </Box>
@@ -318,13 +318,13 @@ export default function MarketingHomepagePage() {
                       <Card sx={{ height: '100%', bgcolor: 'transparent', borderColor: 'transparent' }}>
                         <CardContent sx={{ p: 1.35 }}>
                           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.68 }}>
-                            <Box sx={{ width: 22, height: 22, borderRadius: 1, bgcolor: alpha('#4F46E5', 0.1), display: 'grid', placeItems: 'center', color: '#4F46E5' }}>
+                            <Box sx={{ width: 22, height: 22, borderRadius: 1, bgcolor: alpha('primary.main', 0.1), display: 'grid', placeItems: 'center', color: 'primary.main' }}>
                               <FeatureIcon sx={{ fontSize: '0.8rem' }} />
                             </Box>
                             <Typography variant="subtitle1" sx={{ fontWeight: 700, fontSize: '0.74rem' }}>
                               {feature.title}
                             </Typography>
-                            <Typography variant="body2" sx={{ color: '#64748B', lineHeight: 1.6, fontSize: '0.62rem' }}>
+                            <Typography variant="body2" sx={{ color: 'text.secondary', lineHeight: 1.6, fontSize: '0.62rem' }}>
                               {feature.description}
                             </Typography>
                           </Box>
@@ -344,7 +344,7 @@ export default function MarketingHomepagePage() {
       </Box>
 
       {/* Courses */}
-      <Box id="courses" sx={{ py: { xs: 3.8, md: 4.6 }, bgcolor: '#EEF3FF' }}>
+      <Box id="courses" sx={{ py: { xs: 3.8, md: 4.6 }, bgcolor: 'primary.light' }}>
         <Container maxWidth="lg">
           <Stack spacing={1.5}>
             <Box sx={{ display: 'flex', alignItems: 'end', justifyContent: 'space-between', gap: 2, flexWrap: 'wrap' }}>
@@ -352,11 +352,11 @@ export default function MarketingHomepagePage() {
                 <Typography variant="h4" sx={{ mt: 0, fontWeight: 700, letterSpacing: 0, fontSize: { xs: '1.2rem', md: '1.45rem' } }}>
                   Popular Courses
                 </Typography>
-                <Typography sx={{ mt: 0.4, fontSize: '0.64rem', color: '#64748B' }}>
+                <Typography sx={{ mt: 0.4, fontSize: '0.64rem', color: 'text.secondary' }}>
                   Discover high-impact courses from top instructors.
                 </Typography>
               </Box>
-              <Button component={RouterLink} to="/courses/explore" variant="outlined" sx={{ px: 1.4, py: 0.45, borderColor: '#D7DEEA', color: '#475569', bgcolor: '#FFFFFF', fontSize: '0.58rem' }}>
+                <Button component={RouterLink} to="/courses/explore" variant="outlined" aria-label="View all available courses" sx={{ px: 1.4, py: 0.45, borderColor: 'divider', color: 'text.secondary', bgcolor: 'background.paper', fontSize: '0.58rem' }}>
                 View all courses
               </Button>
             </Box>
@@ -378,7 +378,7 @@ export default function MarketingHomepagePage() {
       </Box>
 
       {/* Testimonials */}
-      <Box id="testimonials" sx={{ py: { xs: 3.8, md: 4.8 }, bgcolor: '#F6F8FE' }}>
+      <Box id="testimonials" sx={{ py: { xs: 3.8, md: 4.8 }, bgcolor: 'background.paper' }}>
         <Container maxWidth="lg">
           <Stack spacing={1.7}>
             <Box sx={{ textAlign: 'center' }}>
@@ -389,24 +389,24 @@ export default function MarketingHomepagePage() {
             <Grid container spacing={1.2}>
               {FALLBACK_TESTIMONIALS.map((item) => (
                 <Grid key={item.name} size={{ xs: 12, md: 4 }}>
-                  <Card sx={{ height: '100%', bgcolor: '#FFFFFF', borderColor: '#DCE3EE' }}>
+                  <Card sx={{ height: '100%', bgcolor: 'background.paper', borderColor: 'divider' }}>
                     <CardContent sx={{ p: 1.1 }}>
                       <Stack spacing={0.85}>
-                        <Box component="svg" viewBox="0 0 24 24" sx={{ width: 14, height: 14, color: '#818CF8' }}>
+                        <Box component="svg" viewBox="0 0 24 24" sx={{ width: 14, height: 14, color: 'primary.light' }}>
                           <path fill="currentColor" d="M4.583 17.321C3.553 16.227 3 15 3 13.011c0-3.5 2.457-6.637 6.03-8.188l.893 1.378c-3.335 1.804-3.987 4.145-4.247 5.621.537-.278 1.24-.375 1.929-.311 1.804.167 3.226 1.648 3.226 3.489a3.5 3.5 0 01-3.5 3.5c-1.866 0-3.522-1.194-3.854-2.268zm10 0C13.553 16.227 13 15 13 13.011c0-3.5 2.457-6.637 6.03-8.188l.893 1.378c-3.335 1.804-3.987 4.145-4.247 5.621.537-.278 1.24-.375 1.929-.311 1.804.167 3.226 1.648 3.226 3.489a3.5 3.5 0 01-3.5 3.5c-1.866 0-3.522-1.194-3.854-2.268z" />
                         </Box>
-                        <Typography variant="body2" sx={{ color: '#334155', lineHeight: 1.6, fontSize: '0.63rem', minHeight: 58 }}>
+                        <Typography variant="body2" sx={{ color: 'text.primary', lineHeight: 1.6, fontSize: '0.63rem', minHeight: 58 }}>
                           {item.quote}
                         </Typography>
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}>
-                          <Box sx={{ width: 16, height: 16, borderRadius: '50%', bgcolor: '#C7D2FE', display: 'grid', placeItems: 'center', fontSize: '0.5rem', color: '#312E81', fontWeight: 700 }}>
+                          <Box sx={{ width: 16, height: 16, borderRadius: '50%', bgcolor: 'primary.light', display: 'grid', placeItems: 'center', fontSize: '0.5rem', color: 'primary.dark', fontWeight: 700 }}>
                             {item.name.charAt(0).toUpperCase()}
                           </Box>
                           <Box>
                             <Typography variant="subtitle1" sx={{ fontWeight: 700, fontSize: '0.64rem' }}>
                               {item.name}
                             </Typography>
-                            <Typography variant="body2" sx={{ color: '#64748B', fontSize: '0.58rem' }}>
+                            <Typography variant="body2" sx={{ color: 'text.secondary', fontSize: '0.58rem' }}>
                               {item.role}
                             </Typography>
                           </Box>
@@ -422,14 +422,14 @@ export default function MarketingHomepagePage() {
       </Box>
 
       {/* Pricing */}
-      <Box id="pricing" sx={{ py: { xs: 4, md: 5 }, bgcolor: '#F6F8FE' }}>
+      <Box id="pricing" sx={{ py: { xs: 4, md: 5 }, bgcolor: 'background.default' }}>
         <Container maxWidth="lg">
           <Stack spacing={2}>
             <Box sx={{ textAlign: 'center' }}>
               <Typography variant="h4" sx={{ mt: 0, fontWeight: 700, letterSpacing: 0, fontSize: { xs: '1.25rem', md: '1.55rem' } }}>
                 Simple, transparent pricing
               </Typography>
-              <Typography sx={{ mt: 0.5, color: '#64748B', fontSize: '0.62rem' }}>
+              <Typography sx={{ mt: 0.5, color: 'text.secondary', fontSize: '0.62rem' }}>
                 Choose the plan that best fits your growth.
               </Typography>
             </Box>
@@ -440,16 +440,16 @@ export default function MarketingHomepagePage() {
                     <Card
                       sx={{
                         height: '100%',
-                        borderColor: plan.featured ? '#6366F1' : '#DCE3EE',
+                        borderColor: plan.featured ? 'primary.light' : 'divider',
                         borderWidth: plan.featured ? 2 : 1,
-                        bgcolor: '#FFFFFF',
+                        bgcolor: 'background.paper',
                         position: 'relative',
                       }}
                     >
                       <CardContent sx={{ p: 1.25 }}>
                         <Stack spacing={1}>
                           {plan.featured ? (
-                            <Box sx={{ alignSelf: 'center', borderRadius: 999, bgcolor: alpha('#6366F1', 0.12), color: '#4F46E5', px: 1, py: 0.2, fontSize: '0.55rem', fontWeight: 700 }}>
+                            <Box sx={{ alignSelf: 'center', borderRadius: 999, bgcolor: alpha('primary.main', 0.12), color: 'primary.main', px: 1, py: 0.2, fontSize: '0.55rem', fontWeight: 700 }}>
                               Most popular
                             </Box>
                           ) : null}
@@ -457,7 +457,7 @@ export default function MarketingHomepagePage() {
                             <Typography variant="subtitle1" sx={{ fontWeight: 800, fontSize: '0.76rem' }}>
                               {plan.name}
                             </Typography>
-                            <Typography sx={{ mt: 0.4, color: '#94A3B8', fontSize: '0.55rem' }}>
+                            <Typography sx={{ mt: 0.4, color: 'text.light', fontSize: '0.55rem' }}>
                               {plan.description}
                             </Typography>
                           </Box>
@@ -471,8 +471,8 @@ export default function MarketingHomepagePage() {
                           </Box>
                           <Box sx={{ display: 'grid', gap: 1 }}>
                             {plan.features.map((feature) => (
-                              <Typography key={feature} variant="body2" sx={{ color: '#334155', display: 'flex', alignItems: 'center', gap: 0.7, fontSize: '0.58rem' }}>
-                                <CheckCircleOutlined sx={{ fontSize: '0.7rem', color: '#6366F1' }} />
+                              <Typography key={feature} variant="body2" sx={{ color: 'text.primary', display: 'flex', alignItems: 'center', gap: 0.7, fontSize: '0.58rem' }}>
+                                <CheckCircleOutlined sx={{ fontSize: '0.7rem', color: 'primary.main' }} />
                                 {feature}
                               </Typography>
                             ))}
