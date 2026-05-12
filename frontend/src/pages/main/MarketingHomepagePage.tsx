@@ -10,7 +10,7 @@ import {
   Stack,
   Typography,
 } from '@mui/material';
-import { alpha } from '@mui/material/styles';
+import { alpha, useTheme } from '@mui/material/styles';
 import {
   AutoGraph,
   CheckCircleOutlined,
@@ -143,6 +143,7 @@ function CourseCard({
 }
 
 export default function MarketingHomepagePage() {
+  const theme = useTheme();
   const { data: apiCourses = [], isLoading: coursesLoading } = useGetCoursesQuery();
   const [publicSettings, setPublicSettings] = useState<PublicSettings | null>(null);
   const [settingsError, setSettingsError] = useState<string | null>(null);
@@ -318,7 +319,7 @@ export default function MarketingHomepagePage() {
                       <Card sx={{ height: '100%', bgcolor: 'transparent', borderColor: 'transparent' }}>
                         <CardContent sx={{ p: 1.35 }}>
                           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.68 }}>
-                            <Box sx={{ width: 22, height: 22, borderRadius: 1, bgcolor: alpha('primary.main', 0.1), display: 'grid', placeItems: 'center', color: 'primary.main' }}>
+                            <Box sx={{ width: 22, height: 22, borderRadius: 1, bgcolor: alpha(theme.palette.primary.main, 0.1), display: 'grid', placeItems: 'center', color: theme.palette.primary.main }}>
                               <FeatureIcon sx={{ fontSize: '0.8rem' }} />
                             </Box>
                             <Typography variant="subtitle1" sx={{ fontWeight: 700, fontSize: '0.74rem' }}>
@@ -449,7 +450,7 @@ export default function MarketingHomepagePage() {
                       <CardContent sx={{ p: 1.25 }}>
                         <Stack spacing={1}>
                           {plan.featured ? (
-                            <Box sx={{ alignSelf: 'center', borderRadius: 999, bgcolor: alpha('primary.main', 0.12), color: 'primary.main', px: 1, py: 0.2, fontSize: '0.55rem', fontWeight: 700 }}>
+                            <Box sx={{ alignSelf: 'center', borderRadius: 999, bgcolor: alpha(theme.palette.primary.main, 0.12), color: theme.palette.primary.main, px: 1, py: 0.2, fontSize: '0.55rem', fontWeight: 700 }}>
                               Most popular
                             </Box>
                           ) : null}

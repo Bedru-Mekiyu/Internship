@@ -1,9 +1,12 @@
-import { Box } from '@mui/material';
+import { Box, useTheme } from '@mui/material';
 import { Outlet } from 'react-router-dom';
 import Header from './Header';
 import Footer from './Footer';
 
 export default function MainLayout() {
+  const theme = useTheme<import('@mui/material').Theme>();
+  const primaryMain = theme.palette.primary.main;
+
   return (
     <Box sx={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', bgcolor: 'background.default' }}>
       <a
@@ -15,7 +18,7 @@ export default function MainLayout() {
           left: 16,
           zIndex: 9999,
           padding: '8px 16px',
-          backgroundColor: 'primary.main',
+          backgroundColor: primaryMain,
           color: 'white',
           borderRadius: '0 0 8px 8px',
           fontWeight: 700,
