@@ -26,7 +26,7 @@ describe('EmailService', () => {
   beforeEach(() => {
     process.env = {
       ...ORIGINAL_ENV,
-      BASE_URL: 'https://api.example.com/',
+      BASE_URL: 'https://api.example.com',
       JWT_VERIFY_SECRET: 'verify-secret',
       EMAIL_USER: 'noreply@example.com',
     };
