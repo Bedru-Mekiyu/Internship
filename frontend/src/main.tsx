@@ -2,10 +2,12 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { Provider } from 'react-redux'
+import { CssBaseline, ThemeProvider } from '@mui/material'
 import './index.css'
 import App from './App.tsx'
 import ErrorBoundary from './components/common/ErrorBoundary.tsx'
 import { store } from './store'
+import { theme } from './theme'
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -22,9 +24,12 @@ createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <Provider store={store}>
       <QueryClientProvider client={queryClient}>
-        <ErrorBoundary>
-          <App />
-        </ErrorBoundary>
+        <ThemeProvider theme={theme}>
+          <CssBaseline />
+          <ErrorBoundary>
+            <App />
+          </ErrorBoundary>
+        </ThemeProvider>
       </QueryClientProvider>
     </Provider>
   </StrictMode>,
