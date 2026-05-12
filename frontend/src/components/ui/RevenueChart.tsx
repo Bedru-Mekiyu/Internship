@@ -1,4 +1,4 @@
-import { Box, Typography } from '@mui/material';
+import { Box, Typography, useTheme } from '@mui/material';
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 
 type RevenuePoint = {
@@ -10,14 +10,6 @@ type RevenueChartProps = {
   data?: RevenuePoint[];
   height?: number;
   barSize?: number;
-};
-
-const tooltipStyle = {
-  borderRadius: 12,
-  border: '1px solid',
-  borderColor: 'divider',
-  boxShadow: 'none',
-  padding: '10px 12px',
 };
 
 function RevenueChartEmpty({ height = 300 }: { height: number }) {
@@ -41,35 +33,41 @@ function RevenueChartEmpty({ height = 300 }: { height: number }) {
 }
 
 export default function RevenueChart({ data, height = 300, barSize = 22 }: RevenueChartProps) {
+  const theme = useTheme<import('@mui/material').Theme>();
   const revenueData = data ?? [];
 
   if (revenueData.length === 0) {
     return <RevenueChartEmpty height={height} />;
   }
 
+  const dividerColor = theme.palette.divider;
+  const textSecondary = theme.palette.text.secondary;
+  const textPrimary = theme.palette.text.primary;
+  const primaryMain = theme.palette.primary.main;
+
   return (
     <Box sx={{ height }}>
       <ResponsiveContainer width="100%" height="100%">
         <BarChart data={revenueData} barSize={barSize} margin={{ top: 8, right: 8, left: -8, bottom: 0 }}>
-          <CartesianGrid strokeDasharray="3 3" stroke="divider" vertical={false} />
+          <CartesianGrid strokeDasharray="3 3" stroke={dividerColor} vertical={false} />
           <XAxis
             dataKey="month"
-            tick={{ fill: 'text.secondary', fontSize: 12, fontWeight: 700 }}
+            tick={{ fill: textSecondary, fontSize: 12, fontWeight: 700 }}
             axisLine={false}
             tickLine={false}
           />
           <YAxis
             width={34}
-            tick={{ fill: 'text.secondary', fontSize: 12, fontWeight: 700 }}
+            tick={{ fill: textSecondary, fontSize: 12, fontWeight: 700 }}
             axisLine={false}
             tickLine={false}
           />
           <Tooltip
-            contentStyle={tooltipStyle}
+            contentStyle={{ borderRadius: 12, border: `1px solid ${dividerColor}`, boxShadow: 'none', padding: '10px 12px' }}
             formatter={(value) => [`$${value ?? 0}k`, 'Revenue']}
-            labelStyle={{ color: 'text.primary', fontWeight: 800 }}
+            labelStyle={{ color: textPrimary, fontWeight: 800 }}
           />
-          <Bar dataKey="revenue" radius={[8, 8, 0, 0]} fill="primary.main" />
+          <Bar dataKey="revenue" radius={[8, 8, 0, 0]} fill={primaryMain} />
         </BarChart>
       </ResponsiveContainer>
     </Box>
