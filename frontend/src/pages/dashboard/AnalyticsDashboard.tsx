@@ -31,7 +31,7 @@ import { useAuth } from '../../hooks/useAuth';
 import { api, normalizeApiError } from '../../services/api';
 import DashboardPageFrame from '../../components/common/DashboardPageFrame';
 
-const AnalyticsRevenueChart = lazy(() => import('../../components/ui/AnalyticsRevenueChart'));
+const RevenueChart = lazy(() => import('../../components/ui/RevenueChart'));
 
 type InstructorDashboardResponse = {
   totalCourses: number;
@@ -416,7 +416,7 @@ export default function AnalyticsDashboard() {
               <Suspense
                 fallback={<Box sx={{ height: 320, borderRadius: 1.5, bgcolor: 'background.default', border: '1px solid', borderColor: 'divider' }} />}
               >
-                <AnalyticsRevenueChart data={chartRevenueData} />
+                <RevenueChart data={chartRevenueData} />
               </Suspense>
             </CardContent>
           </Card>

@@ -171,6 +171,8 @@ function PublicAuthPage() {
                       size="small"
                       placeholder="name@example.com"
                       fullWidth
+                      autoComplete="email"
+                      autoFocus
                     />
                     <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                       <Link
@@ -204,10 +206,12 @@ function PublicAuthPage() {
                                 type="button"
                                 onClick={() => setShowPassword((prev) => !prev)}
                                 onMouseDown={(e) => e.preventDefault()}
+                                aria-label={showPassword ? 'Hide password' : 'Show password'}
                                 sx={{
                                   border: 'none', background: 'none', cursor: 'pointer', p: 0,
-                                  color: '#94A3B8', display: 'flex', alignItems: 'center',
+                                  color: 'text.secondary', display: 'flex', alignItems: 'center',
                                   '&:hover': { color: 'text.primary' },
+                                  '&:focus-visible': { outline: '2px solid', outlineColor: 'primary.main', borderRadius: 0.5 },
                                 }}
                               >
                                 {showPassword ? <VisibilityOffOutlined fontSize="small" /> : <VisibilityOutlined fontSize="small" />}

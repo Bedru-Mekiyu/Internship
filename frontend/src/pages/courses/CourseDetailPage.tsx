@@ -75,7 +75,7 @@ type DisplayReview = {
   rating: number;
 };
 
-const pageMaxWidth = 820;
+const pageMaxWidth = 1100;
 
 
 
@@ -168,7 +168,7 @@ function CheckItem({ children }: { children: ReactNode }) {
   return (
     <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 0.7, minWidth: 0 }}>
       <CheckOutlined sx={{ color: 'text.primary', fontSize: 13, mt: 0.15, flexShrink: 0 }} />
-      <Typography sx={{ color: '#334155', fontSize: '0.58rem', lineHeight: 1.65 }}>
+      <Typography sx={{ color: 'text.primary', fontSize: '0.58rem', lineHeight: 1.65 }}>
         {children}
       </Typography>
     </Box>
@@ -178,10 +178,10 @@ function CheckItem({ children }: { children: ReactNode }) {
 function PriceFeature({ icon, label }: { icon: ReactNode; label: string }) {
   return (
     <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}>
-      <Box sx={{ width: 15, height: 15, color: '#475569', display: 'grid', placeItems: 'center', flexShrink: 0 }}>
+      <Box sx={{ width: 15, height: 15, color: 'text.secondary', display: 'grid', placeItems: 'center', flexShrink: 0 }}>
         {icon}
       </Box>
-      <Typography sx={{ color: '#334155', fontSize: '0.56rem', lineHeight: 1.35 }}>{label}</Typography>
+      <Typography sx={{ color: 'text.primary', fontSize: '0.56rem', lineHeight: 1.35 }}>{label}</Typography>
     </Box>
   );
 }
@@ -354,7 +354,7 @@ export default function CourseDetailPage({ embedded = false }: { embedded?: bool
   const includedVideoHours = course?.includedVideoHours || formatHoursDecimal(totalDurationMinutes);
 
   return (
-    <Box sx={{ minHeight: embedded ? 'auto' : '100vh', bgcolor: embedded ? 'transparent' : '#F5F7FB' }}>
+    <Box sx={{ minHeight: embedded ? 'auto' : '100vh', bgcolor: embedded ? 'transparent' : 'background.default' }}>
       <Container
         maxWidth={false}
         sx={{
@@ -407,12 +407,13 @@ export default function CourseDetailPage({ embedded = false }: { embedded?: bool
                           component={RouterLink}
                           to={index === 0 ? '/' : '/courses/explore'}
                           underline="none"
+                          aria-current={index === 2 ? 'page' : undefined}
                           sx={{ color: index === 0 ? 'primary.main' : 'text.secondary', fontSize: '0.5rem', fontWeight: 600 }}
                         >
                           {crumb}
                         </Link>
                         {index < 2 ? (
-                          <Typography sx={{ color: '#94A3B8', fontSize: '0.5rem' }}>/</Typography>
+                          <Typography sx={{ color: 'text.secondary', fontSize: '0.5rem' }}>/</Typography>
                         ) : null}
                       </Box>
                     ))}
@@ -431,18 +432,18 @@ export default function CourseDetailPage({ embedded = false }: { embedded?: bool
                   >
                     {course.title}
                   </Typography>
-                  <Typography sx={{ color: '#475569', mt: 1.05, maxWidth: 590, fontSize: '0.61rem', lineHeight: 1.7 }}>
+                  <Typography sx={{ color: 'text.secondary', mt: 1.05, maxWidth: 590, fontSize: '0.61rem', lineHeight: 1.7 }}>
                     {summaryDescription}
                   </Typography>
 
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap', mt: 1.35 }}>
                     {course?.isBestseller && (
-                      <Box sx={{ bgcolor: '#FACC15', color: '#713F12', px: 0.7, py: 0.25, borderRadius: 0.35, fontSize: '0.49rem', fontWeight: 900 }}>
+                      <Box sx={{ bgcolor: 'warning.light', color: 'warning.dark', px: 0.7, py: 0.25, borderRadius: 0.35, fontSize: '0.49rem', fontWeight: 900 }}>
                         BESTSELLER
                       </Box>
                     )}
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.4 }}>
-                      <Typography sx={{ color: '#B45309', fontSize: '0.55rem', fontWeight: 900 }}>
+                      <Typography sx={{ color: 'warning.dark', fontSize: '0.55rem', fontWeight: 900 }}>
                         {ratingAverage.toFixed(1)}
                       </Typography>
                       <StarRow value={ratingAverage} size={11} />
@@ -474,7 +475,7 @@ export default function CourseDetailPage({ embedded = false }: { embedded?: bool
                 </Box>
 
                 {learnItems.length > 0 ? (
-<Card sx={{ borderRadius: 1, borderColor: 'divider', bgcolor: '#FFFFFF' }}>
+                  <Card sx={{ borderRadius: 1, borderColor: 'divider', bgcolor: '#FFFFFF' }}>
                     <CardContent sx={{ p: 1.55, '&:last-child': { pb: 1.55 } }}>
                       <SectionTitle>What you&apos;ll learn</SectionTitle>
                       <Grid container spacing={{ xs: 1.15, md: 1.25 }}>
@@ -500,9 +501,10 @@ export default function CourseDetailPage({ embedded = false }: { embedded?: bool
                       <Button
                         variant="text"
                         onClick={toggleAllSections}
+                        aria-label={activeExpandedSections.length === sections.length ? 'Collapse all sections' : 'Expand all sections'}
                         sx={{ minWidth: 0, p: 0, color: 'primary.main', fontSize: '0.52rem', fontWeight: 800 }}
                       >
-                        Expand all sections
+                        {activeExpandedSections.length === sections.length ? 'Collapse all' : 'Expand all sections'}
                       </Button>
                     ) : null}
                   </Box>
@@ -526,10 +528,10 @@ export default function CourseDetailPage({ embedded = false }: { embedded?: bool
                             }}
                           >
                             <AccordionSummary
-                              expandIcon={<ExpandMore sx={{ color: '#475569', fontSize: 17 }} />}
+                              expandIcon={<ExpandMore sx={{ color: 'text.secondary', fontSize: 17 }} />}
                               sx={{
                                 minHeight: 34,
-                                bgcolor: '#F8FAFC',
+                                bgcolor: 'background.default',
                                 px: 1.2,
                                 py: 0,
                                 '& .MuiAccordionSummary-content': { my: 0.65, alignItems: 'center', justifyContent: 'space-between', gap: 1 },
@@ -559,8 +561,8 @@ export default function CourseDetailPage({ embedded = false }: { embedded?: bool
                                       }}
                                     >
                                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, minWidth: 0 }}>
-                                        <PlayCircleOutlined sx={{ color: '#94A3B8', fontSize: 13, flexShrink: 0 }} />
-                                        <Typography sx={{ color: '#334155', fontSize: '0.55rem', lineHeight: 1.4 }} noWrap>
+                                        <PlayCircleOutlined sx={{ color: 'text.secondary', fontSize: 13, flexShrink: 0 }} />
+                                        <Typography sx={{ color: 'text.primary', fontSize: '0.55rem', lineHeight: 1.4 }} noWrap>
                                           {lesson.title}
                                         </Typography>
                                       </Box>
@@ -594,7 +596,7 @@ export default function CourseDetailPage({ embedded = false }: { embedded?: bool
                     <SectionTitle>Requirements</SectionTitle>
                     <Stack spacing={0.55}>
                       {requirements.map((item) => (
-                        <Typography key={item} sx={{ color: '#334155', fontSize: '0.58rem', lineHeight: 1.6 }}>
+                        <Typography key={item} sx={{ color: 'text.primary', fontSize: '0.58rem', lineHeight: 1.6 }}>
                           {item}
                         </Typography>
                       ))}
@@ -607,7 +609,7 @@ export default function CourseDetailPage({ embedded = false }: { embedded?: bool
                     <SectionTitle>Description</SectionTitle>
                     <Stack spacing={1.05}>
                       {descriptionParagraphs.map((paragraph) => (
-                        <Typography key={paragraph} sx={{ color: '#475569', fontSize: '0.58rem', lineHeight: 1.78 }}>
+                        <Typography key={paragraph} sx={{ color: 'text.secondary', fontSize: '0.58rem', lineHeight: 1.78 }}>
                           {paragraph}
                         </Typography>
                       ))}
@@ -621,7 +623,7 @@ export default function CourseDetailPage({ embedded = false }: { embedded?: bool
                     <Avatar
                       src={instructorAvatar || undefined}
                       alt={instructorName}
-                      sx={{ width: 44, height: 44, bgcolor: '#92400E', color: '#FFFFFF', fontSize: '0.72rem', fontWeight: 900 }}
+                      sx={{ width: 44, height: 44, bgcolor: 'warning.dark', color: 'warning.contrastText', fontSize: '0.72rem', fontWeight: 900 }}
                     >
                       {initialsFor(instructorName)}
                     </Avatar>
@@ -644,7 +646,7 @@ export default function CourseDetailPage({ embedded = false }: { embedded?: bool
                         </Typography>
                       </Box>
                       {instructor?.bio ? (
-                        <Typography sx={{ color: '#475569', fontSize: '0.56rem', lineHeight: 1.7, mt: 0.8 }}>
+                        <Typography sx={{ color: 'text.secondary', fontSize: '0.56rem', lineHeight: 1.7, mt: 0.8 }}>
                           {instructor.bio}
                         </Typography>
                       ) : null}
@@ -656,7 +658,7 @@ export default function CourseDetailPage({ embedded = false }: { embedded?: bool
                   <SectionTitle>Reviews</SectionTitle>
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.4, mb: 1.8 }}>
                     <Box>
-                      <Typography sx={{ color: '#F59E0B', fontWeight: 900, fontSize: '1.45rem', lineHeight: 1 }}>
+                        <Typography sx={{ color: 'warning.main', fontWeight: 900, fontSize: '1.45rem', lineHeight: 1 }}>
                         {ratingAverage.toFixed(1)}
                       </Typography>
                       <StarRow value={ratingAverage} size={13} />
@@ -671,7 +673,7 @@ export default function CourseDetailPage({ embedded = false }: { embedded?: bool
                       {displayReviews.map((review) => (
                         <Box key={review.id} sx={{ borderTop: `1px solid ${'divider'}`, pt: 1.45 }}>
                           <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1 }}>
-                            <Avatar sx={{ width: 28, height: 28, bgcolor: '#E2E8F0', color: 'text.primary', fontSize: '0.55rem', fontWeight: 900 }}>
+                            <Avatar sx={{ width: 28, height: 28, bgcolor: 'secondary.light', color: 'text.primary', fontSize: '0.55rem', fontWeight: 900 }}>
                               {review.avatar}
                             </Avatar>
                             <Box sx={{ minWidth: 0 }}>
@@ -684,7 +686,7 @@ export default function CourseDetailPage({ embedded = false }: { embedded?: bool
                                   {review.createdAt}
                                 </Typography>
                               </Box>
-                              <Typography sx={{ color: '#475569', fontSize: '0.55rem', lineHeight: 1.72, mt: 0.55 }}>
+                                <Typography sx={{ color: 'text.secondary', fontSize: '0.55rem', lineHeight: 1.72, mt: 0.55 }}>
                                 {review.comment}
                               </Typography>
                             </Box>
@@ -704,7 +706,7 @@ export default function CourseDetailPage({ embedded = false }: { embedded?: bool
             <Grid size={{ xs: 12, md: 4 }}>
               <Stack spacing={1.7} sx={{ position: { md: 'sticky' }, top: embedded ? 24 : 70 }}>
                 <Card sx={{ borderRadius: 1, borderColor: 'divider', bgcolor: 'background.paper', overflow: 'hidden' }}>
-                  <Box sx={{ height: 137, bgcolor: '#F1F5F9', display: 'grid', placeItems: 'center', overflow: 'hidden' }}>
+                    <Box sx={{ height: { xs: 120, md: 137 }, bgcolor: 'action.hover', display: 'grid', placeItems: 'center', overflow: 'hidden' }}>
                     <Box
                       component="img"
                       src={thumbnail}
@@ -719,17 +721,17 @@ export default function CourseDetailPage({ embedded = false }: { embedded?: bool
                       </Typography>
                       {!isFreeCourse && originalPrice > price ? (
                         <>
-                          <Typography sx={{ color: '#94A3B8', fontSize: '0.58rem', textDecoration: 'line-through', fontWeight: 700 }}>
+                          <Typography sx={{ color: 'text.light', fontSize: '0.58rem', textDecoration: 'line-through', fontWeight: 700 }}>
                             {formatCurrency(originalPrice, currency)}
                           </Typography>
-                          <Typography sx={{ color: '#DC2626', fontSize: '0.55rem', fontWeight: 900 }}>
+                          <Typography sx={{ color: 'error.main', fontSize: '0.55rem', fontWeight: 900 }}>
                             {discountPercent}% OFF
                           </Typography>
                         </>
                       ) : null}
                     </Box>
                     {!isFreeCourse && (course.offerEndsIn || ((course.listPrice ?? 0) > (course.currentPrice ?? 0) && course.discountActive)) ? (
-                      <Typography sx={{ color: '#DC2626', fontSize: '0.52rem', fontWeight: 800, mt: 0.6 }}>
+                        <Typography sx={{ color: 'error.main', fontSize: '0.52rem', fontWeight: 800, mt: 0.6 }}>
                         {course.offerEndsIn || 'Limited time offer'}
                       </Typography>
                     ) : null}
@@ -739,7 +741,7 @@ export default function CourseDetailPage({ embedded = false }: { embedded?: bool
                         variant="contained"
                         fullWidth
                         onClick={() => void handlePrimaryAction()}
-                        sx={{ bgcolor: 'primary.main', borderRadius: 0.55, minHeight: 31, fontSize: '0.58rem', '&:hover': { bgcolor: '#4338CA' } }}
+                        sx={{ bgcolor: 'primary.main', borderRadius: 0.55, minHeight: 31, fontSize: '0.58rem', '&:hover': { bgcolor: 'primary.dark' } }}
                       >
                         {isFreeCourse ? 'Enroll Now' : 'Add to Cart'}
                       </Button>

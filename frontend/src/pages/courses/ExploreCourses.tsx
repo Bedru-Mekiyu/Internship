@@ -29,7 +29,7 @@ import { normalizeApiError } from '../../services/api';
 import { useEnrollInCourseMutation, useGetCoursesQuery } from '../../store/api/courseApi';
 import type { Course as ApiCourse } from '../../types';
 import { sanitizeHttpUrl } from '../../utils/safeUrl';
-import { innerCard, SPACING } from '../dashboard/dashboardTokens';
+import { innerCard, SPACING } from '../../theme/tokens';
 
 type Category = 'Development' | 'Design' | 'Business' | 'Marketing' | 'Photography';
 type Level = 'Beginner' | 'Intermediate' | 'Advanced';
@@ -253,7 +253,7 @@ function FilterOption({ label, checked, onChange }: { label: string; checked: bo
 
 function ThumbnailFallback({ category }: { category: Category }) {
   const chip = categoryChipColors[category];
-  
+
   return (
     <Box sx={{ height: '100%', bgcolor: chip.bg, p: 1.5, display: 'grid', gap: 0.6, alignContent: 'center' }}>
       {Array.from({ length: 5 }).map((_, index) => (
@@ -544,8 +544,8 @@ export default function ExploreCourses({ embedded = false }: ExploreCoursesProps
 
       {error && (
         <Alert severity="error" sx={{ mb: 2 }}>
-          {usingFallbackCatalog 
-            ? 'Showing sample courses—check back soon for our full catalog' 
+          {usingFallbackCatalog
+            ? 'Showing sample courses—check back soon for our full catalog'
             : normalizeApiError(error).message || 'Unable to load courses.'}
         </Alert>
       )}
@@ -626,7 +626,7 @@ export default function ExploreCourses({ embedded = false }: ExploreCoursesProps
 
         <Grid size={{ xs: 12, lg: 9.45 }}>
           <Box sx={{ mb: 2.35, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 2, flexWrap: 'wrap' }}>
-            <Typography sx={{ color: 'text.secondary', fontWeight: 600, fontSize: '0.7rem' }}>
+            <Typography sx={{ color: 'text.secondary', fontWeight: 600, fontSize: '0.7rem' }} aria-live="polite">
               Showing {visibleCourses.length} of {Math.max(filteredCourses.length, totalCourseCount)} courses
             </Typography>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}>

@@ -543,7 +543,7 @@ export default function StudentDashboard({ showAccessDenied }: StudentDashboardP
                       Streak
                     </Typography>
                     <Typography variant="body2" sx={{ fontWeight: 900, color: 'text.primary' }}>
-                      12 days
+                      {data?.learningStreak ? `${data.learningStreak} days` : '—'}
                     </Typography>
                   </Box>
                   <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>

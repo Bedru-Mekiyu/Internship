@@ -42,8 +42,8 @@ type InstructorRevenueResponse = {
 
 // ─── Lazy imports ─────────────────────────────────────────────────────────────
 
-const InstructorRevenueChart = lazy(
-  () => import('../../components/ui/InstructorRevenueChart'),
+const RevenueChart = lazy(
+  () => import('../../components/ui/RevenueChart'),
 );
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
@@ -253,7 +253,7 @@ export default function InstructorDashboard({ showAccessDenied }: InstructorDash
                     </Box>
                   }
                 >
-                  <InstructorRevenueChart data={revenueChartData} />
+                  <RevenueChart data={revenueChartData} height={320} barSize={28} />
                 </Suspense>
               </CardContent>
             </Card>

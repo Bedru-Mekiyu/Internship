@@ -5,6 +5,7 @@ export interface StudentDashboardResponse {
   averageProgress: number;
   completedCourses: number;
   certificatesEarned: number;
+  learningStreak?: number;
   enrolledCourses: Array<{
     courseId: string;
     title: string;
