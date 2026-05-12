@@ -86,7 +86,7 @@ describe('EmailService', () => {
 
     expect(sendMailMock).toHaveBeenCalledWith(
       expect.objectContaining({
-        html: '<p>Click <a href="https://api.example.com/auth/reset-password?token=abc123">here</a> to reset your password. Link expires in 1 hour.</p>',
+        html: '<p>Click <a href="https://api.example.com/api/auth/reset-password?token=abc123">here</a> to reset your password. Link expires in 1 hour.</p>',
       }),
     );
   });
