@@ -22,6 +22,8 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { api, ensureCsrfToken, normalizeApiError } from '../../services/api';
 import { SPACING } from '../dashboard/dashboardTokens';
+import DashboardPageFrame, { DashboardSection } from '../../components/common/DashboardPageFrame';
+import { useAuth } from '../../context/AuthContext';
 
 type LessonType = 'Video' | 'Quiz' | 'Reading';
 
@@ -61,6 +63,9 @@ function getNextId(items: Array<{ id: number }>): number {
 
 export default function CreateCourse() {
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const isAdmin = user?.role === 'admin';
+
   const [modules, setModules] = useState<Module[]>(initialModules);
   const [selectedModuleId, setSelectedModuleId] = useState<number>(1);
   const [selectedLessonId, setSelectedLessonId] = useState<number | null>(null);
@@ -214,89 +219,85 @@ export default function CreateCourse() {
     }
   };
 
-  return (
-    <Box sx={{ minHeight: '100vh', bgcolor: 'background.default' }}>
-      <Box sx={{ bgcolor: 'background.paper', borderBottom: '1px solid', borderColor: 'divider', px: SPACING.lg, py: SPACING.md }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: SPACING.md }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: SPACING.md }}>
-            <Button
-              variant="text"
-              onClick={() => navigate('/admin/courses')}
-              sx={{ color: 'text.secondary' }}
-            >
-              Back
-            </Button>
-            <Typography variant="h6" sx={{ fontWeight: 600 }}>
-              Create Course
-            </Typography>
-          </Box>
-          <Stack direction="row" spacing={SPACING.md}>
-            <Button variant="outlined" onClick={() => void handleSave()} disabled={isSaving}>
-              Save
-            </Button>
-            <Button
-              variant="contained"
-              onClick={() => void handleSave()}
-              disabled={isSaving}
-              sx={{ bgcolor: isPublished ? 'success.main' : 'primary.main' }}
-            >
-              {isPublished ? 'Update' : 'Publish'}
-            </Button>
-          </Stack>
-        </Box>
-      </Box>
-      <Box sx={{ p: 3 }}>
-        {statusMessage ? (
-          <Alert severity={statusMessage.type} sx={{ mb: 2 }}>
-            {statusMessage.text}
-          </Alert>
-        ) : null}
-        <Grid container spacing={3}>
-          {/* Course Details */}
-          <Grid size={{ xs: 12 }}>
-            <Card sx={{ borderRadius: 2 }}>
-              <CardContent sx={{ p: 3 }}>
-                <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 2 }}>
-                  Course Details
-                </Typography>
-                <Grid container spacing={2}>
-                  <Grid size={{ xs: 12, md: 8 }}>
-                    <TextField
-                      fullWidth
-                      label="Course Title"
-                      value={courseTitle}
-                      onChange={(e) => setCourseTitle(e.target.value)}
-                      placeholder="Enter course title"
-                    />
-                  </Grid>
-                  <Grid size={{ xs: 12, md: 4 }}>
-                    <InputLabel id="status-label">Status</InputLabel>
-                    <Select
-                      labelId="status-label"
-                      value={isPublished ? 'published' : 'draft'}
-                      onChange={(e) => setIsPublished(e.target.value === 'published')}
-                      fullWidth
-                    >
-                      <MenuItem value="draft">Draft</MenuItem>
-                      <MenuItem value="published">Published</MenuItem>
-                    </Select>
-                  </Grid>
-                  <Grid size={{ xs: 12 }}>
-                    <TextField
-                      fullWidth
-                      label="Subtitle"
-                      value={courseSubtitle}
-                      onChange={(e) => setCourseSubtitle(e.target.value)}
-                      placeholder="Brief description of your course"
-                      multiline
-                      rows={2}
-                    />
-                  </Grid>
-                </Grid>
-              </CardContent>
-            </Card>
-          </Grid>
+  const breadcrumbs = isAdmin
+    ? [
+        { label: 'Dashboard', to: '/admin/dashboard' },
+        { label: 'Administration' },
+        { label: 'Courses', to: '/admin/courses' },
+        { label: 'New Course' },
+      ]
+    : [
+        { label: 'Dashboard', to: '/instructor/dashboard' },
+        { label: 'My Courses', to: '/courses' },
+        { label: 'New Course' },
+      ];
 
+  return (
+    <DashboardPageFrame
+      eyebrow={isAdmin ? 'Administration' : 'Instructor workspace'}
+      title="Create Course"
+      description="Build your course with modules and lessons. Add content, set pricing, and publish when ready."
+      breadcrumbs={breadcrumbs}
+      actions={
+        <Stack direction="row" spacing={SPACING.md}>
+          <Button variant="outlined" onClick={() => void handleSave()} disabled={isSaving}>
+            Save Draft
+          </Button>
+          <Button
+            variant="contained"
+            onClick={() => void handleSave()}
+            disabled={isSaving}
+            sx={{ bgcolor: isPublished ? 'success.main' : 'primary.main' }}
+          >
+            {isPublished ? 'Update' : 'Publish'}
+          </Button>
+        </Stack>
+      }
+    >
+      {statusMessage ? (
+        <Alert severity={statusMessage.type} sx={{ mb: SPACING.lg, borderRadius: 1.5 }}>
+          {statusMessage.text}
+        </Alert>
+      ) : null}
+      <DashboardSection title="Course Details" description="Basic information about your course.">
+        <Grid container spacing={2}>
+          <Grid size={{ xs: 12, md: 8 }}>
+            <TextField
+              fullWidth
+              label="Course Title"
+              value={courseTitle}
+              onChange={(e) => setCourseTitle(e.target.value)}
+              placeholder="Enter course title"
+            />
+          </Grid>
+          <Grid size={{ xs: 12, md: 4 }}>
+            <InputLabel id="status-label">Status</InputLabel>
+            <Select
+              labelId="status-label"
+              value={isPublished ? 'published' : 'draft'}
+              onChange={(e) => setIsPublished(e.target.value === 'published')}
+              fullWidth
+            >
+              <MenuItem value="draft">Draft</MenuItem>
+              <MenuItem value="published">Published</MenuItem>
+            </Select>
+          </Grid>
+          <Grid size={{ xs: 12 }}>
+            <TextField
+              fullWidth
+              label="Subtitle"
+              value={courseSubtitle}
+              onChange={(e) => setCourseSubtitle(e.target.value)}
+              placeholder="Brief description of your course"
+              multiline
+              rows={2}
+            />
+          </Grid>
+        </Grid>
+      </DashboardSection>
+
+      <DashboardSection title="Course Structure" description="Organize your course content into modules and lessons.">
+        <Grid container spacing={SPACING.lg}>
           {/* Modules Section */}
           <Grid size={{ xs: 12, lg: 4 }}>
             <Card sx={{ borderRadius: 2 }}>
@@ -534,7 +535,7 @@ export default function CreateCourse() {
             )}
           </Grid>
         </Grid>
-      </Box>
-    </Box>
+      </DashboardSection>
+    </DashboardPageFrame>
   );
 }

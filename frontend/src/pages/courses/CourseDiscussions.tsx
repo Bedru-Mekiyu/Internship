@@ -26,6 +26,7 @@ import type { Thread, ThreadCategory } from '../../components/ui/CourseDiscussio
 import { normalizeApiError } from '../../services/api';
 import { useAccessibleDiscussionCourses, useCourseDiscussions, usePostDiscussion } from '../../hooks/useDiscussions';
 import { useDiscussionRealtime } from '../../hooks/useDiscussionRealtime';
+import DashboardPageFrame from '../../components/common/DashboardPageFrame';
 const LazyThreadItem = lazy(() =>
   import('../../components/ui/CourseDiscussionThreadCard').then((module) => ({ default: module.ThreadItem }))
 );
@@ -439,6 +440,24 @@ export default function CourseDiscussions() {
   };
 
   return (
+    <DashboardPageFrame
+      title="Course Discussions"
+      description="Keep learners engaged with threaded conversations, replies, and quick instructor follow-up."
+      breadcrumbs={[
+        { label: 'Dashboard', to: '/dashboard' },
+        { label: 'Discussions' },
+      ]}
+      actions={
+        <Stack direction="row" spacing={1} sx={{ flexWrap: 'wrap' }}>
+          <Typography variant="body2" sx={{ color: 'text.secondary', alignSelf: 'center' }}>
+            {lastPulse}
+          </Typography>
+          <Button variant="contained" onClick={handleStartNewThread}>
+            New thread
+          </Button>
+        </Stack>
+      }
+    >
     <Box sx={{ minHeight: '100%', bgcolor: 'background.default' }}>
         {statusMessage ? (
           <Alert
@@ -460,15 +479,6 @@ export default function CourseDiscussions() {
                 Keep learners engaged with threaded conversations, replies, and quick instructor follow-up.
               </Typography>
             </Box>
-
-            <Stack direction="row" spacing={1} sx={{ flexWrap: 'wrap' }}>
-              <Typography variant="body2" sx={{ color: 'text.secondary', alignSelf: 'center' }}>
-                {lastPulse}
-              </Typography>
-              <Button variant="contained" onClick={handleStartNewThread}>
-                New thread
-              </Button>
-            </Stack>
           </Box>
         </Box>
 
@@ -763,5 +773,6 @@ export default function CourseDiscussions() {
         </Box>
 
     </Box>
+    </DashboardPageFrame>
   );
 }

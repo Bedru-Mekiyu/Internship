@@ -26,6 +26,7 @@ import {
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { api, normalizeApiError } from '../../services/api';
+import DashboardPageFrame from '../../components/common/DashboardPageFrame';
 
 type NotificationTab = 'all' | 'unread' | 'mentions' | 'system';
 type NotificationDate = 'TODAY' | 'YESTERDAY' | 'OLDER';
@@ -296,52 +297,50 @@ export default function AdminNotifications() {
   };
 
   return (
-    <Box sx={{ maxWidth: 1080, mx: 'auto', width: '100%' }}>
-      <Stack spacing={1.8}>
-        <Stack direction="row" spacing={1} sx={{ color: 'text.secondary', alignItems: 'center' }}>
-          <Typography variant="body2">Dashboard</Typography>
-          <Typography variant="body2">›</Typography>
-          <Typography variant="body2" sx={{ color: 'text.primary', fontWeight: 700 }}>Notifications</Typography>
+    <DashboardPageFrame
+      title="Notifications"
+      description="View and manage your notifications and alerts."
+      breadcrumbs={[
+        { label: 'Dashboard', to: '/admin/dashboard' },
+        { label: 'Notifications' },
+      ]}
+      actions={
+        <Stack direction="row" spacing={1}>
+          <Button
+            size="small"
+            variant="outlined"
+            startIcon={<CheckOutlined />}
+            onClick={() => setMarkAllConfirmOpen(true)}
+            disabled={markAllAsReadMutation.isPending || counts.unread === 0}
+            sx={{ borderColor: '#D5DBE7', bgcolor: '#FFFFFF', textTransform: 'none' }}
+          >
+            Mark all as read
+          </Button>
+          <Button
+            size="small"
+            variant="outlined"
+            startIcon={<SettingsOutlined />}
+            onClick={() => navigate('/admin/settings')}
+            sx={{ borderColor: '#D5DBE7', bgcolor: '#FFFFFF', textTransform: 'none' }}
+          >
+            Settings
+          </Button>
         </Stack>
+      }
+    >
+      <Box sx={{ maxWidth: 1080, mx: 'auto', width: '100%' }}>
+        <Stack spacing={1.8}>
+          {statusMessage ? (
+            <Alert severity={statusMessage.type} onClose={() => setStatusMessage(null)} sx={{ borderRadius: 1.5 }}>
+              {statusMessage.message}
+            </Alert>
+          ) : null}
 
-        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 1.2 }}>
-          <Typography variant="h4" sx={{ fontWeight: 900, letterSpacing: '-0.02em' }}>
-            Notifications
-          </Typography>
-          <Stack direction="row" spacing={1}>
-            <Button
-              size="small"
-              variant="outlined"
-              startIcon={<CheckOutlined />}
-              onClick={() => setMarkAllConfirmOpen(true)}
-              disabled={markAllAsReadMutation.isPending || counts.unread === 0}
-              sx={{ borderColor: '#D5DBE7', bgcolor: '#FFFFFF', textTransform: 'none' }}
-            >
-              Mark all as read
-            </Button>
-            <Button
-              size="small"
-              variant="outlined"
-              startIcon={<SettingsOutlined />}
-              onClick={() => navigate('/admin/settings')}
-              sx={{ borderColor: '#D5DBE7', bgcolor: '#FFFFFF', textTransform: 'none' }}
-            >
-              Settings
-            </Button>
-          </Stack>
-        </Box>
-
-        {statusMessage ? (
-          <Alert severity={statusMessage.type} onClose={() => setStatusMessage(null)} sx={{ borderRadius: 1.5 }}>
-            {statusMessage.message}
-          </Alert>
-        ) : null}
-
-        {isError ? (
-          <Alert severity="error" sx={{ borderRadius: 1.5 }}>
-            {normalizeApiError(error).message || 'Could not load notifications.'}
-          </Alert>
-        ) : null}
+          {isError ? (
+            <Alert severity="error" sx={{ borderRadius: 1.5 }}>
+              {normalizeApiError(error).message || 'Could not load notifications.'}
+            </Alert>
+          ) : null}
 
         <Card sx={{ borderRadius: 1.5, border: '1px solid', borderColor: '#DFE5F1', boxShadow: 'none' }}>
           <Tabs
@@ -459,6 +458,7 @@ export default function AdminNotifications() {
           </Button>
         </DialogActions>
       </Dialog>
-    </Box>
+      </Box>
+    </DashboardPageFrame>
   );
 }

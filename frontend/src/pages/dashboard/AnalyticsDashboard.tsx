@@ -29,6 +29,7 @@ import {
 } from 'recharts';
 import { useAuth } from '../../hooks/useAuth';
 import { api, normalizeApiError } from '../../services/api';
+import DashboardPageFrame from '../../components/common/DashboardPageFrame';
 
 const AnalyticsRevenueChart = lazy(() => import('../../components/ui/AnalyticsRevenueChart'));
 
@@ -302,6 +303,20 @@ export default function AnalyticsDashboard() {
   };
 
   return (
+    <DashboardPageFrame
+      title="Analytics Dashboard"
+      description="Track performance metrics, student engagement, and revenue analytics."
+      breadcrumbs={isAdmin
+        ? [
+            { label: 'Dashboard', to: '/admin/dashboard' },
+            { label: 'Analytics' },
+          ]
+        : [
+            { label: 'Dashboard', to: '/instructor/dashboard' },
+            { label: 'Analytics' },
+          ]
+      }
+    >
     <Box sx={{ minHeight: '100%', bgcolor: 'background.default', p: { xs: 1.5, sm: 2, md: 2.5 } }}>
       {combinedError ? (
         <Alert severity="error" sx={{ mb: 2 }}>
@@ -313,10 +328,6 @@ export default function AnalyticsDashboard() {
           {exportMessage.text}
         </Alert>
       ) : null}
-
-      <Typography variant="h5" sx={{ fontWeight: 900, mb: 2 }}>
-        Analytics
-      </Typography>
 
       <Card sx={{ borderRadius: 2, mb: 2.5, border: '1px solid', borderColor: 'divider' }}>
         <CardContent sx={{ p: { xs: 2, md: 2.5 } }}>
@@ -521,5 +532,6 @@ export default function AnalyticsDashboard() {
         </Grid>
       </Grid>
     </Box>
+    </DashboardPageFrame>
   );
 }
