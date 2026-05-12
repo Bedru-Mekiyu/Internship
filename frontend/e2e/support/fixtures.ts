@@ -6,10 +6,10 @@ type Fixtures = {
 };
 
 export const test = base.extend<Fixtures>({
-  app: async ({ page }, use) => {
+  app: async ({ page }, withFixture) => {
     const app = createMockApp();
     await app.install(page);
-    await use(app);
+    await withFixture(app);
   },
 });
 

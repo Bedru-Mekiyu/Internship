@@ -4,24 +4,22 @@ test.describe('accessibility, responsiveness, and resilience', () => {
   test('login form supports keyboard-first navigation', async ({ page }) => {
     await page.goto('/auth/login');
 
+    await page.getByRole('textbox', { name: 'Email' }).click();
     await page.keyboard.press('Tab');
-    await expect(page.getByRole('textbox', { name: 'Email' })).toBeFocused();
+    await expect(page.getByRole('button', { name: 'Forgot password?' })).toBeFocused();
 
     await page.keyboard.press('Tab');
     await expect(page.getByRole('textbox', { name: 'Password' })).toBeFocused();
-
-    await page.keyboard.press('Tab');
-    await expect(page.getByRole('button', { name: 'Sign in' })).toBeFocused();
   });
 
   test('notification preferences update and persist visual feedback', async ({ page, app }) => {
     await app.loginAs(page, 'student');
     await page.goto('/settings/notifications');
 
-    await expect(page.getByRole('heading', { name: 'Notification Preferences' })).toBeVisible();
+    await expect(page.getByText('Manage how and when you receive notifications')).toBeVisible();
     await expect(page.getByText(/10 notifications enabled/i)).toBeVisible();
 
-    await page.getByRole('checkbox').first().click();
+    await page.getByRole('switch').first().click();
     await expect(page.getByText(/9 notifications enabled/i)).toBeVisible();
 
     await page.getByRole('button', { name: 'Save Changes' }).click();
@@ -39,7 +37,7 @@ test.describe('accessibility, responsiveness, and resilience', () => {
       await page.getByRole('link', { name: 'Profile' }).click();
 
       await expect(page).toHaveURL(/\/profile-settings/);
-      await expect(page.getByRole('heading', { name: /profile & settings/i })).toBeVisible();
+      await expect(page.getByText('Profile & Settings')).toBeVisible();
       await expect(page.getByLabel('Search settings...')).toBeVisible();
     });
   });

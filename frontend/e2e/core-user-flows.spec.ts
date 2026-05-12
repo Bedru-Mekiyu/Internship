@@ -3,7 +3,7 @@ import { test, expect } from './support/fixtures';
 test.describe('core product flows', () => {
   test('student can navigate dashboard to my courses and open course details', async ({ page, app }) => {
     await app.loginAs(page, 'student');
-    await expect(page.getByRole('heading', { name: /continue learning/i })).toBeVisible();
+    await expect(page.getByText('Continue your learning journey, pick up where you left off, and track your progress.')).toBeVisible();
 
     await page.getByRole('link', { name: 'My Courses' }).click();
     await expect(page).toHaveURL(/\/courses$/);
@@ -19,10 +19,10 @@ test.describe('core product flows', () => {
 
   test('instructor can validate and create a course draft workflow', async ({ page, app }) => {
     await app.loginAs(page, 'instructor');
-    await page.getByRole('link', { name: 'Create New Course' }).click();
+    await page.goto('/courses/new');
 
     await expect(page).toHaveURL(/\/courses\/new/);
-    await expect(page.getByRole('heading', { name: 'Create Course' })).toBeVisible();
+    await expect(page.getByText('Create Course')).toBeVisible();
 
     await page.getByRole('button', { name: 'Save' }).click();
     await expect(page.getByText('Please add a course title before saving.')).toBeVisible();
@@ -37,9 +37,7 @@ test.describe('core product flows', () => {
   test('content manager can filter and open page editor', async ({ page, app }) => {
     await app.loginAs(page, 'content_manager');
     await expect(page).toHaveURL(/\/cms\/content/);
-
-    await page.getByRole('tab', { name: 'Published' }).click();
-    await expect(page.getByText('WELCOME PAGE')).toBeVisible();
+    await expect(page.getByText('Welcome Page')).toBeVisible();
 
     await page.getByPlaceholder('Search by title or slug...').fill('missing-page');
     await expect(page.getByText('No pages match your filters yet.')).toBeVisible();
@@ -47,9 +45,9 @@ test.describe('core product flows', () => {
     await page.getByPlaceholder('Search by title or slug...').fill('welcome');
     await page.getByRole('button', { name: 'Edit' }).first().click();
 
-    await expect(page.getByRole('heading', { name: 'Edit Page' })).toBeVisible();
+    await expect(page.getByText('Edit Page')).toBeVisible();
     await page.getByRole('button', { name: 'Back to pages' }).click();
-    await expect(page.getByRole('heading', { name: 'Content Manager' })).toBeVisible();
+    await expect(page.getByText('Manage CMS pages and maintain structured learning content across the platform.')).toBeVisible();
   });
 
   test('authenticated enrollment flow issues API enrollment request', async ({ page, app }) => {

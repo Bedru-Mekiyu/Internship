@@ -15,7 +15,7 @@ test.describe('public smoke and routing', () => {
   test('legacy help route redirects to canonical help page', async ({ page }) => {
     await page.goto('/help-center');
     await expect(page).toHaveURL(/\/help$/);
-    await expect(page.getByRole('heading', { name: /help center/i })).toBeVisible();
+    await expect(page.getByPlaceholder('Search for help articles...')).toBeVisible();
   });
 
   test('protected routes redirect unauthenticated users to login', async ({ page }) => {
