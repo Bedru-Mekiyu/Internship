@@ -1,15 +1,6 @@
 import { useMemo, useState } from 'react';
 import {
   Alert,
-
-
-
-
-
-
-
-
-
   Box,
   Button,
   Card,
@@ -35,6 +26,7 @@ import { alpha } from '@mui/material/styles';
 import { normalizeApiError } from '../../services/api';
 import { useContent } from '../../hooks/useContent';
 import type { ContentItem } from '../../types';
+import DashboardPageFrame from '../../components/common/DashboardPageFrame';
 
 type PostFilter = 'all' | 'published' | 'drafts';
 type FormState = {
@@ -239,46 +231,38 @@ export default function BlogPostEditor() {
   const isBusy = isCreating || isUpdating || isDeleting;
 
   return (
+    <DashboardPageFrame
+      title="Blog Posts"
+      description="Create, edit, and manage your blog posts and articles."
+      breadcrumbs={[
+        { label: 'Dashboard', to: '/admin/dashboard' },
+        { label: 'Content Manager', to: '/cms/content' },
+        { label: 'Blog Posts' },
+      ]}
+      actions={
+        <Stack direction="row" spacing={1}>
+          <Button
+            variant="outlined"
+            onClick={createNewPostDraft}
+            disabled={isBusy}
+          >
+            New draft
+          </Button>
+          {selectedPost ? (
+            <Button
+              color="error"
+              variant="outlined"
+              onClick={() => setDeleteOpen(true)}
+              disabled={isBusy}
+            >
+              Delete
+            </Button>
+          ) : null}
+        </Stack>
+      }
+    >
     <Box sx={{ minHeight: '100%', bgcolor: 'background.default', p: { xs: 1.5, sm: 2, md: 3 } }}>
       <Stack spacing={2}>
-        <Card sx={surfaceCardSx}>
-          <CardContent sx={{ p: { xs: 2, md: 2.5 } }}>
-            <Stack
-              direction={{ xs: 'column', md: 'row' }}
-              spacing={1.5}
-              sx={{ justifyContent: 'space-between', alignItems: { xs: 'stretch', md: 'center' } }}
-            >
-              <Box>
-                <Typography variant="h5" sx={{ fontWeight: 900, letterSpacing: '-0.02em' }}>
-                  Content Manager
-                </Typography>
-                <Typography variant="body2" sx={{ color: 'text.secondary', mt: 0.5 }}>
-                  Blog posts
-                </Typography>
-              </Box>
-              <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1} sx={{ width: { xs: '100%', md: 'auto' } }}>
-                <Button
-                  variant="outlined"
-                  onClick={createNewPostDraft}
-                  disabled={isBusy}
-                  fullWidth={false}
-                >
-                  New draft
-                </Button>
-                {selectedPost ? (
-                  <Button
-                    color="error"
-                    variant="outlined"
-                    onClick={() => setDeleteOpen(true)}
-                    disabled={isBusy}
-                  >
-                    Delete
-                  </Button>
-                ) : null}
-              </Stack>
-            </Stack>
-          </CardContent>
-        </Card>
 
         {statusMessage ? (
           <Alert severity={statusMessage.severity} sx={{ borderRadius: 2 }}>
@@ -454,5 +438,6 @@ export default function BlogPostEditor() {
       </Dialog>
 
     </Box>
+    </DashboardPageFrame>
   );
 }

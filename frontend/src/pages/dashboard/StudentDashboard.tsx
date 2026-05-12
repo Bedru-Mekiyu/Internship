@@ -27,6 +27,7 @@ import { theme } from '../../theme';
 import { useGetStudentDashboardQuery } from '../../store/api/dashboardApi';
 import { useGetCoursesQuery } from '../../store/api/courseApi';
 import { sanitizeHttpUrl } from '../../utils/safeUrl';
+import DashboardPageFrame from '../../components/common/DashboardPageFrame';
 import {
   card,
   innerCard,
@@ -207,7 +208,10 @@ export default function StudentDashboard({ showAccessDenied }: StudentDashboardP
   }, [data]);
 
   return (
-    <Box sx={{ minHeight: '100%' }}>
+    <DashboardPageFrame
+      title={welcomeGreeting}
+      description="Continue your learning journey, pick up where you left off, and track your progress."
+    >
       <Stack spacing={SPACING.lg}>
         {/* Access denied error */}
         {showAccessDenied && (
@@ -222,19 +226,6 @@ export default function StudentDashboard({ showAccessDenied }: StudentDashboardP
             {normalizeApiError(error).message || 'Failed to load dashboard data.'}
           </Alert>
         )}
-
-        {/* Page header */}
-        <Box>
-          <Typography
-            variant="h4"
-            sx={{ fontWeight: 900, letterSpacing: '-0.04em', color: 'text.primary' }}
-          >
-            {welcomeGreeting}
-          </Typography>
-          <Typography variant="body1" sx={{ mt: 1, color: 'text.secondary', maxWidth: 640 }}>
-            Continue your learning journey, pick up where you left off, and track your progress.
-          </Typography>
-        </Box>
 
         {/* Stat cards */}
         <Grid container spacing={SPACING.md}>
@@ -569,6 +560,6 @@ export default function StudentDashboard({ showAccessDenied }: StudentDashboardP
           </Grid>
         </Grid>
       </Stack>
-    </Box>
+    </DashboardPageFrame>
   );
 }

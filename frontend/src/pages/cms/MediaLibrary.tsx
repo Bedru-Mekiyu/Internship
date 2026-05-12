@@ -34,6 +34,7 @@ import {
 } from '@mui/icons-material';
 import { useContent } from '../../hooks/useContent';
 import { normalizeApiError } from '../../services/api';
+import DashboardPageFrame from '../../components/common/DashboardPageFrame';
 import { sanitizeHttpUrl } from '../../utils/safeUrl';
 import { theme } from '../../theme';
 type MediaKind = 'all' | 'image' | 'video' | 'document';
@@ -318,6 +319,15 @@ export default function MediaLibrary() {
   };
 
   return (
+    <DashboardPageFrame
+      title="Media Library"
+      description="Manage and organize your media files. Upload images, videos, and documents."
+      breadcrumbs={[
+        { label: 'Dashboard', to: '/admin/dashboard' },
+        { label: 'Content Manager', to: '/cms/content' },
+        { label: 'Media Library' },
+      ]}
+    >
     <Box sx={{ minHeight: '100%', bgcolor: 'background.default', p: { xs: 2, sm: 2.5, md: 3 } }}>
         <Card sx={{ mb: 2.5, border: '1px solid', borderColor: 'divider', borderRadius: 2 }}>
           <CardContent sx={{ p: { xs: 2.5, md: 3 } }}>
@@ -341,10 +351,6 @@ export default function MediaLibrary() {
               {isLoading ? (
                 <Typography sx={{ color: 'text.secondary' }}>Loading media files...</Typography>
               ) : null}
-
-              <Typography variant="h4" sx={{ fontWeight: 800, letterSpacing: '-0.03em' }}>
-                Media Library
-              </Typography>
 
               <Tabs
                 value={tab}
@@ -507,5 +513,6 @@ export default function MediaLibrary() {
         </DialogActions>
       </Dialog>
     </Box>
+    </DashboardPageFrame>
   );
 }
