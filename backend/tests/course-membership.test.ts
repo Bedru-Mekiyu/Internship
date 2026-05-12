@@ -22,6 +22,7 @@ describe('userHasCourseDiscussionAccess', () => {
 
   it('returns false for invalid inputs', async () => {
     await expect(userHasCourseDiscussionAccess(null, 'course-1')).resolves.toBe(false);
+    await expect(userHasCourseDiscussionAccess({ role: 'student' } as never, 'course-1')).resolves.toBe(false);
     await expect(userHasCourseDiscussionAccess(learner, '  ')).resolves.toBe(false);
     expect((Course.findById as jest.Mock)).not.toHaveBeenCalled();
     expect((Enrollment.findOne as jest.Mock)).not.toHaveBeenCalled();
@@ -60,7 +61,7 @@ describe('userHasCourseDiscussionAccess', () => {
     (Enrollment.findOne as jest.Mock).mockImplementation(async () => ({ _id: 'enrollment-1' }));
 
     await expect(userHasCourseDiscussionAccess(learner, '  course-1  ')).resolves.toBe(true);
-    expect(Enrollment.findOne).toHaveBeenCalledWith({ userId, courseId: 'course-1' });
+    expect(Enrollment.findOne as jest.Mock).toHaveBeenCalledWith({ userId: 'user-1', courseId: 'course-1' });
   });
 
   it('returns false when enrollment is missing', async () => {
@@ -70,5 +71,34 @@ describe('userHasCourseDiscussionAccess', () => {
     (Enrollment.findOne as jest.Mock).mockImplementation(async () => null);
 
     await expect(userHasCourseDiscussionAccess(learner, 'course-1')).resolves.toBe(false);
+  });
+
+  it('checks enrollment when instructor is not the course owner', async () => {
+    (Course.findById as jest.Mock).mockReturnValue({
+      select: jest.fn().mockImplementation(async () => ({ instructor: { toString: () => 'teacher-1' } })),
+    });
+    (Enrollment.findOne as jest.Mock).mockImplementation(async () => ({ _id: 'enrollment-1' }));
+
+    const instructor = { _id: userId, role: 'instructor' };
+    await expect(userHasCourseDiscussionAccess(instructor, 'course-1')).resolves.toBe(true);
+    expect(Enrollment.findOne as jest.Mock).toHaveBeenCalledWith({ userId: 'user-1', courseId: 'course-1' });
+  });
+
+  it('rejects when course lookup fails', async () => {
+    (Course.findById as jest.Mock).mockReturnValue({
+      select: jest.fn().mockRejectedValue(new Error('db error')),
+    });
+
+    await expect(userHasCourseDiscussionAccess(learner, 'course-1')).rejects.toThrow('db error');
+    expect((Enrollment.findOne as jest.Mock)).not.toHaveBeenCalled();
+  });
+
+  it('rejects when enrollment lookup fails', async () => {
+    (Course.findById as jest.Mock).mockReturnValue({
+      select: jest.fn().mockImplementation(async () => ({ instructor: { toString: () => 'teacher-1' } })),
+    });
+    (Enrollment.findOne as jest.Mock).mockRejectedValue(new Error('enrollment error'));
+
+    await expect(userHasCourseDiscussionAccess(learner, 'course-1')).rejects.toThrow('enrollment error');
   });
 });

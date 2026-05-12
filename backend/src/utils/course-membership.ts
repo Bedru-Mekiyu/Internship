@@ -3,7 +3,7 @@ import { Enrollment } from '../models/Enrollment.model';
 
 /** Minimal user shape for access checks (Mongoose user doc or plain object). */
 export type CourseAccessUser = {
-  _id: { toString(): string };
+  _id: string | { toString(): string };
   role: string;
 };
 
@@ -20,6 +20,7 @@ export async function userHasCourseDiscussionAccess(
   }
 
   const cid = courseId.trim();
+  const userId = user._id.toString();
 
   if (user.role === 'admin') {
     return true;
@@ -30,10 +31,10 @@ export async function userHasCourseDiscussionAccess(
     return false;
   }
 
-  if (user.role === 'instructor' && course.instructor?.toString() === user._id.toString()) {
+  if (user.role === 'instructor' && course.instructor?.toString() === userId) {
     return true;
   }
 
-  const enrollment = await Enrollment.findOne({ userId: user._id, courseId: cid });
+  const enrollment = await Enrollment.findOne({ userId, courseId: cid });
   return Boolean(enrollment);
 }
