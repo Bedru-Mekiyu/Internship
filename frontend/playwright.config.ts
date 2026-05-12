@@ -11,11 +11,18 @@ export default defineConfig({
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
   workers: process.env.CI ? 1 : undefined,
-  reporter: process.env.CI ? 'line' : 'list',
+  reporter: process.env.CI
+    ? [
+      ['line'],
+      ['html', { open: 'never', outputFolder: 'playwright-report' }],
+    ]
+    : 'list',
   use: {
     ...devices['Desktop Chrome'],
     baseURL: previewUrl,
     trace: 'on-first-retry',
+    screenshot: 'only-on-failure',
+    video: 'retain-on-failure',
   },
   webServer: {
     command: reuseDist
