@@ -95,7 +95,7 @@ export const createApp = () => {
         callback(null, true);
         return;
       }
-      callback(new Error(`Origin ${origin} not allowed by CORS policy`));
+      callback(null, false);
     },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],

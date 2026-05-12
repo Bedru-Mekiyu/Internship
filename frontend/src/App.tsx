@@ -202,6 +202,8 @@ function AppRoutes() {
         <Route path="/auth/signup" element={<SignupAuthPage />} />
         <Route path="/auth/verify-email" element={<EmailVerificationPage />} />
         <Route path="/auth/reset-password" element={<PasswordResetPage />} />
+        <Route path="/reset-password" element={<ResetPasswordRedirect />} />
+        <Route path="/forgot-password" element={<ResetPasswordRedirect />} />
 
         <Route element={<RequireSession />}>
           <Route element={<LearnSpaceShell />}>
@@ -252,6 +254,11 @@ function AppRoutes() {
     </Suspense>
     </>
   );
+}
+
+function ResetPasswordRedirect() {
+  const { search } = useLocation();
+  return <Navigate to={`/auth/reset-password${search}`} replace />;
 }
 
 function App() {
