@@ -51,11 +51,19 @@ const createFindChain = (result: unknown[]): FindChain => {
     limit: jest.fn(),
     populate: jest.fn(),
   } as unknown as FindChain;
+  let populateCallCount = 0;
 
   chain.sort.mockReturnValue(chain);
   chain.skip.mockReturnValue(chain);
   chain.limit.mockReturnValue(chain);
-  chain.populate.mockReturnValueOnce(chain).mockResolvedValueOnce(result);
+  chain.populate.mockImplementation(() => {
+    populateCallCount += 1;
+    if (populateCallCount === 1) {
+      return chain;
+    }
+
+    return Promise.resolve(result);
+  });
 
   return chain;
 };
@@ -197,6 +205,27 @@ describe('contact.controller', () => {
         hasPrev: false,
       },
     });
+  });
+
+  it('caps requested page size at the maximum limit of 100', async () => {
+    const chain = createFindChain([]);
+    ContactMessage.find.mockReturnValue(chain);
+    ContactMessage.countDocuments.mockResolvedValue(0);
+
+    const request = {
+      query: {
+        limit: '101',
+        page: '1',
+      },
+    } as unknown as Request;
+    const response = createResponse();
+    const next = jest.fn();
+
+    getContactMessages(request, response, next);
+    await flushAsync();
+
+    expect(next).not.toHaveBeenCalled();
+    expect(chain.limit).toHaveBeenCalledWith(100);
   });
 
   it('rejects invalid ids when updating status', async () => {
