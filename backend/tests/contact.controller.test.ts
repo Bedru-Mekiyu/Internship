@@ -6,7 +6,7 @@ import {
   updateContactMessageStatus,
 } from '../src/controllers/contact.controller';
 
-const flushAsync = async (delayMs = 20) => {
+const waitForAsyncHandlers = async (delayMs = 20) => {
   await new Promise((resolve) => setTimeout(resolve, delayMs));
 };
 
@@ -51,14 +51,11 @@ const createFindChain = (result: unknown[]): FindChain => {
     limit: jest.fn(),
     populate: jest.fn(),
   } as unknown as FindChain;
-  let populateCallCount = 0;
-
   chain.sort.mockReturnValue(chain);
   chain.skip.mockReturnValue(chain);
   chain.limit.mockReturnValue(chain);
-  chain.populate.mockImplementation(() => {
-    populateCallCount += 1;
-    if (populateCallCount === 1) {
+  chain.populate.mockImplementation((path: string) => {
+    if (path === 'reviewedBy') {
       return chain;
     }
 
@@ -88,7 +85,7 @@ describe('contact.controller', () => {
     const next = jest.fn();
 
     createContactMessage(request, response, next);
-    await flushAsync();
+    await waitForAsyncHandlers();
 
     expect(next).not.toHaveBeenCalled();
     expect(ContactMessage.create).toHaveBeenCalledWith({
@@ -115,7 +112,7 @@ describe('contact.controller', () => {
     const next = jest.fn();
 
     createContactMessage(request, response, next);
-    await flushAsync();
+    await waitForAsyncHandlers();
 
     const error = next.mock.calls[0][0] as { message: string; statusCode: number };
     expect(error).toMatchObject({ message: 'fullName is required', statusCode: 400 });
@@ -142,7 +139,7 @@ describe('contact.controller', () => {
     const next = jest.fn();
 
     getContactMessages(request, response, next);
-    await flushAsync();
+    await waitForAsyncHandlers();
 
     expect(next).not.toHaveBeenCalled();
     expect(ContactMessage.find).toHaveBeenCalledWith({
@@ -188,7 +185,7 @@ describe('contact.controller', () => {
     const next = jest.fn();
 
     getContactMessages(request, response, next);
-    await flushAsync();
+    await waitForAsyncHandlers();
 
     expect(next).not.toHaveBeenCalled();
     expect(ContactMessage.find).toHaveBeenCalledWith({});
@@ -222,7 +219,7 @@ describe('contact.controller', () => {
     const next = jest.fn();
 
     getContactMessages(request, response, next);
-    await flushAsync();
+    await waitForAsyncHandlers();
 
     expect(next).not.toHaveBeenCalled();
     expect(chain.limit).toHaveBeenCalledWith(100);
@@ -237,7 +234,7 @@ describe('contact.controller', () => {
     const next = jest.fn();
 
     updateContactMessageStatus(request, response, next);
-    await flushAsync();
+    await waitForAsyncHandlers();
 
     const error = next.mock.calls[0][0] as { message: string; statusCode: number };
     expect(error).toMatchObject({ message: 'Invalid contact message id', statusCode: 400 });
@@ -253,7 +250,7 @@ describe('contact.controller', () => {
     const next = jest.fn();
 
     updateContactMessageStatus(request, response, next);
-    await flushAsync();
+    await waitForAsyncHandlers();
 
     const error = next.mock.calls[0][0] as { message: string; statusCode: number };
     expect(error).toMatchObject({ message: 'Valid status is required', statusCode: 400 });
@@ -271,7 +268,7 @@ describe('contact.controller', () => {
     const next = jest.fn();
 
     updateContactMessageStatus(request, response, next);
-    await flushAsync();
+    await waitForAsyncHandlers();
 
     const error = next.mock.calls[0][0] as { message: string; statusCode: number };
     expect(error).toMatchObject({ message: 'Contact message not found', statusCode: 404 });
@@ -298,7 +295,7 @@ describe('contact.controller', () => {
     const next = jest.fn();
 
     updateContactMessageStatus(request, response, next);
-    await flushAsync();
+    await waitForAsyncHandlers();
 
     expect(next).not.toHaveBeenCalled();
     expect(document.status).toBe('in_progress');
@@ -324,7 +321,7 @@ describe('contact.controller', () => {
     const next = jest.fn();
 
     assignContactMessage(request, response, next);
-    await flushAsync();
+    await waitForAsyncHandlers();
 
     const error = next.mock.calls[0][0] as { message: string; statusCode: number };
     expect(error).toMatchObject({ message: 'Invalid assignedTo value', statusCode: 400 });
@@ -349,7 +346,7 @@ describe('contact.controller', () => {
     const next = jest.fn();
 
     assignContactMessage(request, response, next);
-    await flushAsync();
+    await waitForAsyncHandlers();
 
     expect(next).not.toHaveBeenCalled();
     expect(document.assignedTo).toBeDefined();
