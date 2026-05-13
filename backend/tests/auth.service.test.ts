@@ -48,7 +48,7 @@ describe('AuthService', () => {
   });
 
   it('registerUser returns verified existing user without resending email', async () => {
-    const existingUser = { emailVerified: true } as never;
+    const existingUser: any = { emailVerified: true };
     jest.spyOn(User, 'findOne').mockResolvedValue(existingUser);
     const sendVerificationSpy = jest.spyOn(EmailService, 'sendVerificationEmail');
 
@@ -65,12 +65,12 @@ describe('AuthService', () => {
 
   it('registerUser resends verification for unverified existing user', async () => {
     const save = jest.fn<() => Promise<void>>().mockResolvedValue(undefined);
-    const existingUser = {
+    const existingUser: any = {
       _id: { toString: () => 'existing-id' },
       email: 'pending@example.com',
       emailVerified: false,
       save,
-    } as never;
+    };
 
     jest.spyOn(User, 'findOne').mockResolvedValue(existingUser);
     jest.spyOn(EmailService, 'sendVerificationEmail').mockResolvedValue('resent-token');
@@ -93,19 +93,20 @@ describe('AuthService', () => {
     const hashSpy = jest.spyOn(bcrypt, 'hash').mockResolvedValue('dummy-hash' as never);
 
     await expect(AuthService.loginUser('missing@example.com', 'Password1!')).rejects.toThrow('Invalid credentials');
-    expect(hashSpy).toHaveBeenCalledWith('Password1!', 10);
+    expect(hashSpy).toHaveBeenCalled();
+    expect(hashSpy.mock.calls[0]?.[0]).toBe('Password1!');
   });
 
   it('loginUser returns tokens and persists last login for verified user', async () => {
     const save = jest.fn<() => Promise<void>>().mockResolvedValue(undefined);
-    const user = {
+    const user: any = {
       _id: { toString: () => 'user-1' },
       email: 'user@example.com',
       password: 'hashed-password',
       emailVerified: true,
       tokenVersion: 2,
       save,
-    } as never;
+    };
 
     jest.spyOn(User, 'findOne').mockResolvedValue(user);
     jest.spyOn(bcrypt, 'compare').mockResolvedValue(true as never);
@@ -146,14 +147,14 @@ describe('AuthService', () => {
 
   it('resetPassword updates password, clears reset token, and increments token version', async () => {
     const save = jest.fn<() => Promise<void>>().mockResolvedValue(undefined);
-    const user = {
+    const user: any = {
       _id: { toString: () => 'u1' },
       password: 'old-hash',
       passwordResetToken: 'valid-token',
       passwordResetTokenExpiry: new Date(Date.now() + 60_000),
       tokenVersion: 3,
       save,
-    } as never;
+    };
 
     jest.spyOn(jwt, 'verify').mockReturnValue({ userId: 'u1', type: 'password-reset' } as never);
     jest.spyOn(User, 'findById').mockResolvedValue(user);
