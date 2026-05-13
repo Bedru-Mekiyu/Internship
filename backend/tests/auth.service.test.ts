@@ -1,18 +1,17 @@
 import { afterAll, beforeEach, describe, expect, it, jest } from '@jest/globals';
-import { AppError } from '../src/utils/http-error';
 
-const mockUserFindOne = jest.fn();
-const mockUserFindById = jest.fn();
-const mockUserDeleteOne = jest.fn();
-const mockUserConstructor = jest.fn();
-const mockSendVerificationEmail = jest.fn();
-const mockSendPasswordResetEmail = jest.fn();
-const mockBcryptHash = jest.fn();
-const mockBcryptCompare = jest.fn();
-const mockJwtSign = jest.fn();
-const mockJwtVerify = jest.fn();
-const mockLogError = jest.fn();
-const mockLogInfo = jest.fn();
+const mockUserFindOne = jest.fn<(...args: any[]) => any>();
+const mockUserFindById = jest.fn<(...args: any[]) => any>();
+const mockUserDeleteOne = jest.fn<(...args: any[]) => any>();
+const mockUserConstructor = jest.fn<(...args: any[]) => any>();
+const mockSendVerificationEmail = jest.fn<(...args: any[]) => any>();
+const mockSendPasswordResetEmail = jest.fn<(...args: any[]) => any>();
+const mockBcryptHash = jest.fn<(...args: any[]) => any>();
+const mockBcryptCompare = jest.fn<(...args: any[]) => any>();
+const mockJwtSign = jest.fn<(...args: any[]) => any>();
+const mockJwtVerify = jest.fn<(...args: any[]) => any>();
+const mockLogError = jest.fn<(...args: any[]) => any>();
+const mockLogInfo = jest.fn<(...args: any[]) => any>();
 
 jest.mock('../src/models/User.model', () => ({
   User: Object.assign(mockUserConstructor, {
@@ -92,8 +91,8 @@ describe('AuthService', () => {
   });
 
   it('resends verification for existing unverified user', async () => {
-    const save = jest.fn().mockResolvedValue(undefined);
-    const existingUser = {
+    const save = jest.fn(async () => undefined);
+    const existingUser: any = {
       _id: 'u2',
       email: 'pending@example.com',
       emailVerified: false,
@@ -116,8 +115,8 @@ describe('AuthService', () => {
   });
 
   it('keeps newly registered user in non-production when verification email fails', async () => {
-    const save = jest.fn().mockResolvedValue(undefined);
-    const createdUser = {
+    const save = jest.fn(async () => undefined);
+    const createdUser: any = {
       _id: 'new-user',
       email: 'new@example.com',
       save,
@@ -143,8 +142,8 @@ describe('AuthService', () => {
   });
 
   it('verifies email token and clears verification fields', async () => {
-    const save = jest.fn().mockResolvedValue(undefined);
-    const user = {
+    const save = jest.fn(async () => undefined);
+    const user: any = {
       _id: 'u3',
       emailVerified: false,
       verificationToken: 'valid-token',
@@ -174,7 +173,7 @@ describe('AuthService', () => {
     });
 
     await expect(AuthService.verifyEmail('provided-token')).rejects.toEqual(
-      expect.objectContaining<AppError>({
+      expect.objectContaining({
         name: 'AppError',
         message: 'Invalid or expired email verification token',
         statusCode: 400,
@@ -190,8 +189,8 @@ describe('AuthService', () => {
   });
 
   it('returns tokens and user on successful login', async () => {
-    const save = jest.fn().mockResolvedValue(undefined);
-    const user = {
+    const save = jest.fn(async () => undefined);
+    const user: any = {
       _id: 'u5',
       email: 'active@example.com',
       password: 'hashed',
@@ -222,8 +221,8 @@ describe('AuthService', () => {
   });
 
   it('stores reset token and sends password reset email', async () => {
-    const save = jest.fn().mockResolvedValue(undefined);
-    const user = {
+    const save = jest.fn(async () => undefined);
+    const user: any = {
       _id: 'u7',
       email: 'reset@example.com',
       save,
@@ -241,7 +240,7 @@ describe('AuthService', () => {
 
   it('validates password policy before resetting password', async () => {
     await expect(AuthService.resetPassword('token', 'weak')).rejects.toEqual(
-      expect.objectContaining<AppError>({
+      expect.objectContaining({
         name: 'AppError',
         message: 'Password must be 8+ characters with uppercase, lowercase, number, and special character.',
         statusCode: 400,
