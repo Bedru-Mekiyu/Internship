@@ -44,6 +44,7 @@ import { useCourseModules, useCourseProgress } from '../../hooks/useCourses';
 import { api, normalizeApiError } from '../../services/api';
 import { buildLessonQuizPath } from '../../services/lessonFlow';
 import { theme } from '../../theme';
+import { BRAND } from '../../theme/brand';
 import { resolvePublicApiOrigin } from '../../utils/apiBaseUrl';
 import { sanitizeHttpUrl } from '../../utils/safeUrl';
 
@@ -97,7 +98,7 @@ function slugifyPathSegment(value: string) {
 function lessonTypeChip(type: LessonType) {
   switch (type) {
     case 'video':
-      return { label: 'Video', color: '#0066FF' };
+      return { label: 'Video', color: BRAND.primary };
     case 'pdf':
       return { label: 'PDF', color: '#EF4444' };
     case 'quiz':

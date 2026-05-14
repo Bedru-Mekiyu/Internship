@@ -13,6 +13,8 @@
  *   <Card sx={card}>...</Card>
  */
 
+import { BRAND } from '../../theme/brand';
+
 // ─── Elevation tokens ─────────────────────────────────────────────────────────
 
 /**
@@ -82,7 +84,7 @@ export const SPACING = {
 // ─── Semantic color helpers ──────────────────────────────────────────────────
 
 export const ACCENT_COLORS = {
-  blue:   '#0066FF',
+  blue: BRAND.primary,
   indigo: '#6366F1',
   green:  '#10B981',
   amber:  '#F59E0B',

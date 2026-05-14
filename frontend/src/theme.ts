@@ -1,4 +1,5 @@
 import { alpha, createTheme, type Theme } from '@mui/material/styles';
+import { BRAND } from './theme/brand';
 
 export const spacing = {
   xs: 0.25,
@@ -24,9 +25,9 @@ export const lightTheme = createTheme({
   palette: {
     mode: 'light',
     primary: {
-      main: '#4F46E5',
-      dark: '#4338CA',
-      light: '#6366F1',
+      main: BRAND.primary,
+      dark: BRAND.primaryHover,
+      light: BRAND.primaryLight,
       contrastText: '#FFFFFF',
     },
     secondary: {
@@ -36,17 +37,17 @@ export const lightTheme = createTheme({
       contrastText: '#FFFFFF',
     },
     background: {
-      default: '#F4F7FB',
+      default: BRAND.pageBackground,
       paper: '#FFFFFF',
     },
     text: {
-      primary: '#0F172A',
-      secondary: '#475569',
+      primary: BRAND.textPrimary,
+      secondary: BRAND.textSecondary,
     },
-    divider: '#E5EAF2',
+    divider: BRAND.border,
     action: {
-      hover: 'rgba(79, 70, 229, 0.04)',
-      selected: 'rgba(79, 70, 229, 0.08)',
+      hover: alpha(BRAND.primary, 0.04),
+      selected: alpha(BRAND.primary, 0.08),
       disabled: 'rgba(15, 23, 42, 0.12)',
       disabledBackground: 'rgba(15, 23, 42, 0.04)',
     },
@@ -100,8 +101,8 @@ export const lightTheme = createTheme({
         body: {
           width: '100%',
           minHeight: '100%',
-          backgroundColor: '#EAF0F7',
-          color: '#111827',
+          backgroundColor: BRAND.pageBackground,
+          color: BRAND.textPrimary,
         },
         '#root': {
           minHeight: '100vh',
@@ -114,7 +115,7 @@ export const lightTheme = createTheme({
           textDecoration: 'none',
         },
         '::selection': {
-          backgroundColor: alpha('#0066FF', 0.18),
+          backgroundColor: alpha(BRAND.primary, 0.22),
         },
       },
     },
@@ -135,17 +136,17 @@ export const lightTheme = createTheme({
             transform: 'translateY(0)',
           },
         },
-        contained: {
-          backgroundColor: '#1E67F2',
+        contained: ({ theme }) => ({
+          backgroundColor: theme.palette.primary.main,
           '&:hover': {
             boxShadow: 'none',
-            backgroundColor: '#1452CB',
+            backgroundColor: theme.palette.primary.dark,
           },
           '&:disabled': {
-            backgroundColor: alpha('#1E67F2', 0.5),
+            backgroundColor: alpha(theme.palette.primary.main, 0.5),
             color: alpha('#FFFFFF', 0.7),
           },
-        },
+        }),
         outlined: {
           borderColor: '#D5DBE7',
           '&:hover': {
@@ -153,11 +154,11 @@ export const lightTheme = createTheme({
             backgroundColor: '#F8FAFD',
           },
         },
-        text: {
+        text: ({ theme }) => ({
           '&:hover': {
-            backgroundColor: alpha('#1E67F2', 0.08),
+            backgroundColor: alpha(theme.palette.primary.main, 0.08),
           },
-        },
+        }),
       },
     },
     MuiIconButton: {
@@ -172,7 +173,7 @@ export const lightTheme = createTheme({
         root: {
           borderRadius: 10,
           boxShadow: 'none',
-          border: '1px solid #DFE5F1',
+          border: `1px solid ${BRAND.border}`,
           backgroundImage: 'none',
         },
       },
@@ -193,7 +194,7 @@ export const lightTheme = createTheme({
           backgroundColor: '#FFFFFF',
           color: '#111827',
           boxShadow: 'none',
-          borderBottom: '1px solid #E3E8F1',
+          borderBottom: `1px solid ${BRAND.border}`,
           backdropFilter: 'none',
         },
       },
@@ -202,7 +203,7 @@ export const lightTheme = createTheme({
       styleOverrides: {
         paper: {
           backgroundColor: '#FFFFFF',
-          borderRight: '1px solid #E3E8F1',
+          borderRight: `1px solid ${BRAND.border}`,
           backgroundImage: 'none',
         },
       },
@@ -220,7 +221,7 @@ export const lightTheme = createTheme({
         fullWidth: true,
       },
       styleOverrides: {
-        root: {
+        root: ({ theme }) => ({
           '& .MuiOutlinedInput-root': {
             borderRadius: 8,
             backgroundColor: '#FFFFFF',
@@ -232,7 +233,7 @@ export const lightTheme = createTheme({
               borderColor: '#C6D0DF',
             },
             '&.Mui-focused fieldset': {
-              borderColor: '#1E67F2',
+              borderColor: theme.palette.primary.main,
               borderWidth: 1,
             },
             '&.Mui-error fieldset': {
@@ -244,7 +245,7 @@ export const lightTheme = createTheme({
             },
           },
           '& .MuiInputLabel-root.Mui-focused': {
-            color: '#1E67F2',
+            color: theme.palette.primary.main,
           },
           '& .MuiInputLabel-root.Mui-error': {
             color: '#EF4444',
@@ -254,31 +255,31 @@ export const lightTheme = createTheme({
             fontSize: '0.75rem',
             fontWeight: 500,
           },
-        },
+        }),
       },
     },
     MuiInputLabel: {
       styleOverrides: {
-        root: {
+        root: ({ theme }) => ({
           fontWeight: 600,
           fontSize: '0.875rem',
-          color: '#111827',
+          color: BRAND.textPrimary,
           '&.Mui-focused': {
-            color: '#1E67F2',
+            color: theme.palette.primary.main,
           },
-        },
+        }),
       },
     },
     MuiFormLabel: {
       styleOverrides: {
-        root: {
+        root: ({ theme }) => ({
           fontWeight: 600,
           fontSize: '0.875rem',
-          color: '#111827',
+          color: BRAND.textPrimary,
           '&.Mui-focused': {
-            color: '#1E67F2',
+            color: theme.palette.primary.main,
           },
-        },
+        }),
       },
     },
     MuiAlert: {
@@ -295,59 +296,59 @@ export const lightTheme = createTheme({
           fontWeight: 600,
           height: 26,
         },
-        filled: {
-          backgroundColor: alpha('#1E67F2', 0.08),
-          color: '#1E67F2',
-        },
+        filled: ({ theme }) => ({
+          backgroundColor: alpha(theme.palette.primary.main, 0.1),
+          color: theme.palette.primary.main,
+        }),
       },
     },
     MuiTabs: {
       styleOverrides: {
-        indicator: {
+        indicator: ({ theme }) => ({
           height: 2,
           borderRadius: 999,
-          backgroundColor: '#1E67F2',
-        },
+          backgroundColor: theme.palette.primary.main,
+        }),
       },
     },
     MuiTab: {
       styleOverrides: {
-        root: {
+        root: ({ theme }) => ({
           textTransform: 'none',
           minHeight: 42,
           fontWeight: 600,
-          color: '#6B7280',
+          color: BRAND.textSecondary,
           '&.Mui-selected': {
-            color: '#1E67F2',
+            color: theme.palette.primary.main,
             fontWeight: 700,
           },
-        },
+        }),
       },
     },
     MuiListItemButton: {
       styleOverrides: {
-        root: {
+        root: ({ theme }) => ({
           borderRadius: 10,
           '&.Mui-selected': {
-            backgroundColor: alpha('#1E67F2', 0.1),
-            color: '#1E67F2',
+            backgroundColor: alpha(theme.palette.primary.main, 0.1),
+            color: theme.palette.primary.main,
             '&:hover': {
-              backgroundColor: alpha('#1E67F2', 0.15),
+              backgroundColor: alpha(theme.palette.primary.main, 0.15),
             },
           },
-        },
+        }),
       },
     },
     MuiLink: {
       styleOverrides: {
-        root: {
+        root: ({ theme }) => ({
           fontWeight: 600,
-          color: '#1E67F2',
+          color: theme.palette.primary.main,
           textDecoration: 'none',
           '&:hover': {
             textDecoration: 'underline',
           },
-        },
+        }),
       },
     },
   },
@@ -356,31 +357,9 @@ export const lightTheme = createTheme({
 export const theme = lightTheme;
 
 export function getAdminTheme(): Theme {
-  return createTheme(lightTheme, {
-    palette: {
-      ...lightTheme.palette,
-      primary: { main: '#0066FF', dark: '#0052CC', light: '#4D94FF', contrastText: '#FFFFFF' },
-      info: { main: '#0066FF', dark: '#0052CC', light: '#4D94FF', contrastText: '#FFFFFF' },
-    },
-  });
+  return lightTheme;
 }
 
 export function getLearnTheme(): Theme {
-  return createTheme(lightTheme, {
-    palette: {
-      ...lightTheme.palette,
-      primary: {
-        main: '#5D5FEF',
-        dark: '#4B4EE0',
-        light: '#7B7EF7',
-        contrastText: '#FFFFFF',
-      },
-      info: {
-        main: '#5D5FEF',
-        dark: '#4B4EE0',
-        light: '#7B7EF7',
-        contrastText: '#FFFFFF',
-      },
-    },
-  });
+  return lightTheme;
 }

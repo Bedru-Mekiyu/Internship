@@ -23,6 +23,7 @@ import {
   SearchOutlined,
 } from '@mui/icons-material';
 import { alpha } from '@mui/material/styles';
+import { BRAND } from '../../theme/brand';
 import { normalizeApiError } from '../../services/api';
 import { useContent } from '../../hooks/useContent';
 import type { ContentItem } from '../../types';
@@ -316,7 +317,7 @@ export default function BlogPostEditor() {
                         sx={{
                           cursor: 'pointer',
                           borderColor: post._id === effectiveSelectedPostId ? 'primary.main' : 'divider',
-                          bgcolor: post._id === effectiveSelectedPostId ? alpha('#0066FF', 0.05) : '#FFFFFF',
+                          bgcolor: post._id === effectiveSelectedPostId ? alpha(BRAND.primary, 0.05) : '#FFFFFF',
                         }}
                       >
                         <CardContent sx={{ p: 1.5 }}>

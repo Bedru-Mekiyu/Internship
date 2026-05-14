@@ -24,6 +24,7 @@ import { api, normalizeApiError } from '../../services/api';
 import DashboardPageFrame, { DashboardSection } from '../../components/common/DashboardPageFrame';
 import { useGetCoursesQuery } from '../../store/api/courseApi';
 import { sanitizeHttpUrl } from '../../utils/safeUrl';
+import { BRAND } from '../../theme/brand';
 
 type CourseStatus = 'All' | 'In Progress' | 'Completed' | 'Wishlist';
 type CourseCategory = 'All Categories' | 'Development' | 'Design' | 'Business' | 'Marketing';
@@ -209,7 +210,7 @@ export default function MyCourses() {
         progress: Number(course.progress || 0),
         lastAccessed: catalogCourse?.updatedAt ? new Date(catalogCourse.updatedAt).toLocaleDateString() : '',
         image: sanitizeHttpUrl(catalogCourse?.thumbnail) || '',
-        accent: ['#0066FF', '#6366F1', '#10B981', '#F59E0B'][index % 4],
+        accent: [BRAND.primary, '#6366F1', '#10B981', '#F59E0B'][index % 4],
       };
     });
   }, [catalogCourses, data]);

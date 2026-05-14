@@ -1,33 +1,35 @@
+import { BRAND } from './brand';
+
 export const DS = {
   colors: {
-    primary: '#4F46E5',
-    primaryHover: '#4338CA',
+    primary: BRAND.primary,
+    primaryHover: BRAND.primaryHover,
     secondary: '#64748B',
     success: '#16A34A',
     warning: '#D97706',
     error: '#DC2626',
     info: '#2563EB',
     text: {
-      primary: '#0F172A',
-      secondary: '#475569',
+      primary: BRAND.textPrimary,
+      secondary: BRAND.textSecondary,
       muted: '#64748B',
       light: '#94A3B8',
     },
     background: {
-      default: '#F4F7FB',
+      default: BRAND.pageBackground,
       paper: '#FFFFFF',
       hover: '#F1F5F9',
-      active: '#EEF2FF',
+      active: BRAND.primarySoftBg,
     },
     border: {
-      default: '#E5EAF2',
+      default: BRAND.border,
       light: '#EDF1F6',
       input: '#E2E8F0',
-      card: '#DFE5F1',
+      card: BRAND.border,
     },
     brand: {
-      purple: '#4F46E5',
-      indigo: '#0066FF',
+      purple: BRAND.primary,
+      indigo: BRAND.primary,
       sky: '#38BDF8',
       pink: '#F9A8D4',
       amber: '#F59E0B',
@@ -75,7 +77,7 @@ export const DS = {
     none: 'none',
     sm: '0 1px 2px rgba(15,23,42,0.05)',
     md: '0 1px 3px rgba(15,23,42,0.06), 0 4px 16px rgba(15,23,42,0.04)',
-    lg: '0 4px 16px rgba(0,102,255,0.15)',
+    lg: '0 4px 16px rgba(93, 95, 239, 0.12)',
     xl: '0 8px 24px rgba(0,0,0,0.08)',
   },
   transitions: {

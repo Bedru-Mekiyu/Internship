@@ -30,6 +30,7 @@ import {
 import { useAuth } from '../../hooks/useAuth';
 import { api, normalizeApiError } from '../../services/api';
 import DashboardPageFrame from '../../components/common/DashboardPageFrame';
+import { BRAND } from '../../theme/brand';
 
 const RevenueChart = lazy(() => import('../../components/ui/RevenueChart'));
 
@@ -241,7 +242,7 @@ export default function AnalyticsDashboard() {
         return admin.courseDistribution.slice(0, 5).map((item) => ({
           name: item.label,
           completion: item.pct,
-          color: '#0066FF',
+          color: BRAND.primary,
         }));
       }
       return [];
@@ -256,7 +257,7 @@ export default function AnalyticsDashboard() {
     return courseRevenue.slice(0, 5).map((item, index) => ({
       name: item.title,
       completion: Math.max(1, Math.round((Number(item.revenue || 0) / maxRevenue) * 100)),
-      color: index % 2 === 0 ? '#0066FF' : '#8B5CF6',
+      color: index % 2 === 0 ? BRAND.primary : '#8B5CF6',
     }));
   }, [dashboardData, isAdmin, revenueData]);
 

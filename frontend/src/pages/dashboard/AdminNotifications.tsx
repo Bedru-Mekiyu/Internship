@@ -27,6 +27,7 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { api, normalizeApiError } from '../../services/api';
 import DashboardPageFrame from '../../components/common/DashboardPageFrame';
+import { BRAND } from '../../theme/brand';
 
 type NotificationTab = 'all' | 'unread' | 'mentions' | 'system';
 type NotificationDate = 'TODAY' | 'YESTERDAY' | 'OLDER';
@@ -109,10 +110,10 @@ const tabConfig: Array<{ key: NotificationTab; label: string }> = [
 ];
 
 function kindIcon(kind: NotificationKind) {
-  if (kind === 'mention') return <Avatar sx={{ width: 34, height: 34, bgcolor: '#DCE8FF', color: '#1E67F2' }}><PersonOutlineOutlined sx={{ fontSize: 19 }} /></Avatar>;
+  if (kind === 'mention') return <Avatar sx={{ width: 34, height: 34, bgcolor: BRAND.primarySoftBg, color: BRAND.primary }}><PersonOutlineOutlined sx={{ fontSize: 19 }} /></Avatar>;
   if (kind === 'warning') return <Avatar sx={{ width: 34, height: 34, bgcolor: '#FFF4DA', color: '#B7791F' }}><WarningAmberOutlined sx={{ fontSize: 19 }} /></Avatar>;
   if (kind === 'success') return <Avatar sx={{ width: 34, height: 34, bgcolor: '#DCFCE7', color: '#13803C' }}><CheckOutlined sx={{ fontSize: 19 }} /></Avatar>;
-  return <Avatar sx={{ width: 34, height: 34, bgcolor: '#E5ECFF', color: '#1E67F2' }}><LanguageOutlined sx={{ fontSize: 18 }} /></Avatar>;
+  return <Avatar sx={{ width: 34, height: 34, bgcolor: BRAND.primarySoftBg, color: BRAND.primary }}><LanguageOutlined sx={{ fontSize: 18 }} /></Avatar>;
 }
 
 function NotificationRow({ item, onAction }: { item: NotificationItem; onAction: (item: NotificationItem) => void }) {
@@ -124,7 +125,7 @@ function NotificationRow({ item, onAction }: { item: NotificationItem; onAction:
         gap: 1.5,
         px: 2.25,
         py: 1.8,
-        borderLeft: item.unread ? '3px solid #1E67F2' : '3px solid transparent',
+        borderLeft: item.unread ? `3px solid ${BRAND.primary}` : '3px solid transparent',
         borderBottom: '1px solid',
         borderColor: '#E5EAF2',
         bgcolor: '#FFFFFF',
@@ -162,7 +163,7 @@ function NotificationRow({ item, onAction }: { item: NotificationItem; onAction:
         <Typography variant="caption" sx={{ color: 'text.secondary', whiteSpace: 'nowrap' }}>
           {item.timestamp}
         </Typography>
-        <Circle sx={{ mt: 1, fontSize: 8, color: item.unread ? '#1E67F2' : '#CBD5E1' }} />
+        <Circle sx={{ mt: 1, fontSize: 8, color: item.unread ? BRAND.primary : '#CBD5E1' }} />
       </Stack>
     </Box>
   );

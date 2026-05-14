@@ -12,6 +12,7 @@ import {
   Typography,
 } from '@mui/material';
 import { alpha } from '@mui/material/styles';
+import { BRAND } from '../../theme/brand';
 import {
   CheckCircleOutlined,
   ErrorOutlined,
@@ -97,7 +98,7 @@ export default function EmailVerificationPage() {
               width: 72,
               height: 72,
               borderRadius: '50%',
-              bgcolor: alpha('#0066FF', 0.1),
+              bgcolor: alpha(BRAND.primary, 0.1),
               display: 'grid',
               placeItems: 'center',
             }}

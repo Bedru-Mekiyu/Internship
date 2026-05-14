@@ -23,6 +23,7 @@ import { normalizeApiError } from '../../services/api';
 import { buildCourseLearnPath } from '../../services/lessonFlow';
 import { useLessonQuiz, useQuizAttemptsMe, useSubmitQuizAttempt } from '../../hooks/useQuiz';
 import { useGetCourseByIdQuery } from '../../store/api/courseApi';
+import { BRAND } from '../../theme/brand';
 
 type QuestionStatus = 'not-visited' | 'answered' | 'review' | 'current';
 
@@ -465,8 +466,8 @@ export default function QuizTaker() {
                             height: 34,
                             borderRadius: 0.75,
                             border: '1px solid',
-                            borderColor: isCurrent ? '#F4B84A' : isMarked ? '#F4B84A' : isAnswered ? '#4F46E5' : '#CFD6E4',
-                            bgcolor: isAnswered ? '#4F46E5' : '#EEF3FB',
+                            borderColor: isCurrent ? '#F4B84A' : isMarked ? '#F4B84A' : isAnswered ? BRAND.primary : '#CFD6E4',
+                            bgcolor: isAnswered ? BRAND.primary : '#EEF3FB',
                             color: isAnswered ? '#FFFFFF' : isCurrent || isMarked ? '#D27A00' : 'text.secondary',
                             fontWeight: 700,
                             cursor: 'pointer',
@@ -480,7 +481,7 @@ export default function QuizTaker() {
                   </Box>
 
                   <Stack spacing={0.8} sx={{ pt: 0.4 }}>
-                    <LegendItem color="#4F46E5" label="Answered" />
+                    <LegendItem color={BRAND.primary} label="Answered" />
                     <LegendItem color="#A78BFA" label="Current" />
                     <LegendItem color="#F59E0B" label="Marked for Review" />
                     <LegendItem color="#D1D5DB" label="Not Visited" />

@@ -25,6 +25,7 @@ import { DeleteOutlined, SendOutlined, SettingsOutlined, UploadOutlined } from '
 import { api } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 import { sanitizeHttpUrl } from '../../utils/safeUrl';
+import { BRAND } from '../../theme/brand';
 
 interface PlatformSettingsData {
   platformName: string;
@@ -118,7 +119,7 @@ const inputSx = {
       borderColor: '#CBD5E1',
     },
     '&.Mui-focused fieldset': {
-      borderColor: '#1E67F2',
+      borderColor: BRAND.primary,
       borderWidth: 1,
     },
   },
@@ -141,7 +142,7 @@ const selectSx = {
       borderColor: '#CBD5E1',
     },
     '&.Mui-focused fieldset': {
-      borderColor: '#1E67F2',
+      borderColor: BRAND.primary,
       borderWidth: 1,
     },
   },
@@ -231,15 +232,15 @@ function ThemePreview({
       sx={{
         width: '100%',
         minHeight: 92,
-        border: selected ? '2px solid #1E67F2' : '1px solid #E2E8F0',
-        bgcolor: selected ? alpha('#1E67F2', 0.04) : '#FFFFFF',
+        border: selected ? `2px solid ${BRAND.primary}` : '1px solid #E2E8F0',
+        bgcolor: selected ? alpha(BRAND.primary, 0.04) : '#FFFFFF',
         borderRadius: 1,
         cursor: 'pointer',
         p: 1,
         textAlign: 'center',
         transition: 'border-color 160ms ease, background-color 160ms ease',
         '&:hover': {
-          borderColor: '#1E67F2',
+          borderColor: BRAND.primary,
         },
       }}
     >
@@ -441,7 +442,7 @@ export default function SystemSettings() {
                     bgcolor: '#F8FAFC',
                     display: 'grid',
                     placeItems: 'center',
-                    color: '#1E67F2',
+                    color: BRAND.primary,
                     overflow: 'hidden',
                     flexShrink: 0,
                   }}

@@ -8,13 +8,7 @@ import {
   useLocation,
   useNavigate,
 } from 'react-router-dom';
-import {
-  Box,
-  createTheme,
-  Stack,
-  ThemeProvider,
-  Typography,
-} from '@mui/material';
+import { Box, Stack, Typography } from '@mui/material';
 import { useQueryClient } from '@tanstack/react-query';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { createAuthenticatedSocket } from './services/realtimeSocket';
@@ -264,15 +258,12 @@ function ResetPasswordRedirect() {
 }
 
 function App() {
-  const theme = createTheme({});
   return (
-    <ThemeProvider theme={theme}>
-      <BrowserRouter>
-        <AuthProvider>
-          <AppRoutes />
-        </AuthProvider>
-      </BrowserRouter>
-    </ThemeProvider>
+    <BrowserRouter>
+      <AuthProvider>
+        <AppRoutes />
+      </AuthProvider>
+    </BrowserRouter>
   );
 }
 

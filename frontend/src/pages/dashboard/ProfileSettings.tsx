@@ -15,12 +15,14 @@ import {
   Typography,
 } from '@mui/material';
 import { CameraAltOutlined, EditOutlined } from '@mui/icons-material';
+import { alpha } from '@mui/material/styles';
 import { api, normalizeApiError } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 import { useGetStudentDashboardQuery } from '../../store/api/dashboardApi';
 import { sanitizeHttpUrl } from '../../utils/safeUrl';
 import type { AuthUser } from '../../types';
 import DashboardPageFrame from '../../components/common/DashboardPageFrame';
+import { BRAND } from '../../theme/brand';
 
 type ProfileForm = {
   firstName: string;
@@ -81,7 +83,7 @@ const inputSx = {
       borderColor: '#C9D3E8',
     },
     '&.Mui-focused fieldset': {
-      borderColor: '#5B4CF6',
+      borderColor: BRAND.primary,
     },
   },
   '& .MuiInputBase-input': {
@@ -503,10 +505,10 @@ export default function ProfileSettings() {
                       height: 82,
                       fontSize: 28,
                       fontWeight: 800,
-                      bgcolor: '#DDE7F7',
-                      color: '#4F46E5',
-                      border: '4px solid #EEF2FF',
-                      boxShadow: '0 8px 18px rgba(79,70,229,0.12)',
+                      bgcolor: alpha(BRAND.primary, 0.1),
+                      color: BRAND.primary,
+                      border: `4px solid ${BRAND.primarySoftBg}`,
+                      boxShadow: `0 8px 18px ${alpha(BRAND.primary, 0.14)}`,
                     }}
                   >
                     {initials}
@@ -529,11 +531,11 @@ export default function ProfileSettings() {
                     sx={{
                       mt: 2.25,
                       py: 0.55,
-                      bgcolor: '#EEF2FF',
-                      color: '#4F46E5',
+                      bgcolor: BRAND.primarySoftBg,
+                      color: BRAND.primary,
                       fontSize: '0.72rem',
                       boxShadow: 'none',
-                      '&:hover': { bgcolor: '#E0E7FF', boxShadow: 'none' },
+                      '&:hover': { bgcolor: alpha(BRAND.primary, 0.14), boxShadow: 'none' },
                     }}
                   >
                     Change Avatar
@@ -667,10 +669,8 @@ export default function ProfileSettings() {
                     sx={{
                       px: 2.1,
                       py: 0.78,
-                      bgcolor: '#5B4CF6',
                       fontSize: '0.76rem',
                       boxShadow: 'none',
-                      '&:hover': { bgcolor: '#4F46E5', boxShadow: 'none' },
                     }}
                   >
                     {profileMutation.isPending ? 'Saving...' : 'Save Changes'}
@@ -724,10 +724,8 @@ export default function ProfileSettings() {
                     sx={{
                       px: 2.1,
                       py: 0.78,
-                      bgcolor: '#5B4CF6',
                       fontSize: '0.76rem',
                       boxShadow: 'none',
-                      '&:hover': { bgcolor: '#4F46E5', boxShadow: 'none' },
                     }}
                   >
                     {passwordMutation.isPending ? 'Updating...' : 'Update Password'}
@@ -762,8 +760,8 @@ export default function ProfileSettings() {
                         disabled={notificationsMutation.isPending}
                         onChange={toggleNotification(item.key)}
                         sx={{
-                          '& .MuiSwitch-switchBase.Mui-checked': { color: '#5B4CF6' },
-                          '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': { bgcolor: '#5B4CF6', opacity: 1 },
+                          '& .MuiSwitch-switchBase.Mui-checked': { color: BRAND.primary },
+                          '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': { bgcolor: BRAND.primary, opacity: 1 },
                         }}
                       />
                     </Box>

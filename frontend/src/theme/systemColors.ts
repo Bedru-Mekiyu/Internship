@@ -1,16 +1,18 @@
+import { BRAND } from './brand';
+
 /**
  * Unified color system - use these instead of hardcoded hex values
  * These map to the theme palette for consistency across all pages
  */
 export const systemColors = {
   // Primary brand
-  primary: '#1E67F2',
-  primaryHover: '#1452CB',
-  primaryLight: '#5E91F6',
+  primary: BRAND.primary,
+  primaryHover: BRAND.primaryHover,
+  primaryLight: BRAND.primaryLight,
 
   // Secondary/accent
   secondary: '#6366F1',
-  secondaryHover: '#4F46E5',
+  secondaryHover: BRAND.primaryHover,
 
   // Neutrals - use theme text colors instead
   // text.primary = #111827 (use theme.palette.text.primary)
@@ -28,7 +30,7 @@ export const systemColors = {
 
   // Backgrounds
   bgPrimary: '#FFFFFF',
-  bgSecondary: '#F4F7FB',
+  bgSecondary: BRAND.pageBackground,
   bgMuted: '#F8FAFC',
 } as const;
 

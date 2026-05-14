@@ -29,6 +29,7 @@ import {
   VideoCallOutlined,
 } from '@mui/icons-material';
 import { api, normalizeApiError } from '../../services/api';
+import { BRAND } from '../../theme/brand';
 import { useAuth } from '../../context/AuthContext';
 import {
   canLoadOlderMessages,
@@ -381,7 +382,7 @@ export default function Messages() {
         group: 'Courses / Groups',
         preview,
         initials: initialsFromName(course.title),
-        accent: ['#0EA5E9', '#6366F1', '#0066FF', '#F97316', '#14B8A6'][index % 5],
+        accent: ['#0EA5E9', '#6366F1', BRAND.primary, '#F97316', '#14B8A6'][index % 5],
         timeLabel: latestForActiveCourse ? toRelativeTime(latestForActiveCourse.createdAt) : '—',
         unreadCount: 0,
       };

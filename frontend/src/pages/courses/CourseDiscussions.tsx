@@ -27,6 +27,7 @@ import { normalizeApiError } from '../../services/api';
 import { useAccessibleDiscussionCourses, useCourseDiscussions, usePostDiscussion } from '../../hooks/useDiscussions';
 import { useDiscussionRealtime } from '../../hooks/useDiscussionRealtime';
 import DashboardPageFrame from '../../components/common/DashboardPageFrame';
+import { BRAND } from '../../theme/brand';
 const LazyThreadItem = lazy(() =>
   import('../../components/ui/CourseDiscussionThreadCard').then((module) => ({ default: module.ThreadItem }))
 );
@@ -202,7 +203,7 @@ export default function CourseDiscussions() {
         ),
         author: authorName,
         avatar: authorInitials,
-        accent: '#0066FF',
+        accent: BRAND.primary,
         summary: discussion.content,
         replies: 1,
         unread: 0,
@@ -217,7 +218,7 @@ export default function CourseDiscussions() {
             role: 'User',
             time: toRelativeTime(discussion.createdAt),
             text: discussion.content,
-            accent: '#0066FF',
+            accent: BRAND.primary,
             isRead: true,
             reactions: [],
           },

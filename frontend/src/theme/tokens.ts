@@ -1,3 +1,5 @@
+import { BRAND } from './brand';
+
 export const RADIUS = {
   xs: 0.35,
   sm: 0.55,
@@ -14,6 +16,8 @@ export const SPACING = {
   md: 1.5,
   lg: 2,
   xl: 3,
+  cardPadding: { xs: 2, md: 2.5 } as const,
+  cardPaddingTight: { xs: 1.5, md: 2 } as const,
 } as const;
 
 export const TYPOGRAPHY = {
@@ -38,34 +42,34 @@ export const TYPOGRAPHY = {
 } as const;
 
 export const COLORS = {
-  primary: '#4F46E5',
-  primaryHover: '#4338CA',
+  primary: BRAND.primary,
+  primaryHover: BRAND.primaryHover,
   secondary: '#64748B',
   success: '#16A34A',
   warning: '#D97706',
   error: '#DC2626',
   info: '#2563EB',
-  textPrimary: '#0F172A',
-  textSecondary: '#475569',
+  textPrimary: BRAND.textPrimary,
+  textSecondary: BRAND.textSecondary,
   textMuted: '#64748B',
   textLight: '#94A3B8',
-  bgDefault: '#F4F7FB',
+  bgDefault: BRAND.pageBackground,
   bgPaper: '#FFFFFF',
   bgHover: '#F1F5F9',
-  bgActive: '#EEF2FF',
-  borderDefault: '#E5EAF2',
+  bgActive: BRAND.primarySoftBg,
+  borderDefault: BRAND.border,
   borderLight: '#EDF1F6',
   borderInput: '#E2E8F0',
-  borderCard: '#DFE5F1',
-  brandPurple: '#4F46E5',
-  brandIndigo: '#0066FF',
+  borderCard: BRAND.border,
+  brandPurple: BRAND.primary,
+  brandIndigo: BRAND.primary,
   brandSky: '#38BDF8',
   brandPink: '#F9A8D4',
   brandAmber: '#F59E0B',
 } as const;
 
 export const ACCENT_COLORS = {
-  blue:   '#0066FF',
+  blue: BRAND.primary,
   indigo: '#6366F1',
   green:  '#10B981',
   amber:  '#F59E0B',
@@ -77,7 +81,7 @@ export const SHADOWS = {
   none: 'none',
   sm: '0 1px 2px rgba(15,23,42,0.05)',
   md: '0 1px 3px rgba(15,23,42,0.06), 0 4px 16px rgba(15,23,42,0.04)',
-  lg: '0 4px 16px rgba(0,102,255,0.15)',
+  lg: '0 4px 16px rgba(93, 95, 239, 0.12)',
   xl: '0 8px 24px rgba(0,0,0,0.08)',
 } as const;
 
