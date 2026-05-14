@@ -28,4 +28,8 @@ describe('safeUrl helpers', () => {
     expect(sanitizeUrl('tel:+251900000000', allowed)).toBe('tel:+251900000000');
     expect(sanitizeUrl('https://example.com', allowed)).toBeNull();
   });
+
+  it('returns null when a custom allowlist is empty', () => {
+    expect(sanitizeUrl('https://example.com', new Set())).toBeNull();
+  });
 });
