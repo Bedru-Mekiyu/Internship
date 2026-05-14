@@ -19,13 +19,15 @@ describe('safeUrl helpers', () => {
   });
 
   it('resolves relative URLs against the current origin', () => {
-    expect(sanitizeHttpUrl('/assets/logo.png')).toBe('http://localhost:3000/assets/logo.png');
+    expect(sanitizeHttpUrl('/assets/logo.png')).toBe(
+      new URL('/assets/logo.png', window.location.origin).toString(),
+    );
   });
 
   it('supports custom protocol allowlists', () => {
     const allowed = new Set(['mailto:', 'tel:']);
     expect(sanitizeUrl('mailto:test@example.com', allowed)).toBe('mailto:test@example.com');
-    expect(sanitizeUrl('tel:+251900000000', allowed)).toBe('tel:+251900000000');
+    expect(sanitizeUrl('tel:+1234567890', allowed)).toBe('tel:+1234567890');
     expect(sanitizeUrl('https://example.com', allowed)).toBeNull();
   });
 
