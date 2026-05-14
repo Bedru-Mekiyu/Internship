@@ -14,6 +14,8 @@ export const SPACING = {
   md: 1.5,
   lg: 2,
   xl: 3,
+  cardPadding: { xs: 2, md: 2.5 } as const,
+  cardPaddingTight: { xs: 1.5, md: 2 } as const,
 } as const;
 
 export const TYPOGRAPHY = {
