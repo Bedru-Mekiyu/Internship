@@ -17,13 +17,23 @@ describe('Database Persistence Tests', () => {
   let testCourseId: string;
 
   beforeAll(async () => {
+    const user = await User.create({
+      _id: new mongoose.Types.ObjectId('testuser123'),
+      email: 'test@persistence.com',
+      password: '$2a$10$testhashedpassword', 
+      firstName: 'Test',
+      lastName: 'User',
+      role: 'student',
+      isVerified: true
+    });
+    testUserId = user._id.toString();
+
     const token = jwt.sign(
-      { userId: 'testuser123', type: 'access', tokenVersion: 1 },
+      { userId: testUserId, type: 'access', tokenVersion: 1 },
       JWT_SECRET,
       { expiresIn: '15m' }
     );
     testUserToken = token;
-    testUserId = 'testuser123';
 
     const course = await Course.create({
       title: 'Test Course',
@@ -37,6 +47,7 @@ describe('Database Persistence Tests', () => {
 
   afterAll(async () => {
     if (mongoose.connection.readyState === 1) {
+      await User.deleteMany({ email: 'test@persistence.com' });
       await Course.deleteMany({ title: 'Test Course' });
     }
   });

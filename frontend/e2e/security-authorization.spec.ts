@@ -54,7 +54,7 @@ test.describe('authentication security', () => {
     });
     
     await page.getByRole('button', { name: 'Sign in' }).click();
-    await expect(page.getByText(/security error|csrf/i)).toBeVisible({ timeout: 5000 }).catch(() => {});
+    await expect(page.getByText(/security error|csrf/i)).toBeVisible({ timeout: 5000 });
   });
 
   test('session persists across page refreshes', async ({ page, app }) => {

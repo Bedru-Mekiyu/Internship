@@ -58,6 +58,9 @@ describe('Security Integration Tests', () => {
         });
 
       expect(response.status).toBe(202);
+      if (response.status === 202 && response.body.user) {
+        expect(response.body.user.firstName).not.toContain('<script>');
+      }
     });
 
     it('sanitizes event handlers in content', async () => {

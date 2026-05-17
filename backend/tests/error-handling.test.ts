@@ -3,6 +3,17 @@ import { createApp } from '../src/app';
 
 describe('Error Handling Tests', () => {
   const app = createApp();
+  let originalNodeEnv: string | undefined;
+
+  beforeEach(() => {
+    originalNodeEnv = process.env.NODE_ENV;
+  });
+
+  afterEach(() => {
+    if (originalNodeEnv !== undefined) {
+      process.env.NODE_ENV = originalNodeEnv;
+    }
+  });
 
   describe('404 Handling', () => {
     it('returns 404 for unknown routes', async () => {
@@ -271,6 +282,17 @@ describe('Error Handling Tests', () => {
 
 describe('Logging Tests', () => {
   const app = createApp();
+  let originalNodeEnv: string | undefined;
+
+  beforeEach(() => {
+    originalNodeEnv = process.env.NODE_ENV;
+  });
+
+  afterEach(() => {
+    if (originalNodeEnv !== undefined) {
+      process.env.NODE_ENV = originalNodeEnv;
+    }
+  });
 
   it('logs errors with appropriate level', async () => {
     const response = await request(app).get('/api/unknown');

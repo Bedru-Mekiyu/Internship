@@ -95,7 +95,7 @@ test.describe('core user flows - student dashboard', () => {
     await page.goto('/courses/explore');
     
     const categoryDropdown = page.getByRole('combobox', { name: /category/i });
-    await expect(categoryDropdown).toBeVisible({ timeout: 5000 }).catch(() => {});
+    await expect(categoryDropdown).toBeVisible({ timeout: 5000 });
   });
 
   test('student can search courses', async ({ page }) => {
@@ -132,7 +132,7 @@ test.describe('core user flows - instructor dashboard', () => {
     await app.loginAs(page, 'instructor');
     await page.goto('/instructor/dashboard');
     
-    await expect(page.getByText(/students|enrollment|revenue/i)).toBeVisible({ timeout: 5000 }).catch(() => {});
+    await expect(page.getByText(/students|enrollment|revenue/i)).toBeVisible({ timeout: 5000 });
   });
 
   test('instructor can manage course content', async ({ page, app }) => {
@@ -171,7 +171,7 @@ test.describe('core user flows - admin dashboard', () => {
     await app.loginAs(page, 'admin');
     await page.goto('/admin/settings');
     
-    await expect(page.getByText(/settings|configuration/i)).toBeVisible({ timeout: 5000 }).catch(() => {});
+    await expect(page.getByText(/settings|configuration/i)).toBeVisible({ timeout: 5000 });
   });
 });
 
@@ -199,7 +199,7 @@ test.describe('core user flows - profile and settings', () => {
     await app.loginAs(page, 'student');
     await page.goto('/settings/notifications');
     
-    await expect(page.getByText(/notification|email|preferences/i)).toBeVisible({ timeout: 5000 }).catch(() => {});
+    await expect(page.getByText(/notification|email|preferences/i)).toBeVisible({ timeout: 5000 });
   });
 
   test('user can change password', async ({ page, app }) => {
@@ -222,7 +222,7 @@ test.describe('core user flows - learning', () => {
     
     await page.goto('/learn/course-react');
     
-    await expect(page.getByText(/lessons|modules|content/i)).toBeVisible({ timeout: 5000 }).catch(() => {});
+    await expect(page.getByText(/lessons|modules|content/i)).toBeVisible({ timeout: 5000 });
   });
 
   test('student can track progress', async ({ page, app }) => {
@@ -240,7 +240,7 @@ test.describe('core user flows - learning', () => {
     
     await page.goto('/courses/course-react/quiz/quiz-1');
     
-    await expect(page.getByText(/quiz|question/i)).toBeVisible({ timeout: 5000 }).catch(() => {});
+    await expect(page.getByText(/quiz|question/i)).toBeVisible({ timeout: 5000 });
   });
 });
 
@@ -257,14 +257,14 @@ test.describe('core user flows - content management', () => {
     await page.goto('/cms/content');
     
     const createButton = page.getByRole('button', { name: /create|add new|new page/i });
-    await expect(createButton).toBeVisible({ timeout: 5000 }).catch(() => {});
+    await expect(createButton).toBeVisible({ timeout: 5000 });
   });
 
   test('content manager can access media library', async ({ page, app }) => {
     await app.loginAs(page, 'content_manager');
     await page.goto('/cms/media');
     
-    await expect(page.getByText(/media|files|upload/i)).toBeVisible({ timeout: 5000 }).catch(() => {});
+    await expect(page.getByText(/media|files|upload/i)).toBeVisible({ timeout: 5000 });
   });
 });
 
@@ -273,14 +273,14 @@ test.describe('core user flows - discussions', () => {
     await app.loginAs(page, 'student');
     await page.goto('/courses/discussions');
     
-    await expect(page.getByText(/discussion|threads/i)).toBeVisible({ timeout: 5000 }).catch(() => {});
+    await expect(page.getByText(/discussion|threads/i)).toBeVisible({ timeout: 5000 });
   });
 
   test('instructor can view course discussions', async ({ page, app }) => {
     await app.loginAs(page, 'instructor');
     await page.goto('/courses/discussions');
     
-    await expect(page.getByText(/discussion|threads/i)).toBeVisible({ timeout: 5000 }).catch(() => {});
+    await expect(page.getByText(/discussion|threads/i)).toBeVisible({ timeout: 5000 });
   });
 });
 

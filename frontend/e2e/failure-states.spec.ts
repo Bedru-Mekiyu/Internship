@@ -24,7 +24,7 @@ test.describe('network and API failure handling', () => {
     await page.goto('/courses/explore');
     
     const loadingElement = page.locator('[class*="skeleton"], [class*="loading"]');
-    await expect(loadingElement.first()).toBeVisible({ timeout: 5000 }).catch(() => {});
+    await expect(loadingElement.first()).toBeVisible({ timeout: 5000 });
   });
 
   test('retry button appears on API failure', async ({ page, app }) => {
@@ -178,7 +178,7 @@ test.describe('timeout handling', () => {
     await page.goto('/courses/explore');
     
     const cancelButton = page.getByRole('button', { name: /cancel|stop|close/i });
-    await expect(cancelButton).toBeVisible({ timeout: 10000 }).catch(() => {});
+    await expect(cancelButton).toBeVisible({ timeout: 10000 });
   });
 });
 
@@ -233,7 +233,7 @@ test.describe('media upload failure handling', () => {
     await page.getByRole('button', { name: /upload|add media/i }).click();
     
     const progressBar = page.locator('[class*="progress"], [role="progressbar"]');
-    await expect(progressBar).toBeVisible({ timeout: 5000 }).catch(() => {});
+    await expect(progressBar).toBeVisible({ timeout: 5000 });
   });
 
   test('shows error for invalid file type', async ({ page, app }) => {
@@ -288,7 +288,7 @@ test.describe('payment failure handling', () => {
     await app.loginAs(page, 'student');
     await page.goto('/courses/course-react/checkout');
     
-    await expect(page.getByRole('button', { name: /retry|try again|try payment/i })).toBeVisible({ timeout: 5000 }).catch(() => {});
+    await expect(page.getByRole('button', { name: /retry|try again|try payment/i })).toBeVisible({ timeout: 5000 });
   });
 });
 
@@ -301,7 +301,7 @@ test.describe('reconnection handling', () => {
     await page.goto('/courses/discussions');
     
     const reconnectingIndicator = page.locator('[class*="reconnect"], [class*="offline"], [class*="disconnected"]');
-    await expect(reconnectingIndicator).toBeVisible({ timeout: 10000 }).catch(() => {});
+    await expect(reconnectingIndicator).toBeVisible({ timeout: 10000 });
   });
 
   test('auto-reconnects when connection restored', async ({ page }) => {
