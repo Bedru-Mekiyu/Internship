@@ -78,12 +78,12 @@ jobs:
           NODE_ENV: production
 
       - name: Run unit tests
-        run: npm test -- --testPathIgnorePatterns="security|persistence|error-handling" --maxWorkers=2
+        run: npm test -- --testPathIgnorePatterns="security|persistence|error-handling|database-transactions|service-failures|socket" --maxWorkers=2
         env:
           NODE_OPTIONS: "--max-old-space-size=2048"
 
       - name: Run integration tests
-        run: npm test -- --testPathPattern="security|persistence|error-handling" --maxWorkers=1
+        run: npm test -- --testPathPattern="security|persistence|error-handling|database-transactions|service-failures|socket" --maxWorkers=1
         env:
           NODE_OPTIONS: "--max-old-space-size=2048"
 
@@ -178,22 +178,8 @@ jobs:
       - name: Install Playwright browsers
         run: npx playwright install --with-deps chromium
 
-      - name: Run E2E smoke tests
-        run: npm run test:e2e -- --grep "smoke"
-        env:
-          CI: true
-          PLAYWRIGHT_REUSE_BUILD: '1'
-          PLAYWRIGHT_RETRIES: 2
-
-      - name: Run E2E auth tests
-        run: npm run test:e2e -- --grep "auth"
-        env:
-          CI: true
-          PLAYWRIGHT_REUSE_BUILD: '1'
-          PLAYWRIGHT_RETRIES: 2
-
-      - name: Run E2E security tests
-        run: npm run test:e2e -- --grep "security|authorization"
+      - name: Run E2E tests
+        run: npm run test:e2e
         env:
           CI: true
           PLAYWRIGHT_REUSE_BUILD: '1'
