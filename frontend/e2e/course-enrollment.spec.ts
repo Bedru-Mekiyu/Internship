@@ -1,103 +1,109 @@
 import { test, expect } from './support/fixtures';
 
 test.describe('course enrollment flow', () => {
-  test('browse courses and view course details', async ({ page, app }) => {
+  test.beforeEach(async ({ page, app }) => {
     await app.loginAs(page, 'student');
+  });
 
+  test('browse courses and view course details', async ({ page }) => {
     await page.goto('/courses/explore');
-    await expect(page.getByRole('heading', { name: /explore courses/i })).toBeVisible();
+    await page.waitForLoadState('networkidle');
 
-    await page.getByText('React Foundations').first().click();
+    await expect(page.getByRole('heading', { name: /explore courses/i })).toBeVisible({ timeout: 10000 });
 
-    await expect(page.getByRole('heading', { name: /react foundations/i })).toBeVisible();
+    const courseCard = page.getByText('React Foundations').first();
+    await expect(courseCard).toBeVisible();
+    await courseCard.click();
+
+    await expect(page.getByRole('heading', { name: /react foundations/i })).toBeVisible({ timeout: 10000 });
     await expect(page.getByText('Build modern React apps')).toBeVisible();
   });
 
-  test('enroll in free course', async ({ page, app }) => {
-    await app.loginAs(page, 'student');
-
+  test('enroll in free course', async ({ page }) => {
     await page.goto('/courses/explore');
-    await page.getByText('React Foundations').first().click();
+    await page.waitForLoadState('networkidle');
 
-    await expect(page.getByRole('button', { name: /enroll|start learning/i })).toBeVisible();
+    const courseCard = page.getByText('React Foundations').first();
+    await expect(courseCard).toBeVisible();
+    await courseCard.click();
 
-    await page.getByRole('button', { name: /enroll|start learning/i }).click();
+    const enrollButton = page.getByRole('button', { name: /enroll|start learning/i });
+    await expect(enrollButton).toBeVisible({ timeout: 10000 });
+    await enrollButton.click();
 
-    await expect(page.getByText(/enrollment successful|you are enrolled/i)).toBeVisible();
+    await expect(page.getByText(/enrollment successful|you are enrolled/i)).toBeVisible({ timeout: 15000 });
   });
 
-  test('course search returns matching results', async ({ page, app }) => {
-    await app.loginAs(page, 'student');
-
+  test('course search returns matching results', async ({ page }) => {
     await page.goto('/courses/explore');
+    await page.waitForLoadState('networkidle');
 
-    const searchBox = page.getByRole('textbox', { name: /search courses/i });
-    if (await searchBox.isVisible()) {
-      await searchBox.fill('React');
-      await page.keyboard.press('Enter');
+    const searchBox = page.getByRole('textbox', { name: /search courses/i }).or(page.getByPlaceholder(/search/i));
+    await expect(searchBox).toBeVisible({ timeout: 10000 });
+    await searchBox.fill('React');
+    await page.keyboard.press('Enter');
 
-      await expect(page.getByText('React Foundations')).toBeVisible();
-    }
+    await page.waitForLoadState('networkidle');
+    await expect(page.getByText('React Foundations')).toBeVisible({ timeout: 10000 });
   });
 
-  test('course filter by category works', async ({ page, app }) => {
-    await app.loginAs(page, 'student');
-
+  test('course filter by category works', async ({ page }) => {
     await page.goto('/courses/explore');
+    await page.waitForLoadState('networkidle');
 
     const categoryFilter = page.getByRole('combobox', { name: /category/i });
-    if (await categoryFilter.isVisible()) {
-      await categoryFilter.selectOption('Development');
+    await expect(categoryFilter).toBeVisible({ timeout: 10000 });
+    await categoryFilter.selectOption('Development');
 
-      await expect(page.getByText('Development')).toBeVisible();
-    }
+    await page.waitForLoadState('networkidle');
+    await expect(page.getByText('Development')).toBeVisible({ timeout: 10000 });
   });
 
-  test('course filter by level works', async ({ page, app }) => {
-    await app.loginAs(page, 'student');
-
+  test('course filter by level works', async ({ page }) => {
     await page.goto('/courses/explore');
+    await page.waitForLoadState('networkidle');
 
     const levelFilter = page.getByRole('combobox', { name: /level/i });
-    if (await levelFilter.isVisible()) {
-      await levelFilter.selectOption('beginner');
+    await expect(levelFilter).toBeVisible({ timeout: 10000 });
+    await levelFilter.selectOption('beginner');
 
-      await expect(page.getByText('React Foundations')).toBeVisible();
-    }
+    await page.waitForLoadState('networkidle');
+    await expect(page.getByText('React Foundations')).toBeVisible({ timeout: 10000 });
   });
 
-  test('access enrolled course content', async ({ page, app }) => {
-    await app.loginAs(page, 'student');
-
+  test('access enrolled course content', async ({ page }) => {
     await page.goto('/my-courses');
+    await page.waitForLoadState('networkidle');
 
     const enrolledCourse = page.getByText('React Foundations').first();
-    if (await enrolledCourse.isVisible()) {
-      await enrolledCourse.click();
+    await expect(enrolledCourse).toBeVisible({ timeout: 10000 });
+    await enrolledCourse.click();
 
-      await expect(page).toHaveURL(/\/learn\//);
-    }
+    await page.waitForURL(/\/learn\//, { timeout: 10000 });
   });
 
-  test('view my courses shows enrolled courses', async ({ page, app }) => {
-    await app.loginAs(page, 'student');
-
+  test('view my courses shows enrolled courses', async ({ page }) => {
     await page.goto('/my-courses');
+    await page.waitForLoadState('networkidle');
 
-    await expect(page.getByRole('heading', { name: /my courses/i }).or(page.getByText('Enrolled Courses'))).toBeVisible();
+    await expect(
+      page.getByRole('heading', { name: /my courses/i }).or(page.getByText('Enrolled Courses'))
+    ).toBeVisible({ timeout: 10000 });
   });
 });
 
 test.describe('course discovery for unauthenticated users', () => {
   test('explore courses page is accessible without login', async ({ page }) => {
     await page.goto('/courses/explore');
+    await page.waitForLoadState('networkidle');
 
-    await expect(page.getByRole('heading', { name: /explore courses/i })).toBeVisible();
+    await expect(page.getByRole('heading', { name: /explore courses/i })).toBeVisible({ timeout: 10000 });
     await expect(page.getByText('React Foundations')).toBeVisible();
   });
 
   test('course card shows key information', async ({ page }) => {
     await page.goto('/courses/explore');
+    await page.waitForLoadState('networkidle');
 
     await expect(page.getByText('React Foundations')).toBeVisible();
     await expect(page.getByText('Development')).toBeVisible();
@@ -106,19 +112,25 @@ test.describe('course discovery for unauthenticated users', () => {
 });
 
 test.describe('instructor course management', () => {
-  test('instructor can access course creation', async ({ page, app }) => {
+  test.beforeEach(async ({ page, app }) => {
     await app.loginAs(page, 'instructor');
-
-    await page.goto('/courses/create');
-
-    await expect(page.getByRole('heading', { name: /create course/i }).or(page.getByText('New Course'))).toBeVisible();
   });
 
-  test('instructor can view their courses', async ({ page, app }) => {
-    await app.loginAs(page, 'instructor');
+  test('instructor can access course creation', async ({ page }) => {
+    await page.goto('/courses/create');
+    await page.waitForLoadState('networkidle');
 
+    await expect(
+      page.getByRole('heading', { name: /create course/i }).or(page.getByText('New Course'))
+    ).toBeVisible({ timeout: 10000 });
+  });
+
+  test('instructor can view their courses', async ({ page }) => {
     await page.goto('/instructor/courses');
+    await page.waitForLoadState('networkidle');
 
-    await expect(page.getByRole('heading', { name: /my courses|your courses/i }).or(page.getByText('Instructor Courses'))).toBeVisible();
+    await expect(
+      page.getByRole('heading', { name: /my courses|your courses/i }).or(page.getByText('Instructor Courses'))
+    ).toBeVisible({ timeout: 10000 });
   });
 });

@@ -1,8 +1,6 @@
 import request from 'supertest';
 import jwt from 'jsonwebtoken';
 import { createApp } from '../src/app';
-import { User } from '../src/models/User.model';
-import mongoose from 'mongoose';
 
 describe('Security Integration Tests', () => {
   const app = createApp();

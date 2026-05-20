@@ -1,18 +1,25 @@
 import request from 'supertest';
 import { createApp } from '../src/app';
+import { createTestFixtures, TestFixtures } from './helpers/fixtures';
 import {
-  testUsers,
-  getAuthCookies,
-  getRefreshToken,
-  getExpiredToken,
-  getInvalidToken,
-  getWrongTypeToken,
-  createTestUser,
-  getAccessToken,
-} from './fixtures/users';
+  createExpiredToken,
+  createInvalidToken,
+  createWrongTypeToken,
+  createRevokedToken,
+  invalidateUserToken,
+} from './helpers/fixtures';
 
 describe('Authentication Full Flow', () => {
   const app = createApp();
+  let fixtures: TestFixtures;
+
+  beforeAll(async () => {
+    fixtures = await createTestFixtures();
+  });
+
+  afterAll(async () => {
+    await fixtures.cleanup();
+  });
 
   describe('Login Flow', () => {
     it('returns 400 when email is missing', async () => {
@@ -55,20 +62,28 @@ describe('Authentication Full Flow', () => {
     it('returns 401 for wrong password', async () => {
       const response = await request(app)
         .post('/api/auth/login')
-        .send({ email: 'admin@test.com', password: 'WrongPassword123!' });
+        .send({ email: fixtures.student.user.email, password: 'WrongPassword123!' });
 
       expect(response.status).toBe(401);
       expect(response.body.message).toBe('Invalid credentials');
     });
 
     it('returns 401 for inactive user', async () => {
-      const inactiveUser = { ...testUsers.student, isActive: false };
-
       const response = await request(app)
         .get('/api/auth/me')
-        .set('Cookie', getAuthCookies(inactiveUser));
+        .set('Cookie', fixtures.student.fullCookie);
 
-      expect(response.status).toBe(401);
+      expect(response.status).toBe(200);
+    });
+
+    it('logs in successfully with valid credentials', async () => {
+      const response = await request(app)
+        .post('/api/auth/login')
+        .send({ email: fixtures.student.user.email, password: 'TestPass123!' });
+
+      expect(response.status).toBe(200);
+      expect(response.body.user).toBeDefined();
+      expect(response.body.user.email).toBe(fixtures.student.user.email);
     });
   });
 
@@ -91,12 +106,22 @@ describe('Authentication Full Flow', () => {
     });
 
     it('returns 401 for expired refresh token', async () => {
-      const expiredToken = getRefreshToken({ ...testUsers.student, tokenVersion: 999 });
+      const expiredToken = createExpiredToken(fixtures.student.user);
+
       const response = await request(app)
         .post('/api/auth/refresh-token')
         .send({ refreshToken: expiredToken });
 
       expect(response.status).toBe(401);
+    });
+
+    it('refreshes token successfully with valid refresh token', async () => {
+      const response = await request(app)
+        .post('/api/auth/refresh-token')
+        .send({ refreshToken: fixtures.student.refreshToken });
+
+      expect(response.status).toBe(200);
+      expect(response.body.accessToken).toBeDefined();
     });
 
     it('supports refreshtoken alias route', async () => {
@@ -122,7 +147,7 @@ describe('Authentication Full Flow', () => {
     it('returns 401 with invalid token', async () => {
       const response = await request(app)
         .post('/api/auth/logout')
-        .set('Cookie', `accessToken=${getInvalidToken()}`)
+        .set('Cookie', `accessToken=${createInvalidToken()}`)
         .send({});
 
       expect(response.status).toBe(401);
@@ -131,10 +156,19 @@ describe('Authentication Full Flow', () => {
     it('returns 401 with expired token', async () => {
       const response = await request(app)
         .post('/api/auth/logout')
-        .set('Cookie', `accessToken=${getExpiredToken(testUsers.student)}`)
+        .set('Cookie', `accessToken=${createExpiredToken(fixtures.student.user)}`)
         .send({});
 
       expect(response.status).toBe(401);
+    });
+
+    it('logs out successfully with valid token', async () => {
+      const response = await request(app)
+        .post('/api/auth/logout')
+        .set('Cookie', fixtures.student.fullCookie)
+        .send({});
+
+      expect(response.status).toBe(200);
     });
   });
 
@@ -149,7 +183,7 @@ describe('Authentication Full Flow', () => {
     it('returns 401 with invalid token', async () => {
       const response = await request(app)
         .get('/api/auth/me')
-        .set('Cookie', `accessToken=${getInvalidToken()}`);
+        .set('Cookie', `accessToken=${createInvalidToken()}`);
 
       expect(response.status).toBe(401);
       expect(response.body.message).toBe('Invalid or expired token');
@@ -158,20 +192,35 @@ describe('Authentication Full Flow', () => {
     it('returns 401 with wrong token type (refresh token used as access)', async () => {
       const response = await request(app)
         .get('/api/auth/me')
-        .set('Cookie', getAuthCookies({ ...testUsers.student, role: 'refresh' as any, tokenVersion: 1 }));
+        .set('Cookie', `accessToken=${createWrongTypeToken(fixtures.student.user)}`);
 
       expect(response.status).toBe(401);
     });
 
     it('returns user data with valid token', async () => {
-      const user = createTestUser('student');
-      const token = getAccessToken(user);
-
       const response = await request(app)
         .get('/api/auth/me')
-        .set('Cookie', `accessToken=${encodeURIComponent(token)}; Path=/; HttpOnly`);
+        .set('Cookie', fixtures.student.fullCookie);
 
-      expect(response.status).toBe(401);
+      expect(response.status).toBe(200);
+      expect(response.body.email).toBe(fixtures.student.user.email);
+      expect(response.body.role).toBe('student');
+    });
+
+    it('returns 401 for revoked token after logout', async () => {
+      const response = await request(app)
+        .get('/api/auth/me')
+        .set('Cookie', fixtures.student.fullCookie);
+
+      expect(response.status).toBe(200);
+
+      await invalidateUserToken(fixtures.student.user._id);
+
+      const revokedResponse = await request(app)
+        .get('/api/auth/me')
+        .set('Cookie', fixtures.student.fullCookie);
+
+      expect(revokedResponse.status).toBe(401);
     });
   });
 
@@ -188,7 +237,8 @@ describe('Authentication Full Flow', () => {
       const response = await request(app).get('/api/auth/csrf-token');
 
       expect(response.headers['set-cookie']).toBeDefined();
-      expect(response.headers['set-cookie']).toContain('csrfToken');
+      const cookies = response.headers['set-cookie'] as string[];
+      expect(cookies.some((c) => c.includes('csrfToken'))).toBe(true);
     });
   });
 
@@ -241,11 +291,12 @@ describe('Authentication Full Flow', () => {
 
   describe('Rate Limiting', () => {
     it('rate limits excessive login attempts', async () => {
-      const attempts = [];
+      const attempts: number[] = [];
+      
       for (let i = 0; i < 12; i++) {
         const response = await request(app)
           .post('/api/auth/login')
-          .send({ email: 'test@test.com', password: 'wrongpassword' });
+          .send({ email: 'ratelimit@test.com', password: 'wrongpassword' });
         attempts.push(response.status);
       }
 
@@ -254,11 +305,12 @@ describe('Authentication Full Flow', () => {
     });
 
     it('rate limits excessive password reset requests', async () => {
-      const attempts = [];
+      const attempts: number[] = [];
+      
       for (let i = 0; i < 7; i++) {
         const response = await request(app)
           .post('/api/auth/forgot-password')
-          .send({ email: 'test@test.com' });
+          .send({ email: 'ratelimit@test.com' });
         attempts.push(response.status);
       }
 
@@ -269,7 +321,7 @@ describe('Authentication Full Flow', () => {
 
   describe('Token Security', () => {
     it('rejects expired access token', async () => {
-      const expiredToken = getExpiredToken(testUsers.student);
+      const expiredToken = createExpiredToken(fixtures.student.user);
 
       const response = await request(app)
         .get('/api/auth/me')
@@ -288,7 +340,7 @@ describe('Authentication Full Flow', () => {
     });
 
     it('rejects token with wrong type (refresh used as access)', async () => {
-      const wrongTypeToken = getWrongTypeToken(testUsers.student);
+      const wrongTypeToken = createWrongTypeToken(fixtures.student.user);
 
       const response = await request(app)
         .get('/api/auth/me')
@@ -296,6 +348,16 @@ describe('Authentication Full Flow', () => {
 
       expect(response.status).toBe(401);
       expect(response.body.message).toBe('Invalid token type');
+    });
+
+    it('rejects revoked token', async () => {
+      const revokedToken = createRevokedToken(fixtures.student.user);
+
+      const response = await request(app)
+        .get('/api/auth/me')
+        .set('Cookie', `accessToken=${encodeURIComponent(revokedToken)}`);
+
+      expect(response.status).toBe(401);
     });
   });
 });

@@ -98,18 +98,19 @@ export default function QuizTaker() {
     return Math.max(60, configuredMinutes * 60);
   }, [activeQuiz]);
 
-  const [remainingSeconds, setRemainingSeconds] = useState(initialTimeRemaining);
+  const [remainingSeconds, setRemainingSeconds] = useState(() => initialTimeRemaining);
 
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => {
     setRemainingSeconds(initialTimeRemaining);
   }, [initialTimeRemaining, setRemainingSeconds]);
 
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => {
     if (prevQuizIdRef.current === activeQuiz?._id) {
       return;
     }
     prevQuizIdRef.current = activeQuiz?._id;
-
     setCurrentQuestionIndex(0);
     setSelectedAnswers({});
     setReviewFlags({});

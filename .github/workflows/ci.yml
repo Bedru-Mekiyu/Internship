@@ -50,13 +50,24 @@ jobs:
         run: npm run typecheck
 
   # ─────────────────────────────────────────────────────────────
-  # BACKEND TESTS (Parallel)
+  # BACKEND TESTS - ALL TESTS (Unit + Integration + Security)
   # ─────────────────────────────────────────────────────────────
   backend-tests:
     runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: backend
+
+    services:
+      mongodb:
+        image: mongo:7
+        ports:
+          - 27017:27017
+        options: >-
+          --health-cmd "mongosh --eval 'db.adminCommand({ping:1})'"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
 
     steps:
       - name: Checkout code
@@ -77,15 +88,26 @@ jobs:
         env:
           NODE_ENV: production
 
-      - name: Run unit tests
-        run: npm test -- --testPathIgnorePatterns="security|persistence|error-handling|database-transactions|service-failures|socket" --maxWorkers=2
+      - name: Run ALL tests (Unit + Integration + Security)
+        run: npm test
         env:
-          NODE_OPTIONS: "--max-old-space-size=2048"
+          NODE_OPTIONS: "--max-old-space-size=4096"
+          MONGODB_URI: mongodb://localhost:27017/test_mit_lms
+          JWT_ACCESS_SECRET: ${{ env.JWT_ACCESS_SECRET }}
+          JWT_REFRESH_SECRET: ${{ env.JWT_REFRESH_SECRET }}
+          JWT_VERIFY_SECRET: ${{ env.JWT_VERIFY_SECRET }}
+          JWT_RESET_SECRET: ${{ env.JWT_RESET_SECRET }}
+          PAYMENT_WEBHOOK_SECRET: ${{ env.PAYMENT_WEBHOOK_SECRET }}
+          CORS_ORIGIN: "*"
+          FRONTEND_URL: http://localhost:5173
 
-      - name: Run integration tests
-        run: npm test -- --testPathPattern="security|persistence|error-handling|database-transactions|service-failures|socket" --maxWorkers=1
-        env:
-          NODE_OPTIONS: "--max-old-space-size=2048"
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-test-results
+          path: backend/coverage/
+          retention-days: 7
 
   # ─────────────────────────────────────────────────────────────
   # FRONTEND LINT & TYPE CHECK
@@ -117,7 +139,7 @@ jobs:
         run: npm run typecheck
 
   # ─────────────────────────────────────────────────────────────
-  # FRONTEND TESTS
+  # FRONTEND UNIT TESTS
   # ─────────────────────────────────────────────────────────────
   frontend-unit-tests:
     runs-on: ubuntu-latest
@@ -147,8 +169,16 @@ jobs:
       - name: Run unit tests
         run: npm test -- --run
 
+      - name: Upload coverage
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-coverage
+          path: frontend/coverage/
+          retention-days: 7
+
   # ─────────────────────────────────────────────────────────────
-  # FRONTEND E2E TESTS
+  # FRONTEND E2E TESTS (All Browsers)
   # ─────────────────────────────────────────────────────────────
   frontend-e2e-tests:
     runs-on: ubuntu-latest
@@ -176,9 +206,9 @@ jobs:
           NODE_ENV: production
 
       - name: Install Playwright browsers
-        run: npx playwright install --with-deps chromium
+        run: npx playwright install --with-deps
 
-      - name: Run E2E tests
+      - name: Run E2E tests (all browsers)
         run: npm run test:e2e
         env:
           CI: true

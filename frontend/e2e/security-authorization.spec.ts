@@ -1,13 +1,11 @@
 import { test, expect } from './support/fixtures';
 import {
-  ROLE_CREDENTIALS,
-  ROLE_DASHBOARDS,
   assertProtectedRouteRedirects,
   expectToBeOnUrl,
 } from './support/factories';
 
 test.describe('authentication security', () => {
-  test('login with invalid credentials shows error without leaking info', async ({ page, app }) => {
+  test('login with invalid credentials shows error without leaking info', async ({ page }) => {
     await page.goto('/auth/login');
     
     await page.getByRole('textbox', { name: 'Email' }).fill('nonexistent@test.com');
@@ -18,7 +16,7 @@ test.describe('authentication security', () => {
     await expectToBeOnUrl(page, /\/auth\/login/);
   });
 
-  test('login with correct email but wrong password shows error', async ({ page, app }) => {
+  test('login with correct email but wrong password shows error', async ({ page }) => {
     await page.goto('/auth/login');
     
     await page.getByRole('textbox', { name: 'Email' }).fill('student@learnspace.dev');
@@ -28,7 +26,7 @@ test.describe('authentication security', () => {
     await expect(page.getByText('Invalid credentials')).toBeVisible();
   });
 
-  test('login rate limiting - multiple failed attempts', async ({ page, app }) => {
+  test('login rate limiting - multiple failed attempts', async ({ page }) => {
     await page.goto('/auth/login');
     
     for (let i = 0; i < 3; i++) {

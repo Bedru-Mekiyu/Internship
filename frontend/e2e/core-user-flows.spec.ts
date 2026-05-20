@@ -1,8 +1,7 @@
 import { test, expect } from './support/fixtures';
-import { 
-  ROLE_CREDENTIALS, 
+import {
+  ROLE_CREDENTIALS,
   ROLE_DASHBOARDS,
-  createPage 
 } from './support/factories';
 
 test.describe('core user flows - authentication', () => {
