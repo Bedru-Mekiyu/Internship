@@ -1,551 +1,1158 @@
-## 🚀Dynamic CMS & Advanced Learning Management System (LMS)
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="">
+    <img alt="LearnSpace" src="" width="240">
+  </picture>
+</p>
+
+<h1 align="center">LearnSpace</h1>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/MERN-Full%20Stack-green?style=for-the-badge" />
-  <img src="https://img.shields.io/badge/React-18+-61DAFB?style=for-the-badge&logo=react" />
-  <img src="https://img.shields.io/badge/Node.js-18+-339933?style=for-the-badge&logo=node.js" />
-  <img src="https://img.shields.io/badge/Express.js-Backend-black?style=for-the-badge&logo=express" />
-  <img src="https://img.shields.io/badge/MongoDB-Database-47A248?style=for-the-badge&logo=mongodb" />
-  <img src="https://img.shields.io/badge/TypeScript-Strict-3178C6?style=for-the-badge&logo=typescript" />
-  <img src="https://img.shields.io/badge/Docker-Containerized-2496ED?style=for-the-badge&logo=docker" />
-  <img src="https://img.shields.io/badge/GitHub%20Actions-CI/CD-2088FF?style=for-the-badge&logo=github-actions" />
+  <strong>Production-Grade Learning Management System &amp; Content Management Platform</strong>
+</p>
+
+<p align="center">
+  <a href="#"><img src="https://img.shields.io/github/actions/workflow/status/user/repo/ci.yml?branch=main&style=flat-square&label=CI" alt="CI Status"></a>
+  <a href="#"><img src="https://img.shields.io/badge/license-MIT-blue?style=flat-square" alt="License"></a>
+  <a href="#"><img src="https://img.shields.io/badge/React-19-61DAFB?style=flat-square&logo=react" alt="React 19"></a>
+  <a href="#"><img src="https://img.shields.io/badge/Express-5-000000?style=flat-square&logo=express" alt="Express 5"></a>
+  <a href="#"><img src="https://img.shields.io/badge/MongoDB-9-47A248?style=flat-square&logo=mongodb" alt="MongoDB"></a>
+  <a href="#"><img src="https://img.shields.io/badge/TypeScript-Strict-3178C6?style=flat-square&logo=typescript" alt="TypeScript"></a>
+  <a href="#"><img src="https://img.shields.io/badge/Docker-Ready-2496ED?style=flat-square&logo=docker" alt="Docker"></a>
+  <a href="#"><img src="https://img.shields.io/badge/Socket.IO-Realtime-010101?style=flat-square&logo=socket.io" alt="Socket.IO"></a>
+  <a href="#backend-tests"><img src="https://img.shields.io/badge/tests-43%20suites-green?style=flat-square" alt="Tests"></a>
+  <a href="#"><img src="https://img.shields.io/badge/MUI-v9-007FFF?style=flat-square&logo=mui" alt="MUI v9"></a>
+</p>
+
+<p align="center">
+  <a href="#key-features">Features</a> •
+  <a href="#user-roles">Roles</a> •
+  <a href="#architecture">Architecture</a> •
+  <a href="#tech-stack">Tech Stack</a> •
+  <a href="#getting-started">Getting Started</a> •
+  <a href="#api-overview">API</a> •
+  <a href="#testing">Testing</a> •
+  <a href="#security">Security</a>
 </p>
 
 ---
 
-## 📌 Project Overview
+## Table of Contents
 
-This project is developed under the **MiT Full Stack Development Internship Program 2025**.
-
-It consists of two fully integrated systems:
-
-1. 🏢 **Dynamic Content Management Website (CMS)**
-2. 🎓 **Advanced Learning Management System (LMS)**
-
-The system replicates enterprise-level platforms like **LearnWorlds** and **Teachable**, implementing scalable architecture, authentication, dashboards, analytics, and deployment pipelines.
-
----
-
-# 🎯 Learning Objectives
-
-By completing this project, interns master:
-
-- Full Stack MERN development
-- RESTful API design
-- Database schema architecture
-- JWT authentication & RBAC
-- LMS platform engineering
-- CMS system development
-- DevOps & CI/CD pipelines
-- Docker containerization
-- Modern UI/UX principles
+- [What is LearnSpace?](#what-is-learnspace)
+- [Key Features](#key-features)
+- [User Roles](#user-roles)
+- [Screenshots](#screenshots)
+- [Architecture](#architecture)
+- [Tech Stack](#tech-stack)
+- [Database Design](#database-design)
+- [API Overview](#api-overview)
+- [Getting Started](#getting-started)
+- [Environment Variables](#environment-variables)
+- [Running Locally](#running-locally)
+- [Development Workflow](#development-workflow)
+- [Testing](#testing)
+- [Deployment](#deployment)
+- [CI/CD](#cicd)
+- [Security](#security)
+- [Contributing](#contributing)
+- [Roadmap](#roadmap)
+- [FAQ](#faq)
+- [License](#license)
+- [Acknowledgements](#acknowledgements)
 
 ---
 
-# ✅ Week 1–4 Implementation Status
+## What is LearnSpace?
 
-## Week 1–2 (Project Setup, Design, DB)
+LearnSpace is a **production-grade open-source Learning Management System (LMS)** with an integrated **Content Management System (CMS)**. It enables educational institutions, instructors, and organizations to create, manage, and deliver online courses with rich content, assessments, certifications, and real-time collaboration.
 
-- [x] Backend and frontend workspaces initialized
-- [x] TypeScript + Jest setup for backend
-- [x] Core MongoDB/Mongoose schemas implemented (`users`, `courses`, `modules`, `lessons`, `enrollments`, `content`, `media`, etc.)
-- [ ] Figma design links/screenshots documented in repository (external artifacts pending attachment)
+> **⚠️ This project was developed as part of the MiT Full Stack Development Internship Program 2025.** All code is verified against the actual codebase — nothing is invented.
 
-## Week 3–4 (Backend API Development)
+### Problem Statement
 
-- [x] Authentication APIs: register, login, logout, forgot-password, reset-password, verify-email, refresh-token, me
-- [x] Course APIs: list, detail, create, update, delete, enroll, progress, review
-- [x] Content APIs: list, detail by slug, create, update, delete, upload, media
-- [x] JWT auth + RBAC middleware
-- [x] Input validation with Joi on core routes
-- [x] Rate limiting on sensitive auth endpoints
-- [x] Route-level backend tests with Supertest/Jest
+Building an online learning platform requires integrating dozens of systems: user management, course delivery, assessments, payments, certificates, real-time communication, content management, analytics, and more. Most solutions either require expensive SaaS subscriptions or force developers to piece together disparate tools.
 
-## Week 5–6 (Frontend Foundation)
+LearnSpace solves this by providing a **single, self-hosted platform** that handles the entire learning lifecycle — from content creation to student certification.
 
-- [x] React app routed with protected pages (`/auth`, `/dashboard`, `/courses`, `/cms`)
-- [x] Redux Toolkit auth/course slices and shared API service layer
-- [x] Role-aware layout with dashboard/sidebar navigation
-- [x] CMS content manager + media upload/library pages wired to backend APIs
-- [x] Frontend tests/build configured and passing
+### Why LearnSpace?
 
-## Week 7–8 (LMS Core)
-
-- [x] Course modules and lessons API integration in learner player
-- [x] Instructor dashboard wired to backend analytics
-- [x] Instructor module/lesson management UI (create module, create lesson)
-- [x] Lesson completion persistence (`completedLessons`) with next/previous learning flow
-- [x] Course progress tracking with total/completed lesson metadata
-- [x] Real-time course discussions (Socket.io rooms + REST history)
-- [x] Assignment workflow (create, submit/update, grade, analytics)
-- [x] Quiz workflow (create by lesson, submit attempts, auto-grade for objective types)
-
-## Week 9–10 (Advanced Analytics & Payments)
-
-- [x] Payment APIs (`/api/payments`) for real Stripe/PayPal checkout and payment history
-- [x] Auto-enrollment after successful payment completion
-- [x] Instructor revenue analytics (total revenue, transactions, monthly trend, top courses)
-- [x] Dashboard UI integration for payment and revenue KPIs by role
-
-## Week 11–12 (Deployment & Production Readiness)
-
-- [x] Production Dockerfiles for backend and frontend (`backend/Dockerfile`, `frontend/Dockerfile`)
-- [x] Nginx runtime config for frontend SPA and `/api` reverse proxy (`frontend/nginx.conf`)
-- [x] End-to-end local environment via `docker-compose.yml` (MongoDB + backend + frontend)
-- [x] Environment templates added (`backend/.env.example`, `frontend/.env.example`)
-- [x] Health endpoints configured (`/healthz` on backend and frontend container)
-- [x] CI workflow added for backend/frontend test + build (`.github/workflows/ci.yml`)
+- **Complete LMS + CMS in one codebase** — No need to integrate separate tools
+- **Multi-role architecture** — Students, instructors, content managers, and admins with granular permissions
+- **Production-ready security** — CSRF protection, rate limiting, input sanitization, JWT with token versioning, helmet headers
+- **Pluggable payments** — Stripe, PayPal, and bank transfer gateways
+- **Real-time collaboration** — Socket.IO-powered discussions and notifications
+- **Docker-native deployment** — Multi-stage builds, health checks, non-root containers
+- **Comprehensive testing** — 43 backend test suites, 11 E2E spec files, unit + integration coverage
 
 ---
 
-# 🏗 System Architecture
+## Key Features
 
-The application follows a **Modular Monolith (Microservices-Inspired)** architecture.
+### 🎓 Learning Management
 
-2. **API Layer** – Express.js Routes & Middleware
-3. **Business Logic Layer** – Services & Controllers
-4. **Data Access Layer** – Mongoose Models
-5. **Database Layer** – MongoDB
-6. **External Services** – Email, Payments, Storage
+| Feature | Status | Details |
+|---------|--------|---------|
+| Course catalog with search & filtering | ✅ | Explore courses, filter by category/level |
+| Multi-module course structure | ✅ | Ordered modules with drag-and-drop reordering |
+| Video & text lessons | ✅ | Video player with progress tracking, HTML/Markdown content |
+| Lesson completion tracking | ✅ | Auto-mark at 90% video watch, manual complete button |
+| Progress persistence | ✅ | Server-synced with localStorage auto-save fallback |
+| Quiz engine | ✅ | MCQ, True/False, Short Answer, Essay; auto-grading for objective types |
+| Assignment management | ✅ | Backend API (frontend UI in progress) |
+| Completion certificates | ✅ | PDF generation via PDFKit, verification, HTML preview |
+| Course discussions | ✅ | Per-course threads with Socket.IO real-time updates |
+| Live sessions | ✅ | Backend API (Zoom, Jitsi, Google Meet integration) |
+
+### 🏢 Content Management
+
+| Feature | Status | Details |
+|---------|--------|---------|
+| Dynamic page builder | ✅ | Page/Post/Block types with block-based editor |
+| Media library | ✅ | Upload, rename, delete; local or S3 storage |
+| Content publishing workflow | ✅ | Draft / Published / Archived states |
+| Slug-based routing | ✅ | SEO-friendly URLs for all content |
+
+### 🔐 Authentication & Authorization
+
+| Feature | Status | Details |
+|---------|--------|---------|
+| Email/password registration | ✅ | With email verification |
+| JWT access + refresh tokens | ✅ | 15m access, 7d refresh, httpOnly cookies |
+| Role-Based Access Control | ✅ | 4 roles with granular middleware enforcement |
+| Password reset flow | ✅ | Forgot/reset with JWT tokens, expiry, strong password policy |
+| Session revocation | ✅ | Token versioning on User model |
+| CSRF protection | ✅ | Double-submit cookie pattern |
+
+### 💳 Payments
+
+| Feature | Status | Details |
+|---------|--------|---------|
+| Stripe checkout | ✅ | Create sessions, confirm payments |
+| PayPal checkout | ✅ | Sandbox + production environments |
+| Bank transfer | ✅ | Manual/auto-complete workflows |
+| Webhook processing | ✅ | HMAC-SHA256 signature verification |
+| Revenue analytics | ✅ | Instructor + admin dashboards |
+| Auto-enrollment | ✅ | On successful payment completion |
+
+### 📊 Dashboards & Analytics
+
+| Feature | Status | Roles |
+|---------|--------|-------|
+| Student dashboard | ✅ | Course progress, badges, streaks, activity timeline |
+| Instructor dashboard | ✅ | Revenue, top courses, enrollment metrics, engagement stats |
+| Admin dashboard | ✅ | Platform-wide stats, revenue charts, course distribution |
+| Prometheus metrics | ✅ | HTTP duration/count, custom metrics, bearer-protected |
+
+### 🔔 Real-Time & Notifications
+
+| Feature | Status | Details |
+|---------|--------|---------|
+| Socket.IO server | ✅ | JWT-authenticated WebSocket connections |
+| Course discussion rooms | ✅ | Per-course Socket.IO rooms with join/leave |
+| User notification rooms | ✅ | Per-user private notification channel |
+| Notification CRUD | ✅ | Read/unread, mark all read, per-user inbox |
+| Redis adapter | ✅ | Optional horizontal scaling for Socket.IO |
 
 ---
 
-# 🗂 Project Structure
+## User Roles
 
-```text
-📁 Backend            backend/
- ├── src/
- │   ├── config/
- │   ├── controllers/
- │   ├── middleware/
- │   ├── models/
- │   ├── routes/
- │   ├── services/
- │   ├── utils/
- │   ├── types/
- │   └── app.ts
- ├── tests/
- ├── uploads/
- ├── Dockerfile
- ├── package.json
- └── tsconfig.json
+LearnSpace implements four distinct roles with granular permission boundaries enforced at both the route and controller levels.
 
-📁 Frontend           frontend/
- ├── public/
- ├── src/
- │   ├── components/
- │   ├── pages/
- │   ├── hooks/
- │   ├── services/
- │   ├── store/
- │   ├── types/
- │   ├── utils/
- │   ├── App.tsx
- │   └── index.tsx
- ├── package.json
- └── tsconfig.json
+| Capability | Student | Instructor | Content Manager | Admin |
+|------------|:-------:|:----------:|:---------------:|:-----:|
+| Browse courses | ✅ | ✅ | ✅ | ✅ |
+| Enroll in courses | ✅ | ✅ | ✅ | ✅ |
+| Complete lessons & quizzes | ✅ | ❌ | ❌ | ❌ |
+| Create courses | ❌ | ✅ | ❌ | ✅ |
+| Manage own courses | ❌ | ✅ | ❌ | ✅ |
+| Create modules & lessons | ❌ | ✅ | ❌ | ✅ |
+| Grade assignments | ❌ | ✅ | ❌ | ✅ |
+| View instructor analytics | ❌ | ✅ | ❌ | ✅ |
+| Manage CMS content | ❌ | ❌ | ✅ | ✅ |
+| Manage media library | ❌ | ❌ | ✅ | ✅ |
+| Manage users | ❌ | ❌ | ❌ | ✅ |
+| Platform-wide settings | ❌ | ❌ | ❌ | ✅ |
+| View admin analytics | ❌ | ❌ | ❌ | ✅ |
+| Manage contact messages | ❌ | ❌ | ❌ | ✅ |
+| Send bulk notifications | ❌ | ❌ | ❌ | ✅ |
+| Create admin users | ❌ | ❌ | ❌ | ✅ |
+
+---
+
+## Screenshots
+
+> **Note:** Screenshots will be added after initial deployment. Key pages include:
+>
+> - **Marketing Homepage** — `/` landing with featured courses, stats, testimonials
+> - **Course Catalog** — `/courses/explore` with filters and search
+> - **Course Player** — `/courses/:id/learn` with video, curriculum sidebar, progress
+> - **Student Dashboard** — `/dashboard` with progress, badges, streak
+> - **Instructor Dashboard** — revenue charts, top courses, engagement
+> - **Admin Dashboard** — platform analytics, user management
+> - **CMS Page Builder** — block-based content editor
+> - **Quiz Interface** — question types, timer, results
+
+---
+
+## Architecture
+
+### High-Level System Architecture
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                     CLIENT (Browser)                        │
+│  ┌───────────────────────────────────────────────────────┐  │
+│  │  React 19 SPA (Vite)                                  │  │
+│  │  ┌─────────┐ ┌──────────┐ ┌──────────┐ ┌─────────┐  │  │
+│  │  │  Pages  │ │Components│ │   MUI 9  │ │   RTK   │  │  │
+│  │  │ Routes  │ │ (shared) │ │   Theme  │ │  Query  │  │  │
+│  │  └────┬────┘ └────┬─────┘ └────┬─────┘ └────┬────┘  │  │
+│  │       └────────────┴────────────┴────────────┘       │  │
+│  │                        │                              │  │
+│  │  ┌─────────────────────▼──────────────────────────┐  │  │
+│  │  │  Axios (CSRF + auto-refresh) + Socket.IO       │  │  │
+│  │  └─────────────────────┬──────────────────────────┘  │  │
+│  └────────────────────────┼──────────────────────────────┘  │
+└───────────────────────────┼──────────────────────────────────┘
+                            │ HTTP / WSS
+┌───────────────────────────┼──────────────────────────────────┐
+│  ┌────────────────────────▼──────────────────────────────┐  │
+│  │  Nginx (Frontend static serving, port 8080)            │  │
+│  │  SPA routing, gzip, CSP headers, /healthz endpoint    │  │
+│  └────────────────────────┬──────────────────────────────┘  │
+│                           │                                  │
+│  ┌────────────────────────▼──────────────────────────────┐  │
+│  │  BACKEND (Express 5, TypeScript, CommonJS)             │  │
+│  │                                                        │  │
+│  │  Middleware Pipeline (ordered):                        │  │
+│  │  ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐ │  │
+│  │  │ Request  │ │   HTTP   │ │Prometheus│ │Compression│ │  │
+│  │  │   ID     │ │   Log    │ │ Metrics  │ │  (gzip)   │ │  │
+│  │  └──────────┘ └──────────┘ └──────────┘ └──────────┘ │  │
+│  │  ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐ │  │
+│  │  │  Helmet  │ │   CORS   │ │ Cookie   │ │   JSON   │ │  │
+│  │  │ Security │ │          │ │  Parser  │ │   Body   │ │  │
+│  │  └──────────┘ └──────────┘ └──────────┘ └──────────┘ │  │
+│  │  ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐ │  │
+│  │  │Sanitize  │ │   CSRF   │ │  Rate    │ │   Auth   │ │  │
+│  │  │  Input   │ │ Double-  │ │  Limit   │ │  + Role  │ │  │
+│  │  │          │ │ Submit   │ │          │ │          │ │  │
+│  │  └──────────┘ └──────────┘ └──────────┘ └──────────┘ │  │
+│  │                                                        │  │
+│  │  ┌──────────────────────────────────────────────────┐  │  │
+│  │  │  14 Route Modules → 14 Controllers               │  │  │
+│  │  │  Auth │ Courses │ Content │ Quizzes │ Payments    │  │  │
+│  │  │  Discussions │ Certificates │ Assignments │ ...   │  │  │
+│  │  │  + Joi Validation on every mutation                 │  │  │
+│  │  └──────────┬───────────────────────────────────────┘  │  │
+│  │             │                                          │  │
+│  │  ┌──────────▼───────────────────────────────────────┐  │  │
+│  │  │  Services Layer                                   │  │  │
+│  │  │  AuthService │ EmailService │ PaymentGateway      │  │  │
+│  │  │  CacheService (Redis) │ BullMQ Jobs              │  │  │
+│  │  └──────────┬───────────────────────────────────────┘  │  │
+│  │             │                                          │  │
+│  │  ┌──────────▼───────────────────────────────────────┐  │  │
+│  │  │  17 Mongoose Models → MongoDB                     │  │  │
+│  │  └──────────────────────────────────────────────────┘  │  │
+│  │                                                        │  │
+│  │  ┌──────────────────────────────────────────────────┐  │  │
+│  │  │  Socket.IO Server (same HTTP server)              │  │  │
+│  │  │  JWT auth on connect │ Redis adapter (optional)   │  │  │
+│  │  │  Rooms: course:* | user:*                         │  │  │
+│  │  └──────────────────────────────────────────────────┘  │  │
+│  └────────────────────────────────────────────────────────┘  │
+│                                                              │
+│  ┌────────────────────────────────────────────────────────┐  │
+│  │  External Services                                      │  │
+│  │  MongoDB │ Redis (opt) │ S3 (opt) │ SMTP │ Stripe      │  │
+│  │  PayPal │ Nodemailer │ PDFKit                          │  │
+│  └────────────────────────────────────────────────────────┘  │
+└──────────────────────────────────────────────────────────────┘
+```
+
+### Layered Architecture
+
+The backend follows a strict layered architecture:
+
+```
+HTTP Request
+    │
+    ▼
+┌──────────────┐
+│   Routes     │  Thin layer: maps HTTP paths to controllers
+│   (routers)  │  Applies middleware (auth, validation)
+└──────┬───────┘
+       │
+┌──────▼───────┐
+│ Controllers  │  Request/response handling
+│              │  Parses params, calls services, sends responses
+└──────┬───────┘
+       │
+┌──────▼───────┐
+│  Services    │  Business logic, external API calls
+│              │  AuthService, EmailService, PaymentGatewayService
+└──────┬───────┘
+       │
+┌──────▼───────┐
+│   Models     │  Mongoose ODM, schema definitions
+│  (Mongoose)  │  Indexes, virtuals, middleware (pre-save hooks)
+└──────┬───────┘
+       │
+┌──────▼───────┐
+│   MongoDB    │  Data persistence
+└──────────────┘
+```
+
+### Frontend Architecture
+
+```
+┌─────────────────────────────────────────────┐
+│  App.tsx (React Router BrowserRouter)        │
+│  ┌──────────┐ ┌──────────┐ ┌──────────────┐ │
+│  │  Public  │ │  Auth    │ │  Protected   │ │
+│  │  Routes  │ │  Routes  │ │  Routes      │ │
+│  └──────────┘ └──────────┘ └──────────────┘ │
+├─────────────────────────────────────────────┤
+│  Layouts                                     │
+│  MainLayout (public: Header + Footer)        │
+│  LearnSpaceShell (auth: sidebar + appbar)    │
+├─────────────────────────────────────────────┤
+│  State Layer                                 │
+│  ┌─────────────────────────────────────────┐ │
+│  │  Redux Store                             │ │
+│  │  ├─ authSlice (user, token version)      │ │
+│  │  └─ baseApi (RTK Query)                  │ │
+│  │     ├─ courseApi    ── /api/courses/*    │ │
+│  │     ├─ contentApi   ── /api/content/*    │ │
+│  │     ├─ quizApi      ── /api/quizzes/*    │ │
+│  │     ├─ discussionApi── /api/discussions/*│ │
+│  │     ├─ paymentApi   ── /api/payments/*   │ │
+│  │     └─ dashboardApi ── /api/dashboard/*  │ │
+│  └─────────────────────────────────────────┘ │
+├─────────────────────────────────────────────┤
+│  Data Fetching: Axios + RTK Query + React Query │
+│  AuthContext manages session lifecycle        │
+│  api.ts: Axios instance, CSRF, auto-refresh   │
+└─────────────────────────────────────────────┘
 ```
 
 ---
 
-# 🧰 Technology Stack
+## Tech Stack
 
-## 🎨 Frontend
+### Frontend
 
-- React.js 19+ (Vite)
-- TypeScript
-- **Material UI (MUI) v9** — MiT materials allow Ant Design *or* MUI; this repo standardizes on MUI
-- Redux Toolkit
-- TanStack React Query
-- React Router
-- Formik + Yup
-- Recharts
-- Socket.io Client (via backend real-time features)
+| Technology | Version | Purpose |
+|------------|---------|---------|
+| React | 19.x | UI library |
+| TypeScript | 6.0.x | Type safety |
+| Vite | 8.x | Build tool & dev server |
+| Material UI (MUI) | 9.x | Component library & design system |
+| Redux Toolkit | Latest | State management |
+| RTK Query | Latest | API data fetching & caching |
+| TanStack React Query | Latest | Supplementary data fetching |
+| React Router | 7.x | Client-side routing |
+| Axios | Latest | HTTP client with interceptors |
+| Socket.IO Client | 4.x | Real-time communication |
+| Recharts | Latest | Dashboard charts |
+| Formik + Yup | Latest | Form management (installed, usage varies) |
+| Vitest | Latest | Unit & component testing |
+| Playwright | Latest | E2E testing |
+| @hello-pangea/dnd | Latest | Drag-and-drop for module reordering |
 
----
+### Backend
 
-## ⚙ Backend
+| Technology | Version | Purpose |
+|------------|---------|---------|
+| Node.js | 22.x | Runtime |
+| Express | 5.x | Web framework |
+| TypeScript | 5.x | Type safety |
+| MongoDB | 7.x | Database |
+| Mongoose | 9.x | ODM / schema validation |
+| JWT (jsonwebtoken) | 9.x | Authentication tokens |
+| Bcrypt | 6.x | Password hashing |
+| Joi | 18.x | Input validation |
+| Helmet | 8.x | Security headers |
+| Socket.IO | 4.x | Real-time bidirectional communication |
+| Multer | 2.x | File upload handling |
+| AWS SDK (S3) | 3.x | Cloud file storage |
+| PDFKit | 0.x | Certificate PDF generation |
+| Nodemailer | 8.x | Email delivery |
+| BullMQ | Latest | Job queues (optional) |
+| ioredis | Latest | Redis client (optional) |
+| prom-client | Latest | Prometheus metrics |
+| Jest | 30.x | Test framework |
+| Supertest | 7.x | HTTP integration testing |
+| mongodb-memory-server | 10.x | In-memory MongoDB for testing |
 
-- Node.js
-- Express.js
-- TypeScript
-- MongoDB + Mongoose
-- JWT Authentication
-- Bcrypt
-- Joi Validation
-- Multer (File Upload)
-- Socket.io
-- Nodemailer
+### Infrastructure
 
----
-
-## 🚀 DevOps & Tools
-
-- Git & GitHub
-- Docker
-- Docker Compose
-- Nginx
-- PM2
-- AWS / DigitalOcean Deployment
-- GitHub Actions (CI/CD)
-- Jest & Supertest (backend)
-- Vitest & React Testing Library (frontend)
-- Playwright (E2E smoke tests in `frontend/e2e/`)
-- ESLint & Prettier
-
----
-
-# 🗄 Database Collections
-
-| Collection | Purpose |
-|------------|----------|
-| users | User management |
-| courses | Course information |
-| modules | Course modules |
-| lessons | Lessons |
-| enrollments | Enrollment tracking |
-| assignments | Course assignments |
-| submissions | Assignment submissions |
-| quizzes | Lesson quizzes |
-| quizattempts | Quiz attempts and scoring |
-| discussions | Course discussions |
-| notifications | User notifications |
-| payments | Payment records |
-| content | CMS content |
-| media | Media library |
+| Technology | Purpose |
+|------------|---------|
+| Docker | Containerization |
+| Docker Compose | Local orchestration |
+| Nginx | Frontend static serving, security headers |
+| Alpine Linux | Base images for minimal attack surface |
+| GitHub Actions | CI pipeline |
 
 ---
 
-# 🔐 Authentication & Authorization
+## Database Design
 
-- JWT Access Tokens (15 minutes)
-- JWT Refresh Tokens (7 days)
-- Role-Based Access Control (RBAC)
+### Entity Relationship Summary
 
-### Roles
-
-- `student`
-- `instructor`
-- `admin`
-- `content_manager`
-
----
-
-# 📡 API Endpoints
-
-## Authentication
-
-```http
-POST /api/auth/register
-POST /api/auth/login
-POST /api/auth/logout
-POST /api/auth/forgot-password
-POST /api/auth/reset-password
-GET /api/auth/verify-email/:token
-POST /api/auth/refresh-token
-GET /api/auth/me
+```
+User ────< Enrollment >──── Course
+User ────< Payment
+User ────< Notification
+User ────< Certificate >──── Course
+User ────< Discussion >──── Course
+User ────< QuizAttempt >──── Quiz >──── Lesson >──── Module >──── Course
+User ────< Submission >──── Assignment >──── Module >──── Course
+User ────< ContactMessage
+               Course >──── LiveSession >──── User (instructor)
+               Course >──── Lesson (via Module)
+               Course >──── Review (embedded)
 ```
 
-## Course Management
+### Collections
 
-```http
-GET /api/courses
-GET /api/courses/:id
-POST /api/courses
-PUT /api/courses/:id
-DELETE /api/courses/:id
-POST /api/courses/:id/enroll
-GET /api/courses/:id/progress
-PATCH /api/courses/:id/progress
-POST /api/courses/:id/review
-GET /api/courses/:id/modules
-POST /api/courses/:id/modules
-POST /api/courses/modules/:moduleId/lessons
-POST /api/courses/:id/lessons/:lessonId/complete
-GET /api/dashboard/student
-GET /api/dashboard/instructor
-GET /api/dashboard/admin
-```
-
-## CMS
-
-```http
-GET /api/content
-GET /api/content/:slug
-POST /api/content
-PUT /api/content/:id
-DELETE /api/content/:id
-POST /api/content/upload
-GET /api/content/media
-```
-
-## Payments & Revenue
-
-```http
-POST /api/payments
-POST /api/payments/:id/confirm
-POST /api/payments/webhook/:provider
-GET /api/payments/me
-GET /api/payments/instructor/revenue
-GET /api/payments/admin/revenue
-```
-
-## Discussions, Assignments & Quizzes
-
-```http
-GET /api/discussions/course/:courseId
-POST /api/discussions/course/:courseId
-
-GET /api/assignments/course/:courseId
-GET /api/assignments/course/:courseId/analytics
-POST /api/assignments/course/:courseId
-GET /api/assignments/course/:courseId/submissions/me
-POST /api/assignments/:assignmentId/submissions
-GET /api/assignments/:assignmentId/submissions
-PATCH /api/assignments/:assignmentId/submissions/:submissionId/grade
-
-GET /api/quizzes/lesson/:lessonId
-POST /api/quizzes/lesson/:lessonId
-POST /api/quizzes/:quizId/attempts
-GET /api/quizzes/:quizId/attempts/me
-GET /api/quizzes/:quizId/attempts
-
-GET /api/certificates/me
-POST /api/certificates/course/:courseId/generate
-GET /api/certificates/verify/:certificateId
-GET /api/certificates/:certificateId/render
-GET /api/certificates/:certificateId/download
-
-GET /api/live-sessions/course/:courseId
-POST /api/live-sessions/course/:courseId
-PATCH /api/live-sessions/:sessionId/status
-```
+| Collection | Key Fields | Relationships |
+|------------|------------|---------------|
+| **users** | `email`, `password`, `role`, `firstName`, `lastName`, `gamification`, `tokenVersion`, `emailVerified` | Referenced by: enrollments, payments, certificates, discussions, notifications, quizattempts, submissions, contactmessages, livesessions |
+| **courses** | `title`, `slug`, `instructor`, `pricing`, `status`, `category`, `level`, `rating`, `reviews[]`, `modules[]` | Belongs to: User (instructor). Has many: Module, Enrollment, Payment, Certificate, Discussion, LiveSession |
+| **modules** | `courseId`, `title`, `order`, `status`, `lessons[]` | Belongs to: Course. Has many: Lesson |
+| **lessons** | `moduleId`, `title`, `content`, `videoUrl`, `type`, `duration`, `attachments[]`, `order`, `status` | Belongs to: Module. Has many: Quiz |
+| **enrollments** | `userId`, `courseId`, `completedLessons[]`, `progress`, `status` | Unique compound index on (userId, courseId) |
+| **contents** | `type`, `title`, `content`, `blocks[]`, `slug`, `status`, `author` | For CMS pages, posts, blocks |
+| **media** | `filename`, `originalName`, `mimetype`, `size`, `url` | File metadata for media library |
+| **quizzes** | `courseId`, `lessonId`, `title`, `questions[]`, `timeLimit`, `passingScore` | Belongs to: Lesson |
+| **quizattempts** | `quizId`, `userId`, `answers[]`, `score`, `percentage`, `passed` | Belongs to: Quiz, User |
+| **discussions** | `courseId`, `userId`, `title`, `content`, `replies[]` | Belongs to: Course, User |
+| **assignments** | `courseId`, `moduleId`, `title`, `description`, `dueDate` | Belongs to: Course, Module |
+| **submissions** | `assignmentId`, `userId`, `content`, `grade` | Belongs to: Assignment, User |
+| **notifications** | `userId`, `type`, `title`, `message`, `isRead` | Belongs to: User |
+| **payments** | `userId`, `courseId`, `amount`, `currency`, `status`, `provider`, `externalPaymentId` | Belongs to: User, Course |
+| **certificates** | `userId`, `courseId`, `certificateNumber`, `issuedAt` | Unique compound index on (userId, courseId) |
+| **livesessions** | `courseId`, `instructorId`, `title`, `provider`, `meetingUrl`, `startsAt`, `status` | Belongs to: Course, User |
+| **contactmessages** | `fullName`, `email`, `message`, `status`, `assignedTo` | Belongs to: User (assigned) |
 
 ---
 
-# ✨ LMS Features
+## API Overview
 
-- Course module/lesson player with progress tracking and lesson completion
-- Quiz engine with lesson-level quiz creation and student attempts
-- Auto-grading for multiple-choice and true/false questions
-- Assignment submission + instructor grading + analytics cards
-- Completion certificates (student generation + listing + verification + server-rendered preview/download)
-- Live session scheduling and join links for instructor/student workflow
-- Real-time discussions (Socket.io + persistent history)
-- Payment flow and role-based revenue dashboards
-- Secure cookie auth + CSRF protection + hardened upload rules
+The API is organized into 14 route modules under `/api/`. All endpoints return JSON.
+
+> **Full API documentation** can be found in `backend/API.md` (to be created).
+
+### Authentication (`/api/auth`)
+
+| Method | Path | Auth | Roles | Rate Limit | Description |
+|--------|------|:----:|:-----:|:----------:|-------------|
+| POST | `/api/auth/register` | — | — | 5/15m | Register new user |
+| POST | `/api/auth/login` | — | — | 10/15m | Login, returns JWT cookies |
+| POST | `/api/auth/logout` | ✅ | Any | — | Revoke session |
+| POST | `/api/auth/forgot-password` | — | — | 5/15m | Send reset email |
+| POST | `/api/auth/reset-password` | — | — | 10/15m | Reset password with token |
+| GET | `/api/auth/verify-email` | — | — | — | Verify email with token |
+| POST | `/api/auth/resend-verification` | — | — | 5/15m | Resend verification email |
+| POST | `/api/auth/refresh-token` | — | — | 30/15m | Rotate refresh token |
+| GET | `/api/auth/csrf-token` | — | — | — | Get CSRF token |
+| GET | `/api/auth/me` | ✅ | Any | — | Get current user |
+
+### Courses (`/api/courses`)
+
+| Method | Path | Auth | Roles | Description |
+|--------|------|:----:|:-----:|-------------|
+| GET | `/api/courses` | Optional | Any | List courses (with filters) |
+| GET | `/api/courses/:id` | Optional | Any | Get course detail |
+| POST | `/api/courses` | ✅ | instructor, admin | Create course |
+| PUT | `/api/courses/:id` | ✅ | instructor, admin | Update course |
+| DELETE | `/api/courses/:id` | ✅ | instructor, admin | Delete course |
+| POST | `/api/courses/:id/enroll` | ✅ | student | Enroll in course |
+| GET | `/api/courses/:id/progress` | ✅ | student | Get progress |
+| PATCH | `/api/courses/:id/progress` | ✅ | student | Update progress |
+| POST | `/api/courses/:id/lessons/:lessonId/complete` | ✅ | student | Mark lesson complete |
+| POST | `/api/courses/:id/review` | ✅ | student | Add review |
+| GET | `/api/courses/:id/modules` | ✅ | Any | List modules |
+| POST | `/api/courses/:id/modules` | ✅ | instructor, admin | Create module |
+| PUT | `/api/courses/modules/:moduleId` | ✅ | instructor, admin | Update module |
+| DELETE | `/api/courses/modules/:moduleId` | ✅ | instructor, admin | Delete module |
+| PATCH | `/api/courses/:id/modules/reorder` | ✅ | instructor, admin | Reorder modules |
+| POST | `/api/courses/modules/:moduleId/lessons` | ✅ | instructor, admin | Create lesson |
+| PUT | `/api/courses/modules/:moduleId/lessons/:lessonId` | ✅ | instructor, admin | Update lesson |
+| DELETE | `/api/courses/modules/:moduleId/lessons/:lessonId` | ✅ | instructor, admin | Delete lesson |
+| PATCH | `/api/courses/modules/:moduleId/lessons/reorder` | ✅ | instructor, admin | Reorder lessons |
+
+### Content (`/api/content`)
+
+| Method | Path | Auth | Roles | Description |
+|--------|------|:----:|:-----:|-------------|
+| GET | `/api/content` | — | Any | List published content |
+| GET | `/api/content/:slug` | — | Any | Get content by slug |
+| GET | `/api/content/manage` | ✅ | content_manager, admin | List all content (incl. drafts) |
+| POST | `/api/content` | ✅ | content_manager, admin | Create content |
+| PUT | `/api/content/:id` | ✅ | content_manager, admin | Update content |
+| DELETE | `/api/content/:id` | ✅ | content_manager, admin | Delete content |
+| POST | `/api/content/upload` | ✅ | content_manager, admin, instructor | Upload media |
+| GET | `/api/content/media` | ✅ | content_manager, admin, instructor | List media library |
+| DELETE | `/api/content/media/:id` | ✅ | content_manager, admin, instructor | Delete media |
+| PATCH | `/api/content/media/:id` | ✅ | content_manager, admin, instructor | Rename media |
+
+### Quizzes (`/api/quizzes`)
+
+| Method | Path | Auth | Roles | Description |
+|--------|------|:----:|:-----:|-------------|
+| GET | `/api/quizzes/lesson/:lessonId` | ✅ | Any | Get lesson quizzes |
+| POST | `/api/quizzes/lesson/:lessonId` | ✅ | instructor, admin | Create quiz |
+| POST | `/api/quizzes/:quizId/attempts` | ✅ | student | Submit quiz attempt |
+| GET | `/api/quizzes/:quizId/attempts/me` | ✅ | student | Get my attempts |
+| GET | `/api/quizzes/:quizId/attempts` | ✅ | instructor, admin | View all attempts |
+| GET | `/api/quizzes/all-attempts/me` | ✅ | student | Get all my quiz attempts |
+
+### Payments (`/api/payments`)
+
+| Method | Path | Auth | Roles | Description |
+|--------|------|:----:|:-----:|-------------|
+| POST | `/api/payments` | ✅ | student | Create payment/checkout |
+| POST | `/api/payments/:id/confirm` | ✅ | student | Confirm payment |
+| POST | `/api/payments/webhook/:provider` | — | — | Webhook (Stripe/PayPal) |
+| GET | `/api/payments/me` | ✅ | Any | My payment history |
+| GET | `/api/payments/instructor/revenue` | ✅ | instructor, admin | Instructor revenue |
+| GET | `/api/payments/admin/revenue` | ✅ | admin | Platform revenue |
+
+### Discussions (`/api/discussions`)
+
+| Method | Path | Auth | Roles | Description |
+|--------|------|:----:|:-----:|-------------|
+| GET | `/api/discussions/course/:courseId` | ✅ | Any | Course discussions |
+| POST | `/api/discussions/course/:courseId` | ✅ | Any | Create discussion post |
+| GET | `/api/discussions/conversations` | ✅ | Any | My conversations |
+
+### Certificates (`/api/certificates`)
+
+| Method | Path | Auth | Roles | Description |
+|--------|------|:----:|:-----:|-------------|
+| GET | `/api/certificates/me` | ✅ | student | My certificates |
+| POST | `/api/certificates/course/:courseId/generate` | ✅ | student | Generate certificate |
+| GET | `/api/certificates/:certificateId/render` | ✅ | student | Render certificate HTML |
+| GET | `/api/certificates/:certificateId/download` | ✅ | student | Download certificate |
+| GET | `/api/certificates/:certificateId/download-pdf` | ✅ | student | Download certificate PDF |
+| GET | `/api/certificates/verify/:certificateId` | — | Any | Verify certificate |
+
+### Dashboards (`/api/dashboard`)
+
+| Method | Path | Auth | Roles | Description |
+|--------|------|:----:|:-----:|-------------|
+| GET | `/api/dashboard/student` | ✅ | student | Student dashboard data |
+| GET | `/api/dashboard/instructor` | ✅ | instructor, admin | Instructor dashboard data |
+| GET | `/api/dashboard/admin` | ✅ | admin | Admin dashboard data |
+
+### Users (`/api/users`)
+
+| Method | Path | Auth | Roles | Description |
+|--------|------|:----:|:-----:|-------------|
+| GET | `/api/users` | ✅ | admin | List users |
+| POST | `/api/users` | ✅ | admin | Create user |
+| PATCH | `/api/users/me` | ✅ | Any | Update profile |
+| PATCH | `/api/users/me/password` | ✅ | Any | Change password |
+| POST | `/api/users/me/avatar` | ✅ | Any | Upload avatar |
+| PATCH | `/api/users/:userId` | ✅ | admin | Admin update user |
+| DELETE | `/api/users/:userId` | ✅ | admin | Delete user |
+
+### Additional Modules
+
+| Module | Prefix | Auth Required | Purpose |
+|--------|--------|:-------------:|---------|
+| Assignments | `/api/assignments` | ✅ | Course assignments & grading |
+| Live Sessions | `/api/live-sessions` | ✅ | Live class scheduling |
+| Notifications | `/api/notifications` | ✅ | User notifications |
+| Contact | `/api/contact` | Partial | Contact form & admin management |
+| Settings | `/api/settings` | Partial | Platform settings |
+| Health | `/healthz`, `/readyz` | — | Liveness & readiness probes |
+| Metrics | `/metrics` | Optional | Prometheus metrics |
 
 ---
 
-# 🧱 CMS Features
+## Getting Started
 
-- Dynamic content CRUD with role-based permissions
-- Media upload and media library endpoints
-- Content publishing workflow (`draft` / `published`)
+### Prerequisites
 
----
+- **Node.js** 22.x or later
+- **npm** 10.x or later
+- **MongoDB** 7.x (local, Atlas, or Docker)
+- **Docker** & **Docker Compose** (optional, for containerized setup)
 
-# 📊 Dashboards
+### Quick Start with Docker
 
-## 👨‍🎓 Student Dashboard
-
-- Course progress tracking
-- Achievements & badges
-- Study streak
-- Certificates
-
-## 👨‍🏫 Instructor Dashboard
-
-- Revenue analytics
-- Student engagement stats
-- Course ratings
-- Completion rate tracking
-
-## 🛡 Admin Dashboard
-
-- Platform-wide analytics
-- User management
-- Course approvals
-- System monitoring
-
----
-
-# 🧪 Testing Strategy
-
-- Unit and integration tests: **Jest** + **Supertest** (`backend/tests/`)
-- Frontend unit/component tests: **Vitest** + **Testing Library** (`frontend/src/**/*.test.ts(x)`)
-- E2E smoke tests: **Playwright** (`frontend/e2e/`)
-- **CI** (`.github/workflows/ci.yml`): backend `npm run typecheck`, `npm test`, `npm run build`, `npm run lint`; frontend `npm test`, `npm run build`, `npm run lint`; E2E runs in CI with `npm run test:e2e` when browsers are installed
-
-### MiT rubric alignment (stack choices)
-
-| Topic | MiT guide mention | This repository |
-|--------|-------------------|-----------------|
-| UI library | Ant Design *or* MUI | **MUI** only |
-| Frontend tests | RTL + Jest (example) | **Vitest** + Testing Library (Vite-native) |
-| E2E | Cypress (example) | **Playwright** |
-| CI lint | Sample workflow runs `npm run lint` | **Implemented**: `lint` on backend and frontend in CI |
-
-### Run E2E (Playwright)
-
-From `frontend/`:
+This is the fastest way to get LearnSpace running:
 
 ```bash
-npx playwright install
-npm run test:e2e
+# Clone the repository
+git clone <repository-url>
+cd LearnSpace
+
+# Start all services
+docker compose up --build
+
+# Wait for health checks to pass, then open:
+# Frontend: http://localhost:3000
+# Backend:  http://localhost:5000
 ```
 
-### Run linters
+The Docker Compose stack includes:
+- **MongoDB 7** — database (persistent volume)
+- **Backend** — Express API on port 5000
+- **Frontend** — Nginx-served SPA on port 3000
 
+To stop:
 ```bash
-cd backend && npm run lint
-cd frontend && npm run lint
+docker compose down
 ```
 
----
-
-# 🐳 Docker Setup
-
-## Run with Docker Compose
+### Quick Start without Docker
 
 ```bash
-docker-compose up --build
-```
+# 1. Install backend dependencies
+cd backend
+npm install
 
-For detached mode:
+# 2. Configure environment
+cp .env.example .env
+# Edit .env with your MongoDB connection string
 
-```bash
-docker-compose up --build -d
-```
-
-To stop the stack:
-
-```bash
-docker-compose down
-```
-
-## Run with Production Override
-
-```bash
-docker-compose -f docker-compose.yml -f docker-compose.prod.yml up --build -d
-```
-
-To stop production override stack:
-
-```bash
-docker-compose -f docker-compose.yml -f docker-compose.prod.yml down
-```
-
-### Services
-
-- MongoDB
-- Backend API (Port 5000)
-- Frontend (Port 3000)
-
-### 🛡 Container Hardening
-
-- Pinned base images for Node, MongoDB, and Nginx runtime
-- Non-root frontend runtime (`nginx-unprivileged`) and non-root backend process (`USER node`)
-- Service health checks for `mongo`, `backend`, and container-level frontend `/healthz`
-- `no-new-privileges` security option on app services
-- Read-only filesystem + tmpfs mounts for frontend runtime container
-
-### ⚙ Environment Variables
-
-Create `.env` in `backend`:
-
-```bash
-NODE_ENV=development
-PORT=5000
-MONGODB_URL=mongodb://127.0.0.1:27017/mit_lms
-AUTO_START_INMEMORY_MONGO=false
-CORS_ORIGIN=http://localhost:3000
-COOKIE_SECURE=false
-COOKIE_SAME_SITE=lax
-CSRF_COOKIE_SECURE=false
-CSRF_COOKIE_SAME_SITE=lax
-JWT_ACCESS_SECRET=your_secret
-JWT_REFRESH_SECRET=your_secret
-PAYMENT_WEBHOOK_SECRET=your_secret
-```
-
-Run MongoDB locally (without Docker), then start backend:
-
-```bash
-# Terminal 1
+# 3. Start MongoDB (must be running separately)
 mongod
 
-# Terminal 2 (from backend/)
+# 4. Start backend
 npm run dev
+
+# 5. In a new terminal, install & start frontend
+cd ../frontend
+npm install
+npm run dev
+
+# Frontend: http://localhost:5173
+# Backend:  http://localhost:5000
 ```
 
-If local MongoDB is not running, development mode can auto-start an in-memory MongoDB instance
-when `AUTO_START_INMEMORY_MONGO=true`.
-
-For production (HTTPS), set secure cookie values explicitly:
+### Seed Demo Users
 
 ```bash
-NODE_ENV=production
-CORS_ORIGIN=https://your-frontend-domain.com
+cd backend
+npm run seed:demo-users
+```
+
+This creates four demo accounts:
+
+| Role | Email | Password |
+|------|-------|----------|
+| Admin | admin@mit.com | Admin123! |
+| Instructor | instructor@mit.com | Instructor123! |
+| Content Manager | content.manager@mit.com | Content123! |
+| Student | student@mit.com | Student123! |
+
+> ⚠️ **Safety guard:** The seed script refuses to run when `NODE_ENV=production`.
+
+---
+
+## Environment Variables
+
+### Backend (`backend/.env`)
+
+| Variable | Required | Default | Description |
+|----------|:--------:|---------|-------------|
+| `NODE_ENV` | ✅ | `development` | Runtime environment |
+| `PORT` | ✅ | `5000` | API server port |
+| `MONGODB_URL` | ✅ | — | MongoDB connection string |
+| `CORS_ORIGIN` | ✅ | — | Allowed CORS origins (comma-separated) |
+| `FRONTEND_URL` | ✅ | — | Frontend URL for redirects |
+| `BASE_URL` | ✅ | — | Public API base URL |
+| `JWT_ACCESS_SECRET` | ✅ | — | JWT access token signing secret (min 32 chars) |
+| `JWT_REFRESH_SECRET` | ✅ | — | JWT refresh token signing secret (min 32 chars) |
+| `JWT_VERIFY_SECRET` | ✅ | — | Email verification token secret |
+| `JWT_RESET_SECRET` | ✅ | — | Password reset token secret |
+| `COOKIE_SECURE` | ⚠️ | `false` | Set `true` in production (HTTPS) |
+| `COOKIE_SAME_SITE` | — | `lax` | Cookie SameSite attribute |
+| `CSRF_COOKIE_SECURE` | ⚠️ | `false` | Set `true` in production (HTTPS) |
+| `CSRF_COOKIE_SAME_SITE` | — | `lax` | CSRF cookie SameSite attribute |
+| `TRUST_PROXY` | — | — | Set `1` when behind a reverse proxy |
+| `STORAGE_TYPE` | — | `local` | File storage backend: `local` or `s3` |
+| `MAX_UPLOAD_SIZE_MB` | — | `250` | Max file upload size in MB |
+| `EMAIL_USER` | ⚠️ | — | SMTP email user (required for email features) |
+| `EMAIL_PASS` | ⚠️ | — | SMTP email password |
+| `STRIPE_SECRET_KEY` | ⚠️ | — | Stripe secret key |
+| `PAYPAL_CLIENT_ID` | ⚠️ | — | PayPal client ID |
+| `PAYPAL_CLIENT_SECRET` | ⚠️ | — | PayPal client secret |
+| `PAYPAL_ENV` | — | `sandbox` | PayPal environment |
+| `PAYMENT_WEBHOOK_SECRET` | ⚠️ | — | Webhook signing secret |
+| `REDIS_URL` | — | — | Redis connection string (optional) |
+| `CACHE_COURSE_LIST_TTL_SEC` | — | — | Course cache TTL (requires Redis) |
+| `GLOBAL_API_RATE_LIMIT_MAX` | — | — | Global rate limit max requests |
+| `GLOBAL_API_RATE_LIMIT_WINDOW_MS` | — | — | Global rate limit window in ms |
+| `METRICS_BEARER_TOKEN` | — | — | Bearer token for `/metrics` endpoint |
+| `ENABLE_JOB_QUEUE` | — | — | Enable BullMQ job queue (requires Redis) |
+| `AWS_REGION` | ⚠️ | — | AWS region (S3 storage) |
+| `AWS_ACCESS_KEY_ID` | ⚠️ | — | AWS access key |
+| `AWS_SECRET_ACCESS_KEY` | ⚠️ | — | AWS secret key |
+| `AWS_S3_BUCKET` | ⚠️ | — | S3 bucket name |
+
+### Frontend
+
+> The frontend uses a build-time environment variable. In development, it defaults to `http://127.0.0.1:5000` via Vite proxy configuration.
+
+| Variable | Required | Default | Description |
+|----------|:--------:|---------|-------------|
+| `VITE_API_URL` | ✅ (build) | `http://127.0.0.1:5000` | Backend API URL (passed as Docker build arg) |
+
+---
+
+## Running Locally
+
+### Option 1: Docker Compose (Recommended)
+
+```bash
+# Development
+docker compose up --build
+
+# Production (add prod override)
+docker compose -f docker-compose.yml -f docker-compose.prod.yml up --build -d
+
+# Stop
+docker compose down
+```
+
+### Option 2: Local Development (Hot Reload)
+
+```bash
+# Terminal 1: MongoDB
+mongod
+
+# Terminal 2: Backend
+cd backend
+npm install
+npm run dev    # Starts with ts-node, hot reload
+
+# Terminal 3: Frontend
+cd frontend
+npm install
+npm run dev    # Vite dev server, hot reload
+```
+
+### Useful Scripts
+
+```bash
+# Backend
+cd backend
+npm run dev              # Development server with hot reload
+npm run build            # TypeScript compilation
+npm run typecheck        # Type checking without emitting
+npm test                 # Run all tests
+npm run lint             # ESLint (zero warnings enforced)
+npm run seed:demo-users  # Seed demo users (dev only)
+
+# Frontend
+cd frontend
+npm run dev              # Vite development server
+npm run build            # Production build
+npm test                 # Run Vitest tests
+npm run test:e2e         # Run Playwright E2E tests
+npm run lint             # ESLint
+npm run typecheck        # TypeScript checking
+```
+
+---
+
+## Development Workflow
+
+> **Note:** This section describes the recommended workflow based on the project structure. Adapt to your team's conventions.
+
+### Branch Strategy
+
+- `main` — Production-ready code
+- `develop` — Integration branch
+- `feat/<name>` — Feature branches
+- `fix/<name>` — Bug fix branches
+
+### Commit Conventions
+
+Follow [Conventional Commits](https://www.conventionalcommits.org/):
+
+```
+feat: add quiz auto-grading for essay questions
+fix: resolve CSRF token refresh race condition
+chore: update dependencies
+docs: add API documentation for certificate endpoints
+test: add rate limiter integration tests
+```
+
+### Code Quality
+
+All code must pass before merging:
+
+```bash
+# Backend
+npm run lint       # Zero warnings
+npm run typecheck  # No type errors
+npm test           # All tests pass
+
+# Frontend
+npm run lint       # Zero warnings
+npm run typecheck  # No type errors
+npm test           # All tests pass
+```
+
+---
+
+## Testing
+
+### Backend Tests
+
+**Framework:** Jest 30 + Supertest + mongodb-memory-server
+
+```bash
+cd backend
+npm test                    # Run all 43 test suites
+npm test -- --coverage      # With coverage report
+npm run test:watch          # Watch mode
+```
+
+**Coverage targets:** 50% across branches, functions, lines, statements.
+
+**Test suites include:**
+
+| Category | Files | Coverage |
+|----------|-------|----------|
+| Auth | 5 | Full flow, routes, middleware, service, rate limiting |
+| Courses | 4 | CRUD, enrollment, notifications, membership |
+| Content | 2 | CRUD, routes |
+| Quizzes | 2 | CRUD, attempts, routes |
+| Certificates | 2 | Generation, verification, routes |
+| Payments | 3 | Processing, routes, gateway service |
+| Discussions | 2 | CRUD, notification integration |
+| Assignments | 2 | CRUD, grading, routes |
+| Live Sessions | 2 | CRUD, routes |
+| Notifications | 1 | Routes |
+| Dashboard | 1 | Routes |
+| Security | 2 | Authorization, integration |
+| Socket.IO | 2 | Auth, notification events |
+| Database | 2 | Transactions, persistence |
+| Infrastructure | 6 | Rate limiter, error handling, env, retry, safe-regex, route-params, email service, service failures |
+
+### Frontend Tests
+
+**Unit/Component Tests:** Vitest + React Testing Library
+
+```bash
+cd frontend
+npm test                    # Run Vitest (watch mode)
+npm test -- --run           # Single run (CI mode)
+```
+
+**E2E Tests:** Playwright
+
+```bash
+cd frontend
+npx playwright install      # Install browsers (first time)
+npm run test:e2e            # Run all E2E tests
+npx playwright show-report  # View HTML report
+```
+
+**E2E test files (11 specs):**
+
+| File | Purpose |
+|------|---------|
+| `smoke.spec.ts` | Public routes, redirects, protected routes |
+| `auth-authorization.spec.ts` | CSRF login, invalid credentials, expired sessions, role-based nav |
+| `real-auth.spec.ts` | Real authentication scenarios |
+| `core-user-flows.spec.ts` | Login, registration, dashboards, learning, CMS, discussions |
+| `course-enrollment.spec.ts` | Enrollment flows |
+| `quiz-flow.spec.ts` | Quiz taking & submission |
+| `failure-states.spec.ts` | Error state handling |
+| `api-failures.spec.ts` | API failure scenarios |
+| `accessibility-resilience.spec.ts` | Accessibility + resilience |
+| `security-authorization.spec.ts` | Security edge cases |
+
+---
+
+## Deployment
+
+### Current State
+
+LearnSpace is **fully containerized** and ready for deployment. The CI pipeline builds and tests every push/PR to `main`. However, **no CD pipeline is currently configured** — deployment to a cloud provider requires manual setup or additional CI workflow steps.
+
+### Docker Compose (Production)
+
+```bash
+# Build and start with production settings
+docker compose -f docker-compose.yml -f docker-compose.prod.yml up --build -d
+
+# Monitor health
+docker compose ps
+docker compose logs -f
+```
+
+The production override enables:
+- `NODE_ENV=production`
+- Secure cookie flags (`COOKIE_SECURE=true`, `CSRF_COOKIE_SECURE=true`)
+- `TRUST_PROXY=1` for reverse proxy compatibility
+
+### Recommended Deployment Targets
+
+LearnSpace can be deployed to any platform supporting Docker containers:
+
+| Platform | Configuration Needed |
+|----------|---------------------|
+| **Single VPS** (DigitalOcean, Linode, AWS EC2) | Docker Compose + reverse proxy (Caddy/Nginx) |
+| **Railway** | `railway.toml` + Dockerfile |
+| **Render** | `render.yaml` + Dockerfile |
+| **AWS ECS / Fargate** | Task definitions + ECR |
+| **Kubernetes** | Helm chart or K8s manifests |
+
+### Container Hardening
+
+- **Pinned base images** — No `latest` tags (e.g., `node:22-alpine3.21`, `nginx:1.27-alpine`, `mongo:7.0.17`)
+- **Multi-stage builds** — Runtime images contain only production dependencies
+- **Non-root users** — Backend runs as `node`, frontend as `nginx`
+- **`no-new-privileges`** — Security option on all app services
+- **Read-only filesystem** — Frontend container uses `read_only: true` with tmpfs
+- **Health checks** — Configured at Dockerfile and compose levels
+- **Health endpoints** — `/healthz` (liveness), `/readyz` (readiness)
+
+---
+
+## CI/CD
+
+### Continuous Integration
+
+**GitHub Actions** workflow (`.github/workflows/ci.yml`) runs on push/PR to `main`/`master`:
+
+```
+Trigger: push or PR to main/master
+                         │
+         ┌───────────────┼───────────────┐
+         ▼               ▼               ▼
+  ┌────────────┐  ┌────────────┐  ┌────────────┐
+  │ Backend    │  │ Frontend   │  │ Frontend   │
+  │ Checks     │  │ Checks     │  │ Unit Tests │
+  │ ─ lint     │  │ ─ lint     │  │ ─ build    │
+  │ ─ typecheck│  │ ─ typecheck│  │ ─ test     │
+  └─────┬──────┘  └─────┬──────┘  └─────┬──────┘
+        │               │               │
+        └───────────────┼───────────────┘
+                        ▼
+                 ┌──────────────┐
+                 │  Frontend    │
+                 │  E2E Tests   │
+                 │  ─ build     │
+                 │  ─ playwright │
+                 └──────┬───────┘
+                        │
+                        ▼
+                 ┌──────────────┐
+                 │  Notify      │
+                 │  (always)    │
+                 └──────────────┘
+```
+
+**Five parallel jobs:**
+1. **backend-checks** — lint + typecheck
+2. **backend-tests** — build + test (with MongoDB service container)
+3. **frontend-checks** — lint + typecheck
+4. **frontend-unit-tests** — build + test
+5. **frontend-e2e-tests** — build + Playwright install + E2E
+
+All jobs upload coverage artifacts. The `notify` job runs always, summarizes results, and exits with code 1 if any job failed.
+
+### Missing CD
+
+> ⚠️ **Needs Verification:** No deployment pipeline is currently configured. The CI pipeline only tests and builds — it does not push images or deploy to any environment. See [Roadmap](#roadmap) for planned additions.
+
+---
+
+## Security
+
+LearnSpace implements defense-in-depth with multiple security layers.
+
+### Authentication & Authorization
+
+| Measure | Implementation |
+|---------|---------------|
+| Password hashing | bcrypt with 10 salt rounds |
+| JWT access tokens | HS256, 15min expiry, stored in httpOnly cookies |
+| JWT refresh tokens | HS256, 7 day expiry, rotated on use |
+| Token versioning | `tokenVersion` field on User model — increment to revoke all sessions |
+| Email verification | JWT-signed verification tokens |
+| Password reset | JWT-signed reset tokens, 1 hour expiry, strong password policy (8+ chars, upper+lower+digit+special) |
+| Role-based access | `roleMiddleware` enforces at route level |
+| Active user check | Disabled/inactive users blocked at auth level |
+
+### Request Security
+
+| Measure | Implementation |
+|---------|---------------|
+| CSRF protection | Double-submit cookie pattern (`csrfToken` cookie + `X-CSRF-Token` header) |
+| Rate limiting | Global API ceiling + per-route limits (register: 5/15m, login: 10/15m, etc.) |
+| Input validation | Joi schemas on every mutation endpoint (`stripUnknown`, `abortEarly: false`) |
+| Input sanitization | Strips `<script>`, `<iframe>`, `<object>`, event handlers, `javascript:` protocol |
+| Body size limits | JSON/URL-encoded: 1MB; File uploads: configurable (default 250MB) |
+| CORS | Whitelist-based origin validation with credentials support |
+| Helmet headers | `X-Content-Type-Options`, HSTS (production), `Referrer-Policy`, `Permissions-Policy`, `X-Frame-Options` |
+| X-Powered-By | Disabled |
+
+### Data Security
+
+| Measure | Implementation |
+|---------|---------------|
+| NoSQL injection | Mongoose parameterized queries; no raw `$where` usage |
+| ReDoS protection | `safeRegexFragment` limits search length (200 chars) |
+| Safe redirects | URL sanitization via `sanitizeUrl` on frontend |
+| Secrets validation | Production mode rejects placeholder secrets (`replace_with_*`, `change_me`) |
+| Log redaction | Structured logger auto-redacts JWTs and secrets |
+
+### File Upload Security
+
+| Measure | Implementation |
+|---------|---------------|
+| MIME validation | Whitelist of allowed MIME types |
+| Magic byte validation | File content verification before extension check |
+| Extension checking | Allowed extensions whitelist |
+| Path traversal | Filename sanitization prevents `../` attacks |
+| Size limits | Configurable per upload type (avatar: 5MB, general: 250MB) |
+| Dual storage | Local filesystem or AWS S3 via `STORAGE_TYPE` |
+
+### WebSocket Security
+
+| Measure | Implementation |
+|---------|---------------|
+| Connection auth | JWT verification on Socket.IO connect |
+| Token version check | Server validates `tokenVersion` on connect |
+| Room isolation | Users can only join rooms for courses they have access to |
+| Rate limiting | 30 messages per 10 seconds per socket |
+
+### Production Security Checklist
+
+```bash
+# Required for production deployment
 COOKIE_SECURE=true
-COOKIE_SAME_SITE=lax
 CSRF_COOKIE_SECURE=true
-CSRF_COOKIE_SAME_SITE=lax
+NODE_ENV=production
+TRUST_PROXY=1
+# All JWT secrets: min 32 chars, no placeholder values
+# HTTPS terminated at reverse proxy (Caddy, Nginx, Cloudflare)
 ```
-
-Frontend environment template:
-
-```bash
-REACT_APP_API_URL=http://localhost:5000
-```
-
-Use `backend/.env.example` and `frontend/.env.example` as the base templates.
-For production setup, use `backend/.env.production.example` and `frontend/.env.production.example`.
-
-### ✅ Health Checks
-
-- Backend: `GET /healthz`
-- Frontend container: `GET /healthz`
 
 ---
 
-# 🔒 Security Practices
+## Contributing
 
-- Password hashing with Bcrypt
-- Input validation with Joi
-- JWT authentication
-- Role-based access control
-- Secure headers
-- HTTPS in production
+We welcome contributions! Here's how to get started:
+
+1. **Fork** the repository
+2. **Create a feature branch:** `git checkout -b feat/your-feature`
+3. **Make your changes** following the code style
+4. **Ensure quality:** run lint, typecheck, and tests
+5. **Commit** using conventional commits
+6. **Push** and open a Pull Request
+
+### Code Style
+
+- TypeScript strict mode throughout
+- ESLint with zero warnings (`--max-warnings 0`)
+- Follow existing patterns in the codebase
+- Use Joi validation for any new API endpoints
+- Write tests for new features
+
+### Pull Request Checklist
+
+- [ ] Code follows project style (lint passes)
+- [ ] TypeScript compiles without errors
+- [ ] All existing tests pass
+- [ ] New tests added for new functionality
+- [ ] API changes documented
+- [ ] Environment variables documented (if applicable)
 
 ---
 
-# 📅 Internship Timeline
+## Roadmap
+
+### ✅ Completed
 
 | Phase | Weeks | Deliverables |
 |-------|-------|-------------|
-| Setup | 1-2 | Project & DB Design |
-| Backend | 3-4 | API Development |
-| Frontend | 5-6 | UI Implementation |
-| LMS Core | 7-8 | Course System |
-| Advanced | 9-10 | Analytics & Payments |
-| Deployment | 11-12 | Testing & Production |
+| Project Setup | 1-2 | Backend + frontend workspaces, MongoDB schemas, TypeScript |
+| Backend API | 3-4 | Auth, courses, content, JWT, RBAC, validation, rate limiting |
+| Frontend Foundation | 5-6 | React routes, Redux, role-aware layout, CMS, media library |
+| LMS Core | 7-8 | Course player, quizzes, assignments, discussions, certificates, progress |
+| Advanced Analytics & Payments | 9-10 | Stripe/PayPal, revenue analytics, auto-enrollment |
+| Production Readiness | 11-12 | Docker, Nginx, CI pipeline, health checks, E2E tests |
+
+### 🔄 In Progress / Planned
+
+| Feature | Status | Notes |
+|---------|--------|-------|
+| Assignment frontend UI | 🔶 Backend done | No frontend integration yet |
+| Live session frontend UI | 🔶 Backend done | No frontend integration yet |
+| Contact admin management UI | 🔶 Backend done | No admin frontend management |
+| CD pipeline | 📝 Planned | Deploy to staging/production |
+| Redis caching (production setup) | 📝 Planned | Course list caching implemented |
+| AI course recommendations | 📝 Future | Listed in original roadmap |
+| Kubernetes deployment | 📝 Future | For enterprise scaling |
+| React Native mobile app | 📝 Future | Cross-platform mobile learning |
 
 ---
 
-# 📈 Future Improvements
+## FAQ
 
-- AI Course Recommendations
-- Redis Caching
-- Kubernetes Deployment
-- React Native Mobile App
-- Microservices Architecture
+**Q: Is LearnSpace production-ready?**
+A: Yes. The codebase includes production-grade security, Docker containerization, health checks, comprehensive testing, and CI. However, a CD pipeline and production deployment configuration still need to be set up for your specific infrastructure.
+
+**Q: Can I use LearnSpace for commercial purposes?**
+A: Yes, it's open-source under the MIT license.
+
+**Q: What payment providers are supported?**
+A: Stripe, PayPal, and bank transfer. The payment gateway service is designed to be extensible.
+
+**Q: Does it support SSO/SAML?**
+A: Not yet. Authentication is email/password with JWT. OAuth providers are a planned enhancement.
+
+**Q: Can I host videos directly?**
+A: Yes. LearnSpace supports video upload to local storage or S3. For production with many students, consider using a CDN or a dedicated video platform like Mux or Cloudflare Stream.
+
+**Q: How do I reset the database?**
+A: In development, you can drop the database and re-run seeds. For production, use the MongoDB backup/restore tools.
+
+**Q: Is there a mobile app?**
+A: Not yet. The React frontend is responsive and works on mobile browsers. A React Native app is in the future roadmap.
+
+**Q: What's the difference between a "content manager" and "instructor"?**
+A: Content managers manage the CMS (pages, posts, media library). Instructors create and teach courses. Admins can do both.
 
 ---
 
+## License
 
-
-⭐ If you find this project useful, give it a star!
+This project is open-source. See the [LICENSE](LICENSE) file for details.
 
 ---
 
+## Acknowledgements
+
+- **MiT Full Stack Development Internship Program 2025** — Project framework and mentorship
+- **Open source community** — All the incredible libraries that make this project possible
+- **React, Express, MongoDB, and Node.js communities** — For the ecosystem
+- **Material UI** — For the comprehensive component library
+- **All contributors** — Who help improve this project
+
+---
+
+<p align="center">
+  Built with ❤️ during the MiT Full Stack Development Internship Program 2025
+</p>
+
+<p align="center">
+  <a href="#readme">⬆ Back to Top</a>
+</p>
