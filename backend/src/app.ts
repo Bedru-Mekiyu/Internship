@@ -424,6 +424,13 @@ const startServer = async () => {
       } catch {
         /* ignore */
       }
+      // Also stop in-memory MongoDB if running
+      try {
+        const { disconnectDB } = await import('./config/database');
+        await disconnectDB();
+      } catch {
+        /* ignore */
+      }
       process.exit(0);
     };
 

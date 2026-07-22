@@ -57,6 +57,7 @@
 - [Security](#security)
 - [Contributing](#contributing)
 - [Roadmap](#roadmap)
+- [Changelog](CHANGELOG.md)
 - [FAQ](#faq)
 - [License](#license)
 - [Acknowledgements](#acknowledgements)
@@ -571,7 +572,7 @@ The API is organized into 14 route modules under `/api/`. All endpoints return J
 | Assignments | `/api/assignments` | ✅ | Course assignments & grading |
 | Live Sessions | `/api/live-sessions` | ✅ | Live class scheduling |
 | Notifications | `/api/notifications` | ✅ | User notifications |
-| Contact | `/api/contact` | Partial | Contact form & admin management |
+| Contact | `/api/contact` | ✅ | Contact form & admin management with full UI |
 | Settings | `/api/settings` | Partial | Platform settings |
 | Health | `/healthz`, `/readyz` | — | Liveness & readiness probes |
 | Metrics | `/metrics` | Optional | Prometheus metrics |
@@ -1109,9 +1110,9 @@ We welcome contributions! Here's how to get started:
 
 | Feature | Status | Notes |
 |---------|--------|-------|
-| Assignment frontend UI | 🔶 Backend done | No frontend integration yet |
-| Live session frontend UI | 🔶 Backend done | No frontend integration yet |
-| Contact admin management UI | 🔶 Backend done | No admin frontend management |
+| Assignment frontend UI | ✅ Done | Full submit & grade UI |
+| Live session frontend UI | ✅ Done | Session cards with provider labels |
+| Contact admin management UI | ✅ Done | Search, filter, assign, status, review notes |
 | CD pipeline | 📝 Planned | Deploy to staging/production |
 | Redis caching (production setup) | 📝 Planned | Course list caching implemented |
 | AI course recommendations | 📝 Future | Listed in original roadmap |
