@@ -248,7 +248,11 @@ jobs:
           if [ "${{ needs.frontend-checks.result }}" != "success" ]; then
             FRONTEND_PASSED=false
           fi
-          
+
+          if [ "${{ needs.frontend-unit-tests.result }}" != "success" ]; then
+            FRONTEND_PASSED=false
+          fi
+
           if [ "${{ needs.frontend-e2e-tests.result }}" != "success" ]; then
             FRONTEND_PASSED=false
           fi

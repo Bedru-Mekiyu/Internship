@@ -72,6 +72,7 @@ export const baseNavigationItems: NavigationItem[] = [
   // Admin navigation items
   { label: 'Admin Dashboard', to: '/admin/dashboard', icon: <DashboardOutlined />, roles: ['admin'], section: 'overview' },
   { label: 'Course Management', to: '/admin/courses', icon: <BookOutlined />, roles: ['admin'], section: 'admin' },
+  { label: 'Contact Messages', to: '/admin/contacts', icon: <ChatBubbleOutlined />, roles: ['admin'], section: 'admin' },
   { label: 'Analytics', to: '/admin/analytics', icon: <AnalyticsOutlined />, roles: ['admin'], section: 'overview' },
   { label: 'User Management', to: '/admin/users', icon: <GroupsOutlined />, roles: ['admin'], section: 'admin' },
   { label: 'Content Manager', to: '/cms/content', icon: <DescriptionOutlined />, roles: ['admin'], section: 'content' },

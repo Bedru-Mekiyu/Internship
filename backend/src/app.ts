@@ -11,6 +11,7 @@ import jwt from 'jsonwebtoken';
 import mongoose from 'mongoose';
 import { connectDB } from './config/database';
 import { getHelmetOptions } from './config/security-headers';
+import { openapi } from './config/openapi';
 import { User } from './models/User.model';
 import { requireEnv } from './utils/env';
 import { logInfo, logWarn, logError } from './utils/logger';
@@ -225,6 +226,8 @@ export const createApp = () => {
   app.use('/api/users', userRoutes);
   app.use('/api/contact', contactRoutes);
   app.use('/api/settings', settingsRoutes);
+
+  app.get('/api/docs/json', (_req, res) => res.json(openapi));
 
   app.use(errorMiddleware);
 

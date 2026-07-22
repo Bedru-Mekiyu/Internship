@@ -14,6 +14,7 @@ import { AuthProvider, useAuth } from './context/AuthContext';
 import { createAuthenticatedSocket } from './services/realtimeSocket';
 import MainLayout from './components/layout/MainLayout';
 import LearnSpaceShell from './routes/LearnSpaceShell';
+import ErrorBoundary from './components/common/ErrorBoundary';
 import type { LearnSpaceRole } from './routes/learnSpaceNavigation';
 import { getLandingRouteForRole } from './routes/learnSpaceNavigation';
 import { LoadingSpinner } from './components/common/LoadingSpinner';
@@ -64,6 +65,12 @@ const ContentManager = lazy(() => import('./pages/cms/ContentManager'));
 const BlogPostEditor = lazy(() => import('./pages/cms/BlogPostEditor'));
 const QuizBuilder = lazy(() => import('./pages/courses/QuizBuilder'));
 const UserManagement = lazy(() => import('./pages/dashboard/UserManagement'));
+const AssignmentListPage = lazy(() => import('./pages/assignments/AssignmentListPage'));
+const AssignmentSubmitPage = lazy(() => import('./pages/assignments/AssignmentSubmitPage'));
+const AssignmentGradePage = lazy(() => import('./pages/assignments/AssignmentGradePage'));
+const LiveSessionsPage = lazy(() => import('./pages/live-sessions/LiveSessionsPage'));
+const ContactAdminPage = lazy(() => import('./pages/admin/contacts/ContactAdminPage'));
+const ApiDocsPage = lazy(() => import('./pages/docs/ApiDocsPage'));
 
 function RequireSession() {
   const { user, isLoading } = useAuth();
@@ -222,6 +229,11 @@ function AppRoutes() {
             <Route path="/search" element={<SearchResultsPage />} />
             <Route path="/quizzes" element={<MyQuizResultsPage />} />
             <Route path="/settings/notifications" element={<NotificationPreferencesPage />} />
+            <Route path="/courses/:courseId/assignments" element={<AssignmentListPage />} />
+            <Route path="/courses/:courseId/assignments/:assignmentId/submit" element={<AssignmentSubmitPage />} />
+            <Route path="/courses/:courseId/assignments/:assignmentId/grade" element={<AssignmentGradePage />} />
+            <Route path="/courses/:courseId/live-sessions" element={<LiveSessionsPage />} />
+            <Route path="/api-docs" element={<ApiDocsPage />} />
 
             <Route element={<RequireRole allowedRoles={['admin', 'instructor']} />}>
               <Route path="/lessons/upload" element={<UploadLesson />} />
@@ -242,6 +254,7 @@ function AppRoutes() {
               <Route path="/admin/courses" element={<AdminCourseManager />} />
               <Route path="/admin/settings" element={<SystemSettings />} />
               <Route path="/admin/users" element={<UserManagement />} />
+              <Route path="/admin/contacts" element={<ContactAdminPage />} />
             </Route>
             <Route path="*" element={<NotFoundPage />} />
           </Route>
@@ -261,7 +274,9 @@ function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
-        <AppRoutes />
+        <ErrorBoundary>
+          <AppRoutes />
+        </ErrorBoundary>
       </AuthProvider>
     </BrowserRouter>
   );
