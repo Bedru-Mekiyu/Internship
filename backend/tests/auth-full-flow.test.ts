@@ -1,4 +1,5 @@
 import request from 'supertest';
+import mongoose from 'mongoose';
 import { createApp } from '../src/app';
 import { createTestFixtures, TestFixtures } from './helpers/fixtures';
 import {
@@ -214,7 +215,7 @@ describe('Authentication Full Flow', () => {
 
       expect(response.status).toBe(200);
 
-      await invalidateUserToken(fixtures.student.user._id);
+      await invalidateUserToken(fixtures.student.user._id as mongoose.Types.ObjectId);
 
       const revokedResponse = await request(app)
         .get('/api/auth/me')
@@ -237,7 +238,7 @@ describe('Authentication Full Flow', () => {
       const response = await request(app).get('/api/auth/csrf-token');
 
       expect(response.headers['set-cookie']).toBeDefined();
-      const cookies = response.headers['set-cookie'] as string[];
+      const cookies = response.headers['set-cookie'] as unknown as string[];
       expect(cookies.some((c) => c.includes('csrfToken'))).toBe(true);
     });
   });
