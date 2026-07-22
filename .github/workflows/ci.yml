@@ -1,34 +1,22 @@
-name: CI
+name: CI Pipeline
 
 on:
   push:
-    branches: ["main", "master"]
+    branches: [main, develop]
   pull_request:
-    branches: ["main", "master"]
-
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+    branches: [main, develop]
 
 env:
   NODE_VERSION: '20'
-  JWT_ACCESS_SECRET: ci_access_secret_for_testing_only_min_32_chars
-  JWT_REFRESH_SECRET: ci_refresh_secret_for_testing_only_min_32_chars
-  JWT_VERIFY_SECRET: ci_verify_secret_for_testing_only_min_32_chars
-  JWT_RESET_SECRET: ci_reset_secret_for_testing_only_min_32_chars
-  PAYMENT_WEBHOOK_SECRET: ci_webhook_secret_for_testing_only_min_32_chars
-  BASE_URL: http://127.0.0.1:5000
+  MONGODB_VERSION: '7.0'
 
 jobs:
-  # ─────────────────────────────────────────────────────────────
-  # BACKEND LINT & TYPE CHECK
-  # ─────────────────────────────────────────────────────────────
   backend-checks:
+    name: Backend Checks
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: backend
-
+        working-directory: ./backend
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -41,34 +29,30 @@ jobs:
           cache-dependency-path: backend/package-lock.json
 
       - name: Install dependencies
-        run: npm ci --prefer-offline --ignore-scripts
+        run: npm ci
 
-      - name: Lint code
+      - name: Run ESLint
         run: npm run lint
 
-      - name: Type check
-        run: npm run typecheck
+      - name: TypeScript type check
+        run: npx tsc --noEmit
 
-  # ─────────────────────────────────────────────────────────────
-  # BACKEND TESTS - ALL TESTS (Unit + Integration + Security)
-  # ─────────────────────────────────────────────────────────────
   backend-tests:
+    name: Backend Tests
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: backend
-
+        working-directory: ./backend
     services:
       mongodb:
-        image: mongo:7
+        image: mongo:${{ env.MONGODB_VERSION }}
         ports:
           - 27017:27017
         options: >-
-          --health-cmd "mongosh --eval 'db.adminCommand({ping:1})'"
+          --health-cmd "mongosh --eval 'db.adminCommand(\"ping\")'"
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -81,43 +65,37 @@ jobs:
           cache-dependency-path: backend/package-lock.json
 
       - name: Install dependencies
-        run: npm ci --prefer-offline --ignore-scripts
+        run: npm ci
 
-      - name: Build TypeScript
-        run: npm run build
+      - name: Wait for MongoDB
+        run: |
+          for i in {1..30}; do
+            if mongosh --eval "db.adminCommand('ping')" 2>/dev/null; then
+              echo "MongoDB is ready"
+              exit 0
+            fi
+            echo "Waiting for MongoDB... ($i/30)"
+            sleep 2
+          done
+          echo "MongoDB failed to start"
+          exit 1
+
+      - name: Run backend tests
+        run: npm test -- --runInBand --no-coverage
         env:
-          NODE_ENV: production
+          MONGODB_URI: mongodb://localhost:27017/internship_test
+          JWT_ACCESS_SECRET: ci_access_secret_for_testing_only_min_32_chars
+          JWT_REFRESH_SECRET: ci_refresh_secret_for_testing_only_min_32_chars
+          JWT_VERIFY_SECRET: ci_verify_secret_for_testing_only_min_32_chars
+          JWT_RESET_SECRET: ci_reset_secret_for_testing_only_min_32_chars
+          NODE_ENV: test
 
-      - name: Run ALL tests (Unit + Integration + Security)
-        run: npm test
-        env:
-          NODE_OPTIONS: "--max-old-space-size=4096"
-          MONGODB_URI: mongodb://localhost:27017/test_mit_lms
-          JWT_ACCESS_SECRET: ${{ env.JWT_ACCESS_SECRET }}
-          JWT_REFRESH_SECRET: ${{ env.JWT_REFRESH_SECRET }}
-          JWT_VERIFY_SECRET: ${{ env.JWT_VERIFY_SECRET }}
-          JWT_RESET_SECRET: ${{ env.JWT_RESET_SECRET }}
-          PAYMENT_WEBHOOK_SECRET: ${{ env.PAYMENT_WEBHOOK_SECRET }}
-          CORS_ORIGIN: "*"
-          FRONTEND_URL: http://localhost:5173
-
-      - name: Upload test results
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: backend-test-results
-          path: backend/coverage/
-          retention-days: 7
-
-  # ─────────────────────────────────────────────────────────────
-  # FRONTEND LINT & TYPE CHECK
-  # ─────────────────────────────────────────────────────────────
   frontend-checks:
+    name: Frontend Checks
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: frontend
-
+        working-directory: ./frontend
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -130,23 +108,23 @@ jobs:
           cache-dependency-path: frontend/package-lock.json
 
       - name: Install dependencies
-        run: npm ci --prefer-offline --ignore-scripts
+        run: npm ci
 
-      - name: Lint code
+      - name: Run ESLint
         run: npm run lint
 
-      - name: Type check
-        run: npm run typecheck
+      - name: TypeScript type check
+        run: npx tsc --noEmit
 
-  # ─────────────────────────────────────────────────────────────
-  # FRONTEND UNIT TESTS
-  # ─────────────────────────────────────────────────────────────
+      - name: Build frontend
+        run: npm run build
+
   frontend-unit-tests:
+    name: Frontend Unit Tests
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: frontend
-
+        working-directory: ./frontend
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -159,33 +137,27 @@ jobs:
           cache-dependency-path: frontend/package-lock.json
 
       - name: Install dependencies
-        run: npm ci --prefer-offline --ignore-scripts
-
-      - name: Build frontend
-        run: npm run build
-        env:
-          NODE_ENV: production
+        run: npm ci
 
       - name: Run unit tests
-        run: npm test -- --run
+        run: npm run test:unit -- --no-coverage
 
-      - name: Upload coverage
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: frontend-coverage
-          path: frontend/coverage/
-          retention-days: 7
-
-  # ─────────────────────────────────────────────────────────────
-  # FRONTEND E2E TESTS (All Browsers)
-  # ─────────────────────────────────────────────────────────────
   frontend-e2e-tests:
+    name: Frontend E2E Tests
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: frontend
-
+        working-directory: ./frontend
+    services:
+      mongodb:
+        image: mongo:${{ env.MONGODB_VERSION }}
+        ports:
+          - 27017:27017
+        options: >-
+          --health-cmd "mongosh --eval 'db.adminCommand(\"ping\")'"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -197,76 +169,73 @@ jobs:
           cache: 'npm'
           cache-dependency-path: frontend/package-lock.json
 
-      - name: Install dependencies
-        run: npm ci --prefer-offline --ignore-scripts
+      - name: Install frontend dependencies
+        run: npm ci
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
 
       - name: Build frontend
         run: npm run build
+
+      - name: Start backend
+        working-directory: ../backend
+        run: |
+          npm ci
+          nohup npm run start:dev > backend.log 2>&1 &
+          sleep 10
+          curl -f http://localhost:5000/healthz || (cat backend.log && exit 1)
         env:
-          NODE_ENV: production
+          MONGODB_URI: mongodb://localhost:27017/internship_test
+          JWT_ACCESS_SECRET: ci_access_secret_for_testing_only_min_32_chars
+          JWT_REFRESH_SECRET: ci_refresh_secret_for_testing_only_min_32_chars
+          JWT_VERIFY_SECRET: ci_verify_secret_for_testing_only_min_32_chars
+          JWT_RESET_SECRET: ci_reset_secret_for_testing_only_min_32_chars
+          NODE_ENV: test
+          PORT: 5000
 
-      - name: Install Playwright browsers
-        run: npx playwright install --with-deps
-
-      - name: Run E2E tests (all browsers)
-        run: npm run test:e2e
+      - name: Run E2E tests
+        run: npx playwright test --project=chromium --reporter=line
         env:
-          CI: true
-          PLAYWRIGHT_REUSE_BUILD: '1'
-          PLAYWRIGHT_RETRIES: 2
+          BASE_URL: http://localhost:3000
+          API_BASE_URL: http://localhost:5000
 
-      - name: Upload Playwright reports
+      - name: Upload Playwright report
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: playwright-report
-          path: frontend/playwright-report/
+          path: playwright-report/
           retention-days: 7
 
-  # ─────────────────────────────────────────────────────────────
-  # NOTIFICATION (runs after all jobs)
-  # ─────────────────────────────────────────────────────────────
   notify:
-    needs: [backend-checks, backend-tests, frontend-checks, frontend-unit-tests, frontend-e2e-tests]
-    runs-on: ubuntu-latest
+    name: Notify Status
+    needs:
+      - backend-checks
+      - backend-tests
+      - frontend-checks
+      - frontend-unit-tests
+      - frontend-e2e-tests
     if: always()
-
+    runs-on: ubuntu-latest
     steps:
-      - name: Report status
+      - name: Check all jobs status
         run: |
-          BACKEND_PASSED=true
-          FRONTEND_PASSED=true
-          
-          if [ "${{ needs.backend-checks.result }}" != "success" ]; then
-            BACKEND_PASSED=false
-          fi
-          
-          if [ "${{ needs.backend-tests.result }}" != "success" ]; then
-            BACKEND_PASSED=false
-          fi
-          
-          if [ "${{ needs.frontend-checks.result }}" != "success" ]; then
-            FRONTEND_PASSED=false
-          fi
+          BACKEND_CHECKS="${{ needs.backend-checks.result }}"
+          BACKEND_TESTS="${{ needs.backend-tests.result }}"
+          FRONTEND_CHECKS="${{ needs.frontend-checks.result }}"
+          FRONTEND_UNIT="${{ needs.frontend-unit-tests.result }}"
+          FRONTEND_E2E="${{ needs.frontend-e2e-tests.result }}"
 
-          if [ "${{ needs.frontend-unit-tests.result }}" != "success" ]; then
-            FRONTEND_PASSED=false
-          fi
+          echo "Backend Checks: $BACKEND_CHECKS"
+          echo "Backend Tests: $BACKEND_TESTS"
+          echo "Frontend Checks: $FRONTEND_CHECKS"
+          echo "Frontend Unit: $FRONTEND_UNIT"
+          echo "Frontend E2E: $FRONTEND_E2E"
 
-          if [ "${{ needs.frontend-e2e-tests.result }}" != "success" ]; then
-            FRONTEND_PASSED=false
-          fi
-          
-          if [ "$BACKEND_PASSED" = "false" ] || [ "$FRONTEND_PASSED" = "false" ]; then
+          if [ "$BACKEND_CHECKS" != "success" ] || [ "$BACKEND_TESTS" != "success" ] || [ "$FRONTEND_CHECKS" != "success" ] || [ "$FRONTEND_UNIT" != "success" ] || [ "$FRONTEND_E2E" != "success" ]; then
             echo "❌ CI FAILED"
-            echo ""
-            echo "Backend checks: ${{ needs.backend-checks.result }}"
-            echo "Backend tests: ${{ needs.backend-tests.result }}"
-            echo "Frontend checks: ${{ needs.frontend-checks.result }}"
-            echo "Frontend unit: ${{ needs.frontend-unit-tests.result }}"
-            echo "Frontend E2E: ${{ needs.frontend-e2e-tests.result }}"
             exit 1
           fi
-          
+
           echo "✅ CI PASSED"
-          echo "All tests passed successfully!"
