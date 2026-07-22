@@ -49,7 +49,7 @@ jobs:
         ports:
           - 27017:27017
         options: >-
-          --health-cmd "mongosh --eval 'db.adminCommand(\"ping\")'"
+          --health-cmd "nc -z localhost 27017"
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
@@ -70,8 +70,9 @@ jobs:
       - name: Wait for MongoDB
         run: |
           for i in {1..30}; do
-            if mongosh --eval "db.adminCommand('ping')" 2>/dev/null; then
-              echo "MongoDB is ready"
+            if nc -z localhost 27017 2>/dev/null; then
+              echo "MongoDB port is open"
+              sleep 2
               exit 0
             fi
             echo "Waiting for MongoDB... ($i/30)"
@@ -154,7 +155,7 @@ jobs:
         ports:
           - 27017:27017
         options: >-
-          --health-cmd "mongosh --eval 'db.adminCommand(\"ping\")'"
+          --health-cmd "nc -z localhost 27017"
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
@@ -177,6 +178,20 @@ jobs:
 
       - name: Build frontend
         run: npm run build
+
+      - name: Wait for MongoDB
+        run: |
+          for i in {1..30}; do
+            if nc -z localhost 27017 2>/dev/null; then
+              echo "MongoDB port is open"
+              sleep 2
+              exit 0
+            fi
+            echo "Waiting for MongoDB... ($i/30)"
+            sleep 2
+          done
+          echo "MongoDB failed to start"
+          exit 1
 
       - name: Start backend
         working-directory: ../backend
