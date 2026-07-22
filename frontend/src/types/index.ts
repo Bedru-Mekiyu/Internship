@@ -201,12 +201,30 @@ export interface LiveSession {
 
 export interface ContactMessage {
   _id: string;
-  name: string;
+  fullName: string;
   email: string;
-  subject?: string;
+  phone?: string;
   message: string;
-  isRead?: boolean;
-  createdAt?: string;
+  status: 'new' | 'in_progress' | 'resolved';
+  reviewNotes?: string;
+  assignedTo?: { _id: string; firstName: string; lastName: string; email: string } | string;
+  assignedAt?: string;
+  reviewedBy?: { _id: string; firstName: string; lastName: string; email: string } | string;
+  reviewedAt?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ContactMessagesResponse {
+  data: ContactMessage[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+    hasNext: boolean;
+    hasPrev: boolean;
+  };
 }
 
 export interface MediaItem {
