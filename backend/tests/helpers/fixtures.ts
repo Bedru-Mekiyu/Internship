@@ -56,8 +56,7 @@ async function createTestUserInDb(
     lastName: 'User',
     role,
     isActive: true,
-    isEmailVerified: true,
-    tokenVersion: 0,
+    emailVerified: true,
     preferences: {
       language: 'en',
       timezone: 'UTC',
@@ -81,7 +80,7 @@ async function createTestUserInDb(
     lastName: user.lastName,
     role: user.role as TestUserRole,
     isActive: user.isActive,
-    isEmailVerified: user.isEmailVerified,
+    isEmailVerified: user.emailVerified,
     tokenVersion: user.tokenVersion ?? 0,
     password: 'TestPass123!',
   };

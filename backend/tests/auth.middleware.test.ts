@@ -1,5 +1,5 @@
 import request from 'supertest';
-import { createApp } from '../../src/app';
+import { createApp } from '../src/app';
 import { createTestFixtures, TestFixtures } from './helpers/fixtures';
 import {
   createExpiredToken,

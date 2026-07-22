@@ -1,16 +1,16 @@
 import request from 'supertest';
 import mongoose from 'mongoose';
-import { createApp } from '../../src/app';
-import { User } from '../../src/models/User.model';
-import { Course } from '../../src/models/Course.model';
-import { Module } from '../../src/models/Module.model';
-import { Enrollment } from '../../src/models/Enrollment.model';
-import { Discussion } from '../../src/models/Discussion.model';
-import { Payment } from '../../src/models/Payment.model';
-import { createTestFixtures, TestFixtures } from './helpers/fixtures';
-
-describe('Database Persistence Tests', () => {
-  const app = createApp();
+import { createApp } from '../src/app';
+import { User } from '../src/models/User.model';
+import { Course } from '../src/models/Course.model';
+import { Module } from '../src/models/Module.model';
+import { Enrollment } from '../src/models/Enrollment.model';
+import { Discussion } from '../src/models/Discussion.model';
+import { Payment } from '../src/models/Payment.model';
+import { Quiz } from '../src/models/Quiz.model';
+import { QuizAttempt } from '../src/models/QuizAttempt.model';
+import { Certificate } from '../src/models/Certificate.model';
+import { createTestFixtures } from './helpers/fixtures';
   let fixtures: TestFixtures;
 
   beforeAll(async () => {
