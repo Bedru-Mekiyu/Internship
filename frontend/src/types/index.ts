@@ -161,6 +161,54 @@ export interface ContentBlock {
   styles?: Record<string, unknown>;
 }
 
+export interface Assignment {
+  _id: string;
+  courseId: string;
+  moduleId?: string;
+  title: string;
+  description?: string;
+  dueDate?: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface Submission {
+  _id: string;
+  assignmentId: string;
+  userId: string | { _id: string; firstName: string; lastName: string; email: string };
+  content: string;
+  grade?: number;
+  submittedAt?: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface LiveSession {
+  _id: string;
+  courseId: string;
+  title: string;
+  description?: string;
+  provider: 'zoom' | 'jitsi' | 'google_meet';
+  meetingUrl: string;
+  meetingId?: string;
+  password?: string;
+  startTime: string;
+  endTime?: string;
+  status?: 'scheduled' | 'ongoing' | 'completed' | 'cancelled';
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface ContactMessage {
+  _id: string;
+  name: string;
+  email: string;
+  subject?: string;
+  message: string;
+  isRead?: boolean;
+  createdAt?: string;
+}
+
 export interface MediaItem {
   _id: string;
   filename: string;

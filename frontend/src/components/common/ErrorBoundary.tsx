@@ -1,64 +1,82 @@
 import { Component, type ErrorInfo, type ReactNode } from 'react';
-import { Box, Button, Stack, Typography } from '@mui/material';
-import { normalizeApiError } from '../../services/api';
+import {
+  Box,
+  Typography,
+  Button,
+  Alert,
+  AlertTitle,
+} from '@mui/material';
 
 interface Props {
   children: ReactNode;
+  fallback?: ReactNode;
 }
 
 interface State {
   hasError: boolean;
   error: Error | null;
+  errorInfo: ErrorInfo | null;
 }
 
-/**
- * Catches render errors in the subtree and shows a recovery UI instead of a blank screen.
- */
-export default class ErrorBoundary extends Component<Props, State> {
+export class ErrorBoundary extends Component<Props, State> {
   constructor(props: Props) {
     super(props);
-    this.state = { hasError: false, error: null };
+    this.state = { hasError: false, error: null, errorInfo: null };
   }
 
-  static getDerivedStateFromError(error: Error): State {
+  static getDerivedStateFromError(error: Error): Partial<State> {
     return { hasError: true, error };
   }
 
-  override componentDidCatch(error: Error, info: ErrorInfo) {
-    if (import.meta.env.DEV) {
-      console.error('ErrorBoundary', error, info.componentStack);
+  componentDidCatch(error: Error, errorInfo: ErrorInfo): void {
+    this.setState({ errorInfo });
+    // Log to monitoring service in production
+    if (import.meta.env.PROD) {
+      console.error('ErrorBoundary caught:', error, errorInfo);
     }
   }
 
-  handleReload = () => {
-    this.setState({ hasError: false, error: null });
-    window.location.assign('/');
+  private handleReset = (): void => {
+    this.setState({ hasError: false, error: null, errorInfo: null });
   };
 
-  override render() {
-    if (this.state.hasError && this.state.error) {
-      const errorMessage = normalizeApiError(this.state.error).message;
+  private handleReload = (): void => {
+    window.location.reload();
+  };
+
+  render(): ReactNode {
+    if (this.state.hasError) {
+      if (this.props.fallback) {
+        return this.props.fallback;
+      }
+
       return (
         <Box
           sx={{
-            minHeight: '100vh',
-            display: 'grid',
-            placeItems: 'center',
-            px: 2,
-            bgcolor: 'background.default',
+            minHeight: '60vh',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            p: 3,
           }}
         >
-          <Stack spacing={2} sx={{ maxWidth: 480, textAlign: 'center' }}>
-            <Typography variant="h5" sx={{ fontWeight: 800 }}>
-              Something went wrong
+          <Box sx={{ maxWidth: 480, width: '100%' }}>
+            <Alert severity="error" sx={{ mb: 2 }}>
+              <AlertTitle>Something went wrong</AlertTitle>
+              {this.state.error?.message || 'An unexpected error occurred.'}
+            </Alert>
+            <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+              This error has been logged. You can try reloading or go back to the home page.
             </Typography>
-            <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-              {errorMessage || 'We hit an unexpected issue. You can reload the app and continue.'}
-            </Typography>
-            <Button variant="contained" onClick={this.handleReload} sx={{ alignSelf: 'center' }}>
-              Reload LearnSpace
-            </Button>
-          </Stack>
+            <Box sx={{ display: 'flex', gap: 1 }}>
+              <Button variant="outlined" onClick={this.handleReset}>
+                Try Again
+              </Button>
+              <Button variant="contained" onClick={this.handleReload}>
+                Reload Page
+              </Button>
+            </Box>
+          </Box>
         </Box>
       );
     }
@@ -66,3 +84,5 @@ export default class ErrorBoundary extends Component<Props, State> {
     return this.props.children;
   }
 }
+
+export default ErrorBoundary;
