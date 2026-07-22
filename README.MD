@@ -99,10 +99,11 @@ LearnSpace solves this by providing a **single, self-hosted platform** that hand
 | Lesson completion tracking | ✅ | Auto-mark at 90% video watch, manual complete button |
 | Progress persistence | ✅ | Server-synced with localStorage auto-save fallback |
 | Quiz engine | ✅ | MCQ, True/False, Short Answer, Essay; auto-grading for objective types |
-| Assignment management | ✅ | Backend API (frontend UI in progress) |
+| Assignment management | ✅ | Create, submit, & grade with full frontend UI |
 | Completion certificates | ✅ | PDF generation via PDFKit, verification, HTML preview |
 | Course discussions | ✅ | Per-course threads with Socket.IO real-time updates |
-| Live sessions | ✅ | Backend API (Zoom, Jitsi, Google Meet integration) |
+| Live sessions | ✅ | Schedule & join sessions (Zoom, Jitsi, Google Meet) |
+| API documentation | ✅ | OpenAPI/Swagger spec at /api/docs/json |
 
 ### 🏢 Content Management
 
@@ -586,27 +587,41 @@ The API is organized into 14 route modules under `/api/`. All endpoints return J
 - **MongoDB** 7.x (local, Atlas, or Docker)
 - **Docker** & **Docker Compose** (optional, for containerized setup)
 
-### Quick Start with Docker
+### Quick Start with Docker (Development)
 
-This is the fastest way to get LearnSpace running:
+This is the fastest way to get LearnSpace running locally with hot-reload:
 
 ```bash
 # Clone the repository
 git clone <repository-url>
 cd LearnSpace
 
+# Copy environment file
+cp backend/.env.example backend/.env
+
 # Start all services
 docker compose up --build
 
 # Wait for health checks to pass, then open:
-# Frontend: http://localhost:3000
+# Frontend: http://localhost:5173
 # Backend:  http://localhost:5000
 ```
 
 The Docker Compose stack includes:
 - **MongoDB 7** — database (persistent volume)
+- **Redis 7** — caching & job queues (persistent volume)
 - **Backend** — Express API on port 5000
-- **Frontend** — Nginx-served SPA on port 3000
+- **Frontend** — Vite dev server on port 5173 (hot-reload enabled)
+
+### Quick Start with Docker (Production)
+
+```bash
+# Build and start production services
+docker compose -f docker-compose.prod.yml up --build -d
+
+# Frontend (nginx): http://localhost:8080
+# Backend API:      http://localhost:5000
+```
 
 To stop:
 ```bash
