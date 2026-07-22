@@ -4,6 +4,8 @@ module.exports = {
   roots: ['<rootDir>/tests'],
   testMatch: ['**/*.test.ts'],
   clearMocks: true,
+  globalSetup: '<rootDir>/tests/helpers/global-setup.js',
+  globalTeardown: '<rootDir>/tests/helpers/global-teardown.js',
   setupFilesAfterEnv: ['<rootDir>/tests/helpers/setup.ts'],
   testTimeout: 30000,
   verbose: true,
