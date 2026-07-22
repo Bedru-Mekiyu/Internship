@@ -45,7 +45,7 @@ jobs:
         working-directory: ./backend
     services:
       mongodb:
-        image: mongo:${{ env.MONGODB_VERSION }}
+        image: mongo:7.0
         ports:
           - 27017:27017
         options: >-
@@ -150,7 +150,7 @@ jobs:
         working-directory: ./frontend
     services:
       mongodb:
-        image: mongo:${{ env.MONGODB_VERSION }}
+        image: mongo:7.0
         ports:
           - 27017:27017
         options: >-
