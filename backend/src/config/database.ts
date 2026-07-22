@@ -3,7 +3,6 @@ import dotenv from 'dotenv';
 import { logInfo, logWarn, logError } from '../utils/logger';
 
 // Try to load mongodb-memory-server at module level for test compatibility
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 let MongoMemoryServer: any = null;
 try {
   MongoMemoryServer = require('mongodb-memory-server').MongoMemoryServer;
