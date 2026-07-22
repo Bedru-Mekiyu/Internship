@@ -198,8 +198,8 @@ jobs:
         run: |
           cd ../backend
           npm ci
-          nohup npm run start:dev > backend.log 2>&1 &
-          sleep 10
+          nohup npm run dev > backend.log 2>&1 &
+          sleep 15
           curl -f http://localhost:5000/healthz || (cat backend.log && exit 1)
         env:
           MONGODB_URI: mongodb://localhost:27017/internship_test
