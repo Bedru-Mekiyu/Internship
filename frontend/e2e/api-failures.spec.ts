@@ -9,7 +9,7 @@ test.describe('API failure handling', () => {
       await page.locator('#password').fill('Passw0rd!');
       await page.getByRole('button', { name: 'Sign in' }).click();
 
-      await expect(page.getByText(/network connection issue|check your connection|network error|connection failed|server error/i)).toBeVisible();
+      await expect(page.getByText(/network connection issue|check your connection/i)).toBeVisible();
     });
 
   test('500 error shows error page', async ({ page, app }) => {
