@@ -49,10 +49,10 @@ jobs:
         ports:
           - 27017:27017
         options: >-
-          --health-cmd "nc -z localhost 27017"
+          --health-cmd "mongosh --eval 'db.adminCommand(\"ping\")' --quiet"
           --health-interval 10s
           --health-timeout 5s
-          --health-retries 5
+          --health-retries 10
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -141,7 +141,7 @@ jobs:
         run: npm ci
 
       - name: Run unit tests
-        run: npm run test:unit -- --no-coverage
+        run: npm test -- --no-coverage
 
   frontend-e2e-tests:
     name: Frontend E2E Tests
@@ -155,10 +155,10 @@ jobs:
         ports:
           - 27017:27017
         options: >-
-          --health-cmd "nc -z localhost 27017"
+          --health-cmd "mongosh --eval 'db.adminCommand(\"ping\")' --quiet"
           --health-interval 10s
           --health-timeout 5s
-          --health-retries 5
+          --health-retries 10
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
