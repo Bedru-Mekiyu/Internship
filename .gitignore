@@ -35,6 +35,7 @@ settings.local.json
 backend/uploads/*
 !backend/uploads/.gitkeep
 backend/coverage/
+.global-test-config.json
 
 # Editor directories and files
 .vscode/*

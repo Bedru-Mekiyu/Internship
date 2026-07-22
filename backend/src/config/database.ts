@@ -2,6 +2,15 @@ import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import { logInfo, logWarn, logError } from '../utils/logger';
 
+// Try to load mongodb-memory-server at module level for test compatibility
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+let MongoMemoryServer: any = null;
+try {
+  MongoMemoryServer = require('mongodb-memory-server').MongoMemoryServer;
+} catch {
+  // mongodb-memory-server not available — in-memory MongoDB won't work
+}
+
 dotenv.config({ quiet: true });
 
 const MAX_RETRIES = 5;
@@ -49,10 +58,21 @@ const connectInMemoryMongo = async (): Promise<boolean> => {
 
   creatingInMemoryMongoPromise = (async () => {
     try {
-      const { MongoMemoryServer } = await import('mongodb-memory-server');
+      if (!MongoMemoryServer) {
+        throw new Error('mongodb-memory-server is not available');
+      }
+      // Clean up any stale connection state before connecting in-memory
+      try {
+        await mongoose.disconnect();
+      } catch {
+        /* ignore */
+      }
       inMemoryMongoServer = await MongoMemoryServer.create({
         instance: { dbName: 'mit_lms' },
       });
+
+      // Brief pause to let the in-memory server fully initialize
+      await new Promise((r) => setTimeout(r, 500));
 
       const server = inMemoryMongoServer;
       if (!server) {
@@ -61,8 +81,8 @@ const connectInMemoryMongo = async (): Promise<boolean> => {
 
       const inMemoryUri = server.getUri();
       await mongoose.connect(inMemoryUri, {
-        serverSelectionTimeoutMS: 10000,
-        socketTimeoutMS: 45000,
+        serverSelectionTimeoutMS: 15000,
+        socketTimeoutMS: 60000,
       });
       logWarn('mongodb_inmemory_started', { mongoUri: redactMongoUri(inMemoryUri) });
       return true;
