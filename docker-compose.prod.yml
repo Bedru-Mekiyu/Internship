@@ -1,26 +1,68 @@
-# Production overrides — use with `docker compose -f docker-compose.yml -f docker-compose.prod.yml up`.
-# Set secrets via CI or a vault; do not commit real values.
 services:
+  mongodb:
+    image: mongo:7
+    restart: always
+    volumes:
+      - mongo_data:/data/db
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh --quiet
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    restart: always
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    restart: always
+    ports:
+      - "5000:5000"
     environment:
       NODE_ENV: production
-      TRUST_PROXY: "1"
-      CORS_ORIGIN: https://your-frontend-domain.com
-      COOKIE_SECURE: "true"
-      COOKIE_SAME_SITE: lax
-      CSRF_COOKIE_SECURE: "true"
-      CSRF_COOKIE_SAME_SITE: lax
-      JWT_ACCESS_SECRET: replace_with_strong_access_secret
-      JWT_REFRESH_SECRET: replace_with_strong_refresh_secret
-      JWT_VERIFY_SECRET: replace_with_strong_verify_secret
-      JWT_RESET_SECRET: replace_with_strong_reset_secret
-      PAYMENT_WEBHOOK_SECRET: replace_with_strong_webhook_secret
-      BASE_URL: https://your-api-domain.com
-      FRONTEND_URL: https://your-frontend-domain.com
-      # Optional: REDIS_URL for shared rate limiting
+      PORT: 5000
+      MONGODB_URL: mongodb://mongodb:27017/mit_lms
+      REDIS_URL: redis://redis:6379
+      JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET}
+      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET}
+      JWT_VERIFY_SECRET: ${JWT_VERIFY_SECRET}
+      JWT_RESET_SECRET: ${JWT_RESET_SECRET}
+      PAYMENT_WEBHOOK_SECRET: ${PAYMENT_WEBHOOK_SECRET}
+      CORS_ORIGIN: ${CORS_ORIGIN:-https://your-frontend.com}
+      FRONTEND_URL: ${FRONTEND_URL:-https://your-frontend.com}
+      BASE_URL: ${BASE_URL:-https://your-backend.com}
+      METRICS_BEARER_TOKEN: ${METRICS_BEARER_TOKEN:-}
+      GLOBAL_API_RATE_LIMIT_MAX: 600
+      GLOBAL_API_RATE_LIMIT_WINDOW_MS: 900000
+      TRUST_PROXY: 1
+    depends_on:
+      mongodb:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - backend_uploads:/app/uploads
 
   frontend:
     build:
-      args:
-        # Vite: public API origin for browser calls (see frontend/vite.config.*).
-        VITE_API_URL: https://your-api-domain.com
+      context: ./frontend
+      dockerfile: Dockerfile
+    restart: always
+    ports:
+      - "8080:8080"
+    environment:
+      VITE_API_URL: ${VITE_API_URL:-https://your-backend.com}
+    depends_on:
+      - backend
+
+volumes:
+  mongo_data:
+  backend_uploads:
