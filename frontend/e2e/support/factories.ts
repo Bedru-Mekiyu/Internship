@@ -1,4 +1,5 @@
 import type { Page } from '@playwright/test';
+import { expect } from '@playwright/test';
 
 export type TestUserRole = 'student' | 'instructor' | 'admin' | 'content_manager';
 
@@ -165,5 +166,3 @@ export const submitForm = async (page: Page, buttonName: string): Promise<void> 
 export const expectToBeOnUrl = async (page: Page, pattern: string | RegExp): Promise<void> => {
   await expect(page).toHaveURL(pattern);
 };
-
-export { expect } from '@playwright/test';
