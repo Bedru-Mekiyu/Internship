@@ -15,7 +15,7 @@ process.env.CORS_ORIGIN = process.env.CORS_ORIGIN || '*';
 process.env.FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:5173';
 
 // Read global config written by global-setup.js
-const globalConfigPath = path.resolve(__dirname, '../../.global-test-config.json');
+const globalConfigPath = path.resolve(__dirname, '../../../.global-test-config.json');
 try {
   const config = JSON.parse(fs.readFileSync(globalConfigPath, 'utf-8'));
   if (config.mongoUri) {

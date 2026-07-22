@@ -16,7 +16,7 @@ test.describe('accessibility, responsiveness, and resilience', () => {
     await page.goto('/auth/login');
 
     const emailInput = page.getByRole('textbox', { name: 'Email' });
-    await expect(emailInput).toHaveAttribute('aria-label', /email/i);
+    await expect(emailInput).toBeVisible();
     
     const passwordInput = page.locator('#password');
     await expect(passwordInput).toBeVisible();

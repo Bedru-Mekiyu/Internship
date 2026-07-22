@@ -165,6 +165,7 @@ function PublicAuthPage() {
                     <TextField
                       id="email"
                       label="Email"
+                      aria-label="Email address"
                       value={formValues.email}
                       onChange={updateField('email')}
                       type="email"

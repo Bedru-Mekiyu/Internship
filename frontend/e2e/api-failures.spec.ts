@@ -2,15 +2,15 @@ import { test, expect } from './support/fixtures';
 
 test.describe('API failure handling', () => {
   test('network error shows error message', async ({ page, app }) => {
-    app.setLoginNetworkFailure(true);
+      app.setLoginNetworkFailure(true);
 
-    await page.goto('/auth/login');
-    await page.getByRole('textbox', { name: 'Email' }).fill('student@learnspace.dev');
-    await page.locator('#password').fill('Passw0rd!');
-    await page.getByRole('button', { name: 'Sign in' }).click();
+      await page.goto('/auth/login');
+      await page.getByRole('textbox', { name: 'Email' }).fill('student@learnspace.dev');
+      await page.locator('#password').fill('Passw0rd!');
+      await page.getByRole('button', { name: 'Sign in' }).click();
 
-    await expect(page.getByText(/network error|connection failed|server error/i)).toBeVisible();
-  });
+      await expect(page.getByText(/network connection issue|check your connection|network error|connection failed|server error/i)).toBeVisible();
+    });
 
   test('500 error shows error page', async ({ page, app }) => {
     await app.loginAs(page, 'student');

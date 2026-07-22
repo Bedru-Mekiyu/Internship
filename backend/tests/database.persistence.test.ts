@@ -7,10 +7,14 @@ import { Module } from '../src/models/Module.model';
 import { Enrollment } from '../src/models/Enrollment.model';
 import { Discussion } from '../src/models/Discussion.model';
 import { Payment } from '../src/models/Payment.model';
-import { Quiz } from '../src/models/Quiz.model';
-import { QuizAttempt } from '../src/models/QuizAttempt.model';
-import { Certificate } from '../src/models/Certificate.model';
-import { createTestFixtures } from './helpers/fixtures';
+import { Quiz as _Quiz } from '../src/models/Quiz.model';
+import { QuizAttempt as _QuizAttempt } from '../src/models/QuizAttempt.model';
+import { Certificate as _Certificate } from '../src/models/Certificate.model';
+import { createTestFixtures, TestFixtures } from './helpers/fixtures';
+
+const app = createApp();
+
+describe('Database Persistence Tests', () => {
   let fixtures: TestFixtures;
 
   beforeAll(async () => {
@@ -246,7 +250,7 @@ import { createTestFixtures } from './helpers/fixtures';
   describe('Discussion Persistence', () => {
     it('persists discussion creation', async () => {
       const response = await request(app)
-        .post(`/api/discussions/course/${fixtures.course._id}`)
+        .post(`/api/discussions/course/${fixtures.course!._id}`)
         .set('Cookie', fixtures.student.fullCookie)
         .send({
           title: 'Test Discussion',
@@ -258,12 +262,12 @@ import { createTestFixtures } from './helpers/fixtures';
 
       const discussion = await Discussion.findOne({ title: 'Test Discussion' });
       expect(discussion).toBeDefined();
-      expect(discussion?.courseId.toString()).toBe(fixtures.course._id.toString());
-    });
+      expect(discussion?.courseId.toString()).toBe(fixtures.course!._id.toString());
+      });
 
     it('retrieves discussions for enrolled course', async () => {
       const response = await request(app)
-        .get(`/api/discussions/course/${fixtures.course._id}`)
+        .get(`/api/discussions/course/${fixtures.course!._id}`)
         .set('Cookie', fixtures.student.fullCookie);
 
       expect(response.status).toBe(200);
@@ -423,7 +427,7 @@ import { createTestFixtures } from './helpers/fixtures';
         lastName: 'User',
         role: 'student',
         isActive: true,
-        isEmailVerified: true,
+        emailVerified: true,
       });
 
       const response = await request(app)
@@ -502,7 +506,7 @@ import { createTestFixtures } from './helpers/fixtures';
         title: 'Unique Course',
         slug: `unique-slug-${Date.now()}`,
         instructor: fixtures.instructor.user._id,
-        status: 'published',
+        status: 'published' as const,
       };
 
       await Course.create(uniqueData);
@@ -531,7 +535,7 @@ import { createTestFixtures } from './helpers/fixtures';
         lastName: 'User',
         role: 'student',
         isActive: true,
-        isEmailVerified: true,
+        emailVerified: true,
       });
 
       const tokens = require('../../src/services/auth.service').AuthService.generateTokens(
@@ -568,7 +572,7 @@ import { createTestFixtures } from './helpers/fixtures';
       await Enrollment.create({
         userId: fixtures.student.user._id,
         courseId: progressCourse._id,
-        status: 'active',
+        status: 'enrolled',
         progress: 0,
       });
 

@@ -1,7 +1,7 @@
 const path = require('path');
 const fs = require('fs');
 
-const GLOBAL_CONFIG_PATH = path.resolve(__dirname, '../../.global-test-config.json');
+const GLOBAL_CONFIG_PATH = path.resolve(__dirname, '../../../.global-test-config.json');
 
 /**
  * Jest globalTeardown — called once after all test suites.
