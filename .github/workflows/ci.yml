@@ -86,6 +86,8 @@ jobs:
           STRIPE_SECRET_KEY: sk_test_ci_test_stripe_secret
           STRIPE_WEBHOOK_SECRET: whsec_test
           NODE_ENV: test
+          GLOBAL_API_RATE_LIMIT_MAX: 120
+          GLOBAL_API_RATE_LIMIT_WINDOW_MS: 60000
         run: npm test -- --testTimeout=30000 --forceExit
         working-directory: backend
 
