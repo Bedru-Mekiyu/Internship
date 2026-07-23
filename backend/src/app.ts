@@ -229,6 +229,11 @@ export const createApp = () => {
 
   app.get('/api/docs/json', (_req, res) => res.json(openapi));
 
+  // Catch-all 404 handler — returns JSON for unknown API routes
+  app.use('/api', (_req, res) => {
+    res.status(404).json({ message: 'Route not found' });
+  });
+
   app.use(errorMiddleware);
 
   return app;

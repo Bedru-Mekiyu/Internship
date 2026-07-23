@@ -98,6 +98,20 @@ export const errorMiddleware = (err: unknown, req: Request, res: Response, _next
       });
     }
 
+    if (err instanceof SyntaxError && 'body' in err && 'status' in err) {
+      return res.status(400).json({
+        message: 'Invalid JSON. Please check the request body.',
+        requestId,
+      });
+    }
+
+    if ('type' in err && (err as any).type === 'entity.too.large') {
+      return res.status(413).json({
+        message: 'Request body is too large.',
+        requestId,
+      });
+    }
+
     if (
       err.message === 'Unsupported file type'
       || err.message === 'Invalid file name'

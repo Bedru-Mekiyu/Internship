@@ -152,6 +152,8 @@ export async function createTestFixtures(): Promise<TestFixtures> {
     contentManager: authenticatedCM,
     course,
     cleanup: async () => {
+      const connState = (await import('mongoose')).default.connection.readyState;
+      if (connState !== 1) return;
       await User.deleteMany({ _id: { $in: userIds } });
       if (course) {
         await Course.deleteMany({ _id: course._id });
@@ -189,6 +191,15 @@ export function createExpiredToken(user: TestUser): string {
   return jwt.sign(
     { userId: user._id.toString(), type: 'access', tokenVersion: user.tokenVersion },
     JWT_SECRET(),
+    { expiresIn: '-1s' }
+  );
+}
+
+export function createExpiredRefreshToken(user: TestUser): string {
+  const refreshSecret = process.env.JWT_REFRESH_SECRET || 'test_refresh_secret_min_32_chars_here';
+  return jwt.sign(
+    { userId: user._id.toString(), type: 'refresh', tokenVersion: user.tokenVersion },
+    refreshSecret,
     { expiresIn: '-1s' }
   );
 }

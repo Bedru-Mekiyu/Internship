@@ -82,6 +82,7 @@ const connectInMemoryMongo = async (): Promise<boolean> => {
       await mongoose.connect(inMemoryUri, {
         serverSelectionTimeoutMS: 15000,
         socketTimeoutMS: 60000,
+        retryWrites: false,
       });
       logWarn('mongodb_inmemory_started', { mongoUri: redactMongoUri(inMemoryUri) });
       return true;
@@ -113,6 +114,7 @@ export const connectDB = async (options: ConnectDBOptions = {}): Promise<boolean
     await mongoose.connect(mongoUri, {
       serverSelectionTimeoutMS: 10000,
       socketTimeoutMS: 45000,
+      retryWrites: false,
       ...(shouldPreferIpv4 ? { family: 4 } : {}),
     });
     logInfo('mongodb_connected', { mongoUri: safeMongoUri });

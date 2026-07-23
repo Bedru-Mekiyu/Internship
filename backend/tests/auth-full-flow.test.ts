@@ -1,14 +1,33 @@
 import request from 'supertest';
 import mongoose from 'mongoose';
+import jwt from 'jsonwebtoken';
 import { createApp } from '../src/app';
 import { createTestFixtures, TestFixtures } from './helpers/fixtures';
 import {
   createExpiredToken,
+  createExpiredRefreshToken,
   createInvalidToken,
   createWrongTypeToken,
-  createRevokedToken,
   invalidateUserToken,
 } from './helpers/fixtures';
+
+/**
+ * Login the student fixture user and return a fresh Cookie header value.
+ * Used after any test that may have incremented tokenVersion (refresh, logout, invalidate).
+ * Falls back to fixture's fullCookie if login is rate-limited.
+ */
+async function loginStudent(app: ReturnType<typeof createApp>, email: string, password: string, fallbackCookie: string): Promise<string> {
+  const res = await request(app)
+    .post('/api/auth/login')
+    .send({ email, password });
+  const cookies = res.headers['set-cookie'] as unknown as string[] | undefined;
+  if (!cookies || res.status !== 200) {
+    return fallbackCookie;
+  }
+  const accessCookie = cookies.find((c: string) => c.startsWith('accessToken='))?.split(';')[0] || '';
+  const refreshCookie = cookies.find((c: string) => c.startsWith('refreshToken='))?.split(';')[0] || '';
+  return `${accessCookie}; ${refreshCookie}`;
+}
 
 describe('Authentication Full Flow', () => {
   const app = createApp();
@@ -101,28 +120,37 @@ describe('Authentication Full Flow', () => {
     it('returns 401 for invalid refresh token', async () => {
       const response = await request(app)
         .post('/api/auth/refresh-token')
-        .send({ refreshToken: 'invalid-token' });
+        .set('Cookie', 'refreshToken=invalid-token')
+        .send({});
 
       expect(response.status).toBe(401);
     });
 
     it('returns 401 for expired refresh token', async () => {
-      const expiredToken = createExpiredToken(fixtures.student.user);
+      const expiredToken = createExpiredRefreshToken(fixtures.student.user);
 
       const response = await request(app)
         .post('/api/auth/refresh-token')
-        .send({ refreshToken: expiredToken });
+        .set('Cookie', `refreshToken=${encodeURIComponent(expiredToken)}`)
+        .send({});
 
       expect(response.status).toBe(401);
     });
 
     it('refreshes token successfully with valid refresh token', async () => {
+      // Login to get a fresh refresh token (fixture tokens may have stale tokenVersion)
+      const cookie = await loginStudent(app, fixtures.student.user.email, 'TestPass123!', fixtures.student.fullCookie);
+      // Extract the refreshToken from the cookie
+      const match = cookie.match(/refreshToken=([^;]+)/);
+      const refreshToken = match ? match[1] : '';
+
       const response = await request(app)
         .post('/api/auth/refresh-token')
-        .send({ refreshToken: fixtures.student.refreshToken });
+        .set('Cookie', `refreshToken=${refreshToken}`)
+        .send({});
 
       expect(response.status).toBe(200);
-      expect(response.body.accessToken).toBeDefined();
+      expect(response.body.message).toBe('Token refreshed');
     });
 
     it('supports refreshtoken alias route', async () => {
@@ -132,96 +160,6 @@ describe('Authentication Full Flow', () => {
 
       expect(response.status).toBe(400);
       expect(response.body.message).toBe('refreshToken is required');
-    });
-  });
-
-  describe('Logout Flow', () => {
-    it('returns 401 without authentication', async () => {
-      const response = await request(app)
-        .post('/api/auth/logout')
-        .send({});
-
-      expect(response.status).toBe(401);
-      expect(response.body.message).toBe('No token provided');
-    });
-
-    it('returns 401 with invalid token', async () => {
-      const response = await request(app)
-        .post('/api/auth/logout')
-        .set('Cookie', `accessToken=${createInvalidToken()}`)
-        .send({});
-
-      expect(response.status).toBe(401);
-    });
-
-    it('returns 401 with expired token', async () => {
-      const response = await request(app)
-        .post('/api/auth/logout')
-        .set('Cookie', `accessToken=${createExpiredToken(fixtures.student.user)}`)
-        .send({});
-
-      expect(response.status).toBe(401);
-    });
-
-    it('logs out successfully with valid token', async () => {
-      const response = await request(app)
-        .post('/api/auth/logout')
-        .set('Cookie', fixtures.student.fullCookie)
-        .send({});
-
-      expect(response.status).toBe(200);
-    });
-  });
-
-  describe('Get Current User (/me)', () => {
-    it('returns 401 without token', async () => {
-      const response = await request(app).get('/api/auth/me');
-
-      expect(response.status).toBe(401);
-      expect(response.body.message).toBe('No token provided');
-    });
-
-    it('returns 401 with invalid token', async () => {
-      const response = await request(app)
-        .get('/api/auth/me')
-        .set('Cookie', `accessToken=${createInvalidToken()}`);
-
-      expect(response.status).toBe(401);
-      expect(response.body.message).toBe('Invalid or expired token');
-    });
-
-    it('returns 401 with wrong token type (refresh token used as access)', async () => {
-      const response = await request(app)
-        .get('/api/auth/me')
-        .set('Cookie', `accessToken=${createWrongTypeToken(fixtures.student.user)}`);
-
-      expect(response.status).toBe(401);
-    });
-
-    it('returns user data with valid token', async () => {
-      const response = await request(app)
-        .get('/api/auth/me')
-        .set('Cookie', fixtures.student.fullCookie);
-
-      expect(response.status).toBe(200);
-      expect(response.body.email).toBe(fixtures.student.user.email);
-      expect(response.body.role).toBe('student');
-    });
-
-    it('returns 401 for revoked token after logout', async () => {
-      const response = await request(app)
-        .get('/api/auth/me')
-        .set('Cookie', fixtures.student.fullCookie);
-
-      expect(response.status).toBe(200);
-
-      await invalidateUserToken(fixtures.student.user._id as mongoose.Types.ObjectId);
-
-      const revokedResponse = await request(app)
-        .get('/api/auth/me')
-        .set('Cookie', fixtures.student.fullCookie);
-
-      expect(revokedResponse.status).toBe(401);
     });
   });
 
@@ -290,33 +228,102 @@ describe('Authentication Full Flow', () => {
     });
   });
 
-  describe('Rate Limiting', () => {
-    it('rate limits excessive login attempts', async () => {
-      const attempts: number[] = [];
-      
-      for (let i = 0; i < 12; i++) {
-        const response = await request(app)
-          .post('/api/auth/login')
-          .send({ email: 'ratelimit@test.com', password: 'wrongpassword' });
-        attempts.push(response.status);
-      }
+  describe('Get Current User (/me)', () => {
+    it('returns 401 without token', async () => {
+      const response = await request(app).get('/api/auth/me');
 
-      const lastAttempt = attempts[attempts.length - 1];
-      expect([429, 403]).toContain(lastAttempt);
+      expect(response.status).toBe(401);
+      expect(response.body.message).toBe('No token provided');
     });
 
-    it('rate limits excessive password reset requests', async () => {
-      const attempts: number[] = [];
-      
-      for (let i = 0; i < 7; i++) {
-        const response = await request(app)
-          .post('/api/auth/forgot-password')
-          .send({ email: 'ratelimit@test.com' });
-        attempts.push(response.status);
-      }
+    it('returns 401 with invalid token', async () => {
+      const response = await request(app)
+        .get('/api/auth/me')
+        .set('Cookie', `accessToken=${createInvalidToken()}`);
 
-      const lastAttempt = attempts[attempts.length - 1];
-      expect([429, 403]).toContain(lastAttempt);
+      expect(response.status).toBe(401);
+      expect(response.body.message).toBe('Invalid or expired token');
+    });
+
+    it('returns 401 with wrong token type (refresh token used as access)', async () => {
+      const response = await request(app)
+        .get('/api/auth/me')
+        .set('Cookie', `accessToken=${createWrongTypeToken(fixtures.student.user)}`);
+
+      expect(response.status).toBe(401);
+    });
+
+    it('returns user data with valid token', async () => {
+      // Login to get fresh tokens (avoids tokenVersion issues from earlier tests)
+      const cookie = await loginStudent(app, fixtures.student.user.email, 'TestPass123!', fixtures.student.fullCookie);
+
+      const response = await request(app)
+        .get('/api/auth/me')
+        .set('Cookie', cookie);
+
+      expect(response.status).toBe(200);
+      expect(response.body.email).toBe(fixtures.student.user.email);
+      expect(response.body.role).toBe('student');
+    });
+
+    it('returns 401 for revoked token after logout', async () => {
+      // Login to get fresh tokens
+      const cookie = await loginStudent(app, fixtures.student.user.email, 'TestPass123!', fixtures.student.fullCookie);
+
+      const response = await request(app)
+        .get('/api/auth/me')
+        .set('Cookie', cookie);
+
+      expect(response.status).toBe(200);
+
+      await invalidateUserToken(fixtures.student.user._id as mongoose.Types.ObjectId);
+
+      const revokedResponse = await request(app)
+        .get('/api/auth/me')
+        .set('Cookie', cookie);
+
+      expect(revokedResponse.status).toBe(401);
+    });
+  });
+
+  describe('Logout Flow', () => {
+    it('returns 401 without authentication', async () => {
+      const response = await request(app)
+        .post('/api/auth/logout')
+        .send({});
+
+      expect(response.status).toBe(401);
+      expect(response.body.message).toBe('No token provided');
+    });
+
+    it('returns 401 with invalid token', async () => {
+      const response = await request(app)
+        .post('/api/auth/logout')
+        .set('Cookie', `accessToken=${createInvalidToken()}`)
+        .send({});
+
+      expect(response.status).toBe(401);
+    });
+
+    it('returns 401 with expired token', async () => {
+      const response = await request(app)
+        .post('/api/auth/logout')
+        .set('Cookie', `accessToken=${createExpiredToken(fixtures.student.user)}`)
+        .send({});
+
+      expect(response.status).toBe(401);
+    });
+
+    it('logs out successfully with valid token', async () => {
+      // Login to get fresh tokens
+      const cookie = await loginStudent(app, fixtures.student.user.email, 'TestPass123!', fixtures.student.fullCookie);
+
+      const response = await request(app)
+        .post('/api/auth/logout')
+        .set('Cookie', cookie)
+        .send({});
+
+      expect(response.status).toBe(200);
     });
   });
 
@@ -348,17 +355,52 @@ describe('Authentication Full Flow', () => {
         .set('Cookie', `accessToken=${encodeURIComponent(wrongTypeToken)}`);
 
       expect(response.status).toBe(401);
-      expect(response.body.message).toBe('Invalid token type');
+      // Middleware catches all token validation errors and returns a generic message
+      expect(response.body.message).toBe('Invalid or expired token');
     });
 
     it('rejects revoked token', async () => {
-      const revokedToken = createRevokedToken(fixtures.student.user);
+      const revokedToken = jwt.sign(
+        { userId: fixtures.student.user._id.toString(), type: 'access', tokenVersion: 9999 },
+        process.env.JWT_ACCESS_SECRET || 'test_access_secret_min_32_chars_here',
+        { expiresIn: '15m' }
+      );
 
       const response = await request(app)
         .get('/api/auth/me')
         .set('Cookie', `accessToken=${encodeURIComponent(revokedToken)}`);
 
       expect(response.status).toBe(401);
+    });
+  });
+
+  describe('Rate Limiting', () => {
+    it('rate limits excessive login attempts', async () => {
+      const attempts: number[] = [];
+      
+      for (let i = 0; i < 12; i++) {
+        const response = await request(app)
+          .post('/api/auth/login')
+          .send({ email: 'ratelimit@test.com', password: 'wrongpassword' });
+        attempts.push(response.status);
+      }
+
+      const lastAttempt = attempts[attempts.length - 1];
+      expect([429, 403]).toContain(lastAttempt);
+    });
+
+    it('rate limits excessive password reset requests', async () => {
+      const attempts: number[] = [];
+      
+      for (let i = 0; i < 7; i++) {
+        const response = await request(app)
+          .post('/api/auth/forgot-password')
+          .send({ email: 'ratelimit@test.com' });
+        attempts.push(response.status);
+      }
+
+      const lastAttempt = attempts[attempts.length - 1];
+      expect([429, 403]).toContain(lastAttempt);
     });
   });
 });

@@ -25,11 +25,14 @@ async function globalSetup() {
 
   const server = await MongoMemoryServer.create({
     instance: { dbName: 'mit_lms_test' },
+    replSet: { count: 1, storageEngine: 'wiredTiger' },
   });
   const uri = server.getUri();
 
+  // mongodb-memory-server uses a standalone server that doesn't support retryable writes
+  const transactionUri = uri.includes('?') ? `${uri}&retryWrites=false` : `${uri}?retryWrites=false`;
   const config = {
-    mongoUri: uri,
+    mongoUri: transactionUri,
   };
   fs.writeFileSync(GLOBAL_CONFIG_PATH, JSON.stringify(config, null, 2));
 

@@ -1,7 +1,18 @@
 import request from 'supertest';
 import { createApp } from '../src/app';
+import { createTestFixtures, TestFixtures } from './helpers/fixtures';
 
 describe('Database Transaction Tests', () => {
+  let fixtures: TestFixtures;
+
+  beforeAll(async () => {
+    fixtures = await createTestFixtures();
+  });
+
+  afterAll(async () => {
+    await fixtures.cleanup();
+  });
+
   describe('Atomic Operations', () => {
     it('validates input before database operations', async () => {
       const app = createApp();
@@ -107,14 +118,13 @@ describe('Database Transaction Tests', () => {
   describe('Concurrent Operations', () => {
     it('handles concurrent enrollment gracefully', async () => {
       const app = createApp();
-      const studentToken = 'accessToken=valid-student-token';
 
       const enrollments = await Promise.all([
-        request(app).post('/api/courses/course-123/enroll').set('Cookie', studentToken),
-        request(app).post('/api/courses/course-123/enroll').set('Cookie', studentToken),
+        request(app).post(`/api/courses/${fixtures.course!._id}/enroll`).set('Cookie', fixtures.student.fullCookie),
+        request(app).post(`/api/courses/${fixtures.course!._id}/enroll`).set('Cookie', fixtures.student.fullCookie),
       ]);
 
-      const successCount = enrollments.filter((r) => r.status === 200).length;
+      const successCount = enrollments.filter((r) => r.status === 200 || r.status === 201).length;
       expect(successCount).toBeGreaterThanOrEqual(1);
     });
   });
