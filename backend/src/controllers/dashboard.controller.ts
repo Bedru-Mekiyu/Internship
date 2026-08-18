@@ -213,7 +213,13 @@ const getInstructorEngagementMetrics = async (courseIds: string[]) => {
 };
 
 export const getInstructorDashboard = asyncHandler(async (req: Request, res: Response) => {
-  const courses = await Course.find({ instructor: req.user?._id }).select('title status enrollmentCount rating');
+  const [courses, ratingAgg] = await Promise.all([
+    Course.find({ instructor: req.user?._id }).select('title status enrollmentCount rating'),
+    Course.aggregate([
+      { $match: { instructor: req.user?._id } },
+      { $group: { _id: null, averageRating: { $avg: '$rating.average' } } }
+    ])
+  ]);
   const courseIds = courses.map((course) => course._id);
 
   const enrollments = await Enrollment.find({ courseId: { $in: courseIds } });
@@ -222,9 +228,7 @@ export const getInstructorDashboard = asyncHandler(async (req: Request, res: Res
     ? Math.round(enrollments.reduce((sum, item) => sum + (item.progress || 0), 0) / enrollments.length)
     : 0;
 
-  const averageRating = courses.length
-    ? Number((courses.reduce((sum, course: any) => sum + (course.rating?.average || 0), 0) / courses.length).toFixed(2))
-    : 0;
+  const averageRating = ratingAgg[0]?.averageRating ? Number(ratingAgg[0].averageRating.toFixed(2)) : 0;
 
   const Payment = (await import('../models/Payment.model')).Payment;
   const payments = await Payment.find({ courseId: { $in: courseIds }, status: 'completed' }).lean();
