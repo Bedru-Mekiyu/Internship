@@ -3,7 +3,7 @@ import { Request, Response } from 'express';
 import { Course } from '../models/Course.model';
 import { Enrollment } from '../models/Enrollment.model';
 import { Notification } from '../models/Notification.model';
-import { Payment } from '../models/Payment.model';
+import { Payment, IPayment } from '../models/Payment.model';
 import { asyncHandler } from '../utils/async-handler';
 import { AppError } from '../utils/http-error';
 import { routeParam } from '../utils/route-params';
@@ -73,7 +73,7 @@ const resolveProviderFromMethod = (method: string): PaymentProvider => {
   return 'stripe';
 };
 
-const notifyPaymentCompleted = async (payment: any) => {
+const notifyPaymentCompleted = async (payment: IPayment) => {
   const message = `Your payment (${payment._id}) was confirmed successfully.`;
   const existing = await Notification.findOne({
     userId: payment.userId,

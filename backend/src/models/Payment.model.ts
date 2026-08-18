@@ -1,4 +1,20 @@
-import mongoose from "mongoose";
+import mongoose, { Document } from "mongoose";
+
+export interface IPayment extends Document {
+  userId: mongoose.Types.ObjectId;
+  courseId: mongoose.Types.ObjectId;
+  amount: number;
+  currency?: string;
+  status?: "pending" | "completed" | "failed";
+  method?: string | null;
+  provider?: "stripe" | "paypal" | "bank_transfer";
+  externalPaymentId?: string | null;
+  transactionId?: string | null;
+  checkoutUrl?: string | null;
+  webhookEventId?: string | null;
+  createdAt: Date;
+  updatedAt: Date;
+}
 
 const paymentSchema = new mongoose.Schema({
   userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
