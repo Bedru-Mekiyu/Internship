@@ -52,7 +52,9 @@ export default function QuizTaker() {
   const [visitedQuestions, setVisitedQuestions] = useState<Record<number, boolean>>({ 0: true });
   const [submitStatus, setSubmitStatus] = useState<{ type: 'success' | 'warning'; message: string } | null>(null);
   const autoSubmitTriggeredRef = useRef(false);
-  const prevQuizIdRef = useRef<string | undefined>(undefined);
+  const [prevQuizId, setPrevQuizId] = useState<string | undefined>(undefined);
+  const [prevInitialTimeRemaining, setPrevInitialTimeRemaining] = useState<number | undefined>(undefined);
+  const refQuizIdResetTracker = useRef<string | undefined>(undefined);
 
   const { data: course } = useGetCourseByIdQuery(courseId ?? '', { skip: !courseId });
   const {
@@ -100,23 +102,26 @@ export default function QuizTaker() {
 
   const [remainingSeconds, setRemainingSeconds] = useState(() => initialTimeRemaining);
 
-  // eslint-disable-next-line react-hooks/set-state-in-effect
-  useEffect(() => {
+  if (initialTimeRemaining !== prevInitialTimeRemaining) {
     setRemainingSeconds(initialTimeRemaining);
-  }, [initialTimeRemaining, setRemainingSeconds]);
+    setPrevInitialTimeRemaining(initialTimeRemaining);
+  }
 
-  // eslint-disable-next-line react-hooks/set-state-in-effect
-  useEffect(() => {
-    if (prevQuizIdRef.current === activeQuiz?._id) {
-      return;
-    }
-    prevQuizIdRef.current = activeQuiz?._id;
+  if (activeQuiz?._id !== prevQuizId) {
+    setPrevQuizId(activeQuiz?._id);
     setCurrentQuestionIndex(0);
     setSelectedAnswers({});
     setReviewFlags({});
     setVisitedQuestions({ 0: true });
     setSubmitStatus(null);
-    autoSubmitTriggeredRef.current = false;
+  }
+
+  // Effect to handle ref reset without violating render rules
+  useEffect(() => {
+    if (activeQuiz?._id !== refQuizIdResetTracker.current) {
+      refQuizIdResetTracker.current = activeQuiz?._id;
+      autoSubmitTriggeredRef.current = false;
+    }
   }, [activeQuiz?._id]);
 
   useEffect(() => {
