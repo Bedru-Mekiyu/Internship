@@ -27,4 +27,6 @@ const paymentSchema = new mongoose.Schema({
 paymentSchema.index({ userId: 1, courseId: 1 });
 paymentSchema.index({ externalPaymentId: 1 });
 
+export type IPayment = mongoose.InferSchemaType<typeof paymentSchema>;
+
 export const Payment = mongoose.model("Payment", paymentSchema);
