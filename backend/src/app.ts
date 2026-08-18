@@ -15,6 +15,7 @@ import { openapi } from './config/openapi';
 import { User } from './models/User.model';
 import { requireEnv } from './utils/env';
 import { logInfo, logWarn, logError } from './utils/logger';
+import { DecodedToken } from './types/auth';
 import authRoutes from './routes/auth.routes';
 import courseRoutes from './routes/course.routes';
 import contentRoutes from './routes/content.routes';
@@ -347,7 +348,7 @@ const startServer = async () => {
         if (!token) return next(new Error('Authentication error: No token provided'));
 
         const accessSecret = requireEnv('JWT_ACCESS_SECRET');
-        const decoded = jwt.verify(token, accessSecret, { algorithms: ['HS256'] }) as any;
+        const decoded = jwt.verify(token, accessSecret, { algorithms: ['HS256'] }) as DecodedToken;
         if (decoded.type !== 'access') return next(new Error('Authentication error: Invalid token type'));
 
         const user = await User.findById(decoded.userId);

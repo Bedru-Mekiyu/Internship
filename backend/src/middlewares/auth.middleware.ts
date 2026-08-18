@@ -4,14 +4,9 @@ import { User } from '../models/User.model';
 import { AppError } from '../utils/http-error';
 import { requireEnv } from '../utils/env';
 import { logError } from '../utils/logger';
+import { DecodedToken } from '../types/auth';
 
 type AuthRequest = Request;
-
-interface DecodedToken {
-  userId: string;
-  type: 'access' | 'refresh';
-  tokenVersion?: number;
-}
 
 const getAccessTokensToTry = (req: Request): string[] => {
   const tokenFromCookie = req.cookies?.accessToken as string | undefined;
