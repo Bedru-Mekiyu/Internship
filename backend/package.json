@@ -42,7 +42,6 @@
     "redis": "^5.11.0",
     "socket.io": "^4.8.3",
     "socket.io-client": "^4.8.3",
-    "ts-node": "^10.9.2",
     "typescript": "^5.9.3"
   },
   "devDependencies": {
@@ -67,6 +66,7 @@
     "prettier": "^3.8.1",
     "supertest": "^7.2.2",
     "ts-jest": "^29.4.1",
+    "ts-node": "^10.9.2",
     "typescript-eslint": "^8.58.0"
   }
 }

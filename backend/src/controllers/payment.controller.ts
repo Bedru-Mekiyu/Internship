@@ -285,10 +285,19 @@ export const getInstructorRevenue = asyncHandler(async (req: Request, res: Respo
     .slice(-6)
     .map(([month, revenue]) => ({ month, revenue }));
 
+  const courseRevenueMap = new Map<string, number>();
+  payments.forEach((payment: any) => {
+    const cid = payment.courseId?.toString();
+    if (cid) {
+      courseRevenueMap.set(
+        cid,
+        (courseRevenueMap.get(cid) || 0) + Number(payment.amount || 0)
+      );
+    }
+  });
+
   const topCourses = courses.map((course: any) => {
-    const courseRevenue = payments
-      .filter((payment: any) => payment.courseId?.toString() === course._id.toString())
-      .reduce((sum: number, payment: any) => sum + Number(payment.amount || 0), 0);
+    const courseRevenue = courseRevenueMap.get(course._id.toString()) || 0;
 
     return {
       courseId: course._id,
