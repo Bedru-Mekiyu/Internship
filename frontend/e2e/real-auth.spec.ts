@@ -5,7 +5,7 @@ test.describe('real authentication flow', () => {
     await app.loginAs(page, 'student');
 
     await expect(page).toHaveURL(/\/dashboard/);
-    await expect(page.getByText('Student')).toBeVisible();
+    await expect(page.getByText('Student Tester')).toBeVisible();
   });
 
   test('login with valid admin credentials redirects to admin dashboard', async ({ page, app }) => {
