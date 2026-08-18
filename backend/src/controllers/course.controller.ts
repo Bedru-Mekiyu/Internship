@@ -185,14 +185,19 @@ const ensureSameMembers = (expectedIds: string[], receivedIds: string[], label: 
 };
 
 const reorderCourseModulesState = async (courseId: string, moduleIds: string[]) => {
-  await Promise.all(
-    moduleIds.map((id, index) =>
-      Module.findByIdAndUpdate(id, {
+  const bulkOperations = moduleIds.map((id, index) => ({
+    updateOne: {
+      filter: { _id: id },
+      update: {
         order: index,
         updatedAt: new Date(),
-      }),
-    ),
-  );
+      },
+    },
+  }));
+
+  if (bulkOperations.length > 0) {
+    await Module.bulkWrite(bulkOperations);
+  }
 
   await Course.findByIdAndUpdate(courseId, {
     modules: moduleIds as any,
@@ -202,14 +207,19 @@ const reorderCourseModulesState = async (courseId: string, moduleIds: string[]) 
 };
 
 const reorderModuleLessonsState = async (moduleId: string, lessonIds: string[]) => {
-  await Promise.all(
-    lessonIds.map((id, index) =>
-      Lesson.findByIdAndUpdate(id, {
+  const bulkOperations = lessonIds.map((id, index) => ({
+    updateOne: {
+      filter: { _id: id },
+      update: {
         order: index,
         updatedAt: new Date(),
-      }),
-    ),
-  );
+      },
+    },
+  }));
+
+  if (bulkOperations.length > 0) {
+    await Lesson.bulkWrite(bulkOperations);
+  }
 
   await Module.findByIdAndUpdate(moduleId, {
     lessons: lessonIds as any,
