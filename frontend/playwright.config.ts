@@ -19,7 +19,7 @@ export default defineConfig({
     ? [
         ['line'],
         ['html', { open: 'never', outputFolder: 'playwright-report' }],
-        ['json', { outputFile: 'playwright-report/test-results.json' }],
+
       ]
     : 'list',
 

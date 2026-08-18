@@ -168,7 +168,12 @@ export const quizCreateSchema = Joi.object({
       question: Joi.string().trim().min(2).max(1000).required(),
       type: Joi.string().valid('multiple-choice', 'true-false', 'short-answer', 'essay').required(),
       options: Joi.array().items(Joi.string().trim().min(1).max(300)).optional(),
-      correctAnswer: Joi.any().optional(),
+      correctAnswer: Joi.alternatives().try(
+        Joi.string().allow(''),
+        Joi.number(),
+        Joi.boolean(),
+        Joi.array().items(Joi.alternatives().try(Joi.string().allow(''), Joi.number()))
+      ).optional(),
       points: Joi.number().min(0).max(100).default(1),
       explanation: Joi.string().trim().allow('').optional(),
     })
@@ -179,7 +184,12 @@ export const quizAttemptSchema = Joi.object({
   answers: Joi.array().items(
     Joi.object({
       questionIndex: Joi.number().integer().min(0).required(),
-      answer: Joi.any().optional(),
+      answer: Joi.alternatives().try(
+        Joi.string().allow(''),
+        Joi.number(),
+        Joi.boolean(),
+        Joi.array().items(Joi.alternatives().try(Joi.string().allow(''), Joi.number()))
+      ).optional(),
     })
   ).required(),
 });
