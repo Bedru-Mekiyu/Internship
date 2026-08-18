@@ -5,7 +5,7 @@ import path from 'path';
 import helmet from 'helmet';
 import compression from 'compression';
 import cors, { CorsOptions } from 'cors';
-import { Server } from 'socket.io';
+import { Server, Socket } from 'socket.io';
 import cookieParser from 'cookie-parser';
 import jwt from 'jsonwebtoken';
 import mongoose from 'mongoose';
@@ -29,6 +29,12 @@ import notificationRoutes from './routes/notification.routes';
 import userRoutes from './routes/user.routes';
 import contactRoutes from './routes/contact.routes';
 import settingsRoutes from './routes/settings.routes';
+import type { IUser } from './types/express';
+
+interface AuthenticatedSocket extends Socket {
+  user?: IUser;
+}
+
 import { csrfProtection } from './middlewares/csrf.middleware';
 import { sanitizeMiddleware } from './middlewares/sanitize.middleware';
 import { errorMiddleware } from './middlewares/error.middleware';
@@ -357,7 +363,7 @@ const startServer = async () => {
         const tokenVersion = decoded.tokenVersion ?? 0;
         if (tokenVersion !== currentVersion) return next(new Error('Authentication error: Token revoked'));
 
-        (socket as any).user = user;
+        (socket as AuthenticatedSocket).user = user as IUser;
         next();
       } catch {
         next(new Error('Authentication error: Invalid token'));
@@ -365,7 +371,7 @@ const startServer = async () => {
     });
 
     io.on('connection', (socket) => {
-      const user = (socket as any).user;
+      const user = (socket as AuthenticatedSocket).user;
 
       socket.on('discussion:join', async (courseId: string) => {
         if (typeof courseId !== 'string' || !courseId.trim()) {
