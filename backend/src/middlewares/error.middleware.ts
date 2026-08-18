@@ -40,7 +40,7 @@ const getUserFriendlyMessage = (err: Error, statusCode: number): string => {
 };
 
 export const errorMiddleware = (err: unknown, req: Request, res: Response, _next: NextFunction) => {
-  const requestId = (req as any).requestId || null;
+  const requestId = req.requestId || null;
 
   if (err instanceof AppError) {
     const details = err.details && typeof err.details === 'object' ? err.details as Record<string, unknown> : undefined;
