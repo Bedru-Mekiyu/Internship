@@ -51,9 +51,8 @@ test.describe('course enrollment flow', () => {
     await page.goto('/courses/explore');
     await page.waitForLoadState('networkidle');
 
-    const categoryFilter = page.getByRole('combobox', { name: /category/i });
-    await expect(categoryFilter).toBeVisible({ timeout: 10000 });
-    await categoryFilter.selectOption('Development');
+    await page.locator('#category-filter, [name="category"]').first().click();
+    await page.getByRole('option', { name: 'Development' }).click();
 
     await page.waitForLoadState('networkidle');
     await expect(page.getByText('Development')).toBeVisible({ timeout: 10000 });
@@ -63,9 +62,8 @@ test.describe('course enrollment flow', () => {
     await page.goto('/courses/explore');
     await page.waitForLoadState('networkidle');
 
-    const levelFilter = page.getByRole('combobox', { name: /level/i });
-    await expect(levelFilter).toBeVisible({ timeout: 10000 });
-    await levelFilter.selectOption('beginner');
+    await page.locator('#level-filter, [name="level"]').first().click();
+    await page.getByRole('option', { name: /beginner/i }).click();
 
     await page.waitForLoadState('networkidle');
     await expect(page.getByText('React Foundations')).toBeVisible({ timeout: 10000 });
