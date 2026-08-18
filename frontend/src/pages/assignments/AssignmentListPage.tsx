@@ -215,8 +215,7 @@ export default function AssignmentListPage() {
             />
             <TextField
               label="Due Date"
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              type={'datetime-local' as any}
+              type="datetime-local"
               value={newDueDate}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => setNewDueDate(e.target.value)}
               fullWidth
