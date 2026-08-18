@@ -105,7 +105,7 @@ export const errorMiddleware = (err: unknown, req: Request, res: Response, _next
       });
     }
 
-    if ('type' in err && (err as any).type === 'entity.too.large') {
+    if ('type' in err && (err as Error & { type?: string }).type === 'entity.too.large') {
       return res.status(413).json({
         message: 'Request body is too large.',
         requestId,
