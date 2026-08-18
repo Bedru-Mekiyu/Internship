@@ -185,14 +185,21 @@ const ensureSameMembers = (expectedIds: string[], receivedIds: string[], label: 
 };
 
 const reorderCourseModulesState = async (courseId: string, moduleIds: string[]) => {
-  await Promise.all(
-    moduleIds.map((id, index) =>
-      Module.findByIdAndUpdate(id, {
-        order: index,
-        updatedAt: new Date(),
-      }),
-    ),
-  );
+  const bulkOps = moduleIds.map((id, index) => ({
+    updateOne: {
+      filter: { _id: id },
+      update: {
+        $set: {
+          order: index,
+          updatedAt: new Date(),
+        },
+      },
+    },
+  }));
+
+  if (bulkOps.length > 0) {
+    await Module.bulkWrite(bulkOps);
+  }
 
   await Course.findByIdAndUpdate(courseId, {
     modules: moduleIds as any,
@@ -202,14 +209,21 @@ const reorderCourseModulesState = async (courseId: string, moduleIds: string[]) 
 };
 
 const reorderModuleLessonsState = async (moduleId: string, lessonIds: string[]) => {
-  await Promise.all(
-    lessonIds.map((id, index) =>
-      Lesson.findByIdAndUpdate(id, {
-        order: index,
-        updatedAt: new Date(),
-      }),
-    ),
-  );
+  const bulkOps = lessonIds.map((id, index) => ({
+    updateOne: {
+      filter: { _id: id },
+      update: {
+        $set: {
+          order: index,
+          updatedAt: new Date(),
+        },
+      },
+    },
+  }));
+
+  if (bulkOps.length > 0) {
+    await Lesson.bulkWrite(bulkOps);
+  }
 
   await Module.findByIdAndUpdate(moduleId, {
     lessons: lessonIds as any,
