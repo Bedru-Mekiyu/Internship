@@ -181,10 +181,14 @@ export const getAssignmentAnalyticsByCourse = asyncHandler(async (req: Request, 
     ? Number(((totalSubmissions / (enrollmentCount * totalAssignments)) * 100).toFixed(2))
     : 0;
 
+  const submissionCounts = new Map<string, number>();
+  for (const submission of submissions) {
+    const key = submission.assignmentId.toString();
+    submissionCounts.set(key, (submissionCounts.get(key) || 0) + 1);
+  }
+
   const submissionsByAssignment = assignments.map((assignment) => {
-    const total = submissions.filter(
-      (submission) => submission.assignmentId.toString() === assignment._id.toString()
-    ).length;
+    const total = submissionCounts.get(assignment._id.toString()) || 0;
 
     return {
       assignmentId: assignment._id,
