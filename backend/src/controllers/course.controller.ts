@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import mongoose from 'mongoose';
 import { Course } from '../models/Course.model';
 import { Enrollment } from '../models/Enrollment.model';
-import { Module } from '../models/Module.model';
+import { Module, IModule } from '../models/Module.model';
 import { Lesson } from '../models/Lesson.model';
 import { Notification } from '../models/Notification.model';
 import { Payment } from '../models/Payment.model';
@@ -156,10 +156,10 @@ const sortLessonsForResponse = (lessons: unknown[]) => {
   });
 };
 
-const serializeVisibleModules = (modules: unknown[], allowUnpublishedNestedContent: boolean) => {
+const serializeVisibleModules = (modules: any[], allowUnpublishedNestedContent: boolean) => {
   return modules
-    .filter((moduleItem: any) => allowUnpublishedNestedContent || moduleItem.status === 'published')
-    .map((moduleItem: any) => {
+    .filter((moduleItem: IModule) => allowUnpublishedNestedContent || moduleItem.status === 'published')
+    .map((moduleItem: IModule) => {
       const lessonDocs = Array.isArray(moduleItem.lessons) ? [...moduleItem.lessons] : [];
       const visibleLessons = allowUnpublishedNestedContent
         ? lessonDocs
