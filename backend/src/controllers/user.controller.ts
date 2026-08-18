@@ -97,46 +97,10 @@ export const updateMe = asyncHandler(async (req: Request, res: Response) => {
   if (typeof avatar === 'string') user.avatar = avatar.trim();
 
   if (preferences && typeof preferences === 'object') {
-    const prefs = preferences as Record<string, unknown>;
-
-    if (!user.preferences) {
-      user.preferences = {
-        language: 'en',
-        timezone: 'UTC',
-        notifications: {
-          email: true,
-          push: true,
-          marketingEmails: false,
-        }
-      };
-    }
-    if (!user.preferences.notifications) {
-      user.preferences.notifications = {
-        email: true,
-        push: true,
-        marketingEmails: false,
-      };
-    }
-
-    if (typeof prefs.language === 'string') {
-      user.preferences.language = prefs.language;
-    }
-    if (typeof prefs.timezone === 'string') {
-      user.preferences.timezone = prefs.timezone;
-    }
-
-    if (prefs.notifications && typeof prefs.notifications === 'object') {
-      const notifs = prefs.notifications as Record<string, unknown>;
-      if (typeof notifs.email === 'boolean') {
-        user.preferences.notifications.email = notifs.email;
-      }
-      if (typeof notifs.push === 'boolean') {
-        user.preferences.notifications.push = notifs.push;
-      }
-      if (typeof notifs.marketingEmails === 'boolean') {
-        user.preferences.notifications.marketingEmails = notifs.marketingEmails;
-      }
-    }
+    user.preferences = {
+      ...user.preferences,
+      ...(preferences as Record<string, unknown>),
+    } as any;
   }
 
   user.updatedAt = new Date();
