@@ -66,7 +66,7 @@ export const authMiddleware = async (req: AuthRequest, res: Response, next: Next
       logError('auth_token_validation_failed', { 
         path: req.path, 
         error: errorMessage,
-        hasUser: !!(req as any).user?._id 
+        hasUser: !!req.user?._id
       });
     }
   }
@@ -107,7 +107,7 @@ export const roleMiddleware = (roles: string[]) => {
     if (!roles.includes(req.user.role)) {
       logError('auth_role_check_forbidden', { 
         path: req.path, 
-        userRole: (req as any).user.role,
+        userRole: req.user.role,
         requiredRoles: roles 
       });
       return res.status(403).json({ message: 'Access denied' });
