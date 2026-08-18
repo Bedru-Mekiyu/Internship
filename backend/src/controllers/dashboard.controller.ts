@@ -5,6 +5,7 @@ import { User } from '../models/User.model';
 import { Content } from '../models/Content.model';
 import { Certificate } from '../models/Certificate.model';
 import { LiveSession } from '../models/LiveSession.model';
+import mongoose from 'mongoose';
 import { Notification } from '../models/Notification.model';
 import { asyncHandler } from '../utils/async-handler';
 
@@ -68,10 +69,13 @@ const getStudentBadges = async (userId: string) => {
 };
 
 const getMomentumData = async (userId: string) => {
-  const enrollments = await Enrollment.find({ userId }).select('progress updatedAt').lean();
+  const today = new Date();
+
+  const startDate = new Date(today);
+  startDate.setUTCDate(startDate.getUTCDate() - 6);
+  startDate.setUTCHours(0, 0, 0, 0);
 
   const dailyActivity = new Map<string, number>();
-  const today = new Date();
 
   for (let i = 6; i >= 0; i--) {
     const date = new Date(today);
@@ -80,14 +84,28 @@ const getMomentumData = async (userId: string) => {
     dailyActivity.set(key, 0);
   }
 
-  enrollments.forEach((enrollment: any) => {
-    if (enrollment.updatedAt) {
-      const dateKey = new Date(enrollment.updatedAt).toISOString().split('T')[0];
-      if (dailyActivity.has(dateKey)) {
-        dailyActivity.set(dateKey, (dailyActivity.get(dateKey) || 0) + 1);
+  const result = await Enrollment.aggregate([
+    {
+      $match: {
+        userId: new mongoose.Types.ObjectId(userId),
+        updatedAt: { $gte: startDate }
+      }
+    },
+    {
+      $group: {
+        _id: {
+          $dateToString: { format: "%Y-%m-%d", date: "$updatedAt" }
+        },
+        count: { $sum: 1 }
       }
     }
-  });
+  ]);
+
+  for (const item of result) {
+    if (dailyActivity.has(item._id)) {
+      dailyActivity.set(item._id, item.count);
+    }
+  }
 
   const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
   return Array.from(dailyActivity.entries()).map(([date, count]) => ({
