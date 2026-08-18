@@ -226,7 +226,7 @@ export default function MarketingHomepagePage() {
             <Grid size={{ xs: 12, lg: 6 }}>
               <Stack spacing={1.5}>
 
-                <Typography variant="h1" sx={{ fontWeight: 800, color: 'text.primary', letterSpacing: 0, fontSize: { xs: '2rem', md: '2.8rem' }, lineHeight: 1.05 }}>
+                <Typography variant="h1" component="h1" sx={{ fontWeight: 800, color: 'text.primary', letterSpacing: 0, fontSize: { xs: '2rem', md: '2.8rem' }, lineHeight: 1.05 }}>
                   Unlock Potential with Modern Learning
                 </Typography>
                 <Typography variant="body2" sx={{ color: 'text.secondary', maxWidth: 500, fontWeight: 500, lineHeight: 1.6, fontSize: { xs: '0.84rem', md: '0.82rem' } }}>
