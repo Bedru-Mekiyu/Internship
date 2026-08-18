@@ -5,6 +5,7 @@ import { EmailService } from './email.service';
 import { requireEnv } from '../utils/env';
 import { AppError } from '../utils/http-error';
 import { logError, logInfo } from '../utils/logger';
+import { DecodedToken } from '../types/auth';
 
 interface RegisterInput {
   email: string;
@@ -171,7 +172,7 @@ export class AuthService {
 
   static async verifyToken(token: string, type: 'access' | 'refresh') {
     const secret = type === 'access' ? requireEnv('JWT_ACCESS_SECRET') : requireEnv('JWT_REFRESH_SECRET');
-    const decoded = jwt.verify(token, secret, { algorithms: ['HS256'] }) as { userId: string; type: 'access' | 'refresh'; tokenVersion?: number };
+    const decoded = jwt.verify(token, secret, { algorithms: ['HS256'] }) as DecodedToken;
     if (decoded.type !== type) {
       throw new Error('Invalid token type');
     }

@@ -13,3 +13,9 @@ export interface AuthUser {
 }
 
 export type AuthRequest = Request & { user?: AuthUser };
+
+export interface DecodedToken {
+  userId: string;
+  type: 'access' | 'refresh';
+  tokenVersion?: number;
+}
