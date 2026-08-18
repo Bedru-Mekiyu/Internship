@@ -195,7 +195,7 @@ const reorderCourseModulesState = async (courseId: string, moduleIds: string[]) 
   );
 
   await Course.findByIdAndUpdate(courseId, {
-    modules: moduleIds as any,
+    modules: moduleIds,
     updatedAt: new Date(),
   });
   void bumpCourseCatalogCacheVersion();
@@ -212,7 +212,7 @@ const reorderModuleLessonsState = async (moduleId: string, lessonIds: string[]) 
   );
 
   await Module.findByIdAndUpdate(moduleId, {
-    lessons: lessonIds as any,
+    lessons: lessonIds,
     updatedAt: new Date(),
   });
 };
