@@ -285,7 +285,7 @@ export const getInstructorRevenue = asyncHandler(async (req: Request, res: Respo
     .slice(-6)
     .map(([month, revenue]) => ({ month, revenue }));
 
-  const topCourses = courses.map((course: any) => {
+  const topCourses = courses.map((course) => {
     const courseRevenue = payments
       .filter((payment: any) => payment.courseId?.toString() === course._id.toString())
       .reduce((sum: number, payment: any) => sum + Number(payment.amount || 0), 0);
