@@ -182,16 +182,20 @@ export const createApp = () => {
 
   app.get('/auth/verify-email', (req, res) => {
     const token = typeof req.query.token === 'string' ? req.query.token : '';
-    const frontendUrl = process.env.FRONTEND_URL?.trim().replace(/\/$/, '');
+    const frontendUrl = process.env.FRONTEND_URL?.split(',')[0]?.trim().replace(/\/$/, '');
 
     if (frontendUrl) {
-      const normalizedUrl = frontendUrl.replace(/^https?:\/\//, '').split('/')[0];
-      if (!normalizedUrl || normalizedUrl.includes(':') === false && normalizedUrl !== 'localhost' && normalizedUrl !== '127.0.0.1') {
-        const redirectUrl = token
-          ? `${frontendUrl}/auth/verify-email?token=${encodeURIComponent(token)}`
-          : `${frontendUrl}/auth/verify-email`;
-        res.redirect(302, redirectUrl);
-        return;
+      try {
+        const parsedUrl = new URL(frontendUrl);
+        if (parsedUrl.protocol === 'http:' || parsedUrl.protocol === 'https:') {
+          const redirectUrl = token
+            ? `${frontendUrl}/auth/verify-email?token=${encodeURIComponent(token)}`
+            : `${frontendUrl}/auth/verify-email`;
+          res.redirect(302, redirectUrl);
+          return;
+        }
+      } catch {
+        // If frontendUrl is invalid, fallback to API URL
       }
     }
 
