@@ -3,7 +3,7 @@ import { Request, Response } from 'express';
 import { Course } from '../models/Course.model';
 import { Enrollment } from '../models/Enrollment.model';
 import { Notification } from '../models/Notification.model';
-import { Payment } from '../models/Payment.model';
+import { Payment, IPayment } from '../models/Payment.model';
 import { asyncHandler } from '../utils/async-handler';
 import { AppError } from '../utils/http-error';
 import { routeParam } from '../utils/route-params';
@@ -253,8 +253,8 @@ export const getMyPayments = asyncHandler(async (req: Request, res: Response) =>
     .populate('courseId', 'title slug category');
 
   const totalSpent = payments
-    .filter((payment: any) => payment.status === 'completed')
-    .reduce((sum: number, payment: any) => sum + Number(payment.amount || 0), 0);
+    .filter((payment: IPayment) => payment.status === 'completed')
+    .reduce((sum: number, payment: IPayment) => sum + Number(payment.amount || 0), 0);
 
   return res.json({
     totalSpent,
