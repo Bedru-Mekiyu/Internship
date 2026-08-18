@@ -146,13 +146,14 @@ const canViewUnpublishedNestedContent = (course: { status?: string; instructor?:
 };
 
 const sortLessonsForResponse = (lessons: unknown[]) => {
-  return [...lessons].sort((left: any, right: any) => {
+  type SortableLesson = { order?: number | string; createdAt?: string | Date | number };
+  return ([...lessons] as SortableLesson[]).sort((left, right) => {
     const leftOrder = Number(left.order || 0);
     const rightOrder = Number(right.order || 0);
     if (leftOrder !== rightOrder) {
       return leftOrder - rightOrder;
     }
-    return new Date(left.createdAt).getTime() - new Date(right.createdAt).getTime();
+    return new Date(left.createdAt as string | Date | number).getTime() - new Date(right.createdAt as string | Date | number).getTime();
   });
 };
 
