@@ -7,7 +7,7 @@ on:
     branches: [main]
 
 env:
-  NODE_VERSION: '24'
+  NODE_VERSION: '20'
   MONGODB_VERSION: '7.0'
 
 jobs:
@@ -232,6 +232,7 @@ jobs:
         with:
           name: playwright-report
           path: frontend/playwright-report/
+          if-no-files-found: ignore
           retention-days: 7
 
   notify:
