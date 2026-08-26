@@ -7,14 +7,14 @@ import type { IUser } from '../types/express.d.ts';
 
 type AuthRequest = Request & { user?: IUser };
 
-const parseBoolean = (value: string | undefined, fallback: boolean) => {
+export const parseBoolean = (value: string | undefined, fallback: boolean) => {
   if (value === undefined) return fallback;
   return value.toLowerCase() === 'true';
 };
 
 type SameSitePolicy = 'lax' | 'strict' | 'none';
 
-const parseSameSite = (value: string | undefined, fallback: SameSitePolicy): SameSitePolicy => {
+export const parseSameSite = (value: string | undefined, fallback: SameSitePolicy): SameSitePolicy => {
   if (value === undefined) {
     return fallback;
   }
@@ -27,7 +27,7 @@ const parseSameSite = (value: string | undefined, fallback: SameSitePolicy): Sam
   return fallback;
 };
 
-const getAuthCookieOptions = () => {
+export const getAuthCookieOptions = () => {
   const isProduction = process.env.NODE_ENV === 'production';
   const cookieSameSite = parseSameSite(process.env.COOKIE_SAME_SITE, 'lax');
   const cookieSecure = cookieSameSite === 'none'
