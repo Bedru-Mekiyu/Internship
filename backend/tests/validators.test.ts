@@ -22,7 +22,7 @@ describe('Validators - registerSchema', () => {
 
   describe('email validation', () => {
     it('should require an email', () => {
-      const { email, ...rest } = validUser;
+      const { email: _email, ...rest } = validUser;
       const { error } = registerSchema.validate(rest);
       expect(error).toBeDefined();
       expect(error?.details[0].context?.key).toBe('email');
@@ -48,7 +48,7 @@ describe('Validators - registerSchema', () => {
 
   describe('password validation', () => {
     it('should require a password', () => {
-      const { password, ...rest } = validUser;
+      const { password: _password, ...rest } = validUser;
       const { error } = registerSchema.validate(rest);
       expect(error).toBeDefined();
       expect(error?.details[0].context?.key).toBe('password');
@@ -89,14 +89,14 @@ describe('Validators - registerSchema', () => {
 
   describe('firstName and lastName validation', () => {
     it('should require firstName', () => {
-      const { firstName, ...rest } = validUser;
+      const { firstName: _firstName, ...rest } = validUser;
       const { error } = registerSchema.validate(rest);
       expect(error).toBeDefined();
       expect(error?.details[0].context?.key).toBe('firstName');
     });
 
     it('should require lastName', () => {
-      const { lastName, ...rest } = validUser;
+      const { lastName: _lastName, ...rest } = validUser;
       const { error } = registerSchema.validate(rest);
       expect(error).toBeDefined();
       expect(error?.details[0].context?.key).toBe('lastName');
