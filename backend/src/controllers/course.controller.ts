@@ -145,25 +145,43 @@ const canViewUnpublishedNestedContent = (course: { status?: string; instructor?:
   return course.status !== 'published';
 };
 
-const sortLessonsForResponse = (lessons: unknown[]) => {
-  return [...lessons].sort((left: any, right: any) => {
+interface ILesson {
+  _id?: mongoose.Types.ObjectId;
+  order?: number;
+  status?: string;
+  createdAt?: Date | string | number;
+  [key: string]: unknown;
+}
+
+interface IModule {
+  _id?: mongoose.Types.ObjectId;
+  status?: string;
+  lessons?: ILesson[] | mongoose.Types.ObjectId[];
+  toObject?: () => Record<string, unknown>;
+  [key: string]: unknown;
+}
+
+const sortLessonsForResponse = (lessons: ILesson[]) => {
+  return [...lessons].sort((left, right) => {
     const leftOrder = Number(left.order || 0);
     const rightOrder = Number(right.order || 0);
     if (leftOrder !== rightOrder) {
       return leftOrder - rightOrder;
     }
-    return new Date(left.createdAt).getTime() - new Date(right.createdAt).getTime();
+    const leftTime = left.createdAt ? new Date(left.createdAt).getTime() : 0;
+    const rightTime = right.createdAt ? new Date(right.createdAt).getTime() : 0;
+    return leftTime - rightTime;
   });
 };
 
-const serializeVisibleModules = (modules: unknown[], allowUnpublishedNestedContent: boolean) => {
+const serializeVisibleModules = (modules: IModule[], allowUnpublishedNestedContent: boolean) => {
   return modules
-    .filter((moduleItem: any) => allowUnpublishedNestedContent || moduleItem.status === 'published')
-    .map((moduleItem: any) => {
+    .filter((moduleItem) => allowUnpublishedNestedContent || moduleItem.status === 'published')
+    .map((moduleItem) => {
       const lessonDocs = Array.isArray(moduleItem.lessons) ? [...moduleItem.lessons] : [];
       const visibleLessons = allowUnpublishedNestedContent
-        ? lessonDocs
-        : lessonDocs.filter((lesson: any) => lesson.status === 'published');
+        ? lessonDocs as ILesson[]
+        : (lessonDocs as ILesson[]).filter((lesson) => lesson.status === 'published');
 
       const moduleObject = typeof moduleItem.toObject === 'function' ? moduleItem.toObject() : { ...moduleItem };
       moduleObject.lessons = sortLessonsForResponse(visibleLessons);
@@ -350,7 +368,10 @@ export const getCourseById = asyncHandler(async (req: Request, res: Response) =>
 
   const courseObject = course.toObject();
   const allowUnpublishedNestedContent = canViewUnpublishedNestedContent(course, req.user);
-  courseObject.modules = serializeVisibleModules(courseObject.modules || [], allowUnpublishedNestedContent);
+  courseObject.modules = serializeVisibleModules(
+    courseObject.modules as unknown as IModule[],
+    allowUnpublishedNestedContent
+  ) as unknown as mongoose.Types.ObjectId[];
 
   return res.json(courseObject);
 });
@@ -565,7 +586,7 @@ export const getCourseModules = asyncHandler(async (req: Request, res: Response)
     .populate('lessons');
 
   const normalizedModules = serializeVisibleModules(
-    modules,
+    modules as unknown as IModule[],
     canViewUnpublishedNestedContent(course, req.user),
   );
 
