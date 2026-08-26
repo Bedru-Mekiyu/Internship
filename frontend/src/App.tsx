@@ -10,7 +10,8 @@ import {
 } from 'react-router-dom';
 import { Box, Stack, Typography } from '@mui/material';
 import { useQueryClient } from '@tanstack/react-query';
-import { AuthProvider, useAuth } from './context/AuthContext';
+import { useAuth } from './context/AuthContext';
+import { AuthProvider } from './context/AuthProvider';
 import { createAuthenticatedSocket } from './services/realtimeSocket';
 import MainLayout from './components/layout/MainLayout';
 import LearnSpaceShell from './routes/LearnSpaceShell';
