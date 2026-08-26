@@ -14,7 +14,7 @@ const parseBoolean = (value: string | undefined, fallback: boolean) => {
 
 type SameSitePolicy = 'lax' | 'strict' | 'none';
 
-const parseSameSite = (value: string | undefined, fallback: SameSitePolicy): SameSitePolicy => {
+export const parseSameSite = (value: string | undefined, fallback: SameSitePolicy): SameSitePolicy => {
   if (value === undefined) {
     return fallback;
   }

@@ -158,7 +158,7 @@ test.describe('authorization boundaries', () => {
     
     await page.goto('/instructor/dashboard');
     await expect(page).toHaveURL(/\/instructor\/dashboard/);
-    await expect(page.getByText(/my courses|teaching/i)).toBeVisible();
+    await expect(page.getByRole('heading', { name: /my courses|teaching/i }).first()).toBeVisible();
   });
 });
 
@@ -254,13 +254,12 @@ test.describe('password security', () => {
   test('weak password rejected during registration', async ({ page }) => {
     await page.goto('/auth/signup');
     
-    await page.getByRole('textbox', { name: 'Email' }).fill('newuser@test.com');
-    await page.getByRole('textbox', { name: 'First name' }).fill('New');
-    await page.getByRole('textbox', { name: 'Last name' }).fill('User');
-    await page.getByRole('textbox', { name: 'Password' }).fill('weak');
-    await page.getByRole('button', { name: 'Create account' }).click();
+    await page.getByPlaceholder('jane@example.com').fill('newuser@test.com');
+    await page.getByPlaceholder('Jane Doe').fill('New User');
+    await page.getByPlaceholder('Create a password').fill('weak');
+    await page.getByRole('button', { name: /create account/i }).click();
     
-    await expect(page.getByText(/password must|requirements|invalid/i)).toBeVisible();
+    await expect(page.getByText(/Use 8\+ characters with uppercase/i)).toBeVisible();
   });
 });
 
@@ -281,7 +280,7 @@ test.describe('data isolation', () => {
     await app.loginAs(page, 'instructor');
     
     await page.goto('/instructor/dashboard');
-    await expect(page.getByText(/my courses|teaching/i)).toBeVisible();
+    await expect(page.getByRole('heading', { name: /my courses|teaching/i }).first()).toBeVisible();
   });
 
   test('discussions are isolated by course', async ({ page, app }) => {
