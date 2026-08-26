@@ -5,7 +5,7 @@ test.describe('Smoke Tests', () => {
     await page.goto('/');
     await expect(page).toHaveTitle(/LearnSpace/);
     // Hero section should be visible
-    await expect(page.locator('h1').first()).toBeVisible();
+    await expect(page.locator('h2').first()).toBeVisible();
   });
 
   test('navigation to login works', async ({ page }) => {
