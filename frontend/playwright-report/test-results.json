@@ -1,0 +1,816 @@
+{
+  "config": {
+    "configFile": "/app/frontend/playwright.config.ts",
+    "rootDir": "/app/frontend/e2e",
+    "forbidOnly": true,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/app/frontend/test-results",
+        "repeatEach": 1,
+        "retries": 1,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium",
+        "name": "chromium",
+        "testDir": "/app/frontend/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 60000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "line",
+        null
+      ],
+      [
+        "html",
+        {
+          "open": "never",
+          "outputFolder": "playwright-report"
+        }
+      ],
+      [
+        "json",
+        {
+          "outputFile": "playwright-report/test-results.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.59.1",
+    "workers": 2,
+    "webServer": {
+      "command": "npx vite preview --host 127.0.0.1 --port 4173",
+      "url": "http://127.0.0.1:4173",
+      "reuseExistingServer": false,
+      "timeout": 60000,
+      "stdout": "pipe",
+      "stderr": "pipe"
+    }
+  },
+  "suites": [
+    {
+      "title": "accessibility-resilience.spec.ts",
+      "file": "accessibility-resilience.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "accessibility, responsiveness, and resilience",
+          "file": "accessibility-resilience.spec.ts",
+          "line": 3,
+          "column": 6,
+          "specs": [
+            {
+              "title": "login form supports keyboard-first navigation",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 787,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-08-26T07:29:11.302Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "30cbd4fed46b00f4bc4a-1e043451ccdf833c5038",
+              "file": "accessibility-resilience.spec.ts",
+              "line": 4,
+              "column": 3
+            },
+            {
+              "title": "login form is accessible via screen reader",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 666,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-08-26T07:29:12.224Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "30cbd4fed46b00f4bc4a-9a426b4626085628a4d6",
+              "file": "accessibility-resilience.spec.ts",
+              "line": 15,
+              "column": 3
+            },
+            {
+              "title": "notification preferences update and persist visual feedback",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2807,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-08-26T07:29:12.915Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "30cbd4fed46b00f4bc4a-283448d8f66d41c3345f",
+              "file": "accessibility-resilience.spec.ts",
+              "line": 25,
+              "column": 3
+            }
+          ],
+          "suites": [
+            {
+              "title": "mobile viewport (390x844)",
+              "file": "accessibility-resilience.spec.ts",
+              "line": 39,
+              "column": 8,
+              "specs": [
+                {
+                  "title": "mobile navigation drawer routes users to profile settings",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 60000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 0,
+                          "parallelIndex": 0,
+                          "status": "passed",
+                          "duration": 1723,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2026-08-26T07:29:15.740Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "30cbd4fed46b00f4bc4a-8e2953a42ebb052ef970",
+                  "file": "accessibility-resilience.spec.ts",
+                  "line": 42,
+                  "column": 5
+                },
+                {
+                  "title": "mobile header shows hamburger menu",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 60000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 0,
+                          "parallelIndex": 0,
+                          "status": "passed",
+                          "duration": 1086,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2026-08-26T07:29:17.478Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "30cbd4fed46b00f4bc4a-7944489b9b2d3d798bd5",
+                  "file": "accessibility-resilience.spec.ts",
+                  "line": 54,
+                  "column": 5
+                },
+                {
+                  "title": "mobile course cards stack vertically",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 60000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 0,
+                          "parallelIndex": 0,
+                          "status": "passed",
+                          "duration": 3100,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2026-08-26T07:29:18.582Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "30cbd4fed46b00f4bc4a-cc66c8f1624ef13f1f9c",
+                  "file": "accessibility-resilience.spec.ts",
+                  "line": 61,
+                  "column": 5
+                }
+              ]
+            },
+            {
+              "title": "tablet viewport (768x1024)",
+              "file": "accessibility-resilience.spec.ts",
+              "line": 84,
+              "column": 8,
+              "specs": [
+                {
+                  "title": "tablet shows expanded navigation",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 60000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 0,
+                          "parallelIndex": 0,
+                          "status": "passed",
+                          "duration": 2630,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2026-08-26T07:29:21.697Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "30cbd4fed46b00f4bc4a-5218b348f4c9cb77c180",
+                  "file": "accessibility-resilience.spec.ts",
+                  "line": 87,
+                  "column": 7
+                },
+                {
+                  "title": "tablet course grid shows 2 columns",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 60000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 0,
+                          "parallelIndex": 0,
+                          "status": "passed",
+                          "duration": 3253,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2026-08-26T07:29:24.343Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "30cbd4fed46b00f4bc4a-fa6c2fccf859226ed925",
+                  "file": "accessibility-resilience.spec.ts",
+                  "line": 100,
+                  "column": 7
+                }
+              ]
+            },
+            {
+              "title": "desktop viewport (1920x1080)",
+              "file": "accessibility-resilience.spec.ts",
+              "line": 124,
+              "column": 8,
+              "specs": [
+                {
+                  "title": "desktop shows full navigation",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 60000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 0,
+                          "parallelIndex": 0,
+                          "status": "passed",
+                          "duration": 2668,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2026-08-26T07:29:27.611Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "30cbd4fed46b00f4bc4a-6c0de712fbb7894e5b0f",
+                  "file": "accessibility-resilience.spec.ts",
+                  "line": 127,
+                  "column": 5
+                },
+                {
+                  "title": "desktop course grid shows 3+ columns",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 60000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 0,
+                          "parallelIndex": 0,
+                          "status": "passed",
+                          "duration": 3072,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2026-08-26T07:29:30.297Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "30cbd4fed46b00f4bc4a-f45617d5933d173d80e8",
+                  "file": "accessibility-resilience.spec.ts",
+                  "line": 140,
+                  "column": 5
+                }
+              ]
+            },
+            {
+              "title": "focus management",
+              "file": "accessibility-resilience.spec.ts",
+              "line": 155,
+              "column": 8,
+              "specs": [
+                {
+                  "title": "modal traps focus inside",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 60000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 0,
+                          "parallelIndex": 0,
+                          "status": "passed",
+                          "duration": 945,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2026-08-26T07:29:33.385Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "30cbd4fed46b00f4bc4a-eef5720b11187d0cb38f",
+                  "file": "accessibility-resilience.spec.ts",
+                  "line": 156,
+                  "column": 5
+                },
+                {
+                  "title": "focus returns to trigger after modal close",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 60000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 0,
+                          "parallelIndex": 0,
+                          "status": "passed",
+                          "duration": 912,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2026-08-26T07:29:34.345Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "30cbd4fed46b00f4bc4a-337c22744ad6b1262a55",
+                  "file": "accessibility-resilience.spec.ts",
+                  "line": 173,
+                  "column": 5
+                }
+              ]
+            },
+            {
+              "title": "color and contrast",
+              "file": "accessibility-resilience.spec.ts",
+              "line": 192,
+              "column": 8,
+              "specs": [
+                {
+                  "title": "text has sufficient contrast on dashboard",
+                  "ok": false,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 60000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 0,
+                          "parallelIndex": 0,
+                          "status": "failed",
+                          "duration": 1305,
+                          "error": {
+                            "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeGreaterThan\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: > \u001b[32m0\u001b[39m\nReceived:   \u001b[31m0\u001b[39m",
+                            "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeGreaterThan\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: > \u001b[32m0\u001b[39m\nReceived:   \u001b[31m0\u001b[39m\n    at /app/frontend/e2e/accessibility-resilience.spec.ts:199:21",
+                            "location": {
+                              "file": "/app/frontend/e2e/accessibility-resilience.spec.ts",
+                              "column": 21,
+                              "line": 199
+                            },
+                            "snippet": "\u001b[0m \u001b[90m 197 |\u001b[39m       \u001b[36mconst\u001b[39m headings \u001b[33m=\u001b[39m page\u001b[33m.\u001b[39mgetByRole(\u001b[32m'heading'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 198 |\u001b[39m       \u001b[36mconst\u001b[39m count \u001b[33m=\u001b[39m \u001b[36mawait\u001b[39m headings\u001b[33m.\u001b[39mcount()\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 199 |\u001b[39m       expect(count)\u001b[33m.\u001b[39mtoBeGreaterThan(\u001b[35m0\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                     \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 200 |\u001b[39m     })\u001b[33m;\u001b[39m\n \u001b[90m 201 |\u001b[39m\n \u001b[90m 202 |\u001b[39m     test(\u001b[32m'error states are visually distinct'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\u001b[0m"
+                          },
+                          "errors": [
+                            {
+                              "location": {
+                                "file": "/app/frontend/e2e/accessibility-resilience.spec.ts",
+                                "column": 21,
+                                "line": 199
+                              },
+                              "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeGreaterThan\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: > \u001b[32m0\u001b[39m\nReceived:   \u001b[31m0\u001b[39m\n\n  197 |       const headings = page.getByRole('heading');\n  198 |       const count = await headings.count();\n> 199 |       expect(count).toBeGreaterThan(0);\n      |                     ^\n  200 |     });\n  201 |\n  202 |     test('error states are visually distinct', async ({ page }) => {\n    at /app/frontend/e2e/accessibility-resilience.spec.ts:199:21"
+                            }
+                          ],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2026-08-26T07:29:35.271Z",
+                          "annotations": [],
+                          "attachments": [
+                            {
+                              "name": "screenshot",
+                              "contentType": "image/png",
+                              "path": "/app/frontend/test-results/accessibility-resilience-a-edf93-cient-contrast-on-dashboard-chromium/test-failed-1.png"
+                            },
+                            {
+                              "name": "video",
+                              "contentType": "video/webm",
+                              "path": "/app/frontend/test-results/accessibility-resilience-a-edf93-cient-contrast-on-dashboard-chromium/video.webm"
+                            },
+                            {
+                              "name": "error-context",
+                              "contentType": "text/markdown",
+                              "path": "/app/frontend/test-results/accessibility-resilience-a-edf93-cient-contrast-on-dashboard-chromium/error-context.md"
+                            }
+                          ],
+                          "errorLocation": {
+                            "file": "/app/frontend/e2e/accessibility-resilience.spec.ts",
+                            "column": 21,
+                            "line": 199
+                          }
+                        },
+                        {
+                          "workerIndex": 1,
+                          "parallelIndex": 0,
+                          "status": "failed",
+                          "duration": 1896,
+                          "error": {
+                            "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeGreaterThan\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: > \u001b[32m0\u001b[39m\nReceived:   \u001b[31m0\u001b[39m",
+                            "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeGreaterThan\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: > \u001b[32m0\u001b[39m\nReceived:   \u001b[31m0\u001b[39m\n    at /app/frontend/e2e/accessibility-resilience.spec.ts:199:21",
+                            "location": {
+                              "file": "/app/frontend/e2e/accessibility-resilience.spec.ts",
+                              "column": 21,
+                              "line": 199
+                            },
+                            "snippet": "\u001b[0m \u001b[90m 197 |\u001b[39m       \u001b[36mconst\u001b[39m headings \u001b[33m=\u001b[39m page\u001b[33m.\u001b[39mgetByRole(\u001b[32m'heading'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 198 |\u001b[39m       \u001b[36mconst\u001b[39m count \u001b[33m=\u001b[39m \u001b[36mawait\u001b[39m headings\u001b[33m.\u001b[39mcount()\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 199 |\u001b[39m       expect(count)\u001b[33m.\u001b[39mtoBeGreaterThan(\u001b[35m0\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                     \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 200 |\u001b[39m     })\u001b[33m;\u001b[39m\n \u001b[90m 201 |\u001b[39m\n \u001b[90m 202 |\u001b[39m     test(\u001b[32m'error states are visually distinct'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\u001b[0m"
+                          },
+                          "errors": [
+                            {
+                              "location": {
+                                "file": "/app/frontend/e2e/accessibility-resilience.spec.ts",
+                                "column": 21,
+                                "line": 199
+                              },
+                              "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeGreaterThan\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: > \u001b[32m0\u001b[39m\nReceived:   \u001b[31m0\u001b[39m\n\n  197 |       const headings = page.getByRole('heading');\n  198 |       const count = await headings.count();\n> 199 |       expect(count).toBeGreaterThan(0);\n      |                     ^\n  200 |     });\n  201 |\n  202 |     test('error states are visually distinct', async ({ page }) => {\n    at /app/frontend/e2e/accessibility-resilience.spec.ts:199:21"
+                            }
+                          ],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 1,
+                          "startTime": "2026-08-26T07:29:37.815Z",
+                          "annotations": [],
+                          "attachments": [
+                            {
+                              "name": "screenshot",
+                              "contentType": "image/png",
+                              "path": "/app/frontend/test-results/accessibility-resilience-a-edf93-cient-contrast-on-dashboard-chromium-retry1/test-failed-1.png"
+                            },
+                            {
+                              "name": "video",
+                              "contentType": "video/webm",
+                              "path": "/app/frontend/test-results/accessibility-resilience-a-edf93-cient-contrast-on-dashboard-chromium-retry1/video.webm"
+                            },
+                            {
+                              "name": "error-context",
+                              "contentType": "text/markdown",
+                              "path": "/app/frontend/test-results/accessibility-resilience-a-edf93-cient-contrast-on-dashboard-chromium-retry1/error-context.md"
+                            },
+                            {
+                              "name": "trace",
+                              "contentType": "application/zip",
+                              "path": "/app/frontend/test-results/accessibility-resilience-a-edf93-cient-contrast-on-dashboard-chromium-retry1/trace.zip"
+                            }
+                          ],
+                          "errorLocation": {
+                            "file": "/app/frontend/e2e/accessibility-resilience.spec.ts",
+                            "column": 21,
+                            "line": 199
+                          }
+                        }
+                      ],
+                      "status": "unexpected"
+                    }
+                  ],
+                  "id": "30cbd4fed46b00f4bc4a-d34bcf73f663b38760d7",
+                  "file": "accessibility-resilience.spec.ts",
+                  "line": 193,
+                  "column": 5
+                },
+                {
+                  "title": "error states are visually distinct",
+                  "ok": false,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 60000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 2,
+                          "parallelIndex": 0,
+                          "status": "failed",
+                          "duration": 11969,
+                          "error": {
+                            "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText('Invalid credentials')\nExpected: visible\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for getByText('Invalid credentials')\u001b[22m\n",
+                            "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText('Invalid credentials')\nExpected: visible\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for getByText('Invalid credentials')\u001b[22m\n\n    at /app/frontend/e2e/accessibility-resilience.spec.ts:208:59",
+                            "location": {
+                              "file": "/app/frontend/e2e/accessibility-resilience.spec.ts",
+                              "column": 59,
+                              "line": 208
+                            },
+                            "snippet": "\u001b[0m \u001b[90m 206 |\u001b[39m       \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mgetByRole(\u001b[32m'button'\u001b[39m\u001b[33m,\u001b[39m { name\u001b[33m:\u001b[39m \u001b[32m'Sign in'\u001b[39m })\u001b[33m.\u001b[39mclick()\u001b[33m;\u001b[39m\n \u001b[90m 207 |\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 208 |\u001b[39m       \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByText(\u001b[32m'Invalid credentials'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                                           \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 209 |\u001b[39m       \n \u001b[90m 210 |\u001b[39m       \u001b[36mconst\u001b[39m errorText \u001b[33m=\u001b[39m page\u001b[33m.\u001b[39mgetByText(\u001b[32m'Invalid credentials'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 211 |\u001b[39m       \u001b[36mconst\u001b[39m color \u001b[33m=\u001b[39m \u001b[36mawait\u001b[39m errorText\u001b[33m.\u001b[39mevaluate((el) \u001b[33m=>\u001b[39m {\u001b[0m"
+                          },
+                          "errors": [
+                            {
+                              "location": {
+                                "file": "/app/frontend/e2e/accessibility-resilience.spec.ts",
+                                "column": 59,
+                                "line": 208
+                              },
+                              "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText('Invalid credentials')\nExpected: visible\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for getByText('Invalid credentials')\u001b[22m\n\n\n  206 |       await page.getByRole('button', { name: 'Sign in' }).click();\n  207 |\n> 208 |       await expect(page.getByText('Invalid credentials')).toBeVisible();\n      |                                                           ^\n  209 |       \n  210 |       const errorText = page.getByText('Invalid credentials');\n  211 |       const color = await errorText.evaluate((el) => {\n    at /app/frontend/e2e/accessibility-resilience.spec.ts:208:59"
+                            }
+                          ],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2026-08-26T07:29:41.134Z",
+                          "annotations": [],
+                          "attachments": [
+                            {
+                              "name": "screenshot",
+                              "contentType": "image/png",
+                              "path": "/app/frontend/test-results/accessibility-resilience-a-0a60d-tates-are-visually-distinct-chromium/test-failed-1.png"
+                            },
+                            {
+                              "name": "video",
+                              "contentType": "video/webm",
+                              "path": "/app/frontend/test-results/accessibility-resilience-a-0a60d-tates-are-visually-distinct-chromium/video.webm"
+                            },
+                            {
+                              "name": "error-context",
+                              "contentType": "text/markdown",
+                              "path": "/app/frontend/test-results/accessibility-resilience-a-0a60d-tates-are-visually-distinct-chromium/error-context.md"
+                            }
+                          ],
+                          "errorLocation": {
+                            "file": "/app/frontend/e2e/accessibility-resilience.spec.ts",
+                            "column": 59,
+                            "line": 208
+                          }
+                        },
+                        {
+                          "workerIndex": 3,
+                          "parallelIndex": 0,
+                          "status": "failed",
+                          "duration": 11734,
+                          "error": {
+                            "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText('Invalid credentials')\nExpected: visible\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for getByText('Invalid credentials')\u001b[22m\n",
+                            "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText('Invalid credentials')\nExpected: visible\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for getByText('Invalid credentials')\u001b[22m\n\n    at /app/frontend/e2e/accessibility-resilience.spec.ts:208:59",
+                            "location": {
+                              "file": "/app/frontend/e2e/accessibility-resilience.spec.ts",
+                              "column": 59,
+                              "line": 208
+                            },
+                            "snippet": "\u001b[0m \u001b[90m 206 |\u001b[39m       \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mgetByRole(\u001b[32m'button'\u001b[39m\u001b[33m,\u001b[39m { name\u001b[33m:\u001b[39m \u001b[32m'Sign in'\u001b[39m })\u001b[33m.\u001b[39mclick()\u001b[33m;\u001b[39m\n \u001b[90m 207 |\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 208 |\u001b[39m       \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByText(\u001b[32m'Invalid credentials'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                                           \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 209 |\u001b[39m       \n \u001b[90m 210 |\u001b[39m       \u001b[36mconst\u001b[39m errorText \u001b[33m=\u001b[39m page\u001b[33m.\u001b[39mgetByText(\u001b[32m'Invalid credentials'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 211 |\u001b[39m       \u001b[36mconst\u001b[39m color \u001b[33m=\u001b[39m \u001b[36mawait\u001b[39m errorText\u001b[33m.\u001b[39mevaluate((el) \u001b[33m=>\u001b[39m {\u001b[0m"
+                          },
+                          "errors": [
+                            {
+                              "location": {
+                                "file": "/app/frontend/e2e/accessibility-resilience.spec.ts",
+                                "column": 59,
+                                "line": 208
+                              },
+                              "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText('Invalid credentials')\nExpected: visible\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for getByText('Invalid credentials')\u001b[22m\n\n\n  206 |       await page.getByRole('button', { name: 'Sign in' }).click();\n  207 |\n> 208 |       await expect(page.getByText('Invalid credentials')).toBeVisible();\n      |                                                           ^\n  209 |       \n  210 |       const errorText = page.getByText('Invalid credentials');\n  211 |       const color = await errorText.evaluate((el) => {\n    at /app/frontend/e2e/accessibility-resilience.spec.ts:208:59"
+                            }
+                          ],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 1,
+                          "startTime": "2026-08-26T07:29:54.193Z",
+                          "annotations": [],
+                          "attachments": [
+                            {
+                              "name": "screenshot",
+                              "contentType": "image/png",
+                              "path": "/app/frontend/test-results/accessibility-resilience-a-0a60d-tates-are-visually-distinct-chromium-retry1/test-failed-1.png"
+                            },
+                            {
+                              "name": "video",
+                              "contentType": "video/webm",
+                              "path": "/app/frontend/test-results/accessibility-resilience-a-0a60d-tates-are-visually-distinct-chromium-retry1/video.webm"
+                            },
+                            {
+                              "name": "error-context",
+                              "contentType": "text/markdown",
+                              "path": "/app/frontend/test-results/accessibility-resilience-a-0a60d-tates-are-visually-distinct-chromium-retry1/error-context.md"
+                            },
+                            {
+                              "name": "trace",
+                              "contentType": "application/zip",
+                              "path": "/app/frontend/test-results/accessibility-resilience-a-0a60d-tates-are-visually-distinct-chromium-retry1/trace.zip"
+                            }
+                          ],
+                          "errorLocation": {
+                            "file": "/app/frontend/e2e/accessibility-resilience.spec.ts",
+                            "column": 59,
+                            "line": 208
+                          }
+                        }
+                      ],
+                      "status": "unexpected"
+                    }
+                  ],
+                  "id": "30cbd4fed46b00f4bc4a-1bf24e58e55dbcc7b5f5",
+                  "file": "accessibility-resilience.spec.ts",
+                  "line": 202,
+                  "column": 5
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-08-26T07:29:09.396Z",
+    "duration": 56865.385,
+    "expected": 12,
+    "skipped": 0,
+    "unexpected": 2,
+    "flaky": 0
+  }
+}
