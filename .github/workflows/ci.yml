@@ -235,6 +235,15 @@ jobs:
           retention-days: 7
           if-no-files-found: ignore
 
+      - name: Upload Playwright Test Results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-test-results
+          path: frontend/test-results/
+          retention-days: 7
+          if-no-files-found: ignore
+
   notify:
     name: Notify Status
     needs: [backend-checks, backend-tests, frontend-checks, frontend-unit-tests, frontend-e2e]
