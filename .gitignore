@@ -48,3 +48,5 @@ backend/coverage/
 *.sln
 *.sw?
 .opencode
+frontend/test-results
+playwright-report

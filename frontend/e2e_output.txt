@@ -1,0 +1,2437 @@
+[2m[WebServer] [22m
+[2m[WebServer] [22m> frontend@0.0.0 build
+[2m[WebServer] [22m> tsc -b && vite build --config ./vite.config.mjs
+[2m[WebServer] [22m
+[2m[WebServer] [22m[36mvite v8.1.5 [32mbuilding client environment for production...[36m[39m
+[2m[WebServer] [22m[2Ktransforming...[2m[WebServer] [22m[32m✓[0m 12444 modules transformed.
+[2m[WebServer] [22mrendering chunks...
+[2m[WebServer] [22mcomputing gzip size...
+[2m[WebServer] [22m[2mdist/[0m[32mindex.html                                           [0m[1;2m  3.65 kB[0m[2m │ gzip:   1.01 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[32minter-vietnamese-400-normal-DMkecbls.woff2    [0m[1;2m  4.97 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[32minter-vietnamese-600-normal-Cc8MFFhd.woff2    [0m[1;2m  5.10 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[32minter-vietnamese-700-normal-DlLaEgI2.woff2    [0m[1;2m  5.10 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[32minter-vietnamese-500-normal-DOriooB6.woff2    [0m[1;2m  5.11 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[32minter-greek-ext-400-normal-DGGRlc-M.woff2     [0m[1;2m  5.26 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[32minter-greek-ext-500-normal-C4iEst2y.woff2     [0m[1;2m  5.42 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[32minter-greek-ext-600-normal-DRtmH8MT.woff2     [0m[1;2m  5.43 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[32minter-greek-ext-700-normal-qfdV9bQt.woff2     [0m[1;2m  5.44 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[32minter-vietnamese-400-normal-Bbgyi5SW.woff     [0m[1;2m  6.50 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[32minter-vietnamese-500-normal-mJboJaSs.woff     [0m[1;2m  6.59 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[32minter-vietnamese-700-normal-BZaoP0fm.woff     [0m[1;2m  6.63 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[32minter-vietnamese-600-normal-BuLX-rYi.woff     [0m[1;2m  6.64 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[32minter-greek-ext-400-normal-KugGGMne.woff      [0m[1;2m  7.06 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[32minter-greek-ext-500-normal-2j5mBUwD.woff      [0m[1;2m  7.19 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[32minter-greek-ext-600-normal-B8X0CLgF.woff      [0m[1;2m  7.21 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[32minter-greek-ext-700-normal-BoQ6DsYi.woff      [0m[1;2m  7.21 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[32minter-cyrillic-400-normal-obahsSVq.woff2      [0m[1;2m  7.71 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[32minter-greek-400-normal-B4URO6DV.woff2         [0m[1;2m  7.77 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[32minter-cyrillic-500-normal-BasfLYem.woff2      [0m[1;2m  7.90 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[32minter-cyrillic-700-normal-CjBOestx.woff2      [0m[1;2m  7.90 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[32minter-greek-500-normal-BIZE56-Y.woff2         [0m[1;2m  7.92 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[32minter-greek-700-normal-C3JjAnD8.woff2         [0m[1;2m  7.92 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[32minter-greek-600-normal-plRanbMR.woff2         [0m[1;2m  7.94 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[32minter-cyrillic-600-normal-CWCymEST.woff2      [0m[1;2m  7.97 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[32minter-cyrillic-400-normal-HOLc17fK.woff       [0m[1;2m  9.78 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[32minter-cyrillic-700-normal-DrXBdSj3.woff       [0m[1;2m  9.91 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[32minter-greek-400-normal-q2sYcFCs.woff          [0m[1;2m  9.92 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[32minter-cyrillic-600-normal-4D_pXhcN.woff       [0m[1;2m  9.93 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[32minter-cyrillic-500-normal-CxZf_p3X.woff       [0m[1;2m  9.94 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[32minter-greek-500-normal-Xzm54t5V.woff          [0m[1;2m  9.98 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[32minter-greek-700-normal-BUv2fZ6O.woff          [0m[1;2m  9.98 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[32minter-greek-600-normal-BZpKdvQh.woff          [0m[1;2m 10.03 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[32minter-cyrillic-ext-400-normal-BQZuk6qB.woff2  [0m[1;2m 10.23 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[32minter-cyrillic-ext-500-normal-B0yAr1jD.woff2  [0m[1;2m 10.43 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[32minter-cyrillic-ext-600-normal-Dfes3d0z.woff2  [0m[1;2m 10.48 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[32minter-cyrillic-ext-700-normal-BjwYoWNd.woff2  [0m[1;2m 10.49 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[32minter-cyrillic-ext-400-normal-DQukG94-.woff   [0m[1;2m 13.33 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[32minter-cyrillic-ext-700-normal-LO58E6JB.woff   [0m[1;2m 13.40 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[32minter-cyrillic-ext-500-normal-BmqWE9Dz.woff   [0m[1;2m 13.45 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[32minter-cyrillic-ext-600-normal-Bcila6Z-.woff   [0m[1;2m 13.46 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[32minter-latin-400-normal-C38fXH4l.woff2         [0m[1;2m 23.66 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[32minter-latin-500-normal-Cerq10X2.woff2         [0m[1;2m 24.27 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[32minter-latin-700-normal-Yt3aPRUw.woff2         [0m[1;2m 24.35 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[32minter-latin-600-normal-LgqL8muc.woff2         [0m[1;2m 24.45 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[32minter-latin-400-normal-CyCys3Eg.woff          [0m[1;2m 30.69 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[32minter-latin-600-normal-CiBQ2DWP.woff          [0m[1;2m 31.26 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[32minter-latin-500-normal-BL9OpVg8.woff          [0m[1;2m 31.28 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[32minter-latin-700-normal-BLAVimhd.woff          [0m[1;2m 31.32 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[32minter-latin-ext-400-normal-C1nco2VV.woff2     [0m[1;2m 35.00 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[32minter-latin-ext-500-normal-CV4jyFjo.woff2     [0m[1;2m 36.02 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[32minter-latin-ext-700-normal-Ca8adRJv.woff2     [0m[1;2m 36.24 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[32minter-latin-ext-600-normal-D2bJ5OIk.woff2     [0m[1;2m 36.26 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[32minter-latin-ext-400-normal-77YHD8bZ.woff      [0m[1;2m 47.56 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[32minter-latin-ext-500-normal-BxGbmqWO.woff      [0m[1;2m 48.49 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[32minter-latin-ext-700-normal-TidjK2hL.woff      [0m[1;2m 48.63 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[32minter-latin-ext-600-normal-CIVaiw4L.woff      [0m[1;2m 48.66 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[32mhero-laptop-open-BIA4Sk0q.png                 [0m[1;2m 99.92 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[35mindex-Cz2zHn8h.css                            [0m[1;2m  9.37 kB[0m[2m │ gzip:   1.46 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[36museAuth-4_eORP0K.js                           [0m[1;2m  0.02 kB[0m[2m │ gzip:   0.04 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[36mtiny-invariant-C3zCT6lm.js                    [0m[1;2m  0.06 kB[0m[2m │ gzip:   0.08 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[36mcreateChainedFunction-Cn8zpZl6.js             [0m[1;2m  0.12 kB[0m[2m │ gzip:   0.11 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[36museTheme-BYwOah17.js                          [0m[1;2m  0.15 kB[0m[2m │ gzip:   0.15 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[36mlessonFlow-DraKMmA0.js                        [0m[1;2m  0.16 kB[0m[2m │ gzip:   0.12 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[36mAdd-CfD-aX6s.js                               [0m[1;2m  0.17 kB[0m[2m │ gzip:   0.16 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[36mAddOutlined-CiPrStUM.js                       [0m[1;2m  0.17 kB[0m[2m │ gzip:   0.17 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[36museFormControl-DupmlW6E.js                    [0m[1;2m  0.18 kB[0m[2m │ gzip:   0.16 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[36mExpandMoreOutlined-DNUoTby8.js                [0m[1;2m  0.19 kB[0m[2m │ gzip:   0.18 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[36mbrand-BmpKqau1.js                             [0m[1;2m  0.19 kB[0m[2m │ gzip:   0.17 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[36mFlagOutlined-COIyMVEA.js                      [0m[1;2m  0.21 kB[0m[2m │ gzip:   0.20 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[36misMuiElement-BYOUtOyq.js                      [0m[1;2m  0.22 kB[0m[2m │ gzip:   0.19 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[36mDeleteOutlined-BKPnI9AT.js                    [0m[1;2m  0.23 kB[0m[2m │ gzip:   0.21 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[36mSendOutlined-1rvHfg7U.js                      [0m[1;2m  0.23 kB[0m[2m │ gzip:   0.21 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[36mDeleteOutlineOutlined-BHAy_Zcs.js             [0m[1;2m  0.23 kB[0m[2m │ gzip:   0.21 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[36mEmailOutlined-nMFXi1s-.js                     [0m[1;2m  0.25 kB[0m[2m │ gzip:   0.22 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[36mVideocamOutlined-Wx7Qal1c.js                  [0m[1;2m  0.25 kB[0m[2m │ gzip:   0.22 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[36mRtlProvider-CT-xVnKf.js                       [0m[1;2m  0.26 kB[0m[2m │ gzip:   0.21 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[36mImageOutlined-Cq9cWjmF.js                     [0m[1;2m  0.27 kB[0m[2m │ gzip:   0.23 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[36mdividerClasses-C3oyvoBV.js                    [0m[1;2m  0.27 kB[0m[2m │ gzip:   0.21 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[36mBookOutlined-UbgoSCDj.js                      [0m[1;2m  0.27 kB[0m[2m │ gzip:   0.23 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[36mSchoolOutlined-BDl4Cuvp.js                    [0m[1;2m  0.27 kB[0m[2m │ gzip:   0.23 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[36mMoreVertOutlined-80pfaJUC.js                  [0m[1;2m  0.29 kB[0m[2m │ gzip:   0.20 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[36museControlled-2fIcvZTU.js                     [0m[1;2m  0.29 kB[0m[2m │ gzip:   0.24 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[36mlistItemTextClasses-DhBK4vkq.js               [0m[1;2m  0.31 kB[0m[2m │ gzip:   0.20 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[36mEditOutlined-7xyFi_3Z.js                      [0m[1;2m  0.33 kB[0m[2m │ gzip:   0.26 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[36museThemeProps-BSHV2UEZ.js                     [0m[1;2m  0.35 kB[0m[2m │ gzip:   0.23 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[36mCalendarMonthOutlined-D-cD809e.js             [0m[1;2m  0.36 kB[0m[2m │ gzip:   0.26 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[36mauthSlice-DTRPPh9y.js                         [0m[1;2m  0.36 kB[0m[2m │ gzip:   0.23 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[36mBusinessCenterOutlined-Cis-aIaY.js            [0m[1;2m  0.37 kB[0m[2m │ gzip:   0.30 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[36mHelpOutlineOutlined-CzJD_rxH.js               [0m[1;2m  0.39 kB[0m[2m │ gzip:   0.28 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[36mWorkspacePremiumOutlined-TJUE6DKW.js          [0m[1;2m  0.46 kB[0m[2m │ gzip:   0.33 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[36mDashboardOutlined-DNP7UXfr.js                 [0m[1;2m  0.49 kB[0m[2m │ gzip:   0.34 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[36museForkRef-1LVkH1y2.js                        [0m[1;2m  0.49 kB[0m[2m │ gzip:   0.31 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[36mdashboardApi-Csv7IYPP.js                      [0m[1;2m  0.52 kB[0m[2m │ gzip:   0.24 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[36mCampaignOutlined-DmSdQcVH.js                  [0m[1;2m  0.54 kB[0m[2m │ gzip:   0.38 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[36museEnhancedEffect-DU8BpqAx.js                 [0m[1;2m  0.54 kB[0m[2m │ gzip:   0.33 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[36mPeopleOutlined-fBibfj8x.js                    [0m[1;2m  0.60 kB[0m[2m │ gzip:   0.38 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[36mrolldown-runtime-QTnfLwEv.js                  [0m[1;2m  0.69 kB[0m[2m │ gzip:   0.42 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[36mMenuBookOutlined-Cedhae8c.js                  [0m[1;2m  0.90 kB[0m[2m │ gzip:   0.45 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[36museContent-DXil_n3Y.js                        [0m[1;2m  0.96 kB[0m[2m │ gzip:   0.47 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[36mquizApi-B3rIHcA_.js                           [0m[1;2m  1.02 kB[0m[2m │ gzip:   0.39 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[36mLanguageOutlined-B-yGbX9P.js                  [0m[1;2m  1.02 kB[0m[2m │ gzip:   0.59 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[36mCardMedia-CNgUskBR.js                         [0m[1;2m  1.23 kB[0m[2m │ gzip:   0.67 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[36massignmentApi-BZaN85ac.js                     [0m[1;2m  1.37 kB[0m[2m │ gzip:   0.45 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[36mtokens-CcCEyHd0.js                            [0m[1;2m  1.41 kB[0m[2m │ gzip:   0.74 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[36mRevenueChart-DDnc_xFZ.js                      [0m[1;2m  1.45 kB[0m[2m │ gzip:   0.75 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[36mcontentApi-1vt1orU6.js                        [0m[1;2m  1.73 kB[0m[2m │ gzip:   0.53 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[36museSlot-3HO3uJf2.js                           [0m[1;2m  1.75 kB[0m[2m │ gzip:   0.78 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[36mDashboardPageFrame-CFgDmv3E.js                [0m[1;2m  1.93 kB[0m[2m │ gzip:   0.78 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[36mList-D6wHCdxi.js                              [0m[1;2m  2.07 kB[0m[2m │ gzip:   0.97 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[36mNotFoundPage-D9fiLwUG.js                      [0m[1;2m  2.08 kB[0m[2m │ gzip:   0.95 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[36mFormControl-C345763A.js                       [0m[1;2m  2.28 kB[0m[2m │ gzip:   1.12 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[36mBlogLandingPage-BoOZ8O_K.js                   [0m[1;2m  2.32 kB[0m[2m │ gzip:   1.02 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[36museMutation-ChLK4bpN.js                       [0m[1;2m  2.32 kB[0m[2m │ gzip:   0.97 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[36mcreateSvgIcon-BtpQ1bWc.js                     [0m[1;2m  2.41 kB[0m[2m │ gzip:   1.12 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[36mSwitchBase-DeNdjH48.js                        [0m[1;2m  2.56 kB[0m[2m │ gzip:   1.23 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[36mApiDocsPage-BBeshlmb.js                       [0m[1;2m  2.59 kB[0m[2m │ gzip:   1.23 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[36mreselect-DHy-oCvV.js                          [0m[1;2m  2.69 kB[0m[2m │ gzip:   1.17 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[36mFormControlLabel-CWNjp1ai.js                  [0m[1;2m  2.69 kB[0m[2m │ gzip:   1.25 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[36mAssignmentSubmitPage-Di2XSqbr.js              [0m[1;2m  2.74 kB[0m[2m │ gzip:   1.26 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[36mCreateCourseDialog-lXWQm1Jr.js                [0m[1;2m  2.95 kB[0m[2m │ gzip:   1.39 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[36mCheckbox-DN8hgLWJ.js                          [0m[1;2m  2.95 kB[0m[2m │ gzip:   1.31 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[36mLiveSessionsPage-uJpfZ38W.js                  [0m[1;2m  2.99 kB[0m[2m │ gzip:   1.39 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[36mAssignmentGradePage-Dy2g2IPW.js               [0m[1;2m  3.23 kB[0m[2m │ gzip:   1.45 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[36mDivider-BqeKtF6g.js                           [0m[1;2m  3.47 kB[0m[2m │ gzip:   1.22 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[36mreact-dom-CCOVeIQI.js                         [0m[1;2m  3.58 kB[0m[2m │ gzip:   1.36 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[36mCourseDiscussionThreadCard-U_1F-_IM.js        [0m[1;2m  3.72 kB[0m[2m │ gzip:   1.18 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[36mMenuItem-BZVQJqVz.js                          [0m[1;2m  3.84 kB[0m[2m │ gzip:   1.61 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[36mDocsPage-BqSC67aD.js                          [0m[1;2m  3.95 kB[0m[2m │ gzip:   1.61 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[36mRadio-CBDL64gm.js                             [0m[1;2m  4.03 kB[0m[2m │ gzip:   1.72 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[36mCollapse-N-PTSJ1r.js                          [0m[1;2m  4.04 kB[0m[2m │ gzip:   1.59 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[36mStatusPage-B5syoWcT.js                        [0m[1;2m  4.11 kB[0m[2m │ gzip:   1.63 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[36mCmsContentPage-7bwBWGYO.js                    [0m[1;2m  4.23 kB[0m[2m │ gzip:   1.41 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[36mOrderSuccessPage-DoOI7Ggw.js                  [0m[1;2m  4.31 kB[0m[2m │ gzip:   1.46 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[36mActivityPage-CjMcEHBZ.js                      [0m[1;2m  4.36 kB[0m[2m │ gzip:   1.59 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[36mEmailVerificationPage-Ta9ijDGh.js             [0m[1;2m  4.48 kB[0m[2m │ gzip:   1.64 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[36mutils-D9OxksSu.js                             [0m[1;2m  4.54 kB[0m[2m │ gzip:   1.66 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[36mCommunityPage-DzJ5gxFH.js                     [0m[1;2m  4.61 kB[0m[2m │ gzip:   1.71 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[36mSwitch-DNQlX5nA.js                            [0m[1;2m  4.69 kB[0m[2m │ gzip:   1.76 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[36mAssignmentListPage-CcETunNj.js                [0m[1;2m  4.74 kB[0m[2m │ gzip:   2.09 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[36mCourseManager-M-AxG3OD.js                     [0m[1;2m  4.83 kB[0m[2m │ gzip:   1.84 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[36museRovingTabIndex-3dui4vaC.js                 [0m[1;2m  5.07 kB[0m[2m │ gzip:   2.21 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[36mLinearProgress-Blip56yo.js                    [0m[1;2m  5.60 kB[0m[2m │ gzip:   1.78 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[36mPricingPage-CCRaYx2L.js                       [0m[1;2m  6.11 kB[0m[2m │ gzip:   1.99 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[36mAccordionSummary-DQVHkWHP.js                  [0m[1;2m  6.32 kB[0m[2m │ gzip:   2.18 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[36mCartesianGrid-Cyw3v8Lv.js                     [0m[1;2m  6.38 kB[0m[2m │ gzip:   2.26 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[36mAboutPage-K8I--fBJ.js                         [0m[1;2m  6.44 kB[0m[2m │ gzip:   2.09 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[36mMyCertificates-BRTLMpMh.js                    [0m[1;2m  6.51 kB[0m[2m │ gzip:   2.30 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[36mTableRow-Cz6XFCZM.js                          [0m[1;2m  6.56 kB[0m[2m │ gzip:   2.16 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[36mSearchResultsPage-DSpAfeof.js                 [0m[1;2m  6.61 kB[0m[2m │ gzip:   2.32 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[36mDialogTitle-Csjb1hk_.js                       [0m[1;2m  6.84 kB[0m[2m │ gzip:   2.34 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[36mCareersPage-BSVfMxkN.js                       [0m[1;2m  6.86 kB[0m[2m │ gzip:   2.53 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[36mMyCourses-DzJEmngx.js                         [0m[1;2m  6.90 kB[0m[2m │ gzip:   2.70 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[36mNotificationPreferencesPage-DHSeQojm.js       [0m[1;2m  6.93 kB[0m[2m │ gzip:   2.45 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[36mSnackbar-BsP32VI9.js                          [0m[1;2m  6.94 kB[0m[2m │ gzip:   2.64 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[36mBlogPostEditor-DhUKGpRE.js                    [0m[1;2m  7.09 kB[0m[2m │ gzip:   2.64 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[36mMyQuizResultsPage-BJD7GmpX.js                 [0m[1;2m  7.12 kB[0m[2m │ gzip:   2.39 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[36mremovable-zZmKPYVw.js                         [0m[1;2m  7.27 kB[0m[2m │ gzip:   2.80 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[36mContactUs-CZzZQnkR.js                         [0m[1;2m  7.30 kB[0m[2m │ gzip:   2.94 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[36mHelpCenterPage-D_4mMPUW.js                    [0m[1;2m  7.61 kB[0m[2m │ gzip:   2.71 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[36mCircularProgress-BLYPgoQW.js                  [0m[1;2m  7.63 kB[0m[2m │ gzip:   2.95 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[36mCheckoutPage-FhpyWgtW.js                      [0m[1;2m  7.71 kB[0m[2m │ gzip:   2.46 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[36mQuizBuilder-DCZSJ-nR.js                       [0m[1;2m  7.99 kB[0m[2m │ gzip:   2.74 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[36mChip-jIjpqatE.js                              [0m[1;2m  8.13 kB[0m[2m │ gzip:   2.71 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[36mSignupAuthPage-BY-OZwE9.js                    [0m[1;2m  9.04 kB[0m[2m │ gzip:   3.27 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[36mAdminNotifications-CXFBKcY4.js                [0m[1;2m  9.07 kB[0m[2m │ gzip:   3.46 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[36mCreateCourse-DvVS66k0.js                      [0m[1;2m  9.27 kB[0m[2m │ gzip:   2.97 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[36mMediaLibrary-DFkrfuUe.js                      [0m[1;2m 10.11 kB[0m[2m │ gzip:   3.66 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[36mContactAdminPage-BSHB_Qsx.js                  [0m[1;2m 10.64 kB[0m[2m │ gzip:   3.69 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[36mQuizTaker-D3llC3Ld.js                         [0m[1;2m 10.76 kB[0m[2m │ gzip:   3.82 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[36mAnalyticsDashboard-d-LBq10B.js                [0m[1;2m 10.94 kB[0m[2m │ gzip:   3.66 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[36mInstructorDashboard-CnoWCXsM.js               [0m[1;2m 11.52 kB[0m[2m │ gzip:   3.51 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[36mStudentDashboard-Kta8cMOh.js                  [0m[1;2m 11.71 kB[0m[2m │ gzip:   3.39 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[36mAdminDashboard-P3p-3apS.js                    [0m[1;2m 11.94 kB[0m[2m │ gzip:   3.56 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[36mModal-pfQIlHmi.js                             [0m[1;2m 12.50 kB[0m[2m │ gzip:   4.84 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[36mProfileSettings-24lLBI8g.js                   [0m[1;2m 12.95 kB[0m[2m │ gzip:   4.50 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[36mExploreCourses-CosTmPcv.js                    [0m[1;2m 14.12 kB[0m[2m │ gzip:   4.94 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[36mSystemSettings-EdXp1ZiA.js                    [0m[1;2m 14.52 kB[0m[2m │ gzip:   4.64 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[36mLineChart-CgVFqk3i.js                         [0m[1;2m 14.66 kB[0m[2m │ gzip:   4.77 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[36mTabs-D95DkqoN.js                              [0m[1;2m 15.21 kB[0m[2m │ gzip:   5.33 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[36mButtonBase-Cj-z8qBW.js                        [0m[1;2m 15.71 kB[0m[2m │ gzip:   6.03 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[36mBarChart-DFD8RSuj.js                          [0m[1;2m 16.94 kB[0m[2m │ gzip:   5.87 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[36mMessages-CQt3IS8d.js                          [0m[1;2m 17.64 kB[0m[2m │ gzip:   6.40 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[36mCourseDiscussions-C48qxlnI.js                 [0m[1;2m 18.84 kB[0m[2m │ gzip:   6.22 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[36mUploadLesson-Dx3ZyBxY.js                      [0m[1;2m 19.18 kB[0m[2m │ gzip:   6.61 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[36mCourseDetailPage-RV-oHPfx.js                  [0m[1;2m 20.39 kB[0m[2m │ gzip:   6.63 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[36mCoursePlayer-DECDeuHO.js                      [0m[1;2m 21.65 kB[0m[2m │ gzip:   6.20 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[36mUserManagement-CiCnCOcQ.js                    [0m[1;2m 24.00 kB[0m[2m │ gzip:   6.80 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[36mredux-toolkit.modern-BIXqT2AA.js              [0m[1;2m 39.78 kB[0m[2m │ gzip:  14.55 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[36mSelect-D52esofb.js                            [0m[1;2m 42.77 kB[0m[2m │ gzip:  13.22 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[36mbaseApi-unsNnmIq.js                           [0m[1;2m 43.67 kB[0m[2m │ gzip:  14.72 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[36mapi-CtMPrFX5.js                               [0m[1;2m 47.92 kB[0m[2m │ gzip:  18.08 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[36mBox-Dduz1NNd.js                               [0m[1;2m 84.72 kB[0m[2m │ gzip:  29.62 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[36mContentManager-CxJNDk_w.js                    [0m[1;2m102.89 kB[0m[2m │ gzip:  31.40 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[36mCartesianChart-B6xoYYMG.js                    [0m[1;2m295.62 kB[0m[2m │ gzip:  85.78 kB[0m
+[2m[WebServer] [22m[2mdist/[0m[2massets/[0m[36mindex-CpTHGoVN.js                             [0m[1;2m484.05 kB[0m[2m │ gzip: 147.65 kB[0m
+[2m[WebServer] [22m
+[2m[WebServer] [22m[32m✓ built in 1.88s[39m
+[2m[WebServer] [22m  [32m➜[39m  [1mLocal[22m:   [36mhttp://127.0.0.1:[1m4173[22m/[39m
+
+Running 139 tests using 2 workers
+
+  ✘    2 [chromium] › e2e/accessibility-resilience.spec.ts:4:3 › accessibility, responsiveness, and resilience › login form supports keyboard-first navigation (5ms)
+  ✘    1 [chromium] › e2e/accessibility-resilience.spec.ts:15:3 › accessibility, responsiveness, and resilience › login form is accessible via screen reader (4ms)
+  ✘    3 [chromium] › e2e/accessibility-resilience.spec.ts:42:5 › accessibility, responsiveness, and resilience › mobile viewport (390x844) › mobile navigation drawer routes users to profile settings (5ms)
+  ✘    4 [chromium] › e2e/accessibility-resilience.spec.ts:25:3 › accessibility, responsiveness, and resilience › notification preferences update and persist visual feedback (5ms)
+  ✘    5 [chromium] › e2e/accessibility-resilience.spec.ts:61:5 › accessibility, responsiveness, and resilience › mobile viewport (390x844) › mobile course cards stack vertically (5ms)
+  ✘    6 [chromium] › e2e/accessibility-resilience.spec.ts:54:5 › accessibility, responsiveness, and resilience › mobile viewport (390x844) › mobile header shows hamburger menu (4ms)
+  ✘    7 [chromium] › e2e/accessibility-resilience.spec.ts:87:7 › accessibility, responsiveness, and resilience › tablet viewport (768x1024) › tablet shows expanded navigation (5ms)
+  ✘    8 [chromium] › e2e/accessibility-resilience.spec.ts:100:7 › accessibility, responsiveness, and resilience › tablet viewport (768x1024) › tablet course grid shows 2 columns (5ms)
+  ✘    9 [chromium] › e2e/accessibility-resilience.spec.ts:140:5 › accessibility, responsiveness, and resilience › desktop viewport (1920x1080) › desktop course grid shows 3+ columns (5ms)
+  ✘   10 [chromium] › e2e/accessibility-resilience.spec.ts:127:5 › accessibility, responsiveness, and resilience › desktop viewport (1920x1080) › desktop shows full navigation (4ms)
+  ✘   11 [chromium] › e2e/accessibility-resilience.spec.ts:156:5 › accessibility, responsiveness, and resilience › focus management › modal traps focus inside (5ms)
+  ✘   12 [chromium] › e2e/accessibility-resilience.spec.ts:173:5 › accessibility, responsiveness, and resilience › focus management › focus returns to trigger after modal close (5ms)
+  ✘   13 [chromium] › e2e/accessibility-resilience.spec.ts:193:5 › accessibility, responsiveness, and resilience › color and contrast › text has sufficient contrast on dashboard (4ms)
+  ✘   14 [chromium] › e2e/accessibility-resilience.spec.ts:202:5 › accessibility, responsiveness, and resilience › color and contrast › error states are visually distinct (4ms)
+  ✘   15 [chromium] › e2e/api-failures.spec.ts:4:3 › API failure handling › network error shows error message (4ms)
+  ✘   16 [chromium] › e2e/api-failures.spec.ts:15:3 › API failure handling › 500 error shows error page (5ms)
+  ✘   17 [chromium] › e2e/api-failures.spec.ts:36:3 › API failure handling › retry button appears on failure (5ms)
+  ✘   18 [chromium] › e2e/api-failures.spec.ts:24:3 › API failure handling › failed request preserves previous data (5ms)
+  ✘   19 [chromium] › e2e/api-failures.spec.ts:52:3 › loading states › shows loading indicator during API call (4ms)
+  ✘   20 [chromium] › e2e/api-failures.spec.ts:63:3 › loading states › shows skeleton while loading (4ms)
+  ✘   21 [chromium] › e2e/api-failures.spec.ts:76:3 › empty states › shows empty state when no courses (5ms)
+  ✘   22 [chromium] › e2e/api-failures.spec.ts:87:3 › empty states › shows empty state when no notifications (5ms)
+  ✘   24 [chromium] › e2e/api-failures.spec.ts:100:3 › timeout handling › long request shows timeout message (5ms)
+  ✘   23 [chromium] › e2e/api-failures.spec.ts:109:3 › timeout handling › timeout allows retry (9ms)
+  ✘   25 [chromium] › e2e/api-failures.spec.ts:131:3 › offline handling › offline shows cached content when available (4ms)
+  ✘   26 [chromium] › e2e/api-failures.spec.ts:122:3 › offline handling › detects offline state (4ms)
+  ✘   27 [chromium] › e2e/auth-authorization.spec.ts:4:3 › authentication and role authorization › login succeeds with CSRF flow and routes content manager to CMS (4ms)
+  ✘   28 [chromium] › e2e/api-failures.spec.ts:140:3 › offline handling › offline prevents data changes (4ms)
+  ✘   30 [chromium] › e2e/auth-authorization.spec.ts:13:3 › authentication and role authorization › invalid login shows actionable error and preserves login route (5ms)
+  ✘   29 [chromium] › e2e/auth-authorization.spec.ts:20:3 › authentication and role authorization › expired session forces redirect back to login (5ms)
+  ✘   31 [chromium] › e2e/auth-authorization.spec.ts:33:3 › authentication and role authorization › instructor navigation excludes admin-only destinations (4ms)
+  ✘   32 [chromium] › e2e/auth-authorization.spec.ts:41:3 › authentication and role authorization › student navigation excludes CMS management routes (4ms)
+  ✘   33 [chromium] › e2e/core-user-flows.spec.ts:8:3 › core user flows - authentication › complete login flow with CSRF protection (4ms)
+  ✘   34 [chromium] › e2e/core-user-flows.spec.ts:25:3 › core user flows - authentication › complete registration flow (4ms)
+  ✘   35 [chromium] › e2e/core-user-flows.spec.ts:40:3 › core user flows - authentication › logout flow (4ms)
+  ✘   36 [chromium] › e2e/core-user-flows.spec.ts:52:3 › core user flows - authentication › password reset flow (6ms)
+  ✘   37 [chromium] › e2e/core-user-flows.spec.ts:71:3 › core user flows - student dashboard › student can view enrolled courses (4ms)
+  ✘   38 [chromium] › e2e/core-user-flows.spec.ts:63:3 › core user flows - student dashboard › student dashboard loads with correct data (4ms)
+  ✘   39 [chromium] › e2e/core-user-flows.spec.ts:85:3 › core user flows - student dashboard › student can view course details (4ms)
+  ✘   40 [chromium] › e2e/core-user-flows.spec.ts:78:3 › core user flows - student dashboard › student can browse course catalog (4ms)
+  ✘   41 [chromium] › e2e/core-user-flows.spec.ts:93:3 › core user flows - student dashboard › student can filter courses by category (4ms)
+  ✘   42 [chromium] › e2e/core-user-flows.spec.ts:100:3 › core user flows - student dashboard › student can search courses (5ms)
+  ✘   43 [chromium] › e2e/core-user-flows.spec.ts:119:3 › core user flows - instructor dashboard › instructor can create new course (5ms)
+  ✘   44 [chromium] › e2e/core-user-flows.spec.ts:112:3 › core user flows - instructor dashboard › instructor dashboard loads with analytics (4ms)
+  ✘   45 [chromium] › e2e/core-user-flows.spec.ts:137:3 › core user flows - instructor dashboard › instructor can manage course content (4ms)
+  ✘   46 [chromium] › e2e/core-user-flows.spec.ts:130:3 › core user flows - instructor dashboard › instructor can view course analytics (4ms)
+  ✘   47 [chromium] › e2e/core-user-flows.spec.ts:155:3 › core user flows - admin dashboard › admin can access user management (5ms)
+  ✘   48 [chromium] › e2e/core-user-flows.spec.ts:148:3 › core user flows - admin dashboard › admin dashboard loads with system overview (5ms)
+  ✘   49 [chromium] › e2e/core-user-flows.spec.ts:169:3 › core user flows - admin dashboard › admin can access system settings (4ms)
+  ✘   50 [chromium] › e2e/core-user-flows.spec.ts:162:3 › core user flows - admin dashboard › admin can access course manager (5ms)
+  ✘   51 [chromium] › e2e/core-user-flows.spec.ts:185:3 › core user flows - profile and settings › user can update profile information (5ms)
+  ✘   52 [chromium] › e2e/core-user-flows.spec.ts:178:3 › core user flows - profile and settings › user can view own profile (4ms)
+  ✘   53 [chromium] › e2e/core-user-flows.spec.ts:204:3 › core user flows - profile and settings › user can change password (4ms)
+  ✘   54 [chromium] › e2e/core-user-flows.spec.ts:197:3 › core user flows - profile and settings › user can access notification settings (4ms)
+  ✘   55 [chromium] › e2e/core-user-flows.spec.ts:219:3 › core user flows - learning › student can access course player (4ms)
+  ✘   56 [chromium] › e2e/core-user-flows.spec.ts:227:3 › core user flows - learning › student can track progress (4ms)
+  ✘   57 [chromium] › e2e/core-user-flows.spec.ts:247:3 › core user flows - content management › content manager can access CMS (4ms)
+  ✘   58 [chromium] › e2e/core-user-flows.spec.ts:237:3 › core user flows - learning › student can take quizzes (5ms)
+  ✘   59 [chromium] › e2e/core-user-flows.spec.ts:254:3 › core user flows - content management › content manager can create new page (4ms)
+  ✘   60 [chromium] › e2e/core-user-flows.spec.ts:262:3 › core user flows - content management › content manager can access media library (5ms)
+  ✘   61 [chromium] › e2e/core-user-flows.spec.ts:271:3 › core user flows - discussions › student can view discussions (5ms)
+  ✘   62 [chromium] › e2e/core-user-flows.spec.ts:278:3 › core user flows - discussions › instructor can view course discussions (5ms)
+  ✘   63 [chromium] › e2e/core-user-flows.spec.ts:287:3 › core user flows - navigation › navigation menu shows correct links for student (4ms)
+  ✘   64 [chromium] › e2e/core-user-flows.spec.ts:295:3 › core user flows - navigation › navigation menu shows correct links for instructor (5ms)
+  ✘   65 [chromium] › e2e/core-user-flows.spec.ts:308:3 › core user flows - navigation › breadcrumb navigation works (4ms)
+  ✘   66 [chromium] › e2e/core-user-flows.spec.ts:302:3 › core user flows - navigation › navigation menu shows correct links for admin (4ms)
+  ✘   67 [chromium] › e2e/core-user-flows.spec.ts:319:3 › core user flows - navigation › search functionality works (5ms)
+  ✘   68 [chromium] › e2e/course-enrollment.spec.ts:8:3 › course enrollment flow › browse courses and view course details (5ms)
+  ✘   70 [chromium] › e2e/course-enrollment.spec.ts:22:3 › course enrollment flow › enroll in free course (6ms)
+  ✘   69 [chromium] › e2e/course-enrollment.spec.ts:37:3 › course enrollment flow › course search returns matching results (5ms)
+  ✘   71 [chromium] › e2e/course-enrollment.spec.ts:50:3 › course enrollment flow › course filter by category works (5ms)
+  ✘   72 [chromium] › e2e/course-enrollment.spec.ts:62:3 › course enrollment flow › course filter by level works (5ms)
+  ✘   73 [chromium] › e2e/course-enrollment.spec.ts:74:3 › course enrollment flow › access enrolled course content (6ms)
+  ✘   74 [chromium] › e2e/course-enrollment.spec.ts:85:3 › course enrollment flow › view my courses shows enrolled courses (6ms)
+  ✘   76 [chromium] › e2e/course-enrollment.spec.ts:104:3 › course discovery for unauthenticated users › course card shows key information (4ms)
+  ✘   75 [chromium] › e2e/course-enrollment.spec.ts:96:3 › course discovery for unauthenticated users › explore courses page is accessible without login (4ms)
+  ✘   77 [chromium] › e2e/course-enrollment.spec.ts:128:3 › instructor course management › instructor can view their courses (4ms)
+  ✘   78 [chromium] › e2e/course-enrollment.spec.ts:119:3 › instructor course management › instructor can access course creation (4ms)
+  ✘   79 [chromium] › e2e/failure-states.spec.ts:8:3 › failure states › displays 404 page for non-existent course (5ms)
+  ✘   80 [chromium] › e2e/failure-states.spec.ts:17:3 › failure states › handles network error gracefully (5ms)
+  ✘   81 [chromium] › e2e/quiz-flow.spec.ts:19:3 › quiz flow › quiz displays questions (4ms)
+  ✘   82 [chromium] › e2e/quiz-flow.spec.ts:8:3 › quiz flow › student can start a quiz (4ms)
+  ✘   84 [chromium] › e2e/quiz-flow.spec.ts:39:3 › quiz flow › quiz submission shows results (5ms)
+  ✘   83 [chromium] › e2e/quiz-flow.spec.ts:26:3 › quiz flow › can select answer and proceed (4ms)
+  ✘   85 [chromium] › e2e/quiz-flow.spec.ts:61:3 › quiz builder (instructor) › instructor can access quiz builder (4ms)
+  ✘   86 [chromium] › e2e/quiz-flow.spec.ts:46:3 › quiz flow › can view past quiz results (5ms)
+  ✘   87 [chromium] › e2e/quiz-flow.spec.ts:83:3 › quiz builder (instructor) › instructor can set correct answer (4ms)
+  ✘   88 [chromium] › e2e/quiz-flow.spec.ts:70:3 › quiz builder (instructor) › instructor can create new question (4ms)
+  ✘   89 [chromium] › e2e/quiz-flow.spec.ts:92:3 › quiz builder (instructor) › instructor can save quiz (4ms)
+  ✘   90 [chromium] › e2e/quiz-flow.spec.ts:109:3 › quiz accessibility › quiz questions are accessible via keyboard (4ms)
+  ✘   91 [chromium] › e2e/quiz-flow.spec.ts:124:3 › quiz accessibility › quiz has proper heading structure (4ms)
+  ✘   92 [chromium] › e2e/real-auth.spec.ts:4:3 › real authentication flow › login with valid credentials redirects to role-appropriate dashboard (4ms)
+  ✘   93 [chromium] › e2e/real-auth.spec.ts:17:3 › real authentication flow › login with valid instructor credentials redirects to instructor dashboard (4ms)
+  ✘   94 [chromium] › e2e/real-auth.spec.ts:11:3 › real authentication flow › login with valid admin credentials redirects to admin dashboard (4ms)
+  ✘   96 [chromium] › e2e/real-auth.spec.ts:23:3 › real authentication flow › login with valid content_manager credentials redirects to CMS (4ms)
+  ✘   95 [chromium] › e2e/real-auth.spec.ts:29:3 › real authentication flow › login with invalid credentials shows error message (4ms)
+  ✘   97 [chromium] › e2e/real-auth.spec.ts:36:3 › real authentication flow › login with wrong password shows error message (5ms)
+  ✘   98 [chromium] › e2e/real-auth.spec.ts:42:3 › real authentication flow › session persists across page navigation (6ms)
+  ✘   99 [chromium] › e2e/real-auth.spec.ts:62:3 › real authentication flow › expired session redirects to login (4ms)
+  ✘  100 [chromium] › e2e/real-auth.spec.ts:53:3 › real authentication flow › logout clears session and redirects to login (5ms)
+  ✘  101 [chromium] › e2e/real-auth.spec.ts:86:3 › authentication security › protected route redirects unauthenticated user to login (4ms)
+  ✘  102 [chromium] › e2e/real-auth.spec.ts:73:3 › real authentication flow › network error during login shows error state (4ms)
+  ✘  103 [chromium] › e2e/real-auth.spec.ts:102:3 › authentication security › CSRF token is requested before login (5ms)
+  ✘  104 [chromium] › e2e/real-auth.spec.ts:91:3 › authentication security › redirect preserves intended destination (5ms)
+  ✘  105 [chromium] › e2e/real-auth.spec.ts:108:3 › authentication security › login request includes CSRF token header (5ms)
+  ✘  106 [chromium] › e2e/security-authorization.spec.ts:8:3 › authentication security › login with invalid credentials shows error without leaking info (4ms)
+  ✘  107 [chromium] › e2e/security-authorization.spec.ts:29:3 › authentication security › login rate limiting - multiple failed attempts (4ms)
+  ✘  108 [chromium] › e2e/security-authorization.spec.ts:19:3 › authentication security › login with correct email but wrong password shows error (4ms)
+  ✘  109 [chromium] › e2e/security-authorization.spec.ts:58:3 › authentication security › session persists across page refreshes (5ms)
+  ✘  110 [chromium] › e2e/security-authorization.spec.ts:42:3 › authentication security › csrf token is required for login (6ms)
+  ✘  111 [chromium] › e2e/security-authorization.spec.ts:69:3 › authentication security › logout clears session completely (4ms)
+  ✘  112 [chromium] › e2e/security-authorization.spec.ts:80:3 › authentication security › expired access token triggers refresh (4ms)
+  ✘  113 [chromium] › e2e/security-authorization.spec.ts:91:3 › authorization boundaries › student cannot access instructor dashboard (5ms)
+  ✘  114 [chromium] › e2e/security-authorization.spec.ts:98:3 › authorization boundaries › student cannot access admin dashboard (4ms)
+  ✘  115 [chromium] › e2e/security-authorization.spec.ts:105:3 › authorization boundaries › instructor cannot access admin dashboard (5ms)
+  ✘  116 [chromium] › e2e/security-authorization.spec.ts:112:3 › authorization boundaries › instructor cannot access user management (5ms)
+  ✘  117 [chromium] › e2e/security-authorization.spec.ts:119:3 › authorization boundaries › content_manager cannot access admin routes (4ms)
+  ✘  118 [chromium] › e2e/security-authorization.spec.ts:126:3 › authorization boundaries › content_manager cannot access system settings (4ms)
+  ✘  119 [chromium] › e2e/security-authorization.spec.ts:142:3 › authorization boundaries › student cannot access course creation (6ms)
+  ✘  120 [chromium] › e2e/security-authorization.spec.ts:133:3 › authorization boundaries › unauthenticated user cannot access protected routes (6ms)
+  ✘  121 [chromium] › e2e/security-authorization.spec.ts:149:3 › authorization boundaries › student cannot access CMS upload (5ms)
+  ✘  122 [chromium] › e2e/security-authorization.spec.ts:156:3 › authorization boundaries › instructor can access own course management (5ms)
+  ✘  123 [chromium] › e2e/security-authorization.spec.ts:166:3 › role-based UI elements › student sees student dashboard only (5ms)
+  ✘  124 [chromium] › e2e/security-authorization.spec.ts:175:3 › role-based UI elements › instructor sees instructor dashboard (5ms)
+  ✘  126 [chromium] › e2e/security-authorization.spec.ts:183:3 › role-based UI elements › admin sees all dashboard options (5ms)
+  ✘  125 [chromium] › e2e/security-authorization.spec.ts:190:3 › role-based UI elements › content_manager sees CMS options (8ms)
+  ✘  127 [chromium] › e2e/security-authorization.spec.ts:214:3 › API security boundaries › API returns proper error for expired token (4ms)
+  ✘  128 [chromium] › e2e/security-authorization.spec.ts:199:3 › API security boundaries › API endpoints reject requests without auth token (4ms)
+  ✘  130 [chromium] › e2e/security-authorization.spec.ts:241:3 › password security › password field is masked in login form (5ms)
+  ✘  129 [chromium] › e2e/security-authorization.spec.ts:223:3 › API security boundaries › forbidden endpoints return 403 (5ms)
+  ✘  131 [chromium] › e2e/security-authorization.spec.ts:248:3 › password security › password requirements shown on registration (4ms)
+  ✘  132 [chromium] › e2e/security-authorization.spec.ts:254:3 › password security › weak password rejected during registration (5ms)
+  ✘  133 [chromium] › e2e/security-authorization.spec.ts:268:3 › data isolation › student only sees own enrollment data (4ms)
+  ✘  134 [chromium] › e2e/security-authorization.spec.ts:280:3 › data isolation › instructor only sees own course analytics (4ms)
+  ✘  135 [chromium] › e2e/security-authorization.spec.ts:287:3 › data isolation › discussions are isolated by course (4ms)
+  ✘  136 [chromium] › e2e/smoke.spec.ts:4:3 › Smoke Tests › homepage loads and shows correct title (4ms)
+  ✘  137 [chromium] › e2e/smoke.spec.ts:11:3 › Smoke Tests › navigation to login works (4ms)
+  ✘  138 [chromium] › e2e/smoke.spec.ts:16:3 › Smoke Tests › static pages load without errors (4ms)
+  ✘  139 [chromium] › e2e/smoke.spec.ts:25:3 › Smoke Tests › course catalog loads (4ms)
+
+
+  1) [chromium] › e2e/accessibility-resilience.spec.ts:4:3 › accessibility, responsiveness, and resilience › login form supports keyboard-first navigation
+
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1217/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/accessibility-resilience-a-79a09-s-keyboard-first-navigation-chromium/error-context.md
+
+  2) [chromium] › e2e/accessibility-resilience.spec.ts:15:3 › accessibility, responsiveness, and resilience › login form is accessible via screen reader
+
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1217/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/accessibility-resilience-a-d8220-ccessible-via-screen-reader-chromium/error-context.md
+
+  3) [chromium] › e2e/accessibility-resilience.spec.ts:25:3 › accessibility, responsiveness, and resilience › notification preferences update and persist visual feedback
+
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1217/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/accessibility-resilience-a-1fee2-and-persist-visual-feedback-chromium/error-context.md
+
+  4) [chromium] › e2e/accessibility-resilience.spec.ts:42:5 › accessibility, responsiveness, and resilience › mobile viewport (390x844) › mobile navigation drawer routes users to profile settings
+
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1217/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/accessibility-resilience-a-ade1e-s-users-to-profile-settings-chromium/error-context.md
+
+  5) [chromium] › e2e/accessibility-resilience.spec.ts:54:5 › accessibility, responsiveness, and resilience › mobile viewport (390x844) › mobile header shows hamburger menu
+
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1217/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/accessibility-resilience-a-17f72-header-shows-hamburger-menu-chromium/error-context.md
+
+  6) [chromium] › e2e/accessibility-resilience.spec.ts:61:5 › accessibility, responsiveness, and resilience › mobile viewport (390x844) › mobile course cards stack vertically
+
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1217/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/accessibility-resilience-a-124c8-urse-cards-stack-vertically-chromium/error-context.md
+
+  7) [chromium] › e2e/accessibility-resilience.spec.ts:87:7 › accessibility, responsiveness, and resilience › tablet viewport (768x1024) › tablet shows expanded navigation
+
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1217/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/accessibility-resilience-a-bddcf-t-shows-expanded-navigation-chromium/error-context.md
+
+  8) [chromium] › e2e/accessibility-resilience.spec.ts:100:7 › accessibility, responsiveness, and resilience › tablet viewport (768x1024) › tablet course grid shows 2 columns
+
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1217/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/accessibility-resilience-a-8eb96-course-grid-shows-2-columns-chromium/error-context.md
+
+  9) [chromium] › e2e/accessibility-resilience.spec.ts:127:5 › accessibility, responsiveness, and resilience › desktop viewport (1920x1080) › desktop shows full navigation
+
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1217/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/accessibility-resilience-a-2a8c6-sktop-shows-full-navigation-chromium/error-context.md
+
+  10) [chromium] › e2e/accessibility-resilience.spec.ts:140:5 › accessibility, responsiveness, and resilience › desktop viewport (1920x1080) › desktop course grid shows 3+ columns
+
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1217/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/accessibility-resilience-a-6d902-course-grid-shows-3-columns-chromium/error-context.md
+
+  11) [chromium] › e2e/accessibility-resilience.spec.ts:156:5 › accessibility, responsiveness, and resilience › focus management › modal traps focus inside
+
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1217/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/accessibility-resilience-a-428e7-nt-modal-traps-focus-inside-chromium/error-context.md
+
+  12) [chromium] › e2e/accessibility-resilience.spec.ts:173:5 › accessibility, responsiveness, and resilience › focus management › focus returns to trigger after modal close
+
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1217/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/accessibility-resilience-a-18a13-o-trigger-after-modal-close-chromium/error-context.md
+
+  13) [chromium] › e2e/accessibility-resilience.spec.ts:193:5 › accessibility, responsiveness, and resilience › color and contrast › text has sufficient contrast on dashboard
+
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1217/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/accessibility-resilience-a-edf93-cient-contrast-on-dashboard-chromium/error-context.md
+
+  14) [chromium] › e2e/accessibility-resilience.spec.ts:202:5 › accessibility, responsiveness, and resilience › color and contrast › error states are visually distinct
+
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1217/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/accessibility-resilience-a-0a60d-tates-are-visually-distinct-chromium/error-context.md
+
+  15) [chromium] › e2e/api-failures.spec.ts:4:3 › API failure handling › network error shows error message
+
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1217/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/api-failures-API-failure-h-c9b37-k-error-shows-error-message-chromium/error-context.md
+
+  16) [chromium] › e2e/api-failures.spec.ts:15:3 › API failure handling › 500 error shows error page
+
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1217/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/api-failures-API-failure-handling-500-error-shows-error-page-chromium/error-context.md
+
+  17) [chromium] › e2e/api-failures.spec.ts:24:3 › API failure handling › failed request preserves previous data
+
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1217/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/api-failures-API-failure-h-a987d-est-preserves-previous-data-chromium/error-context.md
+
+  18) [chromium] › e2e/api-failures.spec.ts:36:3 › API failure handling › retry button appears on failure
+
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1217/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/api-failures-API-failure-h-af838-y-button-appears-on-failure-chromium/error-context.md
+
+  19) [chromium] › e2e/api-failures.spec.ts:52:3 › loading states › shows loading indicator during API call
+
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1217/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/api-failures-loading-state-47622-g-indicator-during-API-call-chromium/error-context.md
+
+  20) [chromium] › e2e/api-failures.spec.ts:63:3 › loading states › shows skeleton while loading ───
+
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1217/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/api-failures-loading-states-shows-skeleton-while-loading-chromium/error-context.md
+
+  21) [chromium] › e2e/api-failures.spec.ts:76:3 › empty states › shows empty state when no courses
+
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1217/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/api-failures-empty-states-shows-empty-state-when-no-courses-chromium/error-context.md
+
+  22) [chromium] › e2e/api-failures.spec.ts:87:3 › empty states › shows empty state when no notifications
+
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1217/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/api-failures-empty-states--92c5b-state-when-no-notifications-chromium/error-context.md
+
+  23) [chromium] › e2e/api-failures.spec.ts:100:3 › timeout handling › long request shows timeout message
+
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1217/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/api-failures-timeout-handl-354ad-quest-shows-timeout-message-chromium/error-context.md
+
+  24) [chromium] › e2e/api-failures.spec.ts:109:3 › timeout handling › timeout allows retry ────────
+
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1217/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/api-failures-timeout-handling-timeout-allows-retry-chromium/error-context.md
+
+  25) [chromium] › e2e/api-failures.spec.ts:122:3 › offline handling › detects offline state ───────
+
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1217/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/api-failures-offline-handling-detects-offline-state-chromium/error-context.md
+
+  26) [chromium] › e2e/api-failures.spec.ts:131:3 › offline handling › offline shows cached content when available
+
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1217/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/api-failures-offline-handl-f93c0-ched-content-when-available-chromium/error-context.md
+
+  27) [chromium] › e2e/api-failures.spec.ts:140:3 › offline handling › offline prevents data changes
+
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1217/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/api-failures-offline-handling-offline-prevents-data-changes-chromium/error-context.md
+
+  28) [chromium] › e2e/auth-authorization.spec.ts:4:3 › authentication and role authorization › login succeeds with CSRF flow and routes content manager to CMS
+
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1217/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/auth-authorization-authent-3a150-utes-content-manager-to-CMS-chromium/error-context.md
+
+  29) [chromium] › e2e/auth-authorization.spec.ts:13:3 › authentication and role authorization › invalid login shows actionable error and preserves login route
+
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1217/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/auth-authorization-authent-38924-r-and-preserves-login-route-chromium/error-context.md
+
+  30) [chromium] › e2e/auth-authorization.spec.ts:20:3 › authentication and role authorization › expired session forces redirect back to login
+
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1217/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/auth-authorization-authent-2739d-rces-redirect-back-to-login-chromium/error-context.md
+
+  31) [chromium] › e2e/auth-authorization.spec.ts:33:3 › authentication and role authorization › instructor navigation excludes admin-only destinations
+
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1217/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/auth-authorization-authent-28480-des-admin-only-destinations-chromium/error-context.md
+
+  32) [chromium] › e2e/auth-authorization.spec.ts:41:3 › authentication and role authorization › student navigation excludes CMS management routes
+
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1217/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/auth-authorization-authent-9cfa2-ludes-CMS-management-routes-chromium/error-context.md
+
+  33) [chromium] › e2e/core-user-flows.spec.ts:8:3 › core user flows - authentication › complete login flow with CSRF protection
+
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1217/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/core-user-flows-core-user--509f6-n-flow-with-CSRF-protection-chromium/error-context.md
+
+  34) [chromium] › e2e/core-user-flows.spec.ts:25:3 › core user flows - authentication › complete registration flow
+
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1217/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/core-user-flows-core-user--ba4ac--complete-registration-flow-chromium/error-context.md
+
+  35) [chromium] › e2e/core-user-flows.spec.ts:40:3 › core user flows - authentication › logout flow
+
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1217/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/core-user-flows-core-user-flows---authentication-logout-flow-chromium/error-context.md
+
+  36) [chromium] › e2e/core-user-flows.spec.ts:52:3 › core user flows - authentication › password reset flow
+
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1217/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/core-user-flows-core-user--10f03-ication-password-reset-flow-chromium/error-context.md
+
+  37) [chromium] › e2e/core-user-flows.spec.ts:63:3 › core user flows - student dashboard › student dashboard loads with correct data
+
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1217/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/core-user-flows-core-user--d61ec-ard-loads-with-correct-data-chromium/error-context.md
+
+  38) [chromium] › e2e/core-user-flows.spec.ts:71:3 › core user flows - student dashboard › student can view enrolled courses
+
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1217/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/core-user-flows-core-user--3e720-t-can-view-enrolled-courses-chromium/error-context.md
+
+  39) [chromium] › e2e/core-user-flows.spec.ts:78:3 › core user flows - student dashboard › student can browse course catalog
+
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1217/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/core-user-flows-core-user--8b77b-t-can-browse-course-catalog-chromium/error-context.md
+
+  40) [chromium] › e2e/core-user-flows.spec.ts:85:3 › core user flows - student dashboard › student can view course details
+
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1217/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/core-user-flows-core-user--3aef3-ent-can-view-course-details-chromium/error-context.md
+
+  41) [chromium] › e2e/core-user-flows.spec.ts:93:3 › core user flows - student dashboard › student can filter courses by category
+
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1217/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/core-user-flows-core-user--81292--filter-courses-by-category-chromium/error-context.md
+
+  42) [chromium] › e2e/core-user-flows.spec.ts:100:3 › core user flows - student dashboard › student can search courses
+
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1217/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/core-user-flows-core-user--ea5f8--student-can-search-courses-chromium/error-context.md
+
+  43) [chromium] › e2e/core-user-flows.spec.ts:112:3 › core user flows - instructor dashboard › instructor dashboard loads with analytics
+
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1217/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/core-user-flows-core-user--00c76-hboard-loads-with-analytics-chromium/error-context.md
+
+  44) [chromium] › e2e/core-user-flows.spec.ts:119:3 › core user flows - instructor dashboard › instructor can create new course
+
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1217/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/core-user-flows-core-user--86460-uctor-can-create-new-course-chromium/error-context.md
+
+  45) [chromium] › e2e/core-user-flows.spec.ts:130:3 › core user flows - instructor dashboard › instructor can view course analytics
+
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1217/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/core-user-flows-core-user--69426-r-can-view-course-analytics-chromium/error-context.md
+
+  46) [chromium] › e2e/core-user-flows.spec.ts:137:3 › core user flows - instructor dashboard › instructor can manage course content
+
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1217/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/core-user-flows-core-user--6d105-r-can-manage-course-content-chromium/error-context.md
+
+  47) [chromium] › e2e/core-user-flows.spec.ts:148:3 › core user flows - admin dashboard › admin dashboard loads with system overview
+
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1217/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/core-user-flows-core-user--a173e--loads-with-system-overview-chromium/error-context.md
+
+  48) [chromium] › e2e/core-user-flows.spec.ts:155:3 › core user flows - admin dashboard › admin can access user management
+
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1217/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/core-user-flows-core-user--b80cf--can-access-user-management-chromium/error-context.md
+
+  49) [chromium] › e2e/core-user-flows.spec.ts:162:3 › core user flows - admin dashboard › admin can access course manager
+
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1217/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/core-user-flows-core-user--7f98b-n-can-access-course-manager-chromium/error-context.md
+
+  50) [chromium] › e2e/core-user-flows.spec.ts:169:3 › core user flows - admin dashboard › admin can access system settings
+
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1217/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/core-user-flows-core-user--0b7a4--can-access-system-settings-chromium/error-context.md
+
+  51) [chromium] › e2e/core-user-flows.spec.ts:178:3 › core user flows - profile and settings › user can view own profile
+
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1217/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/core-user-flows-core-user--52bc7-s-user-can-view-own-profile-chromium/error-context.md
+
+  52) [chromium] › e2e/core-user-flows.spec.ts:185:3 › core user flows - profile and settings › user can update profile information
+
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1217/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/core-user-flows-core-user--8f18c--update-profile-information-chromium/error-context.md
+
+  53) [chromium] › e2e/core-user-flows.spec.ts:197:3 › core user flows - profile and settings › user can access notification settings
+
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1217/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/core-user-flows-core-user--88b5b-ccess-notification-settings-chromium/error-context.md
+
+  54) [chromium] › e2e/core-user-flows.spec.ts:204:3 › core user flows - profile and settings › user can change password
+
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1217/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/core-user-flows-core-user--67394-gs-user-can-change-password-chromium/error-context.md
+
+  55) [chromium] › e2e/core-user-flows.spec.ts:219:3 › core user flows - learning › student can access course player
+
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1217/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/core-user-flows-core-user--8acbb-nt-can-access-course-player-chromium/error-context.md
+
+  56) [chromium] › e2e/core-user-flows.spec.ts:227:3 › core user flows - learning › student can track progress
+
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1217/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/core-user-flows-core-user--70b2d--student-can-track-progress-chromium/error-context.md
+
+  57) [chromium] › e2e/core-user-flows.spec.ts:237:3 › core user flows - learning › student can take quizzes
+
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1217/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/core-user-flows-core-user--d1239-ng-student-can-take-quizzes-chromium/error-context.md
+
+  58) [chromium] › e2e/core-user-flows.spec.ts:247:3 › core user flows - content management › content manager can access CMS
+
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1217/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/core-user-flows-core-user--d09d4-tent-manager-can-access-CMS-chromium/error-context.md
+
+  59) [chromium] › e2e/core-user-flows.spec.ts:254:3 › core user flows - content management › content manager can create new page
+
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1217/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/core-user-flows-core-user--9746f-manager-can-create-new-page-chromium/error-context.md
+
+  60) [chromium] › e2e/core-user-flows.spec.ts:262:3 › core user flows - content management › content manager can access media library
+
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1217/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/core-user-flows-core-user--3a0fd-er-can-access-media-library-chromium/error-context.md
+
+  61) [chromium] › e2e/core-user-flows.spec.ts:271:3 › core user flows - discussions › student can view discussions
+
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1217/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/core-user-flows-core-user--0b871-tudent-can-view-discussions-chromium/error-context.md
+
+  62) [chromium] › e2e/core-user-flows.spec.ts:278:3 › core user flows - discussions › instructor can view course discussions
+
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1217/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/core-user-flows-core-user--a0963-can-view-course-discussions-chromium/error-context.md
+
+  63) [chromium] › e2e/core-user-flows.spec.ts:287:3 › core user flows - navigation › navigation menu shows correct links for student
+
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1217/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/core-user-flows-core-user--7ed22-s-correct-links-for-student-chromium/error-context.md
+
+  64) [chromium] › e2e/core-user-flows.spec.ts:295:3 › core user flows - navigation › navigation menu shows correct links for instructor
+
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1217/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/core-user-flows-core-user--98e76-orrect-links-for-instructor-chromium/error-context.md
+
+  65) [chromium] › e2e/core-user-flows.spec.ts:302:3 › core user flows - navigation › navigation menu shows correct links for admin
+
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1217/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/core-user-flows-core-user--a9a9e-ows-correct-links-for-admin-chromium/error-context.md
+
+  66) [chromium] › e2e/core-user-flows.spec.ts:308:3 › core user flows - navigation › breadcrumb navigation works
+
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1217/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/core-user-flows-core-user--3739d-breadcrumb-navigation-works-chromium/error-context.md
+
+  67) [chromium] › e2e/core-user-flows.spec.ts:319:3 › core user flows - navigation › search functionality works
+
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1217/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/core-user-flows-core-user--38d2d--search-functionality-works-chromium/error-context.md
+
+  68) [chromium] › e2e/course-enrollment.spec.ts:8:3 › course enrollment flow › browse courses and view course details
+
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1217/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/course-enrollment-course-e-1f80e-ses-and-view-course-details-chromium/error-context.md
+
+  69) [chromium] › e2e/course-enrollment.spec.ts:22:3 › course enrollment flow › enroll in free course
+
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1217/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/course-enrollment-course-e-1b401--flow-enroll-in-free-course-chromium/error-context.md
+
+  70) [chromium] › e2e/course-enrollment.spec.ts:37:3 › course enrollment flow › course search returns matching results
+
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1217/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/course-enrollment-course-e-ffeeb-ch-returns-matching-results-chromium/error-context.md
+
+  71) [chromium] › e2e/course-enrollment.spec.ts:50:3 › course enrollment flow › course filter by category works
+
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1217/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/course-enrollment-course-e-39d3d-se-filter-by-category-works-chromium/error-context.md
+
+  72) [chromium] › e2e/course-enrollment.spec.ts:62:3 › course enrollment flow › course filter by level works
+
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1217/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/course-enrollment-course-e-f06e1-ourse-filter-by-level-works-chromium/error-context.md
+
+  73) [chromium] › e2e/course-enrollment.spec.ts:74:3 › course enrollment flow › access enrolled course content
+
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1217/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/course-enrollment-course-e-7894e-ess-enrolled-course-content-chromium/error-context.md
+
+  74) [chromium] › e2e/course-enrollment.spec.ts:85:3 › course enrollment flow › view my courses shows enrolled courses
+
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1217/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/course-enrollment-course-e-99a23-rses-shows-enrolled-courses-chromium/error-context.md
+
+  75) [chromium] › e2e/course-enrollment.spec.ts:96:3 › course discovery for unauthenticated users › explore courses page is accessible without login
+
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1217/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/course-enrollment-course-d-c4b89-is-accessible-without-login-chromium/error-context.md
+
+  76) [chromium] › e2e/course-enrollment.spec.ts:104:3 › course discovery for unauthenticated users › course card shows key information
+
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1217/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/course-enrollment-course-d-3f21a--card-shows-key-information-chromium/error-context.md
+
+  77) [chromium] › e2e/course-enrollment.spec.ts:119:3 › instructor course management › instructor can access course creation
+
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1217/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/course-enrollment-instruct-a6bde--can-access-course-creation-chromium/error-context.md
+
+  78) [chromium] › e2e/course-enrollment.spec.ts:128:3 › instructor course management › instructor can view their courses
+
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1217/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/course-enrollment-instruct-b218f-ctor-can-view-their-courses-chromium/error-context.md
+
+  79) [chromium] › e2e/failure-states.spec.ts:8:3 › failure states › displays 404 page for non-existent course
+
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1217/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/failure-states-failure-sta-68cf6-age-for-non-existent-course-chromium/error-context.md
+
+  80) [chromium] › e2e/failure-states.spec.ts:17:3 › failure states › handles network error gracefully
+
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1217/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/failure-states-failure-sta-f87cc-es-network-error-gracefully-chromium/error-context.md
+
+  81) [chromium] › e2e/quiz-flow.spec.ts:8:3 › quiz flow › student can start a quiz ────────────────
+
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1217/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/quiz-flow-quiz-flow-student-can-start-a-quiz-chromium/error-context.md
+
+  82) [chromium] › e2e/quiz-flow.spec.ts:19:3 › quiz flow › quiz displays questions ────────────────
+
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1217/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/quiz-flow-quiz-flow-quiz-displays-questions-chromium/error-context.md
+
+  83) [chromium] › e2e/quiz-flow.spec.ts:26:3 › quiz flow › can select answer and proceed ──────────
+
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1217/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/quiz-flow-quiz-flow-can-select-answer-and-proceed-chromium/error-context.md
+
+  84) [chromium] › e2e/quiz-flow.spec.ts:39:3 › quiz flow › quiz submission shows results ──────────
+
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1217/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/quiz-flow-quiz-flow-quiz-submission-shows-results-chromium/error-context.md
+
+  85) [chromium] › e2e/quiz-flow.spec.ts:46:3 › quiz flow › can view past quiz results ─────────────
+
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1217/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/quiz-flow-quiz-flow-can-view-past-quiz-results-chromium/error-context.md
+
+  86) [chromium] › e2e/quiz-flow.spec.ts:61:3 › quiz builder (instructor) › instructor can access quiz builder
+
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1217/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/quiz-flow-quiz-builder-ins-3825d-tor-can-access-quiz-builder-chromium/error-context.md
+
+  87) [chromium] › e2e/quiz-flow.spec.ts:70:3 › quiz builder (instructor) › instructor can create new question
+
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1217/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/quiz-flow-quiz-builder-ins-849d0-tor-can-create-new-question-chromium/error-context.md
+
+  88) [chromium] › e2e/quiz-flow.spec.ts:83:3 › quiz builder (instructor) › instructor can set correct answer
+
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1217/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/quiz-flow-quiz-builder-ins-d867a-ctor-can-set-correct-answer-chromium/error-context.md
+
+  89) [chromium] › e2e/quiz-flow.spec.ts:92:3 › quiz builder (instructor) › instructor can save quiz
+
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1217/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/quiz-flow-quiz-builder-instructor-instructor-can-save-quiz-chromium/error-context.md
+
+  90) [chromium] › e2e/quiz-flow.spec.ts:109:3 › quiz accessibility › quiz questions are accessible via keyboard
+
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1217/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/quiz-flow-quiz-accessibili-7bcb4-are-accessible-via-keyboard-chromium/error-context.md
+
+  91) [chromium] › e2e/quiz-flow.spec.ts:124:3 › quiz accessibility › quiz has proper heading structure
+
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1217/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/quiz-flow-quiz-accessibili-9b85d-as-proper-heading-structure-chromium/error-context.md
+
+  92) [chromium] › e2e/real-auth.spec.ts:4:3 › real authentication flow › login with valid credentials redirects to role-appropriate dashboard
+
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1217/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/real-auth-real-authenticat-c1bd5--role-appropriate-dashboard-chromium/error-context.md
+
+  93) [chromium] › e2e/real-auth.spec.ts:11:3 › real authentication flow › login with valid admin credentials redirects to admin dashboard
+
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1217/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/real-auth-real-authenticat-18984-edirects-to-admin-dashboard-chromium/error-context.md
+
+  94) [chromium] › e2e/real-auth.spec.ts:17:3 › real authentication flow › login with valid instructor credentials redirects to instructor dashboard
+
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1217/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/real-auth-real-authenticat-e5fcb-cts-to-instructor-dashboard-chromium/error-context.md
+
+  95) [chromium] › e2e/real-auth.spec.ts:23:3 › real authentication flow › login with valid content_manager credentials redirects to CMS
+
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1217/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/real-auth-real-authenticat-2045f-redentials-redirects-to-CMS-chromium/error-context.md
+
+  96) [chromium] › e2e/real-auth.spec.ts:29:3 › real authentication flow › login with invalid credentials shows error message
+
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1217/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/real-auth-real-authenticat-95889-entials-shows-error-message-chromium/error-context.md
+
+  97) [chromium] › e2e/real-auth.spec.ts:36:3 › real authentication flow › login with wrong password shows error message
+
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1217/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/real-auth-real-authenticat-91a92-assword-shows-error-message-chromium/error-context.md
+
+  98) [chromium] › e2e/real-auth.spec.ts:42:3 › real authentication flow › session persists across page navigation
+
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1217/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/real-auth-real-authenticat-e4c66-ists-across-page-navigation-chromium/error-context.md
+
+  99) [chromium] › e2e/real-auth.spec.ts:53:3 › real authentication flow › logout clears session and redirects to login
+
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1217/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/real-auth-real-authenticat-cf9a0-sion-and-redirects-to-login-chromium/error-context.md
+
+  100) [chromium] › e2e/real-auth.spec.ts:62:3 › real authentication flow › expired session redirects to login
+
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1217/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/real-auth-real-authenticat-379c6--session-redirects-to-login-chromium/error-context.md
+
+  101) [chromium] › e2e/real-auth.spec.ts:73:3 › real authentication flow › network error during login shows error state
+
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1217/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/real-auth-real-authenticat-8ea80-ing-login-shows-error-state-chromium/error-context.md
+
+  102) [chromium] › e2e/real-auth.spec.ts:86:3 › authentication security › protected route redirects unauthenticated user to login
+
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1217/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/real-auth-authentication-s-16e79-authenticated-user-to-login-chromium/error-context.md
+
+  103) [chromium] › e2e/real-auth.spec.ts:91:3 › authentication security › redirect preserves intended destination
+
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1217/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/real-auth-authentication-s-699f0-serves-intended-destination-chromium/error-context.md
+
+  104) [chromium] › e2e/real-auth.spec.ts:102:3 › authentication security › CSRF token is requested before login
+
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1217/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/real-auth-authentication-s-de2b4-n-is-requested-before-login-chromium/error-context.md
+
+  105) [chromium] › e2e/real-auth.spec.ts:108:3 › authentication security › login request includes CSRF token header
+
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1217/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/real-auth-authentication-s-93d5d--includes-CSRF-token-header-chromium/error-context.md
+
+  106) [chromium] › e2e/security-authorization.spec.ts:8:3 › authentication security › login with invalid credentials shows error without leaking info
+
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1217/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/security-authorization-aut-00970--error-without-leaking-info-chromium/error-context.md
+
+  107) [chromium] › e2e/security-authorization.spec.ts:19:3 › authentication security › login with correct email but wrong password shows error
+
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1217/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/security-authorization-aut-89862--wrong-password-shows-error-chromium/error-context.md
+
+  108) [chromium] › e2e/security-authorization.spec.ts:29:3 › authentication security › login rate limiting - multiple failed attempts
+
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1217/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/security-authorization-aut-6f5f7----multiple-failed-attempts-chromium/error-context.md
+
+  109) [chromium] › e2e/security-authorization.spec.ts:42:3 › authentication security › csrf token is required for login
+
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1217/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/security-authorization-aut-f05ac-token-is-required-for-login-chromium/error-context.md
+
+  110) [chromium] › e2e/security-authorization.spec.ts:58:3 › authentication security › session persists across page refreshes
+
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1217/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/security-authorization-aut-92468-sists-across-page-refreshes-chromium/error-context.md
+
+  111) [chromium] › e2e/security-authorization.spec.ts:69:3 › authentication security › logout clears session completely
+
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1217/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/security-authorization-aut-d3b0b-t-clears-session-completely-chromium/error-context.md
+
+  112) [chromium] › e2e/security-authorization.spec.ts:80:3 › authentication security › expired access token triggers refresh
+
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1217/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/security-authorization-aut-cc030-cess-token-triggers-refresh-chromium/error-context.md
+
+  113) [chromium] › e2e/security-authorization.spec.ts:91:3 › authorization boundaries › student cannot access instructor dashboard
+
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1217/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/security-authorization-aut-3c81d-access-instructor-dashboard-chromium/error-context.md
+
+  114) [chromium] › e2e/security-authorization.spec.ts:98:3 › authorization boundaries › student cannot access admin dashboard
+
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1217/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/security-authorization-aut-275a2-nnot-access-admin-dashboard-chromium/error-context.md
+
+  115) [chromium] › e2e/security-authorization.spec.ts:105:3 › authorization boundaries › instructor cannot access admin dashboard
+
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1217/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/security-authorization-aut-ebbe5-nnot-access-admin-dashboard-chromium/error-context.md
+
+  116) [chromium] › e2e/security-authorization.spec.ts:112:3 › authorization boundaries › instructor cannot access user management
+
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1217/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/security-authorization-aut-16e01-nnot-access-user-management-chromium/error-context.md
+
+  117) [chromium] › e2e/security-authorization.spec.ts:119:3 › authorization boundaries › content_manager cannot access admin routes
+
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1217/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/security-authorization-aut-99cd1--cannot-access-admin-routes-chromium/error-context.md
+
+  118) [chromium] › e2e/security-authorization.spec.ts:126:3 › authorization boundaries › content_manager cannot access system settings
+
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1217/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/security-authorization-aut-d296e-nnot-access-system-settings-chromium/error-context.md
+
+  119) [chromium] › e2e/security-authorization.spec.ts:133:3 › authorization boundaries › unauthenticated user cannot access protected routes
+
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1217/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/security-authorization-aut-0471d-not-access-protected-routes-chromium/error-context.md
+
+  120) [chromium] › e2e/security-authorization.spec.ts:142:3 › authorization boundaries › student cannot access course creation
+
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1217/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/security-authorization-aut-a69af-nnot-access-course-creation-chromium/error-context.md
+
+  121) [chromium] › e2e/security-authorization.spec.ts:149:3 › authorization boundaries › student cannot access CMS upload
+
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1217/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/security-authorization-aut-e1996-nt-cannot-access-CMS-upload-chromium/error-context.md
+
+  122) [chromium] › e2e/security-authorization.spec.ts:156:3 › authorization boundaries › instructor can access own course management
+
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1217/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/security-authorization-aut-b8fd4-ccess-own-course-management-chromium/error-context.md
+
+  123) [chromium] › e2e/security-authorization.spec.ts:166:3 › role-based UI elements › student sees student dashboard only
+
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1217/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/security-authorization-rol-5a6b9-sees-student-dashboard-only-chromium/error-context.md
+
+  124) [chromium] › e2e/security-authorization.spec.ts:175:3 › role-based UI elements › instructor sees instructor dashboard
+
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1217/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/security-authorization-rol-dcce5-r-sees-instructor-dashboard-chromium/error-context.md
+
+  125) [chromium] › e2e/security-authorization.spec.ts:183:3 › role-based UI elements › admin sees all dashboard options
+
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1217/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/security-authorization-rol-73831--sees-all-dashboard-options-chromium/error-context.md
+
+  126) [chromium] › e2e/security-authorization.spec.ts:190:3 › role-based UI elements › content_manager sees CMS options
+
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1217/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/security-authorization-rol-8b8bd-nt-manager-sees-CMS-options-chromium/error-context.md
+
+  127) [chromium] › e2e/security-authorization.spec.ts:199:3 › API security boundaries › API endpoints reject requests without auth token
+
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1217/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/security-authorization-API-6fef9-requests-without-auth-token-chromium/error-context.md
+
+  128) [chromium] › e2e/security-authorization.spec.ts:214:3 › API security boundaries › API returns proper error for expired token
+
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1217/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/security-authorization-API-88bd3-per-error-for-expired-token-chromium/error-context.md
+
+  129) [chromium] › e2e/security-authorization.spec.ts:223:3 › API security boundaries › forbidden endpoints return 403
+
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1217/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/security-authorization-API-87012-bidden-endpoints-return-403-chromium/error-context.md
+
+  130) [chromium] › e2e/security-authorization.spec.ts:241:3 › password security › password field is masked in login form
+
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1217/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/security-authorization-pas-295bb-eld-is-masked-in-login-form-chromium/error-context.md
+
+  131) [chromium] › e2e/security-authorization.spec.ts:248:3 › password security › password requirements shown on registration
+
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1217/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/security-authorization-pas-a9795-ments-shown-on-registration-chromium/error-context.md
+
+  132) [chromium] › e2e/security-authorization.spec.ts:254:3 › password security › weak password rejected during registration
+
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1217/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/security-authorization-pas-f16ed-ejected-during-registration-chromium/error-context.md
+
+  133) [chromium] › e2e/security-authorization.spec.ts:268:3 › data isolation › student only sees own enrollment data
+
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1217/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/security-authorization-dat-240fb-ly-sees-own-enrollment-data-chromium/error-context.md
+
+  134) [chromium] › e2e/security-authorization.spec.ts:280:3 › data isolation › instructor only sees own course analytics
+
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1217/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/security-authorization-dat-2cc82-y-sees-own-course-analytics-chromium/error-context.md
+
+  135) [chromium] › e2e/security-authorization.spec.ts:287:3 › data isolation › discussions are isolated by course
+
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1217/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/security-authorization-dat-43f35-ions-are-isolated-by-course-chromium/error-context.md
+
+  136) [chromium] › e2e/smoke.spec.ts:4:3 › Smoke Tests › homepage loads and shows correct title ───
+
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1217/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/smoke-Smoke-Tests-homepage-loads-and-shows-correct-title-chromium/error-context.md
+
+  137) [chromium] › e2e/smoke.spec.ts:11:3 › Smoke Tests › navigation to login works ───────────────
+
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1217/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/smoke-Smoke-Tests-navigation-to-login-works-chromium/error-context.md
+
+  138) [chromium] › e2e/smoke.spec.ts:16:3 › Smoke Tests › static pages load without errors ────────
+
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1217/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/smoke-Smoke-Tests-static-pages-load-without-errors-chromium/error-context.md
+
+  139) [chromium] › e2e/smoke.spec.ts:25:3 › Smoke Tests › course catalog loads ────────────────────
+
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1217/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/smoke-Smoke-Tests-course-catalog-loads-chromium/error-context.md
+
+  139 failed
+    [chromium] › e2e/accessibility-resilience.spec.ts:4:3 › accessibility, responsiveness, and resilience › login form supports keyboard-first navigation
+    [chromium] › e2e/accessibility-resilience.spec.ts:15:3 › accessibility, responsiveness, and resilience › login form is accessible via screen reader
+    [chromium] › e2e/accessibility-resilience.spec.ts:25:3 › accessibility, responsiveness, and resilience › notification preferences update and persist visual feedback
+    [chromium] › e2e/accessibility-resilience.spec.ts:42:5 › accessibility, responsiveness, and resilience › mobile viewport (390x844) › mobile navigation drawer routes users to profile settings
+    [chromium] › e2e/accessibility-resilience.spec.ts:54:5 › accessibility, responsiveness, and resilience › mobile viewport (390x844) › mobile header shows hamburger menu
+    [chromium] › e2e/accessibility-resilience.spec.ts:61:5 › accessibility, responsiveness, and resilience › mobile viewport (390x844) › mobile course cards stack vertically
+    [chromium] › e2e/accessibility-resilience.spec.ts:87:7 › accessibility, responsiveness, and resilience › tablet viewport (768x1024) › tablet shows expanded navigation
+    [chromium] › e2e/accessibility-resilience.spec.ts:100:7 › accessibility, responsiveness, and resilience › tablet viewport (768x1024) › tablet course grid shows 2 columns
+    [chromium] › e2e/accessibility-resilience.spec.ts:127:5 › accessibility, responsiveness, and resilience › desktop viewport (1920x1080) › desktop shows full navigation
+    [chromium] › e2e/accessibility-resilience.spec.ts:140:5 › accessibility, responsiveness, and resilience › desktop viewport (1920x1080) › desktop course grid shows 3+ columns
+    [chromium] › e2e/accessibility-resilience.spec.ts:156:5 › accessibility, responsiveness, and resilience › focus management › modal traps focus inside
+    [chromium] › e2e/accessibility-resilience.spec.ts:173:5 › accessibility, responsiveness, and resilience › focus management › focus returns to trigger after modal close
+    [chromium] › e2e/accessibility-resilience.spec.ts:193:5 › accessibility, responsiveness, and resilience › color and contrast › text has sufficient contrast on dashboard
+    [chromium] › e2e/accessibility-resilience.spec.ts:202:5 › accessibility, responsiveness, and resilience › color and contrast › error states are visually distinct
+    [chromium] › e2e/api-failures.spec.ts:4:3 › API failure handling › network error shows error message
+    [chromium] › e2e/api-failures.spec.ts:15:3 › API failure handling › 500 error shows error page ─
+    [chromium] › e2e/api-failures.spec.ts:24:3 › API failure handling › failed request preserves previous data
+    [chromium] › e2e/api-failures.spec.ts:36:3 › API failure handling › retry button appears on failure
+    [chromium] › e2e/api-failures.spec.ts:52:3 › loading states › shows loading indicator during API call
+    [chromium] › e2e/api-failures.spec.ts:63:3 › loading states › shows skeleton while loading ─────
+    [chromium] › e2e/api-failures.spec.ts:76:3 › empty states › shows empty state when no courses ──
+    [chromium] › e2e/api-failures.spec.ts:87:3 › empty states › shows empty state when no notifications
+    [chromium] › e2e/api-failures.spec.ts:100:3 › timeout handling › long request shows timeout message
+    [chromium] › e2e/api-failures.spec.ts:109:3 › timeout handling › timeout allows retry ──────────
+    [chromium] › e2e/api-failures.spec.ts:122:3 › offline handling › detects offline state ─────────
+    [chromium] › e2e/api-failures.spec.ts:131:3 › offline handling › offline shows cached content when available
+    [chromium] › e2e/api-failures.spec.ts:140:3 › offline handling › offline prevents data changes ─
+    [chromium] › e2e/auth-authorization.spec.ts:4:3 › authentication and role authorization › login succeeds with CSRF flow and routes content manager to CMS
+    [chromium] › e2e/auth-authorization.spec.ts:13:3 › authentication and role authorization › invalid login shows actionable error and preserves login route
+    [chromium] › e2e/auth-authorization.spec.ts:20:3 › authentication and role authorization › expired session forces redirect back to login
+    [chromium] › e2e/auth-authorization.spec.ts:33:3 › authentication and role authorization › instructor navigation excludes admin-only destinations
+    [chromium] › e2e/auth-authorization.spec.ts:41:3 › authentication and role authorization › student navigation excludes CMS management routes
+    [chromium] › e2e/core-user-flows.spec.ts:8:3 › core user flows - authentication › complete login flow with CSRF protection
+    [chromium] › e2e/core-user-flows.spec.ts:25:3 › core user flows - authentication › complete registration flow
+    [chromium] › e2e/core-user-flows.spec.ts:40:3 › core user flows - authentication › logout flow ─
+    [chromium] › e2e/core-user-flows.spec.ts:52:3 › core user flows - authentication › password reset flow
+    [chromium] › e2e/core-user-flows.spec.ts:63:3 › core user flows - student dashboard › student dashboard loads with correct data
+    [chromium] › e2e/core-user-flows.spec.ts:71:3 › core user flows - student dashboard › student can view enrolled courses
+    [chromium] › e2e/core-user-flows.spec.ts:78:3 › core user flows - student dashboard › student can browse course catalog
+    [chromium] › e2e/core-user-flows.spec.ts:85:3 › core user flows - student dashboard › student can view course details
+    [chromium] › e2e/core-user-flows.spec.ts:93:3 › core user flows - student dashboard › student can filter courses by category
+    [chromium] › e2e/core-user-flows.spec.ts:100:3 › core user flows - student dashboard › student can search courses
+    [chromium] › e2e/core-user-flows.spec.ts:112:3 › core user flows - instructor dashboard › instructor dashboard loads with analytics
+    [chromium] › e2e/core-user-flows.spec.ts:119:3 › core user flows - instructor dashboard › instructor can create new course
+    [chromium] › e2e/core-user-flows.spec.ts:130:3 › core user flows - instructor dashboard › instructor can view course analytics
+    [chromium] › e2e/core-user-flows.spec.ts:137:3 › core user flows - instructor dashboard › instructor can manage course content
+    [chromium] › e2e/core-user-flows.spec.ts:148:3 › core user flows - admin dashboard › admin dashboard loads with system overview
+    [chromium] › e2e/core-user-flows.spec.ts:155:3 › core user flows - admin dashboard › admin can access user management
+    [chromium] › e2e/core-user-flows.spec.ts:162:3 › core user flows - admin dashboard › admin can access course manager
+    [chromium] › e2e/core-user-flows.spec.ts:169:3 › core user flows - admin dashboard › admin can access system settings
+    [chromium] › e2e/core-user-flows.spec.ts:178:3 › core user flows - profile and settings › user can view own profile
+    [chromium] › e2e/core-user-flows.spec.ts:185:3 › core user flows - profile and settings › user can update profile information
+    [chromium] › e2e/core-user-flows.spec.ts:197:3 › core user flows - profile and settings › user can access notification settings
+    [chromium] › e2e/core-user-flows.spec.ts:204:3 › core user flows - profile and settings › user can change password
+    [chromium] › e2e/core-user-flows.spec.ts:219:3 › core user flows - learning › student can access course player
+    [chromium] › e2e/core-user-flows.spec.ts:227:3 › core user flows - learning › student can track progress
+    [chromium] › e2e/core-user-flows.spec.ts:237:3 › core user flows - learning › student can take quizzes
+    [chromium] › e2e/core-user-flows.spec.ts:247:3 › core user flows - content management › content manager can access CMS
+    [chromium] › e2e/core-user-flows.spec.ts:254:3 › core user flows - content management › content manager can create new page
+    [chromium] › e2e/core-user-flows.spec.ts:262:3 › core user flows - content management › content manager can access media library
+    [chromium] › e2e/core-user-flows.spec.ts:271:3 › core user flows - discussions › student can view discussions
+    [chromium] › e2e/core-user-flows.spec.ts:278:3 › core user flows - discussions › instructor can view course discussions
+    [chromium] › e2e/core-user-flows.spec.ts:287:3 › core user flows - navigation › navigation menu shows correct links for student
+    [chromium] › e2e/core-user-flows.spec.ts:295:3 › core user flows - navigation › navigation menu shows correct links for instructor
+    [chromium] › e2e/core-user-flows.spec.ts:302:3 › core user flows - navigation › navigation menu shows correct links for admin
+    [chromium] › e2e/core-user-flows.spec.ts:308:3 › core user flows - navigation › breadcrumb navigation works
+    [chromium] › e2e/core-user-flows.spec.ts:319:3 › core user flows - navigation › search functionality works
+    [chromium] › e2e/course-enrollment.spec.ts:8:3 › course enrollment flow › browse courses and view course details
+    [chromium] › e2e/course-enrollment.spec.ts:22:3 › course enrollment flow › enroll in free course
+    [chromium] › e2e/course-enrollment.spec.ts:37:3 › course enrollment flow › course search returns matching results
+    [chromium] › e2e/course-enrollment.spec.ts:50:3 › course enrollment flow › course filter by category works
+    [chromium] › e2e/course-enrollment.spec.ts:62:3 › course enrollment flow › course filter by level works
+    [chromium] › e2e/course-enrollment.spec.ts:74:3 › course enrollment flow › access enrolled course content
+    [chromium] › e2e/course-enrollment.spec.ts:85:3 › course enrollment flow › view my courses shows enrolled courses
+    [chromium] › e2e/course-enrollment.spec.ts:96:3 › course discovery for unauthenticated users › explore courses page is accessible without login
+    [chromium] › e2e/course-enrollment.spec.ts:104:3 › course discovery for unauthenticated users › course card shows key information
+    [chromium] › e2e/course-enrollment.spec.ts:119:3 › instructor course management › instructor can access course creation
+    [chromium] › e2e/course-enrollment.spec.ts:128:3 › instructor course management › instructor can view their courses
+    [chromium] › e2e/failure-states.spec.ts:8:3 › failure states › displays 404 page for non-existent course
+    [chromium] › e2e/failure-states.spec.ts:17:3 › failure states › handles network error gracefully
+    [chromium] › e2e/quiz-flow.spec.ts:8:3 › quiz flow › student can start a quiz ──────────────────
+    [chromium] › e2e/quiz-flow.spec.ts:19:3 › quiz flow › quiz displays questions ──────────────────
+    [chromium] › e2e/quiz-flow.spec.ts:26:3 › quiz flow › can select answer and proceed ────────────
+    [chromium] › e2e/quiz-flow.spec.ts:39:3 › quiz flow › quiz submission shows results ────────────
+    [chromium] › e2e/quiz-flow.spec.ts:46:3 › quiz flow › can view past quiz results ───────────────
+    [chromium] › e2e/quiz-flow.spec.ts:61:3 › quiz builder (instructor) › instructor can access quiz builder
+    [chromium] › e2e/quiz-flow.spec.ts:70:3 › quiz builder (instructor) › instructor can create new question
+    [chromium] › e2e/quiz-flow.spec.ts:83:3 › quiz builder (instructor) › instructor can set correct answer
+    [chromium] › e2e/quiz-flow.spec.ts:92:3 › quiz builder (instructor) › instructor can save quiz ─
+    [chromium] › e2e/quiz-flow.spec.ts:109:3 › quiz accessibility › quiz questions are accessible via keyboard
+    [chromium] › e2e/quiz-flow.spec.ts:124:3 › quiz accessibility › quiz has proper heading structure
+    [chromium] › e2e/real-auth.spec.ts:4:3 › real authentication flow › login with valid credentials redirects to role-appropriate dashboard
+    [chromium] › e2e/real-auth.spec.ts:11:3 › real authentication flow › login with valid admin credentials redirects to admin dashboard
+    [chromium] › e2e/real-auth.spec.ts:17:3 › real authentication flow › login with valid instructor credentials redirects to instructor dashboard
+    [chromium] › e2e/real-auth.spec.ts:23:3 › real authentication flow › login with valid content_manager credentials redirects to CMS
+    [chromium] › e2e/real-auth.spec.ts:29:3 › real authentication flow › login with invalid credentials shows error message
+    [chromium] › e2e/real-auth.spec.ts:36:3 › real authentication flow › login with wrong password shows error message
+    [chromium] › e2e/real-auth.spec.ts:42:3 › real authentication flow › session persists across page navigation
+    [chromium] › e2e/real-auth.spec.ts:53:3 › real authentication flow › logout clears session and redirects to login
+    [chromium] › e2e/real-auth.spec.ts:62:3 › real authentication flow › expired session redirects to login
+    [chromium] › e2e/real-auth.spec.ts:73:3 › real authentication flow › network error during login shows error state
+    [chromium] › e2e/real-auth.spec.ts:86:3 › authentication security › protected route redirects unauthenticated user to login
+    [chromium] › e2e/real-auth.spec.ts:91:3 › authentication security › redirect preserves intended destination
+    [chromium] › e2e/real-auth.spec.ts:102:3 › authentication security › CSRF token is requested before login
+    [chromium] › e2e/real-auth.spec.ts:108:3 › authentication security › login request includes CSRF token header
+    [chromium] › e2e/security-authorization.spec.ts:8:3 › authentication security › login with invalid credentials shows error without leaking info
+    [chromium] › e2e/security-authorization.spec.ts:19:3 › authentication security › login with correct email but wrong password shows error
+    [chromium] › e2e/security-authorization.spec.ts:29:3 › authentication security › login rate limiting - multiple failed attempts
+    [chromium] › e2e/security-authorization.spec.ts:42:3 › authentication security › csrf token is required for login
+    [chromium] › e2e/security-authorization.spec.ts:58:3 › authentication security › session persists across page refreshes
+    [chromium] › e2e/security-authorization.spec.ts:69:3 › authentication security › logout clears session completely
+    [chromium] › e2e/security-authorization.spec.ts:80:3 › authentication security › expired access token triggers refresh
+    [chromium] › e2e/security-authorization.spec.ts:91:3 › authorization boundaries › student cannot access instructor dashboard
+    [chromium] › e2e/security-authorization.spec.ts:98:3 › authorization boundaries › student cannot access admin dashboard
+    [chromium] › e2e/security-authorization.spec.ts:105:3 › authorization boundaries › instructor cannot access admin dashboard
+    [chromium] › e2e/security-authorization.spec.ts:112:3 › authorization boundaries › instructor cannot access user management
+    [chromium] › e2e/security-authorization.spec.ts:119:3 › authorization boundaries › content_manager cannot access admin routes
+    [chromium] › e2e/security-authorization.spec.ts:126:3 › authorization boundaries › content_manager cannot access system settings
+    [chromium] › e2e/security-authorization.spec.ts:133:3 › authorization boundaries › unauthenticated user cannot access protected routes
+    [chromium] › e2e/security-authorization.spec.ts:142:3 › authorization boundaries › student cannot access course creation
+    [chromium] › e2e/security-authorization.spec.ts:149:3 › authorization boundaries › student cannot access CMS upload
+    [chromium] › e2e/security-authorization.spec.ts:156:3 › authorization boundaries › instructor can access own course management
+    [chromium] › e2e/security-authorization.spec.ts:166:3 › role-based UI elements › student sees student dashboard only
+    [chromium] › e2e/security-authorization.spec.ts:175:3 › role-based UI elements › instructor sees instructor dashboard
+    [chromium] › e2e/security-authorization.spec.ts:183:3 › role-based UI elements › admin sees all dashboard options
+    [chromium] › e2e/security-authorization.spec.ts:190:3 › role-based UI elements › content_manager sees CMS options
+    [chromium] › e2e/security-authorization.spec.ts:199:3 › API security boundaries › API endpoints reject requests without auth token
+    [chromium] › e2e/security-authorization.spec.ts:214:3 › API security boundaries › API returns proper error for expired token
+    [chromium] › e2e/security-authorization.spec.ts:223:3 › API security boundaries › forbidden endpoints return 403
+    [chromium] › e2e/security-authorization.spec.ts:241:3 › password security › password field is masked in login form
+    [chromium] › e2e/security-authorization.spec.ts:248:3 › password security › password requirements shown on registration
+    [chromium] › e2e/security-authorization.spec.ts:254:3 › password security › weak password rejected during registration
+    [chromium] › e2e/security-authorization.spec.ts:268:3 › data isolation › student only sees own enrollment data
+    [chromium] › e2e/security-authorization.spec.ts:280:3 › data isolation › instructor only sees own course analytics
+    [chromium] › e2e/security-authorization.spec.ts:287:3 › data isolation › discussions are isolated by course
+    [chromium] › e2e/smoke.spec.ts:4:3 › Smoke Tests › homepage loads and shows correct title ──────
+    [chromium] › e2e/smoke.spec.ts:11:3 › Smoke Tests › navigation to login works ──────────────────
+    [chromium] › e2e/smoke.spec.ts:16:3 › Smoke Tests › static pages load without errors ───────────
+    [chromium] › e2e/smoke.spec.ts:25:3 › Smoke Tests › course catalog loads ───────────────────────
