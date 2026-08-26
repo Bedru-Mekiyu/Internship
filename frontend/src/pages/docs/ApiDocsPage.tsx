@@ -7,6 +7,34 @@ import {
   Typography,
 } from '@mui/material';
 
+interface SwaggerUIOptions {
+  spec: unknown;
+  domNode: HTMLElement | null;
+  presets: unknown[];
+  layout: string;
+  deepLinking: boolean;
+  showExtensions: boolean;
+  showCommonExtensions: boolean;
+  defaultModelsExpandDepth: number;
+  defaultModelExpandDepth: number;
+  docExpansion: 'list' | 'full' | 'none';
+  filter: boolean;
+  tryItOutEnabled: boolean;
+}
+
+interface SwaggerUIBundleType {
+  (options: SwaggerUIOptions): void;
+  presets: {
+    apis: unknown;
+  };
+}
+
+declare global {
+  interface Window {
+    SwaggerUIBundle?: SwaggerUIBundleType;
+  }
+}
+
 export default function ApiDocsPage() {
   const swaggerRef = useRef<HTMLDivElement>(null);
   const [loading, setLoading] = useState(true);
@@ -35,16 +63,13 @@ export default function ApiDocsPage() {
         script.src = 'https://unpkg.com/swagger-ui-dist@5/swagger-ui-bundle.js';
         script.onload = () => {
           if (disposed) return;
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          const SB = (window as any).SwaggerUIBundle;
+          const SB = window.SwaggerUIBundle;
           if (swaggerRef.current && SB) {
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            (SB as any)({
+            SB({
               spec,
               domNode: swaggerRef.current,
               presets: [
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                (SB as any).presets.apis,
+                SB.presets.apis,
               ],
               layout: 'BaseLayout',
               deepLinking: true,
