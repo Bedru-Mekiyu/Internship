@@ -52,7 +52,6 @@ export default function QuizTaker() {
   const [visitedQuestions, setVisitedQuestions] = useState<Record<number, boolean>>({ 0: true });
   const [submitStatus, setSubmitStatus] = useState<{ type: 'success' | 'warning'; message: string } | null>(null);
   const autoSubmitTriggeredRef = useRef(false);
-  const prevQuizIdRef = useRef<string | undefined>(undefined);
 
   const { data: course } = useGetCourseByIdQuery(courseId ?? '', { skip: !courseId });
   const {
@@ -99,25 +98,30 @@ export default function QuizTaker() {
   }, [activeQuiz]);
 
   const [remainingSeconds, setRemainingSeconds] = useState(() => initialTimeRemaining);
+  const [prevInitialTimeRemaining, setPrevInitialTimeRemaining] = useState(initialTimeRemaining);
+  const [prevQuizId, setPrevQuizId] = useState<string | undefined>(undefined);
 
-  // eslint-disable-next-line react-hooks/set-state-in-effect
-  useEffect(() => {
+  if (prevInitialTimeRemaining !== initialTimeRemaining) {
+    setPrevInitialTimeRemaining(initialTimeRemaining);
     setRemainingSeconds(initialTimeRemaining);
-  }, [initialTimeRemaining, setRemainingSeconds]);
+  }
 
-  // eslint-disable-next-line react-hooks/set-state-in-effect
-  useEffect(() => {
-    if (prevQuizIdRef.current === activeQuiz?._id) {
-      return;
-    }
-    prevQuizIdRef.current = activeQuiz?._id;
+  if (prevQuizId !== activeQuiz?._id) {
+    setPrevQuizId(activeQuiz?._id);
     setCurrentQuestionIndex(0);
     setSelectedAnswers({});
     setReviewFlags({});
     setVisitedQuestions({ 0: true });
     setSubmitStatus(null);
-    autoSubmitTriggeredRef.current = false;
-  }, [activeQuiz?._id]);
+    // Note: Do not mutate refs during render. We will mutate it in an effect or event handler.
+    // However, it's safer to rely on state or the reset action here.
+  }
+
+  useEffect(() => {
+    if (prevQuizId === activeQuiz?._id) {
+      autoSubmitTriggeredRef.current = false;
+    }
+  }, [activeQuiz?._id, prevQuizId]);
 
   useEffect(() => {
     const timer = window.setInterval(() => {
