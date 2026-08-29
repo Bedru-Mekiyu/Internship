@@ -429,6 +429,13 @@ export class MockApp {
         return;
       }
 
+      if (/^\/api\/courses\/[^/]+$/.test(path) && method === 'GET') {
+        const courseId = path.split('/').pop();
+        const course = this.state.courses.find(c => c._id === courseId) || this.state.courses[0];
+        await json(route, 200, course || {});
+        return;
+      }
+
       if (path === '/api/courses' && method === 'POST') {
         if (!this.state.sessionActive || !this.state.currentUser) {
           await unauthorized(route);
@@ -599,6 +606,52 @@ export class MockApp {
 
       if (path === '/api/users/me/password' && method === 'PATCH') {
         await json(route, 200, { message: 'Password updated successfully.' });
+        return;
+      }
+
+      if (/^\/api\/quizzes\/lesson\/[^/]+$/.test(path) && method === 'GET') {
+        await json(route, 200, [
+          {
+            _id: 'quiz-123',
+            title: 'Sample Quiz',
+            questions: [
+              {
+                question: 'What is 2+2?',
+                type: 'multiple-choice',
+                options: ['3', '4', '5'],
+                correctAnswer: '4',
+                points: 10
+              }
+            ],
+            timeLimit: 10
+          }
+        ]);
+        return;
+      }
+
+      if (path === '/api/quizzes/all-attempts/me' && method === 'GET') {
+        await json(route, 200, []);
+        return;
+      }
+
+      if (/^\/api\/quizzes\/[^/]+\/attempts\/me$/.test(path) && method === 'GET') {
+        await json(route, 200, []);
+        return;
+      }
+
+      if (/^\/api\/quizzes\/lesson\/[^/]+$/.test(path) && method === 'POST') {
+        await json(route, 201, { _id: 'quiz-123' });
+        return;
+      }
+
+      if (/^\/api\/quizzes\/[^/]+\/attempts$/.test(path) && method === 'POST') {
+        await json(route, 201, {
+          _id: 'attempt-123',
+          score: 10,
+          percentage: 100,
+          passed: true,
+          submittedAt: new Date().toISOString()
+        });
         return;
       }
 

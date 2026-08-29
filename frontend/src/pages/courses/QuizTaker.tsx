@@ -100,23 +100,27 @@ export default function QuizTaker() {
 
   const [remainingSeconds, setRemainingSeconds] = useState(() => initialTimeRemaining);
 
-  // eslint-disable-next-line react-hooks/set-state-in-effect
-  useEffect(() => {
+  const [prevTimeRemaining, setPrevTimeRemaining] = useState(() => initialTimeRemaining);
+  if (initialTimeRemaining !== prevTimeRemaining) {
+    setPrevTimeRemaining(initialTimeRemaining);
     setRemainingSeconds(initialTimeRemaining);
-  }, [initialTimeRemaining, setRemainingSeconds]);
+  }
 
-  // eslint-disable-next-line react-hooks/set-state-in-effect
-  useEffect(() => {
-    if (prevQuizIdRef.current === activeQuiz?._id) {
-      return;
-    }
-    prevQuizIdRef.current = activeQuiz?._id;
+  const [prevQuizId, setPrevQuizId] = useState(activeQuiz?._id);
+  if (prevQuizId !== activeQuiz?._id) {
+    setPrevQuizId(activeQuiz?._id);
     setCurrentQuestionIndex(0);
     setSelectedAnswers({});
     setReviewFlags({});
     setVisitedQuestions({ 0: true });
     setSubmitStatus(null);
-    autoSubmitTriggeredRef.current = false;
+  }
+
+  useEffect(() => {
+    if (prevQuizIdRef.current !== activeQuiz?._id) {
+      prevQuizIdRef.current = activeQuiz?._id;
+      autoSubmitTriggeredRef.current = false;
+    }
   }, [activeQuiz?._id]);
 
   useEffect(() => {
