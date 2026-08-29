@@ -429,6 +429,13 @@ export class MockApp {
         return;
       }
 
+      if (/^\/api\/courses\/[^/]+$/.test(path) && method === 'GET') {
+        const courseId = path.split('/').pop();
+        const course = this.state.courses.find(c => c._id === courseId) || this.state.courses[0];
+        await json(route, 200, course || {});
+        return;
+      }
+
       if (path === '/api/courses' && method === 'POST') {
         if (!this.state.sessionActive || !this.state.currentUser) {
           await unauthorized(route);
