@@ -220,7 +220,7 @@ jobs:
           PORT: 5000
 
       - name: Run E2E tests
-        run: npx playwright test --project=chromium --reporter=html
+        run: npx playwright test --project=chromium
         working-directory: frontend
         env:
           BASE_URL: http://localhost:3000
