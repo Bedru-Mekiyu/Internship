@@ -86,7 +86,7 @@ jobs:
           STRIPE_SECRET_KEY: sk_test_ci_test_stripe_secret
           STRIPE_WEBHOOK_SECRET: whsec_test
           NODE_ENV: test
-          GLOBAL_API_RATE_LIMIT_MAX: 120
+          GLOBAL_API_RATE_LIMIT_MAX: 50
           GLOBAL_API_RATE_LIMIT_WINDOW_MS: 60000
         run: npm test -- --testTimeout=30000 --forceExit
         working-directory: backend
@@ -220,7 +220,7 @@ jobs:
           PORT: 5000
 
       - name: Run E2E tests
-        run: npx playwright test --project=chromium --reporter=line
+        run: npx playwright test --project=chromium
         working-directory: frontend
         env:
           BASE_URL: http://localhost:3000
