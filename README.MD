@@ -12,15 +12,14 @@
 </p>
 
 <p align="center">
-  <a href="#"><img src="https://img.shields.io/github/actions/workflow/status/user/repo/ci.yml?branch=main&style=flat-square&label=CI" alt="CI Status"></a>
   <a href="#"><img src="https://img.shields.io/badge/license-MIT-blue?style=flat-square" alt="License"></a>
   <a href="#"><img src="https://img.shields.io/badge/React-19-61DAFB?style=flat-square&logo=react" alt="React 19"></a>
   <a href="#"><img src="https://img.shields.io/badge/Express-5-000000?style=flat-square&logo=express" alt="Express 5"></a>
-  <a href="#"><img src="https://img.shields.io/badge/MongoDB-9-47A248?style=flat-square&logo=mongodb" alt="MongoDB"></a>
+  <a href="#"><img src="https://img.shields.io/badge/MongoDB-7.0-47A248?style=flat-square&logo=mongodb" alt="MongoDB 7.0"></a>
   <a href="#"><img src="https://img.shields.io/badge/TypeScript-Strict-3178C6?style=flat-square&logo=typescript" alt="TypeScript"></a>
   <a href="#"><img src="https://img.shields.io/badge/Docker-Ready-2496ED?style=flat-square&logo=docker" alt="Docker"></a>
   <a href="#"><img src="https://img.shields.io/badge/Socket.IO-Realtime-010101?style=flat-square&logo=socket.io" alt="Socket.IO"></a>
-  <a href="#backend-tests"><img src="https://img.shields.io/badge/tests-43%20suites-green?style=flat-square" alt="Tests"></a>
+  <a href="#backend-tests"><img src="https://img.shields.io/badge/tests-41%20suites-green?style=flat-square" alt="Tests"></a>
   <a href="#"><img src="https://img.shields.io/badge/MUI-v9-007FFF?style=flat-square&logo=mui" alt="MUI v9"></a>
 </p>
 
@@ -831,9 +830,9 @@ npm test           # All tests pass
 
 ```bash
 cd backend
-npm test                    # Run all 43 test suites
-npm test -- --coverage      # With coverage report
-npm run test:watch          # Watch mode
+GLOBAL_API_RATE_LIMIT_MAX=50 npm test    # Run all 41 test suites
+GLOBAL_API_RATE_LIMIT_MAX=50 npm test -- --coverage      # With coverage report
+GLOBAL_API_RATE_LIMIT_MAX=50 npm run test:watch          # Watch mode
 ```
 
 **Coverage targets:** 50% across branches, functions, lines, statements.
